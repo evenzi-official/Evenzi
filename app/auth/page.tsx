@@ -14,7 +14,7 @@ export default function AuthPage() {
   const [error, setError] = useState("");
   const router = useRouter();
   
-  let supabase;
+  let supabase:any;
   try {
     supabase = createClient();
   } catch (err: any) {
