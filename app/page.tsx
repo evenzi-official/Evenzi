@@ -12,8 +12,7 @@ export default function Home() {
   };
 
   const handleSignup = () => {
-    // Handle signup logic here
-    console.log("Signup triggered");
+    window.location.href = "/auth";
   };
 
   return (
