@@ -8,7 +8,6 @@ export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<"signup" | "login">("signup");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
-  const [email, setEmail] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -184,38 +183,6 @@ export default function AuthPage() {
     }
   };
 
-  const handleEmailMagicLink = async () => {
-    if (!supabase) {
-      setError('Supabase client not initialized. Please check your environment variables.');
-      return;
-    }
-
-    setError("");
-    setLoading(true);
-
-    try {
-      const { error: emailError } = await supabase.auth.signInWithOtp({
-        email: email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      if (emailError) {
-        setError(emailError.message);
-        setLoading(false);
-        return;
-      }
-
-      setError("");
-      alert("Check your email for the magic link!");
-      setLoading(false);
-    } catch (err: any) {
-      setError(err.message || "Failed to send magic link");
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
@@ -329,7 +296,7 @@ export default function AuthPage() {
         <button
           onClick={handleGoogleAuth}
           disabled={loading}
-          className="w-full py-3 border-2 border-gray-300 text-gray-900 font-semibold rounded-lg hover:bg-gray-50 transition-colors mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3 border-2 border-gray-300 text-gray-900 font-semibold rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -351,26 +318,6 @@ export default function AuthPage() {
           </svg>
           Continue with Google
         </button>
-
-        {/* Email Magic Link */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Email Magic Link</h3>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-900 text-gray-900"
-            disabled={loading}
-          />
-          <button
-            onClick={handleEmailMagicLink}
-            disabled={loading || !email}
-            className="w-full py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Sending..." : "Email me a login link"}
-          </button>
-        </div>
       </div>
     </div>
   );

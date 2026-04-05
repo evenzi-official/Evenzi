@@ -57,10 +57,14 @@ export async function updateSession(request: NextRequest) {
 
   // Allow /home to be accessed - it will handle its own auth check client-side
   // This prevents the redirect loop when cookies are being set
-  const publicPaths = ['/auth', '/', '/home']
-  const isPublicPath = publicPaths.some(path => request.nextUrl.pathname === path) ||
-    request.nextUrl.pathname.startsWith('/_next') ||
-    request.nextUrl.pathname.startsWith('/api')
+  const pathname = request.nextUrl.pathname
+  const publicPaths = ['/', '/home']
+  const isPublicPath =
+    publicPaths.some((path) => pathname === path) ||
+    pathname === '/auth' ||
+    pathname.startsWith('/auth/') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api')
 
   if (!user && !isPublicPath) {
     // no user, potentially respond by redirecting the user to the login page
