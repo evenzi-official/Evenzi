@@ -158,6 +158,7 @@ ALTER TABLE mc_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE mc_memory_entries ENABLE ROW LEVEL SECURITY;
 
 -- Policies: any authenticated user can read/write (v1 single-user model)
+-- Use conditional creation to avoid duplicates on re-run
 DO $$
 DECLARE
   tbl TEXT;
@@ -166,7 +167,14 @@ BEGIN
     'mc_projects', 'mc_agents', 'mc_pipelines', 'mc_runs',
     'mc_run_stages', 'mc_tasks', 'mc_artifacts', 'mc_events', 'mc_memory_entries'
   ] LOOP
-    EXECUTE format('CREATE POLICY IF NOT EXISTS "authenticated_access" ON %I FOR ALL TO authenticated USING (true) WITH CHECK (true)', tbl);
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_policies
+      WHERE schemaname = 'public'
+        AND tablename = tbl
+        AND policyname = 'authenticated_access'
+    ) THEN
+      EXECUTE format('CREATE POLICY "authenticated_access" ON %I FOR ALL TO authenticated USING (true) WITH CHECK (true)', tbl);
+    END IF;
   END LOOP;
 END $$;
 
