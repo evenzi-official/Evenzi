@@ -1,4 +1,4 @@
-# Mission Control v1 — Design Specification
+# Agentic Mission Control (AMC) v1 — Design Specification
 
 **Date:** 2026-04-06
 **Status:** Draft
@@ -8,21 +8,21 @@
 
 ## 1. Overview
 
-Mission Control is a modular web application for monitoring and managing AI agent workflows. It lives inside the Evenzi repo at `app/(mission-control)/` as a self-contained module with its own DB tables, API routes, and UI — but is architected so it can be extracted into its own repo with minimal effort.
+Agentic Mission Control (AMC) is a modular web application for monitoring and managing AI agent workflows. It lives inside the Evenzi repo at `app/(amc)/` as a self-contained module with its own DB tables, API routes, and UI — but is architected so it can be extracted into its own repo with minimal effort.
 
 ### Goals
 
 - Provide a centralized dashboard for managing AI agent pipelines across multiple projects
 - Track agent execution, token usage, artifacts, and task progress in real-time
-- Be fully modular — all Mission Control code lives under a single directory with no hard dependencies on Evenzi-specific code
+- Be fully modular — all AMC code lives under dedicated directories with no hard dependencies on Evenzi-specific code
 - Support the 13-stage agent pipeline (System Checker through DevOps Engineer) and custom pipelines
-- Extractable: can be moved to its own repo by copying the module directory + running DB migrations
+- Extractable: can be moved to its own repo by copying the module directories + running DB migrations
 
 ### Non-Goals (v1)
 
 - Calendar module (v2)
 - Factory module (v2)
-- Built-in code execution or sandboxing — agents run externally, Mission Control monitors them
+- Built-in code execution or sandboxing — agents run externally, AMC monitors them
 - Multi-tenant user management — v1 is single-user with Supabase Auth (email/password), team support is v2
 
 ---
@@ -45,27 +45,27 @@ Mission Control is a modular web application for monitoring and managing AI agen
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│            MISSION CONTROL (Next.js Web App)          │
+│        AGENTIC MISSION CONTROL (Next.js Module)       │
 │                                                       │
 │  ┌─────────┬──────────┬────────┬─────────┬─────────┐ │
 │  │ Kanban  │  Agents  │  Team  │ Memory  │  Docs   │ │
 │  └────┬────┴────┬─────┴───┬────┴────┬────┴────┬────┘ │
 │       └─────────┴─────────┴─────────┴─────────┘      │
 │                    Supabase PostgreSQL                 │
-│                    Next.js API Routes                  │
+│                    Next.js API Routes (/api/amc/*)     │
 └────────────────────────┬─────────────────────────────┘
                          │ REST API + webhooks
             ┌────────────┼────────────┐
             ▼            ▼            ▼
       ┌──────────┐ ┌──────────┐ ┌──────────┐
       │ Project A│ │ Project B│ │ Project C│
-      │  mc-cli  │ │  mc-cli  │ │  mc-cli  │
+      │ amc-cli  │ │ amc-cli  │ │ amc-cli  │
       └──────────┘ └──────────┘ └──────────┘
 ```
 
 ### Core Concepts
 
-- **Projects** — registered repositories that Mission Control tracks
+- **Projects** — registered repositories that AMC tracks
 - **Agents** — defined roles that execute pipeline stages (global or project-specific)
 - **Pipelines** — ordered sequences of agent stages
 - **Runs** — individual pipeline executions (e.g., "implement budgeting feature")
@@ -77,13 +77,13 @@ Mission Control is a modular web application for monitoring and managing AI agen
 
 ### Integration Model
 
-Projects connect to Mission Control via a CLI plugin (`mc-cli`). The CLI:
+Projects connect to AMC via a CLI plugin (`amc-cli`). The CLI:
 
-1. Registers the project with Mission Control (generates a webhook secret)
-2. Sends events to Mission Control's webhook API during agent execution
-3. Syncs agent configuration bidirectionally (local `ai/agents/` files <-> Mission Control DB)
+1. Registers the project with AMC (generates a webhook secret)
+2. Sends events to AMC's webhook API during agent execution
+3. Syncs agent configuration bidirectionally (local `ai/agents/` files <-> AMC DB)
 
-Communication is one-way push (CLI -> Mission Control) for events, and bidirectional for agent config sync.
+Communication is one-way push (CLI -> AMC) for events, and bidirectional for agent config sync.
 
 ---
 
@@ -184,9 +184,9 @@ Document management for all artifacts produced by the pipeline.
 ### 5.1 Tables
 
 ```sql
--- All MC tables prefixed with mc_ for namespace isolation
+-- All AMC tables prefixed with mc_ for namespace isolation
 
--- Projects registered with Mission Control
+-- Projects registered with AMC
 CREATE TABLE mc_projects (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -333,43 +333,43 @@ CREATE INDEX idx_mc_agents_project ON mc_agents(project_id);
 
 ---
 
-## 6. CLI Plugin (`mc-cli`)
+## 6. CLI Plugin (`amc-cli`)
 
 ### 6.1 Overview
 
-`mc-cli` is a lightweight Node.js npm package installed in consumer projects. It handles project registration, agent sync, and event reporting.
+`amc-cli` is a lightweight Node.js npm package installed in consumer projects. It handles project registration, agent sync, and event reporting.
 
 ### 6.2 Commands
 
 ```bash
 # Setup
-npx mc-cli init                    # Register project with Mission Control
-                                   # Prompts for MC URL, generates webhook secret
-                                   # Creates .mc-config.json in project root
+npx amc-cli init                   # Register project with AMC
+                                   # Prompts for AMC URL, generates webhook secret
+                                   # Creates .amc-config.json in project root
 
 # Agent Management
-npx mc-cli push-agents             # Upload local ai/agents/ files to Mission Control
-npx mc-cli pull-agents             # Download agent configs from Mission Control to local
-npx mc-cli list-agents             # Show all agents registered for this project
+npx amc-cli push-agents            # Upload local ai/agents/ files to AMC
+npx amc-cli pull-agents            # Download agent configs from AMC to local
+npx amc-cli list-agents            # Show all agents registered for this project
 
 # Pipeline Operations
-npx mc-cli run <pipeline-name>     # Trigger a pipeline run
-npx mc-cli status                  # Show current run status
-npx mc-cli approve                 # Approve a checkpoint pause
-npx mc-cli abort                   # Abort current run
+npx amc-cli run <pipeline-name>    # Trigger a pipeline run
+npx amc-cli status                 # Show current run status
+npx amc-cli approve                # Approve a checkpoint pause
+npx amc-cli abort                  # Abort current run
 
 # Reporting
-npx mc-cli report <event-type>     # Manually send an event to Mission Control
-npx mc-cli tokens                  # Show token usage summary for this project
+npx amc-cli report <event-type>    # Manually send an event to AMC
+npx amc-cli tokens                 # Show token usage summary for this project
 ```
 
 ### 6.3 Configuration File
 
-Created by `mc-cli init` at `.mc-config.json`:
+Created by `amc-cli init` at `.amc-config.json`:
 
 ```json
 {
-  "missionControlUrl": "https://mission-control.example.com",
+  "amcUrl": "https://your-app.vercel.app",
   "projectId": "uuid-here",
   "webhookSecret": "generated-secret",
   "agentsDir": "ai/agents",
@@ -379,7 +379,7 @@ Created by `mc-cli init` at `.mc-config.json`:
 
 ### 6.4 Event Types
 
-Events sent via POST to `/api/webhooks/events`:
+Events sent via POST to `/api/amc/webhooks/events`:
 
 | Event | Payload |
 |-------|---------|
@@ -400,8 +400,8 @@ Events sent via POST to `/api/webhooks/events`:
 ### 6.5 Authentication
 
 Each webhook request includes:
-- `X-MC-Project-Id` header: the project UUID
-- `X-MC-Signature` header: HMAC-SHA256 of request body using webhook secret
+- `X-AMC-Project-Id` header: the project UUID
+- `X-AMC-Signature` header: HMAC-SHA256 of request body using webhook secret
 
 ---
 
@@ -410,77 +410,77 @@ Each webhook request includes:
 ### 7.1 Project Management
 
 ```
-POST   /api/projects                    # Register a new project
-GET    /api/projects                    # List all projects
-GET    /api/projects/:id                # Get project details with stats
-PATCH  /api/projects/:id                # Update project settings
-DELETE /api/projects/:id                # Remove a project
+POST   /api/amc/projects                # Register a new project
+GET    /api/amc/projects                # List all projects
+GET    /api/amc/projects/:id            # Get project details with stats
+PATCH  /api/amc/projects/:id            # Update project settings
+DELETE /api/amc/projects/:id            # Remove a project
 ```
 
 ### 7.2 Webhook Receiver
 
 ```
-POST   /api/webhooks/events             # Receive events from CLI
+POST   /api/amc/webhooks/events         # Receive events from CLI
                                         # Validates signature, routes to handlers
 ```
 
 ### 7.3 Agent Management
 
 ```
-GET    /api/agents                      # List agents (filter: ?project_id=)
-POST   /api/agents                      # Create agent definition
-GET    /api/agents/:id                  # Get agent details
-PATCH  /api/agents/:id                  # Update agent config
-DELETE /api/agents/:id                  # Delete agent
-GET    /api/agents/:id/history          # Agent execution history
-GET    /api/agents/:id/stats            # Token usage, avg duration, success rate
+GET    /api/amc/agents                  # List agents (filter: ?project_id=)
+POST   /api/amc/agents                  # Create agent definition
+GET    /api/amc/agents/:id              # Get agent details
+PATCH  /api/amc/agents/:id              # Update agent config
+DELETE /api/amc/agents/:id              # Delete agent
+GET    /api/amc/agents/:id/history      # Agent execution history
+GET    /api/amc/agents/:id/stats        # Token usage, avg duration, success rate
 ```
 
 ### 7.4 Pipeline & Run Management
 
 ```
-GET    /api/pipelines                   # List pipelines
-POST   /api/pipelines                   # Create pipeline
-PATCH  /api/pipelines/:id              # Update pipeline stages
+GET    /api/amc/pipelines               # List pipelines
+POST   /api/amc/pipelines               # Create pipeline
+PATCH  /api/amc/pipelines/:id           # Update pipeline stages
 
-POST   /api/runs                        # Create/start a pipeline run
-GET    /api/runs                        # List runs (filter: ?project_id=, ?status=)
-GET    /api/runs/:id                    # Get run details + all stages
-PATCH  /api/runs/:id/checkpoint         # Approve or reject a checkpoint
-POST   /api/runs/:id/abort              # Abort a running pipeline
+POST   /api/amc/runs                    # Create/start a pipeline run
+GET    /api/amc/runs                    # List runs (filter: ?project_id=, ?status=)
+GET    /api/amc/runs/:id                # Get run details + all stages
+PATCH  /api/amc/runs/:id/checkpoint     # Approve or reject a checkpoint
+POST   /api/amc/runs/:id/abort          # Abort a running pipeline
 ```
 
 ### 7.5 Tasks (Kanban)
 
 ```
-GET    /api/tasks                       # List tasks (filter: ?project_id=, ?status=)
-POST   /api/tasks                       # Create task manually
-PATCH  /api/tasks/:id                   # Update task (status, assignment, priority)
-DELETE /api/tasks/:id                   # Delete task
+GET    /api/amc/tasks                   # List tasks (filter: ?project_id=, ?status=)
+POST   /api/amc/tasks                   # Create task manually
+PATCH  /api/amc/tasks/:id              # Update task (status, assignment, priority)
+DELETE /api/amc/tasks/:id              # Delete task
 ```
 
 ### 7.6 Artifacts & Memory
 
 ```
-GET    /api/artifacts                   # List artifacts (filter: ?project_id=, ?run_id=)
-GET    /api/artifacts/:id               # Get artifact content
-GET    /api/memory                      # Query memory entries (filter, search, tags)
-POST   /api/memory                      # Create manual memory entry
+GET    /api/amc/artifacts               # List artifacts (filter: ?project_id=, ?run_id=)
+GET    /api/amc/artifacts/:id           # Get artifact content
+GET    /api/amc/memory                  # Query memory entries (filter, search, tags)
+POST   /api/amc/memory                  # Create manual memory entry
 ```
 
 ---
 
 ## 8. Project Structure (Modular Inside Evenzi)
 
-Mission Control is fully self-contained under two directories:
+AMC is fully self-contained under dedicated directories:
 
 ```
-lib/mission-control/             # All MC business logic (extractable core)
+lib/amc/                         # All AMC business logic (extractable core)
   types/
-    index.ts                     # All MC TypeScript types/interfaces
+    index.ts                     # All AMC TypeScript types/interfaces
   db/
     queries.ts                   # All Supabase query functions
-    migrations/                  # SQL migration files for MC tables
+    migrations/                  # SQL migration files for AMC tables
   utils/
     webhook.ts                   # Webhook signature validation
     tokens.ts                    # Token usage calculations
@@ -489,9 +489,9 @@ lib/mission-control/             # All MC business logic (extractable core)
     use-agents.ts                # Client hooks for agent data
     use-runs.ts                  # Client hooks for run monitoring
 
-app/(mission-control)/           # MC route group (no URL prefix impact)
-  layout.tsx                     # MC-specific layout with sidebar nav
-  mc/                            # URL prefix: /mc/*
+app/(amc)/                       # AMC route group (no URL prefix impact)
+  layout.tsx                     # AMC-specific layout with sidebar nav
+  amc/                           # URL prefix: /amc/*
     page.tsx                     # Dashboard overview
     projects/
       page.tsx                   # Project list
@@ -515,7 +515,7 @@ app/(mission-control)/           # MC route group (no URL prefix impact)
       [id]/
         page.tsx                 # Run detail + live monitor
 
-app/api/mc/                      # MC API routes (prefixed /api/mc/*)
+app/api/amc/                     # AMC API routes (prefixed /api/amc/*)
   projects/                      # Project CRUD
   webhooks/events/               # Webhook receiver
   agents/                        # Agent CRUD + history
@@ -525,7 +525,7 @@ app/api/mc/                      # MC API routes (prefixed /api/mc/*)
   artifacts/                     # Artifact queries
   memory/                        # Memory queries
 
-components/mission-control/      # MC-specific UI components
+components/amc/                  # AMC-specific UI components
   kanban/
     board.tsx
     column.tsx
@@ -552,16 +552,16 @@ components/mission-control/      # MC-specific UI components
 
 ### Extraction Strategy
 
-To extract Mission Control into its own repo later:
-1. Copy `lib/mission-control/`, `app/(mission-control)/`, `app/api/mc/`, `components/mission-control/`
-2. Run the SQL migrations from `lib/mission-control/db/migrations/`
+To extract AMC into its own repo later:
+1. Copy `lib/amc/`, `app/(amc)/`, `app/api/amc/`, `components/amc/`
+2. Run the SQL migrations from `lib/amc/db/migrations/`
 3. Update import paths (only `lib/supabase/` needs replacing with its own Supabase client)
 4. The only shared dependency is Supabase client creation — everything else is self-contained
 
 ### Isolation Rules
-- MC code NEVER imports from Evenzi-specific directories (`app/home/`, `app/auth/`, etc.)
-- MC uses its own types defined in `lib/mission-control/types/`
-- MC tables are prefixed with `mc_` to avoid conflicts (e.g., `mc_projects`, `mc_agents`)
+- AMC code NEVER imports from Evenzi-specific directories (`app/home/`, `app/auth/`, etc.)
+- AMC uses its own types defined in `lib/amc/types/`
+- AMC tables are prefixed with `mc_` to avoid conflicts (e.g., `mc_projects`, `mc_agents`)
 - The Supabase client is the only shared utility (imported from `lib/supabase/`)
 
 ---
@@ -577,7 +577,7 @@ Built into the Agents module, not a separate module.
 
 **Alert system:**
 - Each agent has an optional `token_budget` field
-- When a stage exceeds its agent's budget, Mission Control flags the event
+- When a stage exceeds its agent's budget, AMC flags the event
 - Dashboard shows: daily token usage chart, per-agent breakdown, cost estimates
 - Configurable alert thresholds at project and agent level
 
@@ -595,7 +595,7 @@ Pipeline runs pause at configured checkpoint stages for human approval.
 **Checkpoint flow:**
 1. Agent completes its stage
 2. CLI sends `run.checkpoint` event
-3. Mission Control sets run status to `paused`
+3. AMC sets run status to `paused`
 4. Dashboard shows notification with "Approve" / "Reject" / "Revise" buttons
 5. User reviews the stage output (artifact) and decides
 6. On approve: run continues to next stage
