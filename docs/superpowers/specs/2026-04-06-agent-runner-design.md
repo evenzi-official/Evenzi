@@ -565,6 +565,7 @@ ai/
     qa_engineer.md
     devops_engineer.md
     token_monitor.md
+    intake_agent.md
   pipelines/                 # 4 pipeline definitions (step format)
     feature.md
     bug.md
@@ -588,10 +589,12 @@ lib/runner/                  # NEW — pipeline runner
   monitor.ts                 # token estimation, live tracking, budget enforcement
   notify.ts                  # email notifications
   clickup.ts                 # ClickUp task fetch + result posting
+  intake.ts                  # Conversational intake loop + task creation
   types.ts                   # RunConfig, StepResult, PipelineDefinition, etc.
 
 scripts/
-  run-agent.ts               # npm script entry point
+  run-agent.ts               # Pipeline runner entry point
+  run-intake.ts              # Intake conversation entry point
 
 app/api/runner/
   webhook/route.ts           # ClickUp webhook receiver
@@ -602,7 +605,112 @@ app/api/runner/
 
 ---
 
-## 8. Future: AMC General-Purpose Extraction
+## 8. Intake Skill — Conversational Task Creation
+
+90% of tasks will be created via this automated flow. The user describes what they want, an intake agent asks questions, and a fully-formed ClickUp task is created — which then triggers the runner pipeline.
+
+### 8.1 Full Automated Flow
+
+```
+User: "I need an invitations system with RSVP tracking"
+  → Intake skill activates (conversational)
+  → Product Manager agent asks clarifying questions one at a time:
+     - What's the scope? (invite via email, SMS, link?)
+     - What RSVP states? (yes, no, maybe, plus-one?)
+     - Any deadline/expiry on invitations?
+     - Which existing pages does this connect to?
+  → User answers each question
+  → Agent summarizes requirements + proposes pipeline type (feature/bug/enhancement)
+  → User confirms
+  → Agent creates ClickUp task with:
+     - Structured title
+     - Full requirements in description
+     - Pipeline type tag (feature/bug/enhancement)
+     - Priority from conversation context
+     - Status: "Ready for Agent"
+  → ClickUp webhook fires
+  → Runner picks up and executes the pipeline
+```
+
+### 8.2 Intake Agent
+
+A new agent added to the roster:
+
+| File | Role | Provider | Model |
+|------|------|----------|-------|
+| `intake_agent.md` | intake_agent | anthropic | claude-sonnet-4-6 |
+
+The intake agent uses the Product Manager's domain knowledge but is specifically tuned for:
+- Asking one question at a time (not overwhelming)
+- Knowing when it has enough info to create a task (not over-asking)
+- Structuring the output as a ClickUp-ready task payload
+- Suggesting the right pipeline type based on what the user described
+
+### 8.3 Skill Trigger
+
+Invoked as an npm script or could be wired as a Claude Code skill:
+
+```bash
+# Start intake conversation
+npm run agent:intake
+
+# Start with initial idea
+npm run agent:intake -- "Add invitations system with RSVP tracking"
+```
+
+The skill:
+1. Loads the intake agent definition from `ai/agents/intake_agent.md`
+2. Runs a conversational loop (stdin/stdout):
+   - Agent asks a question → user answers → agent asks next question
+   - Agent decides when it has enough info (typically 3-6 questions)
+3. Presents a summary for user confirmation
+4. Creates the ClickUp task via `lib/runner/clickup.ts`
+5. Optionally triggers the runner immediately (or lets the webhook handle it)
+
+### 8.4 Intake Output → ClickUp Task
+
+The intake agent produces a structured payload:
+
+```typescript
+interface IntakeResult {
+  title: string              // e.g., "Event Invitations with RSVP Tracking"
+  description: string        // full requirements markdown
+  pipeline: string           // feature | bug | enhancement
+  priority: BudgetTier       // inferred from conversation
+  tags: string[]             // e.g., ['feature', 'run-agent']
+  acceptanceCriteria: string[] // bullet points of "done when..."
+}
+```
+
+This maps directly to a ClickUp task creation call. The description includes all gathered requirements in a structured format the runner's PM/Tech Lead agents can consume.
+
+### 8.5 Manual Override
+
+For the 10% of tasks created manually, the flow is unchanged:
+- Create task in ClickUp yourself
+- Add requirements to description
+- Tag with pipeline type + `run-agent`
+- Move to "Ready for Agent" status
+
+### 8.6 Updated File Structure
+
+```
+lib/runner/
+  ...existing files...
+  intake.ts          # Conversational intake loop + ClickUp task creation
+
+scripts/
+  run-agent.ts       # Pipeline runner entry point
+  run-intake.ts      # Intake conversation entry point
+
+ai/agents/
+  ...existing 14 agents...
+  intake_agent.md    # Intake conversation agent definition
+```
+
+---
+
+## 9. Future: AMC General-Purpose Extraction
 
 When Evenzi reaches a stable state, the path to general-purpose AMC:
 
