@@ -64,9 +64,7 @@ export async function updateSession(request: NextRequest) {
     pathname === '/auth' ||
     pathname.startsWith('/auth/') ||
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname === '/amc' ||
-    pathname.startsWith('/amc/')
+    pathname.startsWith('/api')
 
   if (!user && !isPublicPath) {
     // no user, potentially respond by redirecting the user to the login page

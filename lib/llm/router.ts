@@ -4,8 +4,8 @@ import { openai } from '@ai-sdk/openai'
 import { google } from '@ai-sdk/google'
 import { groq } from '@ai-sdk/groq'
 import { createOllama } from 'ollama-ai-provider'
-import { estimateCost } from '../utils/tokens'
-import type { AgentProvider, AMCAgent, LLMResult } from '../types'
+import { estimateCost } from './tokens'
+import type { AgentProvider, LLMResult } from './types'
 
 const ollamaInstance = createOllama({
   baseURL: process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434/api',
@@ -46,7 +46,7 @@ export function buildModelKey(provider: AgentProvider, modelId: string): string 
  * Returns the text output + token usage + estimated cost.
  */
 export async function runAgentLLM(
-  agent: Pick<AMCAgent, 'provider' | 'model_id' | 'prompt' | 'token_budget'>,
+  agent: { provider: AgentProvider; model_id: string; prompt: string | null; token_budget: number | null },
   userPrompt: string,
   context?: string
 ): Promise<LLMResult> {

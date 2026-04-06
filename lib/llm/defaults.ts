@@ -1,4 +1,4 @@
-import type { AgentProvider } from '../types'
+import type { AgentProvider } from './types'
 
 export interface AgentModelDefault {
   provider: AgentProvider

@@ -40,3 +40,6 @@ client_secret.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# agent runner logs
+.runner/
