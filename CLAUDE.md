@@ -4,7 +4,7 @@
 
 Evenzi is an early-stage wedding/event planning SaaS platform. Users create events, manage invitations, track RSVPs, and organize wedding-related tasks and budgeting.
 
-**Current Status:** v0.1 — Auth is live. AMC Phase 1 is complete on branch `claude/loving-ellis`. Evenzi core features (events, invitations, budgeting) are planned but not yet built.
+**Current Status:** v0.1 — Auth is live. Agent Runner is built. Evenzi core features (events, invitations, budgeting) are planned but not yet built.
 
 ---
 
@@ -16,17 +16,21 @@ Evenzi is an early-stage wedding/event planning SaaS platform. Users create even
 - **Auth & Database:** Supabase (PostgreSQL) via `@supabase/ssr` and `@supabase/supabase-js`
 - **Deployment:** Vercel
 - **Testing:** Vitest (node environment, `vitest.config.ts`)
-- **LLM Routing:** Vercel AI SDK (`ai` package) — multi-provider
+- **LLM Routing:** Vercel AI SDK (`ai` package) — multi-provider (Anthropic, OpenAI, Google, Groq, Ollama)
+- **Email:** Resend (`resend` package) — runner notifications
+- **ClickUp:** REST API integration — task intake and pipeline triggers
 
 ## Commands
 
 ```bash
-npm run dev        # Start dev server on localhost:3000
-npm run build      # Production build
-npm start          # Start production server
-npm run lint       # Run ESLint
-npm run test       # Run Vitest (watch mode)
-npm run test:run   # Run Vitest once (CI)
+npm run dev            # Start dev server on localhost:3000
+npm run build          # Production build
+npm start              # Start production server
+npm run lint           # Run ESLint
+npm run test           # Run Vitest (watch mode)
+npm run test:run       # Run Vitest once (CI)
+npm run agent          # Run agent pipeline (see Agent Runner below)
+npm run agent:intake   # Start conversational intake session
 ```
 
 ---
@@ -39,37 +43,41 @@ app/                        # Next.js App Router pages
   auth/callback/            # OAuth callback handler
   home/                     # Post-login dashboard
   api/auth/verify/          # Session verification endpoint
-  (amc)/                    # AMC route group (no URL prefix)
-    layout.tsx              # AMC dark shell with sidebar
-    amc/page.tsx            # /amc — Overview dashboard
-    amc/projects/           # /amc/projects — Project list + detail
-  api/amc/                  # AMC REST API routes
-    projects/               # GET list, POST create, GET/PATCH/DELETE by id
-    agents/                 # GET list, POST create, GET/PATCH/DELETE by id, GET stats
-    webhooks/events/        # POST — webhook receiver (HMAC-verified)
+  api/runner/webhook/       # ClickUp webhook → pipeline trigger
+
+ai/                         # Agent & pipeline definitions (markdown + YAML frontmatter)
+  agents/                   # 15 agent specs (system_checker, product_manager, etc.)
+  pipelines/                # 4 pipeline definitions (feature, bug, enhancement, system_guard)
+  system/agent_rules.md     # Shared base prompt for all agents
 
 lib/supabase/               # Supabase client utilities
   client.ts                 # Browser-side client
   server.ts                 # Server-side client
   middleware.ts             # Session refresh + route protection
 
-lib/amc/                    # Agentic Mission Control — isolated module
-  types/index.ts            # All AMC TypeScript interfaces
-  db/queries.ts             # Supabase CRUD for projects + agents + stats
-  db/migrations/            # SQL migration files
-  llm/router.ts             # Vercel AI SDK multi-provider router
-  llm/defaults.ts           # Default model per pipeline role
-  utils/webhook.ts          # HMAC-SHA256 sign + verify
-  utils/tokens.ts           # Cost estimation per model
+lib/llm/                    # Multi-provider LLM infrastructure
+  router.ts                 # Vercel AI SDK — routes to Anthropic/OpenAI/Google/Groq/Ollama
+  defaults.ts               # Default model per agent role
+  tokens.ts                 # Cost estimation for 15+ models
+  types.ts                  # AgentProvider, LLMResult types
 
-components/amc/shared/      # Shared AMC UI components
-  sidebar-nav.tsx           # Left nav with active-state highlighting
-  status-badge.tsx          # Coloured status pill (pending/running/etc)
+lib/runner/                 # Agent pipeline runner
+  types.ts                  # All runner types (RunConfig, RunLog, StepResult, etc.)
+  loader.ts                 # Parses YAML-frontmatter markdown into AgentDefinition/PipelineDefinition
+  logger.ts                 # Stdout progress logging + JSON run log persistence
+  monitor.ts                # Token usage tracking + budget enforcement
+  notify.ts                 # Email notifications via Resend (run summaries, budget alerts, approvals)
+  clickup.ts                # ClickUp API integration (task fetch, comments, status updates)
+  executor.ts               # Pipeline orchestrator — step chaining, approval gates, budget checks
+  intake.ts                 # Conversational requirements gathering via CLI
+
+scripts/                    # CLI entry points
+  run-agent.ts              # npm run agent — execute a pipeline
+  run-intake.ts             # npm run agent:intake — conversational intake
 
 docs/superpowers/
-  specs/2026-04-06-mission-control-design.md   # Full AMC design spec
-  plans/2026-04-06-amc-phase1-foundation.md    # Phase 1 implementation plan
-  amc/COLLABORATOR_ONBOARDING.md               # Team onboarding guide
+  specs/2026-04-06-agent-runner-design.md         # Agent runner design spec
+  plans/2026-04-06-agent-runner-implementation.md  # Implementation plan (14 tasks)
 
 middleware.ts               # Next.js middleware entry point
 vitest.config.ts            # Vitest config (node env, @ alias)
@@ -85,15 +93,24 @@ Required in `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=<supabase-project-url>
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=<supabase-anon-key>
 
-# AMC Multi-LLM (add whichever providers you need)
-ANTHROPIC_API_KEY=sk-ant-xxxx           # already set
-OPENAI_API_KEY=sk-proj-xxxx             # optional
-GOOGLE_GENERATIVE_AI_API_KEY=AIzaxxxx   # optional, free tier available
-GROQ_API_KEY=gsk_xxxx                   # optional, very generous free tier
+# LLM Providers (at least one required)
+ANTHROPIC_API_KEY=sk-ant-xxxx           # primary provider
+OPENAI_API_KEY=sk-proj-xxxx             # optional — used by task_planner, task_distributor
+GOOGLE_GENERATIVE_AI_API_KEY=AIzaxxxx   # optional — used by qa_engineer
+GROQ_API_KEY=gsk_xxxx                   # optional
 OLLAMA_BASE_URL=http://localhost:11434/api  # optional, local only
 
-# AMC Config
-AMC_WEBHOOK_SIGNING_SECRET=change-this-in-production
+# ClickUp Integration (required for webhook/intake flows)
+CLICKUP_API_TOKEN=pk_xxxx               # ClickUp personal API token
+CLICKUP_WEBHOOK_SECRET=<secret>         # HMAC signing for webhook verification
+CLICKUP_DEFAULT_LIST_ID=<list-id>       # Default list for intake-created tasks
+RUNNER_CLICKUP_ASSIGNEE_ID=<user-id>    # User ID for approval gate assignment
+
+# Email Notifications (optional)
+RESEND_API_KEY=re_xxxx                  # Resend API key
+RUNNER_ALERT_EMAIL=you@example.com      # Where to send alerts
+RUNNER_EMAIL_ON_COMPLETE=true           # Send email after each run
+RUNNER_EMAIL_ON_ALERT=true              # Send email on budget alerts + approval gates
 ```
 
 ---
@@ -103,7 +120,7 @@ AMC_WEBHOOK_SIGNING_SECRET=change-this-in-production
 ### Authentication
 - Supabase Auth with Phone OTP and Google OAuth
 - Middleware (`middleware.ts`) refreshes sessions and protects routes
-- Public paths: `/`, `/auth`, `/auth/*`, `/api/*`, `/_next/*`, `/amc/*` (temporary for dev)
+- Public paths: `/`, `/auth`, `/auth/*`, `/api/*`, `/_next/*`
 - Protected paths redirect unauthenticated users to `/auth`
 
 ### Supabase Client Usage
@@ -114,69 +131,135 @@ AMC_WEBHOOK_SIGNING_SECRET=change-this-in-production
 ### Path Alias
 - `@/*` maps to the project root (configured in `tsconfig.json`)
 
-### AMC Isolation Rule
-AMC code (`lib/amc/`, `app/(amc)/`, `app/api/amc/`, `components/amc/`) **never imports Evenzi-specific code**. It only imports from:
-- `lib/supabase/` (shared client)
-- `lib/amc/` (internal)
-- `next/server`, `react`, third-party packages
+---
 
-This isolation means AMC can be extracted into its own repo by copying 4 directories + running the migration.
+## Agent Runner
+
+> A lightweight multi-LLM pipeline runner that chains agent outputs to automate Evenzi feature development.
+
+### How It Works
+
+1. **Input** — Feature request via CLI (`npm run agent`), conversational intake (`npm run agent:intake`), or ClickUp webhook
+2. **Pipeline** — Loads a pipeline definition from `ai/pipelines/` (e.g., `feature.md` has 9 steps)
+3. **Execution** — Each step runs an agent (loaded from `ai/agents/`) through the LLM router, passing accumulated context
+4. **Budget** — Token monitor enforces per-step and per-run budget limits based on priority tier
+5. **Output** — Results logged to `.runner/runs/`, posted as ClickUp comments, emailed via Resend
+
+### CLI Usage
+
+```bash
+# Run a feature pipeline with inline input
+npm run agent -- --input "Build event invitations with RSVP tracking"
+
+# Run from a file
+npm run agent -- --file ./features/invitations.md
+
+# Run from a ClickUp task
+npm run agent -- --clickup TASK_ID
+
+# Options
+npm run agent -- --input "..." --pipeline bug --priority high --no-budget-limit
+
+# Conversational intake (creates ClickUp task)
+npm run agent:intake
+npm run agent:intake "I want to add guest meal preferences"
+npm run agent:intake --list LIST_ID
+```
+
+### Pipelines
+
+| Pipeline | Steps | Use Case |
+|----------|-------|----------|
+| `feature` | 9 steps (guard → spec → design → plan → approve → backend → frontend → review → qa) | New features |
+| `bug` | 7 steps (guard → analysis → plan → approve → fix → review → qa) | Bug fixes |
+| `enhancement` | 8 steps (guard → impact → design → plan → approve → implement → review → qa) | Improvements |
+| `system_guard` | 1 step (environment check) | Standalone validation |
+
+### Agent Roster
+
+| Role | Provider | Model | Used In |
+|------|----------|-------|---------|
+| system_checker | Anthropic | claude-haiku-4-5 | All pipelines (step 1) |
+| product_manager | Anthropic | claude-opus-4-6 | feature |
+| tech_lead | Anthropic | claude-opus-4-6 | feature, bug, enhancement |
+| backend_engineer | Anthropic | claude-sonnet-4-6 | feature |
+| frontend_engineer | Anthropic | claude-sonnet-4-6 | feature |
+| fullstack_engineer | Anthropic | claude-sonnet-4-6 | bug, enhancement |
+| code_reviewer | Anthropic | claude-opus-4-6 | All pipelines |
+| qa_engineer | Google | gemini-2.0-flash | All pipelines |
+| data_modeller | Anthropic | claude-sonnet-4-6 | On-demand |
+| task_planner | OpenAI | gpt-4o-mini | All pipelines |
+| task_distributor | OpenAI | gpt-4o-mini | On-demand |
+| security_expert | Anthropic | claude-opus-4-6 | On-demand |
+| token_monitor | Anthropic | claude-haiku-4-5 | Pre-estimation |
+| devops_engineer | Anthropic | claude-sonnet-4-6 | On-demand |
+| intake_agent | Anthropic | claude-sonnet-4-6 | Intake conversation |
+
+### Budget Tiers
+
+| Tier | Per Run | Per Step | When |
+|------|---------|----------|------|
+| low | $1.00 | $0.25 | Minor tasks |
+| normal | $2.00 | $0.50 | Default for all pipelines |
+| high | $5.00 | $1.50 | Complex features |
+| urgent | $10.00 | $3.00 | Critical fixes |
+| override | Unlimited | Unlimited | Via `budget-override` tag or `--no-budget-limit` |
+
+### Approval Gates
+
+Every pipeline has an approval gate after the planning step. Behavior depends on source:
+- **CLI:** Interactive y/n prompt in terminal
+- **ClickUp:** Pipeline pauses, saves state to `.runner/pending/<taskId>.json`, updates ClickUp task status to "Awaiting Approval", assigns to `RUNNER_CLICKUP_ASSIGNEE_ID`, sends email. Resumes when task status changes to "Approved" (via webhook).
+
+### ClickUp Webhook
+
+The webhook route (`/api/runner/webhook`) listens for `taskStatusUpdated` and `taskTagUpdated` events. It:
+- Verifies HMAC-SHA256 signature (if `CLICKUP_WEBHOOK_SECRET` is set)
+- Maps ClickUp task → `RunConfig` (pipeline from tags, priority from ClickUp priority)
+- Triggers pipeline execution asynchronously
+- Posts results as task comments and updates task status
+
+### Adding/Modifying Agents
+
+Agent definitions live in `ai/agents/<role>.md` with YAML frontmatter:
+```yaml
+---
+role: agent_role_name
+name: Human Readable Name
+provider: anthropic|openai|google|groq|ollama
+model: model-id
+token_budget: 4096
+output_format: markdown|json|code
+---
+
+System prompt body goes here...
+```
+
+Pipeline definitions live in `ai/pipelines/<name>.md`:
+```yaml
+---
+name: pipeline_name
+description: What this pipeline does
+priority_default: normal
+---
+
+## Steps
+
+### 1. step_name
+agent: agent_role
+input: user_request + step.previous_step
+gate: hard|approval  (optional)
+description: What this step does
+```
 
 ---
 
-## AMC — Agentic Mission Control
+## Branching Strategy
 
-> A self-contained monitoring dashboard for multi-agent AI pipelines. Lives inside Evenzi but is fully extractable.
-
-### What's Built (Phase 1 — `claude/loving-ellis`)
-
-| Layer | What's done |
-|-------|-------------|
-| **Database** | 9 `mc_`-prefixed tables in Supabase with RLS, indexes, triggers |
-| **Types** | Full TypeScript interfaces for all entities + webhook payloads |
-| **LLM Router** | Vercel AI SDK — routes to Anthropic, OpenAI, Google, Groq, Ollama |
-| **Webhook Utils** | HMAC-SHA256 sign/verify with constant-time comparison |
-| **Token Utils** | Cost estimation for 15+ models across 5 providers |
-| **DB Queries** | Full CRUD for projects + agents; stats aggregation |
-| **API Routes** | `/api/amc/projects`, `/api/amc/agents`, `/api/amc/webhooks/events` |
-| **UI Shell** | Dark sidebar, Overview page, Projects list, Project detail |
-| **Tests** | 30 tests, 0 TypeScript errors |
-
-### AMC Database Tables
-All prefixed `mc_` — see `lib/amc/db/migrations/001_amc_schema.sql`:
-- `mc_projects` — repos connected to AMC
-- `mc_agents` — agent role definitions (global or project-specific)
-- `mc_pipelines` — named pipeline configurations
-- `mc_runs` — pipeline execution runs
-- `mc_run_stages` — individual agent step results
-- `mc_tasks` — Kanban tasks
-- `mc_artifacts` — docs/code produced by agents
-- `mc_events` — real-time event stream from CLI
-- `mc_memory_entries` — decision journal
-
-### Default Model Routing
-| Role | Provider | Model |
-|------|----------|-------|
-| system_checker, token_monitor | Anthropic | claude-haiku-4-5 |
-| product_manager, tech_lead, code_reviewer, security_expert | Anthropic | claude-opus-4-6 |
-| backend/frontend/fullstack_engineer, devops, data_modelling | Anthropic | claude-sonnet-4-6 |
-| task_planner, task_distributor | OpenAI | gpt-4o-mini |
-| qa_engineer | Google | gemini-2.0-flash |
-
-### What's Next (Phase 2)
-- Kanban board with drag-and-drop
-- Agents registry + config editor (change model/prompt per agent)
-- Team pipeline visualization
-- Live run monitor (streaming webhook events)
-
-### What's Next (Phase 3)
-- Memory timeline browser
-- Docs/artifacts viewer
-- Token usage alerts + budget enforcement
-- Checkpoint approval UI (human-in-the-loop)
-
-### What's Next (Phase 4)
-- `amc-cli` npm package: `init`, `push-agents`, `pull-agents`, `report`, `tokens`, `run`, `status`, `approve`, `abort`
+- **`main`** — Production branch, connected to Vercel. Only receives merges from `Dev-Vibe` when ready to deploy.
+- **`Dev-Vibe`** — Working main branch. All feature branches are created from and merged back to `Dev-Vibe`.
+- **`Dev-AMC`** — Parked branch preserving the full AMC dashboard code (Phase 1). Will be revived later for the general-purpose pipeline monitoring UI.
+- **Feature branches** — Created from `Dev-Vibe`, named descriptively (e.g., `feature/agent-runner`).
 
 ---
 
@@ -188,7 +271,6 @@ All prefixed `mc_` — see `lib/amc/db/migrations/001_amc_schema.sql`:
 - **Utilities/functions:** camelCase (`getUserEvents`)
 - **Constants:** UPPER_CASE (`MAX_RETRY_COUNT`)
 - **Database tables/columns:** snake_case (`event_id`, `created_at`)
-- **AMC tables:** `mc_` prefix (`mc_projects`, `mc_agents`)
 
 ### Components
 - Use `"use client"` directive only when client-side interactivity is needed
@@ -196,18 +278,15 @@ All prefixed `mc_` — see `lib/amc/db/migrations/001_amc_schema.sql`:
 - Functional components with hooks, no class components
 
 ### API Routes
-- Use plural nouns for endpoints (`/api/events`, `/api/amc/projects`)
+- Use plural nouns for endpoints (`/api/events`)
 - Handle errors with try-catch and return `NextResponse`
-- AMC API routes all under `/api/amc/`
 
 ### Styling
 - Tailwind CSS utility classes only (no CSS modules)
 - Mobile-first responsive design
-- AMC UI: dark theme (`bg-gray-950` sidebar, `bg-gray-900` main area)
 
 ### TypeScript
 - Strict mode is enabled; avoid `any`
-- All AMC types defined in `lib/amc/types/index.ts`
 - Export explicit return types on all public functions
 
 ---
@@ -217,7 +296,6 @@ All prefixed `mc_` — see `lib/amc/db/migrations/001_amc_schema.sql`:
 - PostgreSQL via Supabase (no ORM, raw Supabase client queries)
 - Auth tables managed by Supabase Auth
 - Supabase project ID: `smjkbmkxweevqpvygabe` (region: ap-northeast-1)
-- AMC tables: see `lib/amc/db/migrations/001_amc_schema.sql`
 - Evenzi app tables (not yet built): `events`, `invitations`, `expenses`, `tasks`
 
 ---
@@ -226,6 +304,12 @@ All prefixed `mc_` — see `lib/amc/db/migrations/001_amc_schema.sql`:
 
 - Test phone number for dev: `9999999999` with OTP `123456` (phone OTP requires Twilio configured in Supabase)
 - Phone auth is configured for India region (+91 prefix)
-- The `ai/` directory contains reference docs for AI-driven development (agent roles, workflows, feature specs)
-- AMC branch: `claude/loving-ellis` — awaiting merge to `Dev-Vibe`
-- Vercel deployments are currently in ERROR state (pre-existing issue, unrelated to AMC)
+- The `ai/` directory contains machine-readable agent and pipeline definitions used by the runner
+- AMC dashboard code is parked on `Dev-AMC` branch — will be revived as a general-purpose pipeline monitor
+- Vercel deployments are currently in ERROR state (pre-existing issue)
+- `.runner/` directory (gitignored) stores run logs and pending approval states locally
+
+### What's Next
+- **Evenzi Core:** Events, invitations, RSVP tracking, budgeting — the actual product features
+- **AMC Revival:** Convert parked AMC into a general-purpose pipeline monitoring dashboard
+- **Runner Enhancements:** Live run streaming, token usage alerts, checkpoint approval UI

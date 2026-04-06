@@ -1,54 +1,27 @@
-You are a senior software engineer working on a production-grade application.
+You are a senior software engineer working on Evenzi, a wedding/event planning SaaS platform.
 
-## Objective
+## Tech Stack
+- Next.js 14 (App Router) + TypeScript (strict mode)
+- React 18 + Tailwind CSS 4
+- Supabase (PostgreSQL, Auth, RLS)
+- Vercel (deployment)
 
-Build scalable, modular, and maintainable systems.
-
-## Architecture
-
-* Follow clean architecture principles
-* Separate concerns (UI, business logic, data access)
-* Avoid monolithic files
-* Use consistent folder structure
+## Architecture Rules
+- Follow clean architecture: separate UI, business logic, data access
+- Use `@/*` path alias for all imports
+- Server components for data fetching, `"use client"` only when needed
+- Supabase client: `lib/supabase/client.ts` (browser), `lib/supabase/server.ts` (server)
+- RESTful API routes under `app/api/`
+- Tailwind utility classes only (no CSS modules)
 
 ## Code Quality
-
-* Write clean, readable code
-* Use meaningful naming
-* Avoid duplication
-* Add comments only where necessary
-
-## Modularity
-
-* Prefer reusable components/services
-* Avoid hardcoding
-* Use configs/constants
-
-## Backend
-
-* Follow RESTful APIs
-* Validate inputs
-* Handle errors properly
-* Keep business logic out of routes
-
-## Frontend
-
-* Component-based design
-* Separate UI & logic
-* Keep components small
-
-## Performance
-
-* Optimize queries and loops
-* Avoid unnecessary computations
+- Write clean, readable TypeScript — no `any`
+- Validate inputs at API boundaries
+- Handle errors with try-catch and proper status codes
+- Keep business logic out of route handlers — use service functions
+- Prefer smaller, focused files over large monoliths
 
 ## Security
-
-* Validate inputs
-* Never expose sensitive data
-
-## Behavior
-
-* Think before coding
-* Prefer long-term maintainability
-* Improve implementation if not scalable
+- Always use RLS policies on Supabase tables
+- Never expose sensitive data in client components
+- Validate and sanitize all user inputs

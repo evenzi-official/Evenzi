@@ -1,16 +1,13 @@
-## System Guard
+---
+name: system_guard
+description: Standalone environment check
+priority_default: normal
+---
 
-Before any implementation:
+## Steps
 
-1. Run system_checker
-
-2. If any critical issue:
-
-   * STOP execution
-   * Report issue
-
-3. Only proceed if:
-
-   * Supabase active
-   * Auth working
-   * Env configured
+### 1. check
+agent: system_checker
+input: env_check
+gate: hard
+description: Verify environment is ready for pipeline execution
