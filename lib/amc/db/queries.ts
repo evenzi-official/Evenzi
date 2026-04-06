@@ -167,7 +167,13 @@ export async function deleteAgent(id: string): Promise<void> {
   if (error) throw new Error(`deleteAgent: ${error.message}`)
 }
 
-export async function getAgentStats(id: string) {
+export async function getAgentStats(id: string): Promise<{
+  totalRuns: number
+  successfulRuns: number
+  totalTokens: number
+  totalCostUsd: number
+  avgDurationMs: number
+}> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('mc_run_stages')

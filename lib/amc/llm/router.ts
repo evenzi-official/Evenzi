@@ -56,15 +56,16 @@ export async function runAgentLLM(
     .filter(Boolean)
     .join('\n\n---\n\n') || undefined
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { text, usage } = await generateText({
-    model,
+    model: model as any,
     prompt: userPrompt,
     system: systemPrompt,
-    maxTokens: agent.token_budget ?? 4096,
+    maxOutputTokens: agent.token_budget ?? 4096,
   })
 
-  const inputTokens = usage.promptTokens
-  const outputTokens = usage.completionTokens
+  const inputTokens = usage.inputTokens ?? 0
+  const outputTokens = usage.outputTokens ?? 0
   const estimatedCostUsd = estimateCost(agent.model_id, inputTokens, outputTokens)
 
   return { text, inputTokens, outputTokens, estimatedCostUsd }

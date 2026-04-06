@@ -1,8 +1,11 @@
 'use client'
 
-type Status = 'pending' | 'running' | 'paused' | 'completed' | 'failed' | 'aborted' | 'idle'
+import type { RunStatus } from '@/lib/amc/types'
 
-const STATUS_STYLES: Record<Status, string> = {
+// Extend RunStatus with 'idle' for display purposes
+type BadgeStatus = RunStatus | 'idle'
+
+const STATUS_STYLES: Record<BadgeStatus, string> = {
   pending:   'bg-gray-100 text-gray-700',
   running:   'bg-blue-100 text-blue-700',
   paused:    'bg-yellow-100 text-yellow-700',
@@ -12,7 +15,7 @@ const STATUS_STYLES: Record<Status, string> = {
   idle:      'bg-gray-100 text-gray-500',
 }
 
-const STATUS_DOTS: Record<Status, string> = {
+const STATUS_DOTS: Record<BadgeStatus, string> = {
   pending:   'bg-gray-400',
   running:   'bg-blue-500 animate-pulse',
   paused:    'bg-yellow-500',
@@ -28,8 +31,8 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
-  const s = (STATUS_STYLES[status as Status] ?? 'bg-gray-100 text-gray-700')
-  const dot = (STATUS_DOTS[status as Status] ?? 'bg-gray-400')
+  const s = (STATUS_STYLES[status as BadgeStatus] ?? 'bg-gray-100 text-gray-700')
+  const dot = (STATUS_DOTS[status as BadgeStatus] ?? 'bg-gray-400')
 
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${s} ${className}`}>
