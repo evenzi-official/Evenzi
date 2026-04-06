@@ -279,7 +279,9 @@ export interface ArtifactCreatedPayload extends WebhookEventBase {
 
 export interface MemoryCreatedPayload extends WebhookEventBase {
   type: 'memory.created'
-  type_: MemoryEntryType
+  runId?: string
+  agentId?: string
+  entryType: MemoryEntryType
   title: string
   content: string
   tags: string[]
