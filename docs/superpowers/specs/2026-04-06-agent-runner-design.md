@@ -416,7 +416,14 @@ Default for all runs: `normal`.
 
 ### 4.2 Pre-execution Estimation (`monitor.ts`)
 
-Before the pipeline runs:
+**Primary estimation happens during intake** (Section 8.3) — before the ClickUp task is even created. This catches most budget issues during the conversation, allowing the user to re-scope before triggering the runner.
+
+The runner's pre-execution check is a **safety net** for:
+- Tasks created manually (no intake conversation)
+- Tasks where actual input is larger than what intake estimated (e.g., additional context added to ClickUp task after creation)
+- Re-runs of previously failed pipelines
+
+Safety net behavior:
 1. Token Monitor agent (Haiku) analyzes the input + pipeline definition
 2. Estimates tokens per step based on: input size, model context window, historical averages from past run logs
 3. Calculates estimated total cost using `lib/llm/tokens.ts` pricing
@@ -663,9 +670,19 @@ The skill:
 2. Runs a conversational loop (stdin/stdout):
    - Agent asks a question → user answers → agent asks next question
    - Agent decides when it has enough info (typically 3-6 questions)
-3. Presents a summary for user confirmation
-4. Creates the ClickUp task via `lib/runner/clickup.ts`
-5. Optionally triggers the runner immediately (or lets the webhook handle it)
+3. **Pre-estimation** — Token Monitor runs on the gathered requirements:
+   - Determines which pipeline type (feature/bug/enhancement)
+   - Estimates tokens per step based on input complexity + model pricing
+   - Presents cost estimate to user during the conversation
+   - If over budget for the selected priority tier:
+     - Suggests: split into smaller tasks, reduce scope, or bump priority tier
+     - User can accept suggestions (intake agent re-scopes), override, or cancel
+   - This avoids wasted runner triggers on over-budget tasks
+4. Presents final summary (requirements + cost estimate) for user confirmation
+5. Creates the ClickUp task via `lib/runner/clickup.ts`
+6. Optionally triggers the runner immediately (or lets the webhook handle it)
+
+The runner still tracks live token usage during execution (monitor.ts), but pre-estimation catches budget issues before any pipeline steps run.
 
 ### 8.4 Intake Output → ClickUp Task
 
