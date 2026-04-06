@@ -38,6 +38,43 @@ Agentic Mission Control (AMC) is a modular web application for monitoring and ma
 | Auth | Supabase Auth |
 | Deployment | Vercel |
 | CLI Tool | Node.js (npm package) |
+| **Multi-LLM** | **Vercel AI SDK (`ai` package)** |
+
+### Multi-LLM Support
+
+AMC uses the **Vercel AI SDK** to support any LLM provider. Each agent has a configurable `model_id` field — the pipeline router picks the right model based on task weight and cost. Heavy reasoning tasks use Claude Opus; simple tasks use cheaper/faster models.
+
+**Supported providers out-of-the-box:**
+
+| Provider | Package | Good for |
+|----------|---------|----------|
+| Anthropic (Claude) | `@ai-sdk/anthropic` | Complex reasoning, code review, security |
+| OpenAI (GPT) | `@ai-sdk/openai` | Task routing, classification, simple generation |
+| Google (Gemini) | `@ai-sdk/google` | Fast summarisation, QA test generation |
+| Mistral | `@ai-sdk/mistral` | Cost-efficient code generation |
+| Groq | `@ai-sdk/groq` | Ultra-fast inference for lightweight agents |
+| Ollama (local) | `ollama-ai-provider` | Offline/private tasks, no API cost |
+
+**Default model routing per pipeline stage:**
+
+| Agent | Default Model | Rationale |
+|-------|--------------|-----------|
+| System Checker | `claude-haiku-4-5` | Fast env checks, no deep reasoning needed |
+| Product Manager | `claude-opus-4-6` | Deep spec writing, requirement analysis |
+| Tech Lead | `claude-opus-4-6` | Architecture decisions, critical thinking |
+| Data Modelling | `claude-sonnet-4-6` | Structured schema generation |
+| Task Planner | `gpt-4o-mini` | Simple list/task generation, very cheap |
+| Task Distributor | `gpt-4o-mini` | Routing logic, no creativity needed |
+| Backend Engineer | `claude-sonnet-4-6` | Code generation with context |
+| Frontend Engineer | `claude-sonnet-4-6` | Code generation with context |
+| Fullstack Engineer | `claude-sonnet-4-6` | Code generation with context |
+| Code Reviewer | `claude-opus-4-6` | Deep multi-file analysis |
+| Security Expert | `claude-opus-4-6` | Critical vulnerability analysis |
+| QA Engineer | `gemini-2.0-flash` | Fast test case generation |
+| DevOps Engineer | `claude-sonnet-4-6` | Config and script generation |
+| Token Monitor | `claude-haiku-4-5` | Lightweight, runs constantly |
+
+All model assignments are overridable per-project in the AMC dashboard — the defaults are cost-optimised starting points, not rules.
 
 ---
 
@@ -207,6 +244,10 @@ CREATE TABLE mc_agents (
   capabilities JSONB DEFAULT '[]',
   pipeline_order INTEGER,
   token_budget INTEGER,
+  -- Multi-LLM support: each agent can use a different model/provider
+  provider TEXT DEFAULT 'anthropic'
+    CHECK (provider IN ('anthropic', 'openai', 'google', 'mistral', 'groq', 'ollama', 'custom')),
+  model_id TEXT DEFAULT 'claude-sonnet-4-6', -- Vercel AI SDK model string
   project_id UUID REFERENCES mc_projects(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
@@ -249,6 +290,12 @@ CREATE TABLE mc_run_stages (
   input JSONB,
   output JSONB,
   tokens_used INTEGER DEFAULT 0,
+  -- Track exactly which model/provider was used for this execution
+  provider TEXT,
+  model_id TEXT,
+  input_tokens INTEGER DEFAULT 0,
+  output_tokens INTEGER DEFAULT 0,
+  estimated_cost_usd NUMERIC(10, 6) DEFAULT 0,
   duration_ms INTEGER,
   error TEXT,
   started_at TIMESTAMPTZ,
@@ -608,11 +655,13 @@ Pipeline runs pause at configured checkpoint stages for human approval.
 
 ### Phase 1: Foundation
 1. Project setup (Next.js, Supabase, Tailwind)
-2. Database schema (all tables, RLS, indexes)
-3. Auth (Supabase Auth — email/password for v1)
-4. API routes: projects, agents (CRUD)
-5. Webhook receiver with signature validation
-6. CLI plugin: init, push-agents, pull-agents
+2. Install Vercel AI SDK + provider packages (`ai`, `@ai-sdk/anthropic`, `@ai-sdk/openai`, `@ai-sdk/google`)
+3. Build `lib/amc/llm/router.ts` — model router that maps agent → provider/model
+4. Database schema (all tables including `provider`/`model_id` fields, RLS, indexes)
+5. Auth (Supabase Auth — email/password for v1)
+6. API routes: projects, agents (CRUD)
+7. Webhook receiver with signature validation
+8. CLI plugin: init, push-agents, pull-agents
 
 ### Phase 2: Core Modules
 7. Kanban board UI (drag-and-drop, filters)
