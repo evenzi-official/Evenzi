@@ -2,20 +2,21 @@
 
 **Date:** 2026-04-06
 **Status:** Draft
-**Scope:** Standalone multi-project agent orchestration & monitoring platform
+**Scope:** Modular agent orchestration & monitoring platform (inside Evenzi repo, extractable later)
 
 ---
 
 ## 1. Overview
 
-Mission Control is a standalone, reusable web application for monitoring and managing AI agent workflows across multiple projects. It is project-agnostic — any repository can connect to it via a lightweight CLI plugin and webhook integration.
+Mission Control is a modular web application for monitoring and managing AI agent workflows. It lives inside the Evenzi repo at `app/(mission-control)/` as a self-contained module with its own DB tables, API routes, and UI — but is architected so it can be extracted into its own repo with minimal effort.
 
 ### Goals
 
 - Provide a centralized dashboard for managing AI agent pipelines across multiple projects
 - Track agent execution, token usage, artifacts, and task progress in real-time
-- Be fully independent — installable as a standalone app, attachable to any project
+- Be fully modular — all Mission Control code lives under a single directory with no hard dependencies on Evenzi-specific code
 - Support the 13-stage agent pipeline (System Checker through DevOps Engineer) and custom pipelines
+- Extractable: can be moved to its own repo by copying the module directory + running DB migrations
 
 ### Non-Goals (v1)
 
@@ -183,8 +184,10 @@ Document management for all artifacts produced by the pipeline.
 ### 5.1 Tables
 
 ```sql
+-- All MC tables prefixed with mc_ for namespace isolation
+
 -- Projects registered with Mission Control
-CREATE TABLE projects (
+CREATE TABLE mc_projects (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   repo_url TEXT,
@@ -196,7 +199,7 @@ CREATE TABLE projects (
 );
 
 -- Agent role definitions (global or project-specific)
-CREATE TABLE agents (
+CREATE TABLE mc_agents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   role TEXT NOT NULL,
@@ -204,26 +207,26 @@ CREATE TABLE agents (
   capabilities JSONB DEFAULT '[]',
   pipeline_order INTEGER,
   token_budget INTEGER,
-  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  project_id UUID REFERENCES mc_projects(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 -- Named pipeline configurations
-CREATE TABLE pipelines (
+CREATE TABLE mc_pipelines (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   description TEXT,
   stages JSONB NOT NULL, -- ordered array of {agent_id, config}
-  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  project_id UUID REFERENCES mc_projects(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
 -- Pipeline execution runs
-CREATE TABLE runs (
+CREATE TABLE mc_runs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  pipeline_id UUID REFERENCES pipelines(id),
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  pipeline_id UUID REFERENCES mc_pipelines(id),
+  project_id UUID NOT NULL REFERENCES mc_projects(id) ON DELETE CASCADE,
   trigger_description TEXT,
   status TEXT NOT NULL DEFAULT 'pending'
     CHECK (status IN ('pending', 'running', 'paused', 'completed', 'failed', 'aborted')),
@@ -236,10 +239,10 @@ CREATE TABLE runs (
 );
 
 -- Individual agent execution within a run
-CREATE TABLE run_stages (
+CREATE TABLE mc_run_stages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  run_id UUID NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
-  agent_id UUID NOT NULL REFERENCES agents(id),
+  run_id UUID NOT NULL REFERENCES mc_runs(id) ON DELETE CASCADE,
+  agent_id UUID NOT NULL REFERENCES mc_agents(id),
   stage_order INTEGER NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending'
     CHECK (status IN ('pending', 'running', 'completed', 'failed', 'skipped')),
@@ -254,15 +257,15 @@ CREATE TABLE run_stages (
 );
 
 -- Kanban tasks
-CREATE TABLE tasks (
+CREATE TABLE mc_tasks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  run_id UUID REFERENCES runs(id) ON DELETE SET NULL,
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  run_id UUID REFERENCES mc_runs(id) ON DELETE SET NULL,
+  project_id UUID NOT NULL REFERENCES mc_projects(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   description TEXT,
   status TEXT NOT NULL DEFAULT 'backlog'
     CHECK (status IN ('backlog', 'in_progress', 'review', 'done')),
-  assigned_agent_id UUID REFERENCES agents(id),
+  assigned_agent_id UUID REFERENCES mc_agents(id),
   priority TEXT DEFAULT 'normal'
     CHECK (priority IN ('urgent', 'high', 'normal', 'low')),
   metadata JSONB DEFAULT '{}',
@@ -271,10 +274,10 @@ CREATE TABLE tasks (
 );
 
 -- Documents/artifacts produced by agents
-CREATE TABLE artifacts (
+CREATE TABLE mc_artifacts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  run_stage_id UUID REFERENCES run_stages(id) ON DELETE SET NULL,
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  run_stage_id UUID REFERENCES mc_run_stages(id) ON DELETE SET NULL,
+  project_id UUID NOT NULL REFERENCES mc_projects(id) ON DELETE CASCADE,
   type TEXT NOT NULL
     CHECK (type IN ('spec', 'design', 'plan', 'data_model', 'code', 'review', 'qa_report', 'security_audit', 'other')),
   title TEXT NOT NULL,
@@ -285,22 +288,22 @@ CREATE TABLE artifacts (
 );
 
 -- Real-time event stream from CLI
-CREATE TABLE events (
+CREATE TABLE mc_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  run_id UUID REFERENCES runs(id) ON DELETE SET NULL,
-  agent_id UUID REFERENCES agents(id),
+  project_id UUID NOT NULL REFERENCES mc_projects(id) ON DELETE CASCADE,
+  run_id UUID REFERENCES mc_runs(id) ON DELETE SET NULL,
+  agent_id UUID REFERENCES mc_agents(id),
   type TEXT NOT NULL,
   payload JSONB DEFAULT '{}',
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
 -- Journal/memory entries
-CREATE TABLE memory_entries (
+CREATE TABLE mc_memory_entries (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  run_id UUID REFERENCES runs(id) ON DELETE SET NULL,
-  agent_id UUID REFERENCES agents(id),
+  project_id UUID NOT NULL REFERENCES mc_projects(id) ON DELETE CASCADE,
+  run_id UUID REFERENCES mc_runs(id) ON DELETE SET NULL,
+  agent_id UUID REFERENCES mc_agents(id),
   type TEXT NOT NULL
     CHECK (type IN ('decision', 'observation', 'error', 'milestone', 'note')),
   title TEXT NOT NULL,
@@ -317,15 +320,15 @@ All tables will have RLS enabled. For v1 (single-user/small team), policies will
 ### 5.3 Indexes
 
 ```sql
-CREATE INDEX idx_events_project_created ON events(project_id, created_at DESC);
-CREATE INDEX idx_events_run ON events(run_id);
-CREATE INDEX idx_run_stages_run ON run_stages(run_id);
-CREATE INDEX idx_tasks_project_status ON tasks(project_id, status);
-CREATE INDEX idx_artifacts_project ON artifacts(project_id);
-CREATE INDEX idx_artifacts_run_stage ON artifacts(run_stage_id);
-CREATE INDEX idx_memory_project_created ON memory_entries(project_id, created_at DESC);
-CREATE INDEX idx_memory_tags ON memory_entries USING GIN(tags);
-CREATE INDEX idx_agents_project ON agents(project_id);
+CREATE INDEX idx_mc_events_project_created ON mc_events(project_id, created_at DESC);
+CREATE INDEX idx_mc_events_run ON mc_events(run_id);
+CREATE INDEX idx_mc_run_stages_run ON mc_run_stages(run_id);
+CREATE INDEX idx_mc_tasks_project_status ON mc_tasks(project_id, status);
+CREATE INDEX idx_mc_artifacts_project ON mc_artifacts(project_id);
+CREATE INDEX idx_mc_artifacts_run_stage ON mc_artifacts(run_stage_id);
+CREATE INDEX idx_mc_memory_project_created ON mc_memory_entries(project_id, created_at DESC);
+CREATE INDEX idx_mc_memory_tags ON mc_memory_entries USING GIN(tags);
+CREATE INDEX idx_mc_agents_project ON mc_agents(project_id);
 ```
 
 ---
@@ -467,51 +470,99 @@ POST   /api/memory                      # Create manual memory entry
 
 ---
 
-## 8. Page Structure
+## 8. Project Structure (Modular Inside Evenzi)
+
+Mission Control is fully self-contained under two directories:
 
 ```
-app/
-  layout.tsx                     # Root layout with sidebar navigation
-  page.tsx                       # Dashboard overview (stats across all projects)
+lib/mission-control/             # All MC business logic (extractable core)
+  types/
+    index.ts                     # All MC TypeScript types/interfaces
+  db/
+    queries.ts                   # All Supabase query functions
+    migrations/                  # SQL migration files for MC tables
+  utils/
+    webhook.ts                   # Webhook signature validation
+    tokens.ts                    # Token usage calculations
+  hooks/
+    use-kanban.ts                # Client hooks for kanban state
+    use-agents.ts                # Client hooks for agent data
+    use-runs.ts                  # Client hooks for run monitoring
 
-  projects/
-    page.tsx                     # Project list
-    [id]/
-      page.tsx                   # Project detail (overview, recent runs, stats)
+app/(mission-control)/           # MC route group (no URL prefix impact)
+  layout.tsx                     # MC-specific layout with sidebar nav
+  mc/                            # URL prefix: /mc/*
+    page.tsx                     # Dashboard overview
+    projects/
+      page.tsx                   # Project list
+      [id]/
+        page.tsx                 # Project detail
+    kanban/
+      page.tsx                   # Kanban board
+    agents/
+      page.tsx                   # Agent registry
+      [id]/
+        page.tsx                 # Agent detail + config editor
+    team/
+      page.tsx                   # Pipeline viz + org chart
+    memory/
+      page.tsx                   # Timeline/journal
+    docs/
+      page.tsx                   # Artifact browser
+      [id]/
+        page.tsx                 # Artifact view
+    runs/
+      [id]/
+        page.tsx                 # Run detail + live monitor
 
+app/api/mc/                      # MC API routes (prefixed /api/mc/*)
+  projects/                      # Project CRUD
+  webhooks/events/               # Webhook receiver
+  agents/                        # Agent CRUD + history
+  pipelines/                     # Pipeline CRUD
+  runs/                          # Run management
+  tasks/                         # Task CRUD
+  artifacts/                     # Artifact queries
+  memory/                        # Memory queries
+
+components/mission-control/      # MC-specific UI components
   kanban/
-    page.tsx                     # Kanban board (project selector + columns)
-
+    board.tsx
+    column.tsx
+    card.tsx
   agents/
-    page.tsx                     # Agent registry list
-    [id]/
-      page.tsx                   # Agent detail (config editor + history)
-
+    agent-card.tsx
+    config-editor.tsx
+    live-monitor.tsx
+    token-chart.tsx
   team/
-    page.tsx                     # Pipeline visualization + agent org chart
-
+    pipeline-graph.tsx
+    agent-node.tsx
   memory/
-    page.tsx                     # Timeline/journal view
-
+    timeline.tsx
+    entry-card.tsx
   docs/
-    page.tsx                     # Document tree + artifact browser
-    [id]/
-      page.tsx                   # Individual artifact view
-
-  runs/
-    [id]/
-      page.tsx                   # Run detail (stages, progress, live monitor)
-
-  api/
-    projects/                    # Project CRUD routes
-    webhooks/events/             # Webhook receiver
-    agents/                      # Agent CRUD + history routes
-    pipelines/                   # Pipeline CRUD routes
-    runs/                        # Run management routes
-    tasks/                       # Task CRUD routes
-    artifacts/                   # Artifact query routes
-    memory/                      # Memory query routes
+    doc-tree.tsx
+    artifact-viewer.tsx
+  shared/
+    project-selector.tsx
+    status-badge.tsx
+    sidebar-nav.tsx
 ```
+
+### Extraction Strategy
+
+To extract Mission Control into its own repo later:
+1. Copy `lib/mission-control/`, `app/(mission-control)/`, `app/api/mc/`, `components/mission-control/`
+2. Run the SQL migrations from `lib/mission-control/db/migrations/`
+3. Update import paths (only `lib/supabase/` needs replacing with its own Supabase client)
+4. The only shared dependency is Supabase client creation — everything else is self-contained
+
+### Isolation Rules
+- MC code NEVER imports from Evenzi-specific directories (`app/home/`, `app/auth/`, etc.)
+- MC uses its own types defined in `lib/mission-control/types/`
+- MC tables are prefixed with `mc_` to avoid conflicts (e.g., `mc_projects`, `mc_agents`)
+- The Supabase client is the only shared utility (imported from `lib/supabase/`)
 
 ---
 
