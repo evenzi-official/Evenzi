@@ -322,7 +322,7 @@ Responsibilities:
    - Call `runAgentLLM()` from `lib/llm/router.ts`
    - Record `StepResult` via `monitor.ts`
    - Check budget via `monitor.ts` — pause or abort if exceeded
-   - Handle gates: `hard` → abort on failure, `approval` → pause for user input (CLI: stdin y/n prompt; ClickUp: post plan as comment, wait for task status change to "Approved")
+   - Handle gates: `hard` → abort on failure, `approval` → see Approval Gate Notification below
 5. After all steps: call `logger.ts` to write run log, call `notify.ts` to send email
 
 **Context accumulation:** Each step receives the original user request + all previous step outputs. The executor builds a context string:
@@ -340,7 +340,45 @@ Responsibilities:
 
 This full context is passed as the `context` parameter to `runAgentLLM()`, while the step-specific input mapping determines the `userPrompt`.
 
-### 3.4 Loader (`lib/runner/loader.ts`)
+### 3.4 Approval Gate Notification
+
+When the pipeline reaches an `approval` gate, notification depends on the trigger source:
+
+**CLI (`source: cli`):**
+- Prints the plan output to stdout
+- Shows cost so far and estimated remaining
+- Blocks on stdin prompt: `Approve and continue? (y/n)`
+- User responds directly in terminal
+
+**ClickUp (`source: clickup`):**
+Both email and ClickUp notifications fire:
+
+1. **ClickUp task update:**
+   - Post a structured comment with the full plan (spec + design + task breakdown)
+   - Include cost so far and estimated cost for remaining steps
+   - Change task status to `Awaiting Approval`
+   - Assign the task to the user (uses `RUNNER_CLICKUP_ASSIGNEE_ID` env var)
+   - ClickUp's built-in notifications (in-app, mobile push, email) alert the user
+
+2. **Email via `notify.ts`:**
+   - Subject: `[Runner] Approval Needed — [feature name] — $0.27 spent, ~$0.60 remaining`
+   - Body: plan summary, cost breakdown, direct link to ClickUp task
+   - Sent immediately when gate is reached
+
+3. **Runner pauses:**
+   - The webhook request returns `{ status: "awaiting_approval" }`
+   - No further steps execute
+
+4. **Resumption:**
+   - User reviews in ClickUp, changes status to `Approved`
+   - ClickUp webhook fires again with `taskStatusUpdated` event
+   - Runner detects the task was mid-pipeline (via a state marker in the task's custom field or a `.runner/pending/<taskId>.json` file)
+   - Resumes execution from step 6 (first post-approval step)
+
+**Pending run state (`.runner/pending/<taskId>.json`):**
+When the runner pauses at an approval gate for a ClickUp task, it writes the current run state (completed steps, outputs, config) to `.runner/pending/<taskId>.json`. When the webhook fires again after approval, the runner loads this state and resumes instead of starting fresh. The pending file is deleted after the run completes.
+
+### 3.5 Loader (`lib/runner/loader.ts`)
 
 Parses markdown files with YAML frontmatter:
 
@@ -453,6 +491,7 @@ When `noBudgetLimit` is true or priority is `override`:
 | Event | Email content |
 |-------|--------------|
 | Run completes | Pipeline name, total tokens, cost per step, cost per provider, total cost, duration |
+| Approval needed | Feature name, plan summary, cost so far, estimated remaining, link to ClickUp task |
 | Step exceeds budget | Which step, which agent/model, actual vs budget, option to abort |
 | Run exceeds budget | Cumulative total, where it stopped, suggestion to split |
 | Tier crossing (override mode) | Current spend, which tier crossed |
@@ -547,6 +586,8 @@ RESEND_API_KEY=re_xxxx                # required if email enabled
 ```bash
 CLICKUP_API_TOKEN=pk_xxxx             # personal API token
 CLICKUP_WEBHOOK_SECRET=xxxx           # webhook signature validation
+RUNNER_CLICKUP_ASSIGNEE_ID=12345      # your ClickUp user ID (for approval assignment)
+CLICKUP_DEFAULT_LIST_ID=xxxx          # default list for intake-created tasks
 ```
 
 ---
@@ -608,6 +649,7 @@ app/api/runner/
 
 .runner/
   runs/                      # JSON run logs (gitignored)
+  pending/                   # Paused run state for ClickUp approval gates (gitignored)
 ```
 
 ---
