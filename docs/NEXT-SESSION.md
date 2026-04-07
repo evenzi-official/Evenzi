@@ -42,7 +42,7 @@
 
 ## Context
 
-ClickUp workspace is set up with Ideas list, workflow tags, and retroactive tracking. 11 task templates are designed. No feature parent tasks created yet in ClickUp.
+ClickUp workspace is set up with Ideas list, workflow tags, and retroactive tracking. 11 task templates are designed. No feature parent tasks created yet in ClickUp. `/end-session` skill is available for future session cleanup. All docs (CLAUDE.md, PROJECT.md, ONBOARDING.md) are up to date as of 2026-04-08.
 
 ## How To Resume
 

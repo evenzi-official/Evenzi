@@ -352,3 +352,5 @@ All tables will have Row-Level Security (RLS) policies ensuring users can only a
 | 2026-04-06 | Runner infrastructure parked on Dev-Runner to focus on Evenzi core features. |
 | 2026-04-08 | ClickUp workspace restructured — Ideas list, workflow tags, task templates (11 templates), MVP Phase 1 planned. |
 | 2026-04-08 | Design screens inventory: Login, Role Selection, Dashboard, 5-step Wizard, 6 Management Dashboard views. |
+| 2026-04-08 | Project renamed from "untitled-project" to "evenzi". Stale AMC/Runner refs cleaned from docs. |
+| 2026-04-08 | `/end-session` skill created for automated session cleanup workflow. |
