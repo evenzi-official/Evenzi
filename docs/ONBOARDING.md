@@ -95,110 +95,59 @@ Evenzi/
 │   └── system/           # Shared base prompt
 ├── lib/
 │   ├── supabase/         # Supabase client helpers
-│   ├── llm/              # Multi-provider LLM router
-│   └── runner/           # Pipeline executor, loader, monitor, etc.
-├── scripts/              # CLI entry points (run-agent.ts, run-intake.ts, run-sys-check.ts)
+│   └── runner/           # Utilities (sys-check, logger, types)
+├── scripts/              # CLI entry points (run-sys-check.ts)
 └── docs/                 # Specs, plans, this file
 ```
 
 ---
 
-## 6. Using the Agent Runner
+## 6. Development Workflow
 
-The runner chains multiple LLM agents to automate feature development. Each agent has a specific role (product manager, tech lead, engineer, reviewer, etc.) and uses the best model for that role.
+Features are built using the **superpowers plugin workflow** in Claude Code, guided by enriched agent prompts in `ai/agents/`.
 
-### Quick Start
+### How to Build a Feature
 
-```bash
-# Run a feature pipeline
-npm run agent -- --input "Add guest meal preference selection to event pages"
+1. **Create a ClickUp task** with requirements
+2. **Start a new Claude Code session** — paste the ClickUp task details
+3. **Superpowers takes over** — brainstorm → write-plan → subagent-driven-development → code-review
+4. **Agent knowledge** — Claude Code references `ai/agents/` for role-specific checklists at each stage
 
-# Run a bug fix pipeline
-npm run agent -- --input "RSVP count shows wrong number" --pipeline bug
+### Key Agent Knowledge Files
 
-# Conversational intake (gathers requirements via Q&A, creates ClickUp task)
-npm run agent:intake
-```
+| File | Knowledge |
+|------|-----------|
+| `ai/agents/frontend_engineer.md` | Design thinking, typography, color, motion, anti-patterns |
+| `ai/agents/code_reviewer.md` | Confidence scoring (0-100), false positive filtering |
+| `ai/agents/security_expert.md` | 9 vulnerability patterns, defense-in-depth |
+| `ai/agents/product_manager.md` | Requirements analysis, feature specification |
+| `ai/agents/tech_lead.md` | Architecture decisions, system design |
 
-### What Happens During a Run
+### Modifying Agent Knowledge
 
-1. **System Guard** — Real environment validation (Supabase, API keys, ClickUp, node_modules — no LLM cost)
-2. **Analysis/Spec** — Product manager or tech lead analyzes the request
-3. **Design** — Tech lead creates technical architecture
-4. **Planning** — Task planner breaks work into implementation tasks
-5. **Approval Gate** — You review the plan (CLI: y/n prompt; ClickUp: task status change)
-6. **Implementation** — Engineers generate code (backend, frontend, or fullstack)
-7. **Review** — Code reviewer checks for quality and security
-8. **QA** — QA engineer generates test cases
-
-### Budget Tiers
-
-Every run has a budget. Default is `normal` ($2.00 per run, $0.50 per step).
-
-| Flag | Budget |
-|------|--------|
-| `--priority low` | $1.00/run |
-| `--priority normal` | $2.00/run (default) |
-| `--priority high` | $5.00/run |
-| `--priority urgent` | $10.00/run |
-| `--no-budget-limit` | Unlimited |
-
-### Run Logs
-
-Every run saves a JSON log to `.runner/runs/<timestamp>.json` containing all steps, tokens, costs, and outputs.
+Edit the prompt body in `ai/agents/<role>.md`. Changes are picked up when Claude Code reads the file — no rebuild needed.
 
 ---
 
-## 7. Modifying Agents
-
-Agent definitions are plain markdown files with YAML frontmatter in `ai/agents/`. To change an agent's model, budget, or behavior:
-
-1. Open `ai/agents/<role>.md`
-2. Edit the frontmatter (provider, model, token_budget) or the prompt body
-3. The runner picks up changes on next run — no rebuild needed
-
-To add a new agent:
-1. Create `ai/agents/<new_role>.md` with the standard frontmatter
-2. Reference it in a pipeline step: `agent: new_role`
-
----
-
-## 8. ClickUp Integration
-
-The automated flow:
-
-1. **Intake agent** gathers requirements conversationally → creates ClickUp task with `run-agent` tag
-2. **Webhook** fires when task status/tags change → triggers pipeline
-3. **Pipeline runs** → posts results as ClickUp comments
-4. **Approval gate** → changes task status to "Awaiting Approval", assigns to you
-5. **You approve** (change status to "Approved") → webhook resumes pipeline
-
-To set up the webhook, register `https://your-domain.com/api/runner/webhook` in ClickUp workspace settings.
-
----
-
-## 9. Key Files Reference
+## 7. Key Files Reference
 
 | File | Purpose |
 |------|---------|
-| `CLAUDE.md` | Full project guide (you're reading a companion to this) |
-| `lib/llm/router.ts` | Multi-provider LLM routing via Vercel AI SDK |
-| `lib/llm/defaults.ts` | Which model each agent role uses by default |
-| `lib/llm/tokens.ts` | Token cost estimation for 15+ models |
+| `CLAUDE.md` | Full project guide |
 | `lib/runner/sys-check.ts` | Real environment validation (no LLM) |
-| `lib/runner/executor.ts` | Core pipeline execution engine |
-| `lib/runner/loader.ts` | Parses ai/ markdown files into typed definitions |
-| `lib/runner/monitor.ts` | Token budget tracking and enforcement |
-| `lib/runner/clickup.ts` | ClickUp API integration |
-| `lib/runner/notify.ts` | Email notifications via Resend |
-| `app/api/runner/webhook/route.ts` | ClickUp webhook endpoint |
+| `lib/runner/logger.ts` | Progress logging + JSON log persistence |
+| `lib/runner/types.ts` | Shared types (StepResult, RunLog) |
+| `ai/agents/*.md` | Enriched agent knowledge base (15 agents) |
+| `ai/pipelines/*.md` | Pipeline step order reference |
+| `ai/system/agent_rules.md` | Shared coding standards |
 
 ---
 
-## 10. Branching
+## 8. Branching
 
 - **`Dev-Vibe`** is the working main branch — create feature branches from here
 - **`main`** is production — only updated from Dev-Vibe when deploying to Vercel
+- **`Dev-Runner`** has the parked automated multi-LLM runner (executor, LLM router, budget monitor, webhook, email)
 - **`Dev-AMC`** has the parked AMC dashboard code (future: general-purpose pipeline monitor)
 
 ```bash
@@ -213,16 +162,14 @@ git merge feature/my-feature
 
 ---
 
-## 11. Testing
+## 9. Testing
 
 ```bash
 npm run test:run   # Run once
 npm run test       # Watch mode
 ```
 
-Tests use Vitest with node environment. Test files live next to source: `lib/runner/loader.ts` → `lib/runner/loader.test.ts`.
-
-Current coverage: 55 tests across 9 test files (LLM router, token costs, loader, logger, monitor, notify, clickup, executor, sys-check).
+Tests use Vitest with node environment. Test files live next to source: `lib/runner/sys-check.ts` → `lib/runner/sys-check.test.ts`.
 
 ---
 

@@ -29,8 +29,6 @@ npm start              # Start production server
 npm run lint           # Run ESLint
 npm run test           # Run Vitest (watch mode)
 npm run test:run       # Run Vitest once (CI)
-npm run agent          # Run agent pipeline (see Agent Runner below)
-npm run agent:intake   # Start conversational intake session
 npm run sys-check      # Run real environment validation (no LLM cost)
 ```
 
@@ -44,43 +42,28 @@ app/                        # Next.js App Router pages
   auth/callback/            # OAuth callback handler
   home/                     # Post-login dashboard
   api/auth/verify/          # Session verification endpoint
-  api/runner/webhook/       # ClickUp webhook → pipeline trigger
 
-ai/                         # Agent & pipeline definitions (markdown + YAML frontmatter)
-  agents/                   # 15 agent specs (system_checker, product_manager, etc.)
+ai/                         # Agent knowledge base & pipeline reference (markdown + YAML frontmatter)
+  agents/                   # 15 enriched agent specs (knowledge base for Claude Code sessions)
   pipelines/                # 4 pipeline definitions (feature, bug, enhancement, system_guard)
-  system/agent_rules.md     # Shared base prompt for all agents
+  system/agent_rules.md     # Shared coding standards
 
 lib/supabase/               # Supabase client utilities
   client.ts                 # Browser-side client
   server.ts                 # Server-side client
   middleware.ts             # Session refresh + route protection
 
-lib/llm/                    # Multi-provider LLM infrastructure
-  router.ts                 # Vercel AI SDK — routes to Anthropic/OpenAI/Google/Groq/Ollama
-  defaults.ts               # Default model per agent role
-  tokens.ts                 # Cost estimation for 15+ models
-  types.ts                  # AgentProvider, LLMResult types
-
-lib/runner/                 # Agent pipeline runner
+lib/runner/                 # Utilities (sys-check, logger)
   sys-check.ts              # Real environment validation (Supabase, LLM keys, ClickUp, node_modules)
-  types.ts                  # All runner types (RunConfig, RunLog, StepResult, etc.)
-  loader.ts                 # Parses YAML-frontmatter markdown into AgentDefinition/PipelineDefinition
-  logger.ts                 # Stdout progress logging + JSON run log persistence
-  monitor.ts                # Token usage tracking + budget enforcement
-  notify.ts                 # Email notifications via Resend (run summaries, budget alerts, approvals)
-  clickup.ts                # ClickUp API integration (task fetch, comments, status updates)
-  executor.ts               # Pipeline orchestrator — step chaining, approval gates, budget checks
-  intake.ts                 # Conversational requirements gathering via CLI
+  types.ts                  # Shared types (StepResult, RunLog)
+  logger.ts                 # Stdout progress logging + JSON log persistence
 
-scripts/                    # CLI entry points
-  run-agent.ts              # npm run agent — execute a pipeline
-  run-intake.ts             # npm run agent:intake — conversational intake
+scripts/
   run-sys-check.ts          # npm run sys-check — real environment validation
 
 docs/superpowers/
-  specs/2026-04-06-agent-runner-design.md         # Agent runner design spec
-  plans/2026-04-06-agent-runner-implementation.md  # Implementation plan (14 tasks)
+  specs/                    # Design specs
+  plans/                    # Implementation plans
 
 middleware.ts               # Next.js middleware entry point
 vitest.config.ts            # Vitest config (node env, @ alias)
@@ -136,125 +119,43 @@ RUNNER_EMAIL_ON_ALERT=true              # Send email on budget alerts + approval
 
 ---
 
-## Agent Runner
+## Development Workflow
 
-> A lightweight multi-LLM pipeline runner that chains agent outputs to automate Evenzi feature development.
+> Features are built using the superpowers plugin workflow (brainstorm → plan → implement → review), guided by enriched agent prompts in `ai/agents/`.
 
 ### How It Works
 
-1. **System Check** — Real environment validation (no LLM cost) verifies Supabase, API keys, ClickUp, node_modules
-2. **Input** — Feature request via CLI (`npm run agent`), conversational intake (`npm run agent:intake`), or ClickUp webhook
-3. **Pipeline** — Loads a pipeline definition from `ai/pipelines/` (e.g., `feature.md` has 9 steps)
-4. **Execution** — Each step runs an agent (loaded from `ai/agents/`) through the LLM router, passing accumulated context
-4. **Budget** — Token monitor enforces per-step and per-run budget limits based on priority tier
-5. **Output** — Results logged to `.runner/runs/`, posted as ClickUp comments, emailed via Resend
+1. **Plan in ClickUp** — Create a task with requirements in ClickUp
+2. **New Claude Code session** — Paste ClickUp task details, invoke superpowers brainstorming
+3. **Superpowers workflow** — brainstorm → write-plan → subagent-driven-development → code-review
+4. **Agent knowledge** — At each stage, Claude Code references `ai/agents/` for role-specific checklists and patterns
 
-### CLI Usage
+### System Check
 
-```bash
-# Run a feature pipeline with inline input
-npm run agent -- --input "Build event invitations with RSVP tracking"
+Run `npm run sys-check` before starting work to validate the environment (Supabase, API keys, ClickUp, node_modules). Zero LLM cost, ~500ms.
 
-# Run from a file
-npm run agent -- --file ./features/invitations.md
+### Pipeline Reference
 
-# Run from a ClickUp task
-npm run agent -- --clickup TASK_ID
-
-# Options
-npm run agent -- --input "..." --pipeline bug --priority high --no-budget-limit
-
-# Conversational intake (creates ClickUp task)
-npm run agent:intake
-npm run agent:intake "I want to add guest meal preferences"
-npm run agent:intake --list LIST_ID
-```
-
-### Pipelines
+The `ai/pipelines/` files define the ideal step order for different work types. These serve as reference for structuring work, not as automated executors:
 
 | Pipeline | Steps | Use Case |
 |----------|-------|----------|
-| `feature` | 9 steps (guard → spec → design → plan → approve → backend → frontend → review → qa) | New features |
-| `bug` | 7 steps (guard → analysis → plan → approve → fix → review → qa) | Bug fixes |
-| `enhancement` | 8 steps (guard → impact → design → plan → approve → implement → review → qa) | Improvements |
-| `system_guard` | 1 step (environment check) | Standalone validation |
+| `feature` | guard → spec → design → plan → approve → backend → frontend → review → qa | New features |
+| `bug` | guard → analysis → plan → approve → fix → review → qa | Bug fixes |
+| `enhancement` | guard → impact → design → plan → approve → implement → review → qa | Improvements |
 
-### Agent Roster
+### Modifying Agent Knowledge
 
-| Role | Provider | Model | Used In |
-|------|----------|-------|---------|
-| system_checker | Native (no LLM) | — | All pipelines (step 1) — real env validation |
-| product_manager | Anthropic | claude-opus-4-6 | feature |
-| tech_lead | Anthropic | claude-opus-4-6 | feature, bug, enhancement |
-| backend_engineer | Anthropic | claude-sonnet-4-6 | feature |
-| frontend_engineer | Anthropic | claude-sonnet-4-6 | feature — enriched with frontend-design plugin (typography, color, motion, anti-patterns) |
-| fullstack_engineer | Anthropic | claude-sonnet-4-6 | bug, enhancement |
-| code_reviewer | Anthropic | claude-opus-4-6 | All pipelines — enriched with code-review plugin (confidence scoring, false positive filtering) |
-| qa_engineer | Google | gemini-2.0-flash | All pipelines |
-| data_modeller | Anthropic | claude-sonnet-4-6 | On-demand |
-| task_planner | OpenAI | gpt-4o-mini | All pipelines |
-| task_distributor | OpenAI | gpt-4o-mini | On-demand |
-| security_expert | Anthropic | claude-opus-4-6 | On-demand — enriched with security-guidance plugin (9 vuln patterns, defense-in-depth) |
-| token_monitor | Anthropic | claude-haiku-4-5 | Pre-estimation |
-| devops_engineer | Anthropic | claude-sonnet-4-6 | On-demand |
-| intake_agent | Anthropic | claude-sonnet-4-6 | Intake conversation |
+Agent definitions live in `ai/agents/<role>.md` with YAML frontmatter. To improve an agent's knowledge, edit the prompt body below the frontmatter. Changes are picked up when Claude Code reads the file.
 
-### Budget Tiers
+Key enriched agents:
+- `frontend_engineer.md` — design thinking, typography, color, motion, anti-patterns (from frontend-design plugin)
+- `code_reviewer.md` — confidence scoring, false positive filtering, multi-perspective review (from code-review plugin)
+- `security_expert.md` — 9 vulnerability patterns, defense-in-depth, Next.js security (from security-guidance plugin)
 
-| Tier | Per Run | Per Step | When |
-|------|---------|----------|------|
-| low | $1.00 | $0.25 | Minor tasks |
-| normal | $2.00 | $0.50 | Default for all pipelines |
-| high | $5.00 | $1.50 | Complex features |
-| urgent | $10.00 | $3.00 | Critical fixes |
-| override | Unlimited | Unlimited | Via `budget-override` tag or `--no-budget-limit` |
+### Parked: Automated Runner
 
-### Approval Gates
-
-Every pipeline has an approval gate after the planning step. Behavior depends on source:
-- **CLI:** Interactive y/n prompt in terminal
-- **ClickUp:** Pipeline pauses, saves state to `.runner/pending/<taskId>.json`, updates ClickUp task status to "Awaiting Approval", assigns to `RUNNER_CLICKUP_ASSIGNEE_ID`, sends email. Resumes when task status changes to "Approved" (via webhook).
-
-### ClickUp Webhook
-
-The webhook route (`/api/runner/webhook`) listens for `taskStatusUpdated` and `taskTagUpdated` events. It:
-- Verifies HMAC-SHA256 signature (if `CLICKUP_WEBHOOK_SECRET` is set)
-- Maps ClickUp task → `RunConfig` (pipeline from tags, priority from ClickUp priority)
-- Triggers pipeline execution asynchronously
-- Posts results as task comments and updates task status
-
-### Adding/Modifying Agents
-
-Agent definitions live in `ai/agents/<role>.md` with YAML frontmatter:
-```yaml
----
-role: agent_role_name
-name: Human Readable Name
-provider: anthropic|openai|google|groq|ollama
-model: model-id
-token_budget: 4096
-output_format: markdown|json|code
----
-
-System prompt body goes here...
-```
-
-Pipeline definitions live in `ai/pipelines/<name>.md`:
-```yaml
----
-name: pipeline_name
-description: What this pipeline does
-priority_default: normal
----
-
-## Steps
-
-### 1. step_name
-agent: agent_role
-input: user_request + step.previous_step
-gate: hard|approval  (optional)
-description: What this step does
-```
+The full multi-LLM automated runner (executor, LLM router, budget monitor, ClickUp webhook, email notifications) is preserved on the `Dev-Runner` branch. It can be revived if external LLM API keys become available.
 
 ---
 
@@ -262,6 +163,7 @@ description: What this step does
 
 - **`main`** — Production branch, connected to Vercel. Only receives merges from `Dev-Vibe` when ready to deploy.
 - **`Dev-Vibe`** — Working main branch. All feature branches are created from and merged back to `Dev-Vibe`.
+- **`Dev-Runner`** — Parked branch preserving the full automated multi-LLM pipeline runner (executor, LLM router, budget monitor, ClickUp webhook, email notifications). Will be revived when external API keys are available.
 - **`Dev-AMC`** — Parked branch preserving the full AMC dashboard code (Phase 1). Will be revived later for the general-purpose pipeline monitoring UI.
 - **Feature branches** — Created from `Dev-Vibe`, named descriptively (e.g., `feature/agent-runner`).
 

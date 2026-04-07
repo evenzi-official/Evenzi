@@ -1,4 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
+vi.mock('fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('fs')>()
+  return { ...actual, existsSync: vi.fn(() => true) }
+})
+
+import { existsSync } from 'fs'
 import { runSystemCheck } from './sys-check'
 
 describe('runSystemCheck', () => {
@@ -7,6 +14,8 @@ describe('runSystemCheck', () => {
   beforeEach(() => {
     vi.resetModules()
     process.env = { ...originalEnv }
+    global.fetch = vi.fn().mockResolvedValue({ ok: true })
+    vi.mocked(existsSync).mockReturnValue(true)
   })
 
   afterEach(() => {
@@ -31,10 +40,6 @@ describe('runSystemCheck', () => {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY = 'test-key'
     process.env.ANTHROPIC_API_KEY = 'sk-test'
 
-    global.fetch = vi.fn().mockResolvedValue({ ok: true })
-    const fs = await import('fs')
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true)
-
     const result = await runSystemCheck()
 
     expect(result.status).toBe('completed')
@@ -52,10 +57,6 @@ describe('runSystemCheck', () => {
     delete process.env.GOOGLE_GENERATIVE_AI_API_KEY
     delete process.env.GROQ_API_KEY
 
-    global.fetch = vi.fn().mockResolvedValue({ ok: true })
-    const fs = await import('fs')
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true)
-
     const result = await runSystemCheck()
 
     expect(result.status).toBe('failed')
@@ -70,10 +71,6 @@ describe('runSystemCheck', () => {
     delete process.env.GOOGLE_GENERATIVE_AI_API_KEY
     delete process.env.GROQ_API_KEY
 
-    global.fetch = vi.fn().mockResolvedValue({ ok: true })
-    const fs = await import('fs')
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true)
-
     const result = await runSystemCheck()
 
     expect(result.output).toMatch(/Available LLM Providers:.*anthropic/)
@@ -84,10 +81,6 @@ describe('runSystemCheck', () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY = 'test-key'
     process.env.ANTHROPIC_API_KEY = 'sk-test'
-
-    global.fetch = vi.fn().mockResolvedValue({ ok: true })
-    const fs = await import('fs')
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true)
 
     const result = await runSystemCheck()
 
