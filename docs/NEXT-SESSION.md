@@ -1,12 +1,50 @@
 # Next Session — Pick Up Here
 
 > Paste this into a new Claude Code session to resume MVP sprint planning.
+> Read `docs/PROJECT.md` for full feature context if needed.
+
+---
+
+## Progress Tracker
+
+### Phase 1: ClickUp Setup (DONE)
+- [x] Create Ideas list in Product space
+- [x] Create workflow tags and assign to all existing tasks
+- [x] Retroactive tracking — mark completed work (auth, designs, env vars)
+- [x] Move post-MVP tasks to Ideas list
+- [x] Update CLAUDE.md, ONBOARDING.md, PROJECT.md
+
+### Phase 2: Feature Task Creation (NEXT)
+- [ ] Create feature parent task: Auth & Role Selection
+- [ ] Create feature parent task: Reusable Component Library
+- [ ] Create feature parent task: Event CRUD (5-Step Wizard)
+- [ ] Create feature parent task: Host Dashboard
+- [ ] Create feature parent task: Guest Management & RSVP
+- [ ] Create feature parent task: Digital Invitations (WhatsApp)
+- [ ] Create feature parent task: Planning Tools (Checklist & Budget)
+- [ ] Create feature parent task: Media & Memories (Photo Gallery)
+- [ ] Create feature parent task: Digital Presence (Event Website)
+- [ ] Set feature dependencies in ClickUp
+
+### Phase 3: Implementation (NOT STARTED)
+- [ ] Fix Vercel Deployment (S — unblocks production)
+- [ ] Reusable Component Library (L — unblocks all UI work)
+- [ ] Auth & Role Selection (M — 75% done, Role Selection remaining)
+- [ ] Event CRUD — 5-Step Wizard (XL — core feature)
+- [ ] Host Dashboard (M — needs Event CRUD data)
+- [ ] Guest Management & RSVP (L)
+- [ ] Digital Invitations — WhatsApp (M)
+- [ ] Planning Tools — Checklist & Budget (L)
+- [ ] Media & Memories — Photo Gallery (M)
+- [ ] Digital Presence — Event Website (L)
+
+---
 
 ## Context
 
-ClickUp workspace is set up with Ideas list, workflow tags, and retroactive tracking. 11 task templates are designed. No feature parent tasks created yet.
+ClickUp workspace is set up with Ideas list, workflow tags, and retroactive tracking. 11 task templates are designed. No feature parent tasks created yet in ClickUp.
 
-## What To Do Next
+## How To Resume
 
 ### Step 1: Create Feature Parent Tasks in ClickUp
 
@@ -35,19 +73,9 @@ Once parent tasks exist:
 
 ### Step 3: Pick First Feature for Implementation
 
-**Recommended order:**
-1. Fix Vercel Deployment (S — unblocks production)
-2. Reusable Component Library (L — unblocks all UI work)
-3. Auth & Role Selection (M — 75% done, quick win)
-4. Event CRUD (XL — core feature, unblocks everything)
-5. Host Dashboard (M — needs Event CRUD data)
-6. Guest Management & RSVP (L)
-7. Digital Invitations (M)
-8. Planning Tools (L)
-9. Media & Memories (M)
-10. Digital Presence (L)
+For each feature picked: create component subtasks → create dev phase subtasks → start implementation using superpowers workflow (brainstorm → plan → subagent-driven-development → code-review).
 
-For each feature: create component subtasks → create dev phase subtasks → start implementation using superpowers workflow (brainstorm → plan → subagent-driven-development → code-review).
+---
 
 ## Key Documents
 

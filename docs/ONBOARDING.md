@@ -43,25 +43,6 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=<your-anon-key>
 ANTHROPIC_API_KEY=sk-ant-xxxx
 ```
 
-**For full runner functionality (optional):**
-```bash
-# Additional LLM providers (used by specific agents)
-OPENAI_API_KEY=sk-proj-xxxx             # task_planner, task_distributor
-GOOGLE_GENERATIVE_AI_API_KEY=AIzaxxxx   # qa_engineer
-
-# ClickUp integration
-CLICKUP_API_TOKEN=pk_xxxx
-CLICKUP_WEBHOOK_SECRET=<your-secret>
-CLICKUP_DEFAULT_LIST_ID=<list-id>
-RUNNER_CLICKUP_ASSIGNEE_ID=<user-id>
-
-# Email notifications
-RESEND_API_KEY=re_xxxx
-RUNNER_ALERT_EMAIL=you@example.com
-RUNNER_EMAIL_ON_COMPLETE=true
-RUNNER_EMAIL_ON_ALERT=true
-```
-
 ---
 
 ## 4. Verify Setup
@@ -95,7 +76,7 @@ Evenzi/
 │   └── system/           # Shared base prompt
 ├── lib/
 │   ├── supabase/         # Supabase client helpers
-│   └── runner/           # Utilities (sys-check, logger, types)
+│   └── runner/           # Parked utilities (sys-check, logger) — see Dev-Runner branch
 ├── scripts/              # CLI entry points (run-sys-check.ts)
 └── docs/                 # Specs, plans, this file
 ```
@@ -146,9 +127,6 @@ Edit the prompt body in `ai/agents/<role>.md`. Changes are picked up when Claude
 | File | Purpose |
 |------|---------|
 | `CLAUDE.md` | Full project guide |
-| `lib/runner/sys-check.ts` | Real environment validation (no LLM) |
-| `lib/runner/logger.ts` | Progress logging + JSON log persistence |
-| `lib/runner/types.ts` | Shared types (StepResult, RunLog) |
 | `ai/agents/*.md` | Enriched agent knowledge base (15 agents) |
 | `ai/pipelines/*.md` | Pipeline step order reference |
 | `ai/system/agent_rules.md` | Shared coding standards |
@@ -181,7 +159,7 @@ npm run test:run   # Run once
 npm run test       # Watch mode
 ```
 
-Tests use Vitest with node environment. Test files live next to source: `lib/runner/sys-check.ts` → `lib/runner/sys-check.test.ts`.
+Tests use Vitest with node environment. Test files live next to source files.
 
 ---
 

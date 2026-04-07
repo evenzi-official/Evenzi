@@ -17,7 +17,7 @@ Evenzi is an early-stage wedding/event planning SaaS platform. Users create even
 - **Deployment:** Vercel
 - **Testing:** Vitest (node environment, `vitest.config.ts`)
 - **LLM Routing:** Vercel AI SDK (`ai` package) — multi-provider (Anthropic, OpenAI, Google, Groq, Ollama)
-- **Email:** Resend (`resend` package) — runner notifications
+- **Email:** Resend (`resend` package) — notifications
 - **ClickUp:** REST API integration — task intake and pipeline triggers
 
 ## Commands
@@ -53,10 +53,7 @@ lib/supabase/               # Supabase client utilities
   server.ts                 # Server-side client
   middleware.ts             # Session refresh + route protection
 
-lib/runner/                 # Utilities (sys-check, logger)
-  sys-check.ts              # Real environment validation (Supabase, LLM keys, ClickUp, node_modules)
-  types.ts                  # Shared types (StepResult, RunLog)
-  logger.ts                 # Stdout progress logging + JSON log persistence
+lib/runner/                 # Parked utilities (sys-check, logger) — see Dev-Runner branch
 
 scripts/
   run-sys-check.ts          # npm run sys-check — real environment validation
@@ -252,10 +249,9 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 
 - Test phone number for dev: `9999999999` with OTP `123456` (phone OTP requires Twilio configured in Supabase)
 - Phone auth is configured for India region (+91 prefix)
-- The `ai/` directory contains machine-readable agent and pipeline definitions used by the runner
+- The `ai/` directory contains agent and pipeline definitions used as knowledge base for Claude Code sessions
 - AMC dashboard code is parked on `Dev-AMC` branch — will be revived as a general-purpose pipeline monitor
 - Vercel deployments are currently in ERROR state (pre-existing issue)
-- `.runner/` directory (gitignored) stores run logs and pending approval states locally
 
 ### MVP Phase 1 — In Progress
 
