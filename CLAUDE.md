@@ -4,7 +4,7 @@
 
 Evenzi is an early-stage wedding/event planning SaaS platform. Users create events, manage invitations, track RSVPs, and organize wedding-related tasks and budgeting.
 
-**Current Status:** v0.1 — Auth is live. Agent Runner is built. Evenzi core features (events, invitations, budgeting) are planned but not yet built.
+**Current Status:** v0.1 — Auth is live. Agent Runner is parked. MVP Phase 1 (Host-only end-to-end event flow) is in planning, with ClickUp task templates and sprint structure defined.
 
 ---
 
@@ -125,10 +125,52 @@ RUNNER_EMAIL_ON_ALERT=true              # Send email on budget alerts + approval
 
 ### How It Works
 
-1. **Plan in ClickUp** — Create a task with requirements in ClickUp
+1. **Plan in ClickUp** — Create a feature task using the template structure (see Task Templates below)
 2. **New Claude Code session** — Paste ClickUp task details, invoke superpowers brainstorming
 3. **Superpowers workflow** — brainstorm → write-plan → subagent-driven-development → code-review
 4. **Agent knowledge** — At each stage, Claude Code references `ai/agents/` for role-specific checklists and patterns
+5. **Approval gates** — After each dev phase, user validates output before next phase starts
+
+### Task Templates & Hierarchy
+
+Features follow a 3-level hierarchy with approval gates after every phase:
+
+```
+📦 Feature (Parent Task)
+  ├── 📋 Spec & Architecture           → [APPROVAL]
+  ├── 📐 Data Modeling & Schema Design  → [APPROVAL]
+  ├── 🧩 Component A (Subtask)
+  │     ├── 🎨 UI/UX Design            → [APPROVAL]
+  │     ├── 💻 Frontend Dev             → [APPROVAL]
+  │     ├── ⚙️ Backend Dev              → [APPROVAL]
+  │     └── ✅ Component QA             → [APPROVAL]
+  ├── 🔗 Integration Testing            → [APPROVAL]
+  ├── 📝 Feature Documentation          → [APPROVAL]
+  └── 🚀 Release & Deployment
+```
+
+11 task templates are defined in `docs/superpowers/specs/2026-04-08-clickup-task-templates-design.md`.
+
+### ClickUp Workspace Structure
+
+```
+Product (Space)
+  ├── Ideas              — Raw feature ideas, unrefined
+  ├── Backlog            — Refined, prioritized, ready for sprint
+  ├── Development/
+  │     ├── Frontend
+  │     ├── Backend
+  │     ├── Database
+  │     └── DevOps
+  ├── Design
+  ├── QA & Bugs
+  ├── Architecture & Configuration
+  └── Documentation
+```
+
+**Tags:** `mvp-phase-1`, `feature`, `component`, `phase:spec`, `phase:data-model`, `phase:ui-ux`, `phase:frontend`, `phase:backend`, `phase:qa`, `phase:integration`, `phase:docs`, `phase:release`, `approval-gate`, `claude-code`
+
+**Flow:** Ideas → Backlog (when refined) → Development lists (when picked for sprint)
 
 ### System Check
 
@@ -215,7 +257,28 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 - Vercel deployments are currently in ERROR state (pre-existing issue)
 - `.runner/` directory (gitignored) stores run logs and pending approval states locally
 
-### What's Next
-- **Evenzi Core:** Events, invitations, RSVP tracking, budgeting — the actual product features
+### MVP Phase 1 — In Progress
+
+**Goal:** Host-only, one complete end-to-end event flow.
+
+| Feature | Priority | Status |
+|---------|----------|--------|
+| Fix Vercel Deployment | P0 | Blocked (pre-existing) |
+| Reusable Component Library | P0 | Not Started |
+| Auth & Role Selection | P0 | 75% Done (Role Selection remaining) |
+| Event CRUD (5-Step Wizard) | P0 | Not Started |
+| Host Dashboard | P0 | Shell exists, needs real data |
+| Guest Management & RSVP | P1 | Not Started |
+| Digital Invitations (WhatsApp) | P1 | Not Started |
+| Planning Tools (Checklist + Budget) | P2 | Not Started |
+| Media & Memories (Photo Gallery) | P2 | Not Started |
+| Digital Presence (Event Website) | P2 | Not Started |
+
+**Out of scope for MVP:** Vendor role, AI Photo Finder, real-time features, event discovery/search, analytics.
+
+**Design status:** Most screens designed in Google Stitch, some in Figma. Stitch project: `https://stitch.withgoogle.com/projects/3859360114226566614`
+
+### What's Next (Post-MVP)
+- **Vendor Role:** Full vendor-side flows (separate scope)
 - **AMC Revival:** Convert parked AMC into a general-purpose pipeline monitoring dashboard
 - **Runner Enhancements:** Live run streaming, token usage alerts, checkpoint approval UI

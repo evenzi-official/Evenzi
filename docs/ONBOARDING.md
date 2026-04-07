@@ -108,10 +108,22 @@ Features are built using the **superpowers plugin workflow** in Claude Code, gui
 
 ### How to Build a Feature
 
-1. **Create a ClickUp task** with requirements
-2. **Start a new Claude Code session** — paste the ClickUp task details
-3. **Superpowers takes over** — brainstorm → write-plan → subagent-driven-development → code-review
-4. **Agent knowledge** — Claude Code references `ai/agents/` for role-specific checklists at each stage
+1. **Create a ClickUp feature task** using the template from `docs/superpowers/specs/2026-04-08-clickup-task-templates-design.md`
+2. **Break into components** — each component gets UI/UX → Frontend → Backend → QA subtasks
+3. **Start a new Claude Code session** — paste the ClickUp task details
+4. **Superpowers takes over** — brainstorm → write-plan → subagent-driven-development → code-review
+5. **Approval gates** — after each dev phase, validate AI output before proceeding to next phase
+6. **Agent knowledge** — Claude Code references `ai/agents/` for role-specific checklists at each stage
+
+### Task Hierarchy
+
+```
+📦 Feature → 📋 Spec → 📐 Data Model → 🧩 Components → 🔗 Integration → 📝 Docs → 🚀 Release
+                                            ↓
+                                  🎨 UI/UX → 💻 FE → ⚙️ BE → ✅ QA
+```
+
+Each arrow represents an **approval gate** — user validates before next phase starts.
 
 ### Key Agent Knowledge Files
 
@@ -173,8 +185,21 @@ Tests use Vitest with node environment. Test files live next to source: `lib/run
 
 ---
 
+## 10. MVP Phase 1
+
+**Goal:** Host-only, one complete end-to-end event flow — create event, manage guests, send invitations, track RSVPs, budget, photos, event website.
+
+**Vendor role is deferred post-MVP.**
+
+Key docs:
+- Task templates & ClickUp structure: `docs/superpowers/specs/2026-04-08-clickup-task-templates-design.md`
+- MVP sprint plan: `docs/superpowers/plans/2026-04-08-clickup-setup-mvp-tasks.md`
+- Design screens: Google Stitch project (link in CLAUDE.md)
+
+---
+
 ## Questions?
 
 - Check `CLAUDE.md` for detailed architecture docs
-- Check `docs/superpowers/specs/2026-04-06-agent-runner-design.md` for the full design spec
-- Check `docs/superpowers/plans/2026-04-06-agent-runner-implementation.md` for the implementation plan
+- Check `docs/superpowers/specs/` for design specs
+- Check `docs/superpowers/plans/` for implementation plans
