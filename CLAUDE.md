@@ -31,6 +31,7 @@ npm run test           # Run Vitest (watch mode)
 npm run test:run       # Run Vitest once (CI)
 npm run agent          # Run agent pipeline (see Agent Runner below)
 npm run agent:intake   # Start conversational intake session
+npm run sys-check      # Run real environment validation (no LLM cost)
 ```
 
 ---
@@ -62,6 +63,7 @@ lib/llm/                    # Multi-provider LLM infrastructure
   types.ts                  # AgentProvider, LLMResult types
 
 lib/runner/                 # Agent pipeline runner
+  sys-check.ts              # Real environment validation (Supabase, LLM keys, ClickUp, node_modules)
   types.ts                  # All runner types (RunConfig, RunLog, StepResult, etc.)
   loader.ts                 # Parses YAML-frontmatter markdown into AgentDefinition/PipelineDefinition
   logger.ts                 # Stdout progress logging + JSON run log persistence
@@ -74,6 +76,7 @@ lib/runner/                 # Agent pipeline runner
 scripts/                    # CLI entry points
   run-agent.ts              # npm run agent — execute a pipeline
   run-intake.ts             # npm run agent:intake — conversational intake
+  run-sys-check.ts          # npm run sys-check — real environment validation
 
 docs/superpowers/
   specs/2026-04-06-agent-runner-design.md         # Agent runner design spec
@@ -139,9 +142,10 @@ RUNNER_EMAIL_ON_ALERT=true              # Send email on budget alerts + approval
 
 ### How It Works
 
-1. **Input** — Feature request via CLI (`npm run agent`), conversational intake (`npm run agent:intake`), or ClickUp webhook
-2. **Pipeline** — Loads a pipeline definition from `ai/pipelines/` (e.g., `feature.md` has 9 steps)
-3. **Execution** — Each step runs an agent (loaded from `ai/agents/`) through the LLM router, passing accumulated context
+1. **System Check** — Real environment validation (no LLM cost) verifies Supabase, API keys, ClickUp, node_modules
+2. **Input** — Feature request via CLI (`npm run agent`), conversational intake (`npm run agent:intake`), or ClickUp webhook
+3. **Pipeline** — Loads a pipeline definition from `ai/pipelines/` (e.g., `feature.md` has 9 steps)
+4. **Execution** — Each step runs an agent (loaded from `ai/agents/`) through the LLM router, passing accumulated context
 4. **Budget** — Token monitor enforces per-step and per-run budget limits based on priority tier
 5. **Output** — Results logged to `.runner/runs/`, posted as ClickUp comments, emailed via Resend
 
@@ -179,18 +183,18 @@ npm run agent:intake --list LIST_ID
 
 | Role | Provider | Model | Used In |
 |------|----------|-------|---------|
-| system_checker | Anthropic | claude-haiku-4-5 | All pipelines (step 1) |
+| system_checker | Native (no LLM) | — | All pipelines (step 1) — real env validation |
 | product_manager | Anthropic | claude-opus-4-6 | feature |
 | tech_lead | Anthropic | claude-opus-4-6 | feature, bug, enhancement |
 | backend_engineer | Anthropic | claude-sonnet-4-6 | feature |
-| frontend_engineer | Anthropic | claude-sonnet-4-6 | feature |
+| frontend_engineer | Anthropic | claude-sonnet-4-6 | feature — enriched with frontend-design plugin (typography, color, motion, anti-patterns) |
 | fullstack_engineer | Anthropic | claude-sonnet-4-6 | bug, enhancement |
-| code_reviewer | Anthropic | claude-opus-4-6 | All pipelines |
+| code_reviewer | Anthropic | claude-opus-4-6 | All pipelines — enriched with code-review plugin (confidence scoring, false positive filtering) |
 | qa_engineer | Google | gemini-2.0-flash | All pipelines |
 | data_modeller | Anthropic | claude-sonnet-4-6 | On-demand |
 | task_planner | OpenAI | gpt-4o-mini | All pipelines |
 | task_distributor | OpenAI | gpt-4o-mini | On-demand |
-| security_expert | Anthropic | claude-opus-4-6 | On-demand |
+| security_expert | Anthropic | claude-opus-4-6 | On-demand — enriched with security-guidance plugin (9 vuln patterns, defense-in-depth) |
 | token_monitor | Anthropic | claude-haiku-4-5 | Pre-estimation |
 | devops_engineer | Anthropic | claude-sonnet-4-6 | On-demand |
 | intake_agent | Anthropic | claude-sonnet-4-6 | Intake conversation |

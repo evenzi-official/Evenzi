@@ -67,6 +67,9 @@ RUNNER_EMAIL_ON_ALERT=true
 ## 4. Verify Setup
 
 ```bash
+# Run the real environment check (no LLM cost)
+npm run sys-check
+
 # Run the test suite
 npm run test:run
 
@@ -75,7 +78,9 @@ npm run dev
 # Visit http://localhost:3000
 ```
 
-Expected: 50 tests passing, dev server on port 3000.
+`sys-check` validates Supabase connectivity, LLM API keys, ClickUp token, node_modules, and optional services (Ollama, Resend). Fix any required checks before running pipelines.
+
+Expected: sys-check PASS, 55 tests passing, dev server on port 3000.
 
 ---
 
@@ -92,7 +97,7 @@ Evenzi/
 │   ├── supabase/         # Supabase client helpers
 │   ├── llm/              # Multi-provider LLM router
 │   └── runner/           # Pipeline executor, loader, monitor, etc.
-├── scripts/              # CLI entry points (run-agent.ts, run-intake.ts)
+├── scripts/              # CLI entry points (run-agent.ts, run-intake.ts, run-sys-check.ts)
 └── docs/                 # Specs, plans, this file
 ```
 
@@ -117,7 +122,7 @@ npm run agent:intake
 
 ### What Happens During a Run
 
-1. **System Guard** — Checks environment is configured
+1. **System Guard** — Real environment validation (Supabase, API keys, ClickUp, node_modules — no LLM cost)
 2. **Analysis/Spec** — Product manager or tech lead analyzes the request
 3. **Design** — Tech lead creates technical architecture
 4. **Planning** — Task planner breaks work into implementation tasks
@@ -180,6 +185,7 @@ To set up the webhook, register `https://your-domain.com/api/runner/webhook` in 
 | `lib/llm/router.ts` | Multi-provider LLM routing via Vercel AI SDK |
 | `lib/llm/defaults.ts` | Which model each agent role uses by default |
 | `lib/llm/tokens.ts` | Token cost estimation for 15+ models |
+| `lib/runner/sys-check.ts` | Real environment validation (no LLM) |
 | `lib/runner/executor.ts` | Core pipeline execution engine |
 | `lib/runner/loader.ts` | Parses ai/ markdown files into typed definitions |
 | `lib/runner/monitor.ts` | Token budget tracking and enforcement |
@@ -216,7 +222,7 @@ npm run test       # Watch mode
 
 Tests use Vitest with node environment. Test files live next to source: `lib/runner/loader.ts` → `lib/runner/loader.test.ts`.
 
-Current coverage: 50 tests across 8 test files (LLM router, token costs, loader, logger, monitor, notify, clickup, executor).
+Current coverage: 55 tests across 9 test files (LLM router, token costs, loader, logger, monitor, notify, clickup, executor, sys-check).
 
 ---
 

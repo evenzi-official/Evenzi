@@ -9,6 +9,7 @@ import {
 } from './logger'
 import { notifyRunComplete, notifyBudgetAlert } from './notify'
 import { runAgentLLM } from '@/lib/llm/router'
+import { runSystemCheck } from './sys-check'
 import { BUDGET_LIMITS } from './types'
 import type {
   RunConfig,
@@ -232,43 +233,48 @@ export async function executePipeline(config: RunConfig): Promise<RunLog> {
     const stepStart = Date.now()
     let result: StepResult
 
-    try {
-      const llmResult = await runAgentLLM(
-        {
-          provider: agent.provider,
-          model_id: agent.model,
-          prompt: agent.systemPrompt,
-          token_budget: agent.tokenBudget,
-        },
-        userPrompt,
-        context
-      )
+    if (agent.role === 'system_checker') {
+      // Real system check — no LLM, actual environment validation
+      result = await runSystemCheck()
+    } else {
+      try {
+        const llmResult = await runAgentLLM(
+          {
+            provider: agent.provider,
+            model_id: agent.model,
+            prompt: agent.systemPrompt,
+            token_budget: agent.tokenBudget,
+          },
+          userPrompt,
+          context
+        )
 
-      result = {
-        stepName: step.name,
-        agentRole: agent.role,
-        model: agent.model,
-        provider: agent.provider,
-        output: llmResult.text,
-        inputTokens: llmResult.inputTokens,
-        outputTokens: llmResult.outputTokens,
-        estimatedCostUsd: llmResult.estimatedCostUsd,
-        durationMs: Date.now() - stepStart,
-        status: 'completed',
-      }
-    } catch (err) {
-      result = {
-        stepName: step.name,
-        agentRole: agent.role,
-        model: agent.model,
-        provider: agent.provider,
-        output: '',
-        inputTokens: 0,
-        outputTokens: 0,
-        estimatedCostUsd: 0,
-        durationMs: Date.now() - stepStart,
-        status: 'failed',
-        error: err instanceof Error ? err.message : String(err),
+        result = {
+          stepName: step.name,
+          agentRole: agent.role,
+          model: agent.model,
+          provider: agent.provider,
+          output: llmResult.text,
+          inputTokens: llmResult.inputTokens,
+          outputTokens: llmResult.outputTokens,
+          estimatedCostUsd: llmResult.estimatedCostUsd,
+          durationMs: Date.now() - stepStart,
+          status: 'completed',
+        }
+      } catch (err) {
+        result = {
+          stepName: step.name,
+          agentRole: agent.role,
+          model: agent.model,
+          provider: agent.provider,
+          output: '',
+          inputTokens: 0,
+          outputTokens: 0,
+          estimatedCostUsd: 0,
+          durationMs: Date.now() - stepStart,
+          status: 'failed',
+          error: err instanceof Error ? err.message : String(err),
+        }
       }
     }
 

@@ -10,7 +10,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "agent": "npx tsx scripts/run-agent.ts",
-    "agent:intake": "npx tsx scripts/run-intake.ts"
+    "agent:intake": "npx tsx scripts/run-intake.ts",
+    "sys-check": "npx tsx scripts/run-sys-check.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.66",
