@@ -273,18 +273,32 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 
 **Goal:** Host-only, one complete end-to-end event flow.
 
-| Feature | Priority | Status |
-|---------|----------|--------|
-| Fix Vercel Deployment | P0 | Blocked (pre-existing) |
-| Reusable Component Library | P0 | Not Started |
-| Auth & Role Selection | P0 | 75% Done (Role Selection remaining) |
-| Event CRUD (5-Step Wizard) | P0 | Not Started |
-| Host Dashboard | P0 | Shell exists, needs real data |
-| Guest Management & RSVP | P1 | Not Started |
-| Digital Invitations (WhatsApp) | P1 | Not Started |
-| Planning Tools (Checklist + Budget) | P2 | Not Started |
-| Media & Memories (Photo Gallery) | P2 | Not Started |
-| Digital Presence (Event Website) | P2 | Not Started |
+**Sprint 1 (Active):**
+
+| Feature | Priority | Status | Subtasks |
+|---------|----------|--------|----------|
+| Fix Vercel Deployment | P0 | Blocked (pre-existing) | 0 |
+| Reusable Component Library | P0 | Not Started | 28 |
+| Auth & Role Selection | P0 | 75% Done (Role Selection remaining) | 10 |
+
+**Backlog:**
+
+| Feature | Priority | Status | Subtasks |
+|---------|----------|--------|----------|
+| Event CRUD (5-Step Wizard) | P0 | Not Started | 45 |
+| Host Dashboard | P0 | Shell exists, needs real data | 21 |
+| Event Management Hub | P0 | Not Started | 16 |
+| Guest Management & RSVP | P1 | Not Started | 25 |
+| Event Settings | P1 | Not Started | 20 |
+| User Settings | P1 | Not Started | 20 |
+| Planning Tools (Checklist + Budget) | P2 | Not Started | 15 |
+| Media & Memories (Photo Gallery) | P2 | Not Started | 25 |
+| Digital Presence (Event Website) | P2 | Not Started | Partial |
+| Landing Section (Marketing Site) | P2 | Not Started | 0 |
+| Admin Module (Developer Panel) | P2 | Not Started | 0 |
+| Digital Invitations (WhatsApp) | P3 | Not Started | 0 |
+
+**Total:** 237 subtasks created across 10 features. 4 features still need subtasks (Batch 4).
 
 **Out of scope for MVP:** Vendor role, AI Photo Finder, real-time features, event discovery/search, analytics.
 

@@ -360,3 +360,7 @@ All tables will have Row-Level Security (RLS) policies ensuring users can only a
 | 2026-04-08 | ClickUp cleanup: deleted 32 standalone tasks, rebuilt approach — subtasks created per-feature during brainstorm/plan (not upfront). |
 | 2026-04-08 | Created `docs/clickup/` folder: TEMPLATES, GUIDELINES, WORKSPACE, INTAKE, DEPENDENCIES — all ClickUp docs centralized. |
 | 2026-04-08 | Added parallel subagent standard practice to CLAUDE.md and start-session skill. |
+| 2026-04-08 | Expanded to 14 feature parents (added Landing, Admin, Event Mgmt Hub, Event Settings, User Settings). |
+| 2026-04-08 | Created 237 subtasks across 10 features (full hierarchy: Spec, Data Model, Components, Dev Phases, Integration, Docs, Release). |
+| 2026-04-08 | Sprint ClickApp enabled. Active Sprint list created. Sprint 1: Fix Vercel, Component Library, Auth. |
+| 2026-04-08 | Updated `/start-session` with "Pick a ClickUp task" option and `/end-session` with ClickUp task status updates. |

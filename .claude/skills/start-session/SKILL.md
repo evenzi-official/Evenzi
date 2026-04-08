@@ -60,25 +60,42 @@ Give a concise summary:
 
 Then use `AskUserQuestion` to ask what they want to do this session:
 
-**Option 1: "Continue in-progress work"** — Pick up where we left off (show which task)
-**Option 2: "Pick a feature to build"** — Show the feature parent tasks from Backlog and let user choose
+**Option 1: "Pick a ClickUp task"** — Browse and select a specific task from ClickUp to work on
+**Option 2: "Continue in-progress work"** — Pick up where we left off (show which task)
 **Option 3: "ClickUp task management"** — Work on ClickUp tasks (create subtasks, set dependencies, organize sprint)
 **Option 4: Other** — User specifies what they want
 
 ### 5. Set up the session based on choice
 
+**If picking a ClickUp task:**
+1. Fetch all actionable tasks using `clickup_filter_tasks`:
+   - Active Sprint tasks (list ID from WORKSPACE.md)
+   - In-progress tasks across all lists
+   - Backlog feature parents
+2. Present a structured list grouped by category:
+
+   **🔥 Active Sprint:**
+   - [task name] — [status] — [priority] — [assignee]
+
+   **🚧 In Progress:**
+   - [task name] — [status] — [list]
+
+   **📋 Backlog Features:**
+   - [task name] — [priority] — [subtask count]
+
+3. Use `AskUserQuestion` with the tasks as options so the user can pick one
+4. Once selected:
+   - Fetch full task details with `clickup_get_task` (subtasks: true)
+   - Show the task description, subtasks, and current progress
+   - Identify the next uncompleted subtask or phase
+   - Update the task status to `in progress` if not already
+   - Add a comment: "🚀 Session started — working on this task"
+   - Start the superpowers workflow (brainstorm → plan → implement)
+
 **If continuing in-progress work:**
 - Read the ClickUp task details (`clickup_get_task` with subtasks)
 - Identify next uncompleted subtask or phase
 - Start the superpowers workflow (brainstorm → plan → implement)
-
-**If picking a feature:**
-- List feature parent tasks from Backlog (tags: `["feature", "mvp-phase-1"]`)
-- Show each with priority, dependency status, and completion %
-- After user picks, read the full task description
-- Check if feature has subtasks — if not, suggest creating them first
-- If subtasks exist, identify the next one to work on
-- Start the superpowers workflow
 
 **If ClickUp task management:**
 - Show current workspace state

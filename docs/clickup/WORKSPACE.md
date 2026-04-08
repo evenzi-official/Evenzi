@@ -10,11 +10,12 @@
 Product (Space: 90166506901)
   ├── Ideas (List: 901614379769)
   ├── Backlog (List: 901614372136)
-  ├── Development (Folder)
+  ├── Development (Folder: 90169191482)
   │     ├── Frontend (List: 901614372123)
   │     ├── Backend (List: 901614372124)
   │     ├── Database (List: 901614372125)
-  │     └── DevOps (List: 901614372126)
+  │     ├── DevOps (List: 901614372126)
+  │     └── Active Sprint (List: 901614390914)
   ├── Design (List: 901613884694)
   ├── QA & Bugs (List: 901614372142)
   ├── Architecture & Configuration (List: 901614372190)
@@ -25,17 +26,32 @@ Product (Space: 90166506901)
 
 ## Feature Parent Tasks (MVP Phase 1)
 
-| Feature | ID | Priority | Status |
-|---------|-----|----------|--------|
-| Auth & Role Selection | 86d2jwz1h | Urgent | In Progress |
-| Reusable Component Library | 86d2jwz25 | Urgent | Backlog |
-| Event CRUD (5-Step Wizard) | 86d2jwz3x | Urgent | Backlog |
-| Host Dashboard | 86d2jwz6v | Urgent | Backlog |
-| Guest Management & RSVP | 86d2jwz90 | High | Backlog |
-| Digital Invitations (WhatsApp) | 86d2jwza1 | High | Backlog |
-| Planning Tools (Checklist & Budget) | 86d2jwzck | Normal | Backlog |
-| Media & Memories (Photo Gallery) | 86d2jwzdk | Normal | Backlog |
-| Digital Presence (Event Website) | 86d2jwzge | Normal | Backlog |
+### Active Sprint (Sprint 1)
+
+| Feature | ID | Priority | Status | Subtasks |
+|---------|-----|----------|--------|----------|
+| User Auth & Role Selection | 86d2jwz1h | Urgent | In Progress | 10 |
+| Reusable Component Library | 86d2jwz25 | Urgent | Backlog | 28 |
+| Fix Vercel Deployment | 86d2jmkn4 | Urgent | Backlog | 0 |
+
+### Backlog
+
+| Feature | ID | Priority | Status | Subtasks |
+|---------|-----|----------|--------|----------|
+| Event CRUD (5-Step Wizard) | 86d2jwz3x | Urgent | Backlog | 45 |
+| Host Dashboard | 86d2jwz6v | Urgent | Backlog | 21 |
+| Event Management Hub | 86d2k1kz1 | Urgent | Backlog | 16 |
+| Guest Management & RSVP | 86d2jwz90 | High | Backlog | 25 |
+| Event Settings | 86d2k1kzq | High | Backlog | 20 |
+| User Settings | 86d2k1m04 | High | Backlog | 20 |
+| Planning Tools (Checklist & Budget) | 86d2jwzck | Normal | Backlog | 15 |
+| Media & Memories (Photo Gallery) | 86d2jwzdk | Normal | Backlog | 25 |
+| Digital Presence (Event Website) | 86d2jwzge | Normal | Backlog | Partial |
+| Landing Section (Marketing Site) | 86d2k1kwh | Normal | Backlog | 0 |
+| Admin Module (Full Admin Panel) | 86d2k1kye | Normal | Backlog | 0 |
+| Digital Invitations (WhatsApp) | 86d2jwza1 | Low | Backlog | 0 |
+
+**Note:** Landing, Admin, Digital Invitations, and Digital Presence still need subtasks (Batch 4 — see NEXT-SESSION.md).
 
 ---
 
@@ -43,7 +59,6 @@ Product (Space: 90166506901)
 
 | Task | ID | List | Status |
 |------|-----|------|--------|
-| Fix Vercel Deployment | 86d2jmkn4 | DevOps | In Progress |
 | Landing Design | 86d2dfg0d | Design | Backlog |
 
 ---
@@ -51,7 +66,7 @@ Product (Space: 90166506901)
 ## Task Flow
 
 ```
-Ideas → Backlog (when refined) → Development lists (when sprint-active)
+Ideas → Backlog (when refined) → Active Sprint (when picked for sprint) → Done
 ```
 
 ---
@@ -60,11 +75,21 @@ Ideas → Backlog (when refined) → Development lists (when sprint-active)
 
 | Task Type | Location |
 |-----------|----------|
-| Feature parents | Backlog (901614372136) |
-| Subtasks | Under parents in Backlog (ClickUp nests automatically) |
+| Sprint-active features | Active Sprint (901614390914) |
+| Feature parents (not yet sprint) | Backlog (901614372136) |
+| Subtasks | Under parents (ClickUp nests automatically) |
 | Cross-cutting standalone | Relevant Development list (DevOps, QA, etc.) |
 | Design tasks | Design (901613884694) |
 | Documentation tasks | Documentation (901614372331) |
+
+---
+
+## Team Members
+
+| Name | ID | Role |
+|------|-----|------|
+| Abhijith Pramod | 278583396 | Spec & Architecture, Data Modeling |
+| Dheeraj P Girish | 100996803 | Frontend, Backend, QA, Integration |
 
 ---
 
@@ -72,8 +97,10 @@ Ideas → Backlog (when refined) → Development lists (when sprint-active)
 
 | Need | How |
 |------|-----|
-| Default list for feature work | Backlog (`901614372136`) |
+| Active Sprint list | `901614390914` |
+| Backlog list | `901614372136` |
 | See full task hierarchy | `clickup_get_task` with `subtasks: true` |
 | See all MVP work | `clickup_filter_tasks` with tag `mvp-phase-1` |
+| See sprint tasks | `clickup_filter_tasks` with list_ids `["901614390914"]` |
 | Task creation templates | `docs/clickup/TEMPLATES.md` |
 | Task rules & guidelines | `docs/clickup/GUIDELINES.md` |
