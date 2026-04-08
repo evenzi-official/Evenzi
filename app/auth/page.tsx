@@ -13,10 +13,10 @@ export default function AuthPage() {
   const [error, setError] = useState("");
   const router = useRouter();
   
-  let supabase:any;
+  let supabase: ReturnType<typeof createClient> | null = null;
   try {
     supabase = createClient();
-  } catch (err: any) {
+  } catch {
     // Handle missing env vars - error will be shown in UI
   }
 
@@ -62,8 +62,8 @@ export default function AuthPage() {
 
       setOtpSent(true);
       setLoading(false);
-    } catch (err: any) {
-      setError(err.message || "Failed to send OTP");
+    } catch (err) {
+      setError((err as Error).message || "Failed to send OTP");
       setLoading(false);
     }
   };
@@ -87,15 +87,11 @@ export default function AuthPage() {
         formattedPhone = "91" + formattedPhone;
       }
 
-      console.log("Verifying OTP for phone:", formattedPhone, "OTP:", otp);
-
       const { data, error: verifyError } = await supabase.auth.verifyOtp({
         phone: formattedPhone,
         token: otp,
         type: "sms",
       });
-
-      console.log("Verify response:", { data, error: verifyError });
 
       if (verifyError) {
         console.error("OTP verification error:", verifyError);
@@ -106,28 +102,23 @@ export default function AuthPage() {
 
       // If verification was successful, we should have a user in data
       if (data?.user) {
-        console.log("User found in data:", data.user);
-        
         // Wait a bit to ensure cookies are set
         await new Promise(resolve => setTimeout(resolve, 300));
-        
+
         // Verify the session is accessible from the client
         const { data: { session } } = await supabase.auth.getSession();
-        console.log("Session check:", session?.user ? "User found" : "No user");
-        
+
         if (session?.user || data.user) {
-          console.log("Redirecting to /home");
           setLoading(false);
-          
+
           // Use router.push for client-side navigation
           // This should work better with Next.js middleware
-          router.push("/home");
-          
+          router.push("/auth/role-selection");
+
           // Fallback: if router.push doesn't work, use window.location after a delay
           setTimeout(() => {
             if (window.location.pathname === "/auth") {
-              console.log("Router.push didn't work, using window.location");
-              window.location.href = "/home";
+              window.location.href = "/auth/role-selection";
             }
           }, 500);
           
@@ -136,22 +127,18 @@ export default function AuthPage() {
       }
 
       // Fallback: Check session directly
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log("Session check:", session, "Error:", sessionError);
-      
+      const { data: { session } } = await supabase.auth.getSession();
+
       if (session?.user) {
-        console.log("User found in session, redirecting to /home");
-        window.location.href = "/home";
+        window.location.href = "/auth/role-selection";
         return;
       }
 
       // If we get here, something went wrong
-      console.error("No user found after verification");
       setError("Verification successful but no user session found. Please try again.");
       setLoading(false);
-    } catch (err: any) {
-      console.error("OTP verification exception:", err);
-      setError(err.message || "Failed to verify OTP");
+    } catch (err) {
+      setError((err as Error).message || "Failed to verify OTP");
       setLoading(false);
     }
   };
@@ -177,8 +164,8 @@ export default function AuthPage() {
         setError(googleError.message);
         setLoading(false);
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to sign in with Google");
+    } catch (err) {
+      setError((err as Error).message || "Failed to sign in with Google");
       setLoading(false);
     }
   };
@@ -188,8 +175,8 @@ export default function AuthPage() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">WeddingPlanner</h1>
-          <p className="text-gray-600">Welcome back</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Evenzi</h1>
+          <p className="text-gray-600">Welcome to Evenzi</p>
         </div>
 
         {/* Tabs */}
