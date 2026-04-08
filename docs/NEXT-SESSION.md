@@ -28,10 +28,11 @@
 - [ ] Create Sprint 1 and assign features (Fix Vercel, Component Library, Auth)
 - [ ] Create Sprint 2+ and assign remaining features per dependency order
 
-### Phase 3: Implementation (NOT STARTED)
+### Phase 3: Implementation (IN PROGRESS)
 - [ ] Fix Vercel Deployment (S — unblocks production)
 - [ ] Reusable Component Library (L — unblocks all UI work)
-- [ ] Auth & Role Selection (M — 75% done, Role Selection remaining)
+- [x] **Auth & Role Selection (M — DONE)** — Google OAuth fixed, Role Selection page built, middleware routing, user_profiles table
+- [ ] Profile Completion Gate — dashboard prompt for incomplete profiles (depends on User Settings)
 - [ ] Event CRUD — 5-Step Wizard (XL — core feature)
 - [ ] Host Dashboard (M — needs Event CRUD data)
 - [ ] Event Management Hub (M — central navigation for event features)
@@ -49,50 +50,47 @@
 
 ## Context
 
-ClickUp has **14 feature parent tasks** in Backlog. **237 subtasks created** across 10 features (Batches 1-3). 4 features still need subtasks (Batch 4 — Landing, Admin, Digital Invitations, Digital Presence partial).
+**Auth & Role Selection is DONE.** All 10 implementation tasks completed, Google OAuth and Phone OTP verified end-to-end in Chrome.
+
+**What was built this session (2026-04-08):**
+- `user_profiles` table with triggers (auto-create, updated_at, role immutability) + RLS
+- Added email, phone, auth_provider columns (second migration)
+- Phone users get NULL display_name (not phone number)
+- Role Selection page at `/auth/role-selection` (Host active, Vendor "Coming Soon")
+- Middleware role-based routing (no-role → role-selection, has-role → dashboard)
+- Fixed Google OAuth PKCE (upgraded @supabase/ssr 0.1.0 → 0.10.0)
+- Fixed OAuth callback open redirect vulnerability
+- Updated auth page (Evenzi branding, separate loading states, footer, cleaned types/logs)
+- Updated home page (Evenzi branding, removed redundant auth check, brand tokens)
+- Brand CSS tokens in globals.css + BRAND-GUIDELINES.md template
+- Frontend engineer agent: added Component Reusability section
+- 22 automated tests passing, lint clean (our changes)
 
 **ClickUp state:**
-- 14 feature parents (Backlog) — with descriptions and dependencies
-- 237 subtasks created (Spec, Data Model, Components, Dev Phases, Integration, Docs, Release)
-- Fix Vercel Deployment (DevOps) — in progress
-- Sprint ClickApp enabled on all spaces — sprints not yet created
-- Assignees set: Abhijith (Spec/Data Model), Dheeraj (Frontend/Backend/QA/Integration)
+- Auth & Role Selection subtasks: all DONE (need status update — see `docs/clickup/PENDING-TASKS.md`)
+- Profile Completion Gate task needs creating (saved in PENDING-TASKS.md)
+- ClickUp connector was rate-limited — pending tasks saved locally
 
-**Feature parents with full subtasks (Batches 1-3):**
-1. User Auth & Role Selection (86d2jwz1h) — 10 subtasks
-2. Reusable Component Library (86d2jwz25) — 28 subtasks
-3. Event CRUD 5-Step Wizard (86d2jwz3x) — 45 subtasks
-4. Host Dashboard (86d2jwz6v) — 21 subtasks
-5. Guest Management & RSVP (86d2jwz90) — 25 subtasks
-6. Event Management Hub (86d2k1kz1) — 16 subtasks
-7. Planning Tools (86d2jwzck) — 15 subtasks
-8. Media & Memories (86d2jwzdk) — 25 subtasks
-9. Event Settings (86d2k1kzq) — 20 subtasks
-10. User Settings (86d2k1m04) — 20 subtasks
-
-**Features still needing subtasks (Batch 4):**
-- Landing Section (86d2k1kwh) — 0 subtasks
-- Admin Module (86d2k1kye) — 0 subtasks
-- Digital Invitations (86d2jwza1) — 0 subtasks
-- Digital Presence (86d2jwzge) — partial (1 component: Custom Pages with 3 dev phases)
+**Database (Supabase):**
+- `user_profiles` table: id, role, display_name, avatar_url, onboarding_completed, email, phone, auth_provider, created_at, updated_at
+- 3 users exist: 1 phone (display_name NULL), 2 Google (names populated)
+- RLS enabled, role immutability trigger active
 
 ## How To Resume
 
 ### Immediate Next Steps
 
-1. **Run Batch 4** to create remaining subtasks for Landing, Admin, Digital Invitations, Digital Presence
-2. **Set up Sprints** — Create Sprint 1 (Fix Vercel, Component Library, Auth) and assign tasks
-3. **Start implementation** — Pick a feature and begin superpowers workflow
+1. **Create pending ClickUp tasks** from `docs/clickup/PENDING-TASKS.md` (Profile Completion Gate + update Auth subtask statuses)
+2. **Pick next feature** — recommended order:
+   - Fix Vercel Deployment (P0, unblocks production)
+   - Reusable Component Library (P0, unblocks all UI work)
+   - Event CRUD 5-Step Wizard (P0, core feature, includes host onboarding)
+3. **Phone OTP config:** Test phone number configured in Supabase dashboard (919999999999=123456, valid until June 30 2026)
 
-### Feature changes from this session
-
-- Auth description updated: new users go to event creation wizard after role selection, returning users go to dashboard
-- 5 new features added: Landing Section, Admin Module, Event Management Hub, Event Settings, User Settings
-- Digital Invitations deprioritized to Low (WhatsApp integration complexity)
-
-### Implementation workflow
-
-For each component: superpowers workflow (brainstorm → plan → implement → review) with approval gates.
+### Known gaps (not blockers)
+- Phone users have no display_name — needs Profile Completion Gate + User Settings page
+- Brand guidelines are placeholder — colors/fonts not finalized
+- Vercel deployments still in ERROR state (pre-existing)
 
 ---
 
@@ -100,14 +98,11 @@ For each component: superpowers workflow (brainstorm → plan → implement → 
 
 | Document | Purpose |
 |----------|---------|
+| `docs/superpowers/specs/2026-04-08-auth-role-selection-design.md` | Design spec (reviewed by 3 agents) |
+| `docs/superpowers/plans/2026-04-08-auth-role-selection.md` | Implementation plan (10 tasks) |
+| `docs/BRAND-GUIDELINES.md` | Brand token template (placeholder values) |
+| `docs/clickup/PENDING-TASKS.md` | ClickUp tasks to create (connector was down) |
 | `docs/clickup/TEMPLATES.md` | 11 task templates for ClickUp |
-| `docs/clickup/GUIDELINES.md` | Task creation rules, naming, statuses |
 | `docs/clickup/WORKSPACE.md` | All ClickUp IDs, workspace structure |
-| `docs/clickup/INTAKE.md` | Feature/bug/enhancement intake process |
-| `docs/clickup/DEPENDENCIES.md` | Feature dependency map, sprint order |
 | `docs/PROJECT.md` | Full feature descriptions, DB plans |
 | `CLAUDE.md` | Project guide, conventions, parallel subagents |
-
-## ClickUp IDs
-
-Moved to `docs/clickup/WORKSPACE.md` — single source of truth for all IDs.

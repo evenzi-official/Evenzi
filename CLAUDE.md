@@ -4,7 +4,7 @@
 
 Evenzi is an early-stage wedding/event planning SaaS platform. Users create events, manage invitations, track RSVPs, and organize wedding-related tasks and budgeting.
 
-**Current Status:** v0.1 — Auth is live. Agent Runner is parked. MVP Phase 1 (Host-only end-to-end event flow) is in planning, with ClickUp task templates and sprint structure defined.
+**Current Status:** v0.1 — Auth & Role Selection complete (Phone OTP + Google OAuth + Role Selection page). Agent Runner is parked. MVP Phase 1 implementation in progress.
 
 ---
 
@@ -279,7 +279,7 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 |---------|----------|--------|----------|
 | Fix Vercel Deployment | P0 | Blocked (pre-existing) | 0 |
 | Reusable Component Library | P0 | Not Started | 28 |
-| Auth & Role Selection | P0 | 75% Done (Role Selection remaining) | 10 |
+| Auth & Role Selection | P0 | DONE | 10 |
 
 **Backlog:**
 

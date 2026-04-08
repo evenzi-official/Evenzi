@@ -315,13 +315,17 @@ Later: vendors can list services, hosts can discover and book vendors, and the p
 
 ---
 
-## Database (Planned)
+## Database
 
 **Supabase Project ID:** `smjkbmkxweevqpvygabe` (region: ap-northeast-1)
 
-**Current tables:** Only Supabase Auth tables (users, sessions, etc.)
+### Live Tables
 
-**Planned tables for MVP:**
+| Table | Columns | Status |
+|-------|---------|--------|
+| `user_profiles` | id, role, display_name, avatar_url, onboarding_completed, email, phone, auth_provider, created_at, updated_at | LIVE — RLS enabled, auto-create trigger, role immutability trigger |
+
+### Planned Tables (MVP)
 
 | Table | Purpose |
 |-------|---------|
@@ -336,7 +340,6 @@ Later: vendors can list services, hosts can discover and book vendors, and the p
 | `photos` | Photo metadata per event (storage_path, album_id) |
 | `albums` | Photo albums per event |
 | `website_templates` | Pre-built website template definitions |
-| `user_profiles` | Extended user data (role, display_name, avatar) |
 
 All tables will have Row-Level Security (RLS) policies ensuring users can only access their own data.
 
@@ -364,3 +367,5 @@ All tables will have Row-Level Security (RLS) policies ensuring users can only a
 | 2026-04-08 | Created 237 subtasks across 10 features (full hierarchy: Spec, Data Model, Components, Dev Phases, Integration, Docs, Release). |
 | 2026-04-08 | Sprint ClickApp enabled. Active Sprint list created. Sprint 1: Fix Vercel, Component Library, Auth. |
 | 2026-04-08 | Updated `/start-session` with "Pick a ClickUp task" option and `/end-session` with ClickUp task status updates. |
+| 2026-04-08 | Auth & Role Selection feature COMPLETE — Google OAuth fixed (PKCE + @supabase/ssr upgrade 0.1.0→0.10.0), Role Selection page built, user_profiles table created with triggers/RLS, middleware role-based routing, auth page updated to Evenzi branding. |
+| 2026-04-08 | user_profiles schema expanded — added email, phone, auth_provider columns. Phone users get NULL display_name. Brand guidelines template created. Frontend engineer agent updated with Component Reusability section. |
