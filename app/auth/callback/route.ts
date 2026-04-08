@@ -1,20 +1,27 @@
 import { createClient } from '@/lib/supabase/server'
+import { getUserProfile } from '@/lib/supabase/profile'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/home'
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (error) {
+      console.error('OAuth callback error:', error.message)
+      return NextResponse.redirect(`${origin}/auth?error=auth_failed`)
+    }
+
+    // Determine redirect based on profile role
+    if (data.user) {
+      const profile = await getUserProfile(supabase, data.user.id)
+      const redirectPath = profile?.role ? '/home' : '/auth/role-selection'
+      return NextResponse.redirect(`${origin}${redirectPath}`)
     }
   }
 
-  // Return the user to an error page with instructions
   return NextResponse.redirect(`${origin}/auth?error=auth_failed`)
 }
-
