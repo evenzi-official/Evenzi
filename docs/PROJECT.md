@@ -354,3 +354,6 @@ All tables will have Row-Level Security (RLS) policies ensuring users can only a
 | 2026-04-08 | Design screens inventory: Login, Role Selection, Dashboard, 5-step Wizard, 6 Management Dashboard views. |
 | 2026-04-08 | Project renamed from "untitled-project" to "evenzi". Stale AMC/Runner refs cleaned from docs. |
 | 2026-04-08 | `/end-session` skill created for automated session cleanup workflow. |
+| 2026-04-08 | 9 feature parent tasks created in ClickUp Backlog with full descriptions and dependencies set. |
+| 2026-04-08 | `/start-session` skill created — ClickUp integration, branch verification, project briefing. |
+| 2026-04-08 | Skills directory restructured: flat files → subdirectories with SKILL.md for proper discovery. |

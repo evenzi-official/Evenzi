@@ -14,17 +14,17 @@
 - [x] Move post-MVP tasks to Ideas list
 - [x] Update CLAUDE.md, ONBOARDING.md, PROJECT.md
 
-### Phase 2: Feature Task Creation (NEXT)
-- [ ] Create feature parent task: Auth & Role Selection
-- [ ] Create feature parent task: Reusable Component Library
-- [ ] Create feature parent task: Event CRUD (5-Step Wizard)
-- [ ] Create feature parent task: Host Dashboard
-- [ ] Create feature parent task: Guest Management & RSVP
-- [ ] Create feature parent task: Digital Invitations (WhatsApp)
-- [ ] Create feature parent task: Planning Tools (Checklist & Budget)
-- [ ] Create feature parent task: Media & Memories (Photo Gallery)
-- [ ] Create feature parent task: Digital Presence (Event Website)
-- [ ] Set feature dependencies in ClickUp
+### Phase 2: Feature Task Creation (DONE)
+- [x] Create feature parent task: Auth & Role Selection (86d2jwz1h)
+- [x] Create feature parent task: Reusable Component Library (86d2jwz25)
+- [x] Create feature parent task: Event CRUD (5-Step Wizard) (86d2jwz3x)
+- [x] Create feature parent task: Host Dashboard (86d2jwz6v)
+- [x] Create feature parent task: Guest Management & RSVP (86d2jwz90)
+- [x] Create feature parent task: Digital Invitations (WhatsApp) (86d2jwza1)
+- [x] Create feature parent task: Planning Tools (Checklist & Budget) (86d2jwzck)
+- [x] Create feature parent task: Media & Memories (Photo Gallery) (86d2jwzdk)
+- [x] Create feature parent task: Digital Presence (Event Website) (86d2jwzge)
+- [x] Set feature dependencies in ClickUp
 
 ### Phase 3: Implementation (NOT STARTED)
 - [ ] Fix Vercel Deployment (S — unblocks production)
@@ -42,38 +42,23 @@
 
 ## Context
 
-ClickUp workspace is set up with Ideas list, workflow tags, and retroactive tracking. 11 task templates are designed. No feature parent tasks created yet in ClickUp. `/end-session` skill is available for future session cleanup. All docs (CLAUDE.md, PROJECT.md, ONBOARDING.md) are up to date as of 2026-04-08.
+ClickUp workspace is fully set up: Ideas list, workflow tags, retroactive tracking, and all 9 feature parent tasks created with descriptions and dependencies. `/start-session` and `/end-session` skills are available. All docs up to date as of 2026-04-08.
 
 ## How To Resume
 
-### Step 1: Create Feature Parent Tasks in ClickUp
+### Step 1: Pick a Feature for Implementation
 
-Create these as parent tasks in the Backlog list using the Feature Definition template from `docs/superpowers/specs/2026-04-08-clickup-task-templates-design.md`:
+Use `/start-session` to pull ClickUp status and choose what to work on. Feature parent tasks exist in Backlog — next step is to create component subtasks and dev phase subtasks for the chosen feature.
 
-1. **Feature: Auth & Role Selection** — 75% done, Role Selection screen remaining
-2. **Feature: Reusable Component Library** — foundation, blocks everything else
-3. **Feature: Event CRUD (5-Step Wizard)** — core feature, XL size
-4. **Feature: Host Dashboard** — shell exists, needs real data
-5. **Feature: Guest Management & RSVP** — depends on Event CRUD
-6. **Feature: Digital Invitations (WhatsApp)** — depends on Guest Management
-7. **Feature: Planning Tools (Checklist & Budget)** — depends on Event CRUD
-8. **Feature: Media & Memories (Photo Gallery)** — depends on Event CRUD
-9. **Feature: Digital Presence (Event Website)** — depends on Event CRUD + Media
+**Recommended first feature:** Reusable Component Library (86d2jwz25) — blocks all other features.
 
-Full descriptions for each are in `docs/superpowers/plans/2026-04-08-clickup-setup-mvp-tasks.md` (Tasks 3-12).
+### Step 2: Create Component Subtasks
 
-### Step 2: Set Feature Dependencies
+For the chosen feature, create component subtasks under the parent task using the Component template from `docs/superpowers/specs/2026-04-08-clickup-task-templates-design.md`. Then create dev phase subtasks (UI/UX → Frontend → Backend → QA) under each component.
 
-Once parent tasks exist:
-- Component Library → blocks → all features
-- Fix Vercel → blocks → all releases
-- Auth → blocks → Dashboard
-- Event CRUD → blocks → Guest, Planning, Media, Website
-- Guest Management → blocks → Digital Invitations
+### Step 3: Start Implementation
 
-### Step 3: Pick First Feature for Implementation
-
-For each feature picked: create component subtasks → create dev phase subtasks → start implementation using superpowers workflow (brainstorm → plan → subagent-driven-development → code-review).
+For each component: use superpowers workflow (brainstorm → plan → subagent-driven-development → code-review).
 
 ---
 
@@ -102,3 +87,12 @@ For each feature picked: create component subtasks → create dev phase subtasks
 | QA & Bugs list | 901614372142 |
 | Fix Vercel task | 86d2jmkn4 |
 | Fix Google Login task | 86d2jme5c |
+| Feature: Auth & Role Selection | 86d2jwz1h |
+| Feature: Reusable Component Library | 86d2jwz25 |
+| Feature: Event CRUD (5-Step Wizard) | 86d2jwz3x |
+| Feature: Host Dashboard | 86d2jwz6v |
+| Feature: Guest Management & RSVP | 86d2jwz90 |
+| Feature: Digital Invitations (WhatsApp) | 86d2jwza1 |
+| Feature: Planning Tools (Checklist & Budget) | 86d2jwzck |
+| Feature: Media & Memories (Photo Gallery) | 86d2jwzdk |
+| Feature: Digital Presence (Event Website) | 86d2jwzge |

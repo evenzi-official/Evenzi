@@ -1,7 +1,6 @@
 ---
 name: end-session
 description: End-of-session workflow — update docs, commit, push to Dev-Vibe, clear worktree
-user_invocable: true
 ---
 
 # End Session Workflow
