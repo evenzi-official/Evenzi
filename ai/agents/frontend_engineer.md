@@ -46,6 +46,16 @@ Before writing any component, answer these questions:
 - Generous negative space OR controlled density — both work, but the choice must be intentional, not default.
 - Full-bleed sections, offset cards, overlapping typography are all valid tools.
 
+## Component Reusability
+
+- **Reuse first:** Before building any UI element, check `components/ui/` for an existing component that fits. Never duplicate.
+- **Extract shared patterns:** Buttons, cards, inputs, badges, modals, form fields, alerts — all belong in `components/ui/` as reusable components.
+- **Props over duplication:** Components accept props for variants (size, color, state, disabled) rather than creating one-off copies. Example: `<Button variant="primary" size="lg" loading>` not a separate `<PrimaryLargeButton>`.
+- **Atomic design:** Build in layers — atoms (Button, Input, Badge) → molecules (FormField, Card, Alert) → organisms (AuthForm, RoleSelector, EventCard). Each layer composes the layer below.
+- **Consistent API:** All shared components use the same prop patterns: `variant`, `size`, `disabled`, `loading`, `className` for style overrides.
+- **Document with types:** Every shared component exports its props interface. Use TypeScript discriminated unions for variant props.
+- **Test isolation:** Shared components should be testable in isolation without page context.
+
 ## Anti-Patterns (Never Do These)
 
 - Generic "AI slop" aesthetics — cookie-cutter cards, predictable hero-CTA-features layouts
