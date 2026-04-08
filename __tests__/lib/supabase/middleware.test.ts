@@ -1,41 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Mock the profile module
-vi.mock('@/lib/supabase/profile', () => ({
-  getUserProfile: vi.fn(),
-}))
-
-// Mock @supabase/ssr
-vi.mock('@supabase/ssr', () => ({
-  createServerClient: vi.fn(() => ({
-    auth: {
-      getUser: vi.fn(),
-    },
-    from: vi.fn().mockReturnThis(),
-    select: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    single: vi.fn(),
-  })),
-}))
-
-import { getUserProfile } from '@/lib/supabase/profile'
 import type { UserProfile } from '@/lib/supabase/profile'
-
-// Helper to create a mock NextRequest
-function mockRequest(pathname: string, cookies: Record<string, string> = {}): any {
-  const url = new URL(`http://localhost:3000${pathname}`)
-  return {
-    nextUrl: {
-      pathname,
-      clone: () => new URL(url),
-    },
-    cookies: {
-      getAll: () => Object.entries(cookies).map(([name, value]) => ({ name, value })),
-      set: vi.fn(),
-    },
-    url: url.toString(),
-  }
-}
 
 describe('middleware routing logic', () => {
   beforeEach(() => {

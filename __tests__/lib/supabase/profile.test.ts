@@ -18,6 +18,7 @@ describe('getUserProfile', () => {
       single: vi.fn().mockResolvedValue({ data: mockProfile, error: null }),
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await getUserProfile(mockSupabase as any, 'user-123')
     expect(result).toEqual(mockProfile)
     expect(mockSupabase.from).toHaveBeenCalledWith('user_profiles')
@@ -33,6 +34,7 @@ describe('getUserProfile', () => {
       single: vi.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } }),
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await getUserProfile(mockSupabase as any, 'user-456')
     expect(result).toBeNull()
   })
@@ -45,6 +47,7 @@ describe('getUserProfile', () => {
       single: vi.fn().mockResolvedValue({ data: null, error: { message: 'connection failed' } }),
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await getUserProfile(mockSupabase as any, 'user-789')
     expect(result).toBeNull()
   })
