@@ -357,3 +357,6 @@ All tables will have Row-Level Security (RLS) policies ensuring users can only a
 | 2026-04-08 | 9 feature parent tasks created in ClickUp Backlog with full descriptions and dependencies set. |
 | 2026-04-08 | `/start-session` skill created — ClickUp integration, branch verification, project briefing. |
 | 2026-04-08 | Skills directory restructured: flat files → subdirectories with SKILL.md for proper discovery. |
+| 2026-04-08 | ClickUp cleanup: deleted 32 standalone tasks, rebuilt approach — subtasks created per-feature during brainstorm/plan (not upfront). |
+| 2026-04-08 | Created `docs/clickup/` folder: TEMPLATES, GUIDELINES, WORKSPACE, INTAKE, DEPENDENCIES — all ClickUp docs centralized. |
+| 2026-04-08 | Added parallel subagent standard practice to CLAUDE.md and start-session skill. |

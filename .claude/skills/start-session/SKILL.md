@@ -88,4 +88,14 @@ Then use `AskUserQuestion` to ask what they want to do this session:
 
 Invoke the `superpowers:using-superpowers` skill to activate the skill system for this session.
 
+### 7. Parallel execution reminder
+
+Remind yourself: **Always dispatch parallel subagents** for independent tasks. Use `superpowers:dispatching-parallel-agents` whenever 2+ tasks don't depend on each other. This includes:
+- Multiple ClickUp operations (create/update/delete tasks)
+- Independent file reads or writes
+- Frontend + Backend on separate components
+- Running tests while writing docs
+
+Reference: `CLAUDE.md` → "Parallel Subagents" section, `docs/clickup/` for all ClickUp docs (TEMPLATES, GUIDELINES, WORKSPACE, INTAKE, DEPENDENCIES).
+
 Begin work.

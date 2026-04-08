@@ -122,11 +122,27 @@ RUNNER_EMAIL_ON_ALERT=true              # Send email on budget alerts + approval
 
 ### How It Works
 
-1. **Plan in ClickUp** — Create a feature task using the template structure (see Task Templates below)
+1. **Plan in ClickUp** — Create a feature task using templates from `docs/clickup/TEMPLATES.md` (see `docs/clickup/` for all ClickUp docs)
 2. **New Claude Code session** — Paste ClickUp task details, invoke superpowers brainstorming
 3. **Superpowers workflow** — brainstorm → write-plan → subagent-driven-development → code-review
 4. **Agent knowledge** — At each stage, Claude Code references `ai/agents/` for role-specific checklists and patterns
 5. **Approval gates** — After each dev phase, user validates output before next phase starts
+
+### Parallel Subagents (Standard Practice)
+
+**Always prefer parallel execution.** When 2+ tasks are independent (no shared state or sequential dependency), dispatch them as parallel subagents using the `superpowers:dispatching-parallel-agents` skill.
+
+**When to parallelize:**
+- Multiple ClickUp tasks (create, update, delete) — batch them
+- Independent file reads/writes across different parts of the codebase
+- Frontend + Backend dev on different components
+- Multiple component brainstorms/plans that don't depend on each other
+- Running tests while writing docs
+
+**When NOT to parallelize:**
+- Tasks that depend on each other's output
+- Schema changes that affect multiple components
+- Anything requiring approval gates between steps
 
 ### Task Templates & Hierarchy
 
