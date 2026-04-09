@@ -88,6 +88,13 @@ export async function updateSession(request: NextRequest) {
       url.pathname = '/home'
       return NextResponse.redirect(url)
     }
+
+    // Host-only routes — vendors cannot access event creation/management
+    if (hasRole && profile?.role !== 'host' && pathname.startsWith('/events')) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/home'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse
