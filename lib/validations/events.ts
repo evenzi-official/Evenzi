@@ -7,7 +7,7 @@ export const step1Schema = z.object({
 
 // Step 2: dynamic metadata fields required, common fields optional
 export const step2Schema = z.object({
-  metadata: z.record(z.string().min(1, 'This field is required')),
+  metadata: z.record(z.string(), z.string().min(1, 'This field is required')),
   primaryDate: z.string().nullable().optional(),
   primaryVenue: z.string().nullable().optional(),
   guestCapacity: z.coerce.number().int().positive().nullable().optional(),
@@ -31,7 +31,7 @@ export const step3Schema = z.object({
 export const createEventSchema = z.object({
   eventTypeId: z.string().uuid(),
   metadata: z
-    .record(z.string().min(1).max(500))
+    .record(z.string(), z.string().min(1).max(500))
     .refine((obj) => Object.keys(obj).length <= 20, 'Too many metadata fields (max 20)'),
   primaryDate: z.string().date().nullable().optional(),
   primaryVenue: z.string().max(500).nullable().optional(),
