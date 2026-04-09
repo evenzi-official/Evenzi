@@ -4,8 +4,8 @@ import { useWizard } from '@/lib/contexts/WizardContext'
 
 const STEP_LABELS: Record<number, string> = {
   1: 'Event Type',
-  2: 'Sub-Events',
-  3: 'Basic Details',
+  2: 'Basic Details',
+  3: 'Sub-Events',
   4: 'Review & Confirm',
 }
 

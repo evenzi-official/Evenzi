@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useRef } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { WizardProvider, useWizard } from '@/lib/contexts/WizardContext'
 import { WizardProgress } from './components/WizardProgress'
 import { Step1EventType } from './components/Step1EventType'
@@ -14,37 +14,31 @@ import { Step4ReviewConfirm } from './components/Step4ReviewConfirm'
 function WizardContent(): React.JSX.Element {
   const { state, dispatch } = useWizard()
   const searchParams = useSearchParams()
-  const router = useRouter()
 
-  // Track last step we synced FROM the URL so we don't loop
-  const lastUrlStep = useRef<number | null>(null)
+  // Track last synced step to prevent loops
+  const lastSyncedStep = useRef<number>(state.currentStep)
 
-  // Effect 1: URL → state (on mount and when URL changes)
+  // URL → state: only on initial mount (read step from URL if present)
   useEffect(() => {
     const stepParam = searchParams.get('step')
-    const urlStep = stepParam ? parseInt(stepParam, 10) : 1
-    if (
-      !isNaN(urlStep) &&
-      urlStep >= 1 &&
-      urlStep !== state.currentStep &&
-      urlStep !== lastUrlStep.current
-    ) {
-      lastUrlStep.current = urlStep
-      dispatch({ type: 'GO_TO_STEP', payload: urlStep })
+    if (stepParam) {
+      const step = parseInt(stepParam, 10)
+      if (!isNaN(step) && step >= 1 && step !== state.currentStep) {
+        dispatch({ type: 'GO_TO_STEP', payload: step })
+        lastSyncedStep.current = step
+      }
     }
-  }, [searchParams, dispatch, state.currentStep])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Effect 2: state → URL (when state.currentStep changes)
+  // State → URL: use window.history.replaceState to avoid Next.js RSC refetch
   useEffect(() => {
-    if (lastUrlStep.current === state.currentStep) {
-      // This change originated from the URL — skip to avoid loop
-      lastUrlStep.current = null
-      return
+    if (state.currentStep !== lastSyncedStep.current) {
+      lastSyncedStep.current = state.currentStep
+      const url = new URL(window.location.href)
+      url.searchParams.set('step', String(state.currentStep))
+      window.history.replaceState(null, '', url.toString())
     }
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('step', String(state.currentStep))
-    router.replace(`?${params.toString()}`, { scroll: false })
-  }, [state.currentStep, router, searchParams])
+  }, [state.currentStep])
 
   // Render active step
   function renderStep(): React.JSX.Element {

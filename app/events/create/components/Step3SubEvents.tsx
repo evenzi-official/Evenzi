@@ -30,7 +30,8 @@ export function Step3SubEvents(): React.JSX.Element {
       try {
         const res = await fetch(`/api/event-types/${eventType!.id}/sub-events`)
         if (!res.ok) throw new Error(`Failed to load sub-events (${res.status})`)
-        const data: SubEventType[] = await res.json()
+        const json = await res.json()
+        const data: SubEventType[] = json.subEventTypes ?? json
         if (cancelled) return
 
         setSubEventTypes(data)

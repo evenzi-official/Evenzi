@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { EventListItem } from "@/lib/types/events";
 
+const ICON_MAP: Record<string, string> = {
+  heart: "💍", cake: "🎂", gem: "💎", briefcase: "💼", baby: "👶", calendar: "📅",
+};
+
 interface Props {
   events: EventListItem[];
   userDisplay: string;
@@ -51,7 +55,7 @@ function EventCard({ event }: { event: EventListItem }) {
         className="h-40 flex items-center justify-center text-4xl"
         style={{ background: gradient }}
       >
-        {event.eventType.iconName ?? "🎉"}
+        {ICON_MAP[event.eventType.iconName ?? ""] ?? "🎉"}
       </div>
 
       {/* Card body */}
