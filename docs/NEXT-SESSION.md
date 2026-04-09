@@ -67,9 +67,9 @@
 - 22 automated tests passing, lint clean (our changes)
 
 **ClickUp state:**
-- Auth & Role Selection subtasks: all DONE (need status update — see `docs/clickup/PENDING-TASKS.md`)
-- Profile Completion Gate task needs creating (saved in PENDING-TASKS.md)
-- ClickUp connector was rate-limited — pending tasks saved locally
+- Auth & Role Selection: parent + all 8 subtasks marked DONE in ClickUp
+- Profile Completion Gate: created in Backlog (`86d2kbwep`), high priority
+- No pending tasks remaining
 
 **Database (Supabase):**
 - `user_profiles` table: id, role, display_name, avatar_url, onboarding_completed, email, phone, auth_provider, created_at, updated_at
@@ -80,8 +80,7 @@
 
 ### Immediate Next Steps
 
-1. **Create pending ClickUp tasks** from `docs/clickup/PENDING-TASKS.md` (Profile Completion Gate + update Auth subtask statuses)
-2. **Pick next feature** — recommended order:
+1. **Pick next feature** — recommended order:
    - Fix Vercel Deployment (P0, unblocks production)
    - Reusable Component Library (P0, unblocks all UI work)
    - Event CRUD 5-Step Wizard (P0, core feature, includes host onboarding)
