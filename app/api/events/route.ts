@@ -184,7 +184,7 @@ export async function GET(): Promise<NextResponse> {
       return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 })
     }
 
-    const events: EventListItem[] = (data as EventListRow[]).map((row) => ({
+    const events: EventListItem[] = (data as unknown as EventListRow[]).map((row) => ({
       id: row.id,
       name: row.name,
       eventType: {

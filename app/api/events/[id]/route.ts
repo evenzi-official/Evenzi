@@ -86,7 +86,7 @@ export async function GET(
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
 
-    const event = eventData as EventDetailRow
+    const event = eventData as unknown as EventDetailRow
 
     // Fetch metadata
     const { data: metadataRows, error: metaError } = await supabase
@@ -129,7 +129,7 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch sub-events' }, { status: 500 })
     }
 
-    const subEvents: EventSubEvent[] = (subEventRows as EventSubEventWithType[]).map((row) => ({
+    const subEvents: EventSubEvent[] = (subEventRows as unknown as EventSubEventWithType[]).map((row) => ({
       id: row.id,
       name: row.custom_name ?? row.sub_event_types?.name ?? 'Unnamed',
       iconName: row.sub_event_types?.icon_name ?? null,
