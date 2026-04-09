@@ -123,10 +123,10 @@ export function Step3SubEvents(): React.JSX.Element {
             className="text-xl font-semibold mb-1"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            Choose Your Events
+            Sub-Event Selection
           </h2>
           <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            Loading event options…
+            Loading sub-events…
           </p>
         </div>
         <div
@@ -187,10 +187,10 @@ export function Step3SubEvents(): React.JSX.Element {
           className="text-xl font-semibold mb-1"
           style={{ color: 'var(--color-text-primary)' }}
         >
-          Choose Your Events
+          Sub-Event Selection
         </h2>
         <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-          Select the events that are part of your celebration. You can add custom ones too.
+          Select the sub-events you are hosting for the wedding.
         </p>
       </div>
 
