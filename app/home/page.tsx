@@ -1,89 +1,65 @@
-"use client";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import type { EventListItem } from "@/lib/types/events";
+import EventsGrid from "./EventsGrid";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
-
-export default function HomePage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const supabase = createClient();
-
-  useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      setLoading(false);
-    };
-    getUser();
-  }, [supabase]);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push("/");
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center"
-        style={{ background: "var(--color-bg-primary)" }}>
-        <div style={{ color: "var(--color-text-secondary)" }}>Loading...</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen" style={{ background: "var(--color-bg-primary)" }}>
-      {/* Navigation */}
-      <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 border-b"
-        style={{ borderColor: "var(--color-border)" }}>
-        <div className="flex items-center justify-between">
-          <div className="text-2xl font-bold"
-            style={{ color: "var(--color-text-primary)" }}>Evenzi</div>
-          <div className="flex items-center gap-4">
-            {user && (
-              <div className="text-sm"
-                style={{ color: "var(--color-text-secondary)" }}>
-                {user.email || user.phone || "User"}
-              </div>
-            )}
-            <button
-              onClick={handleSignOut}
-              className="px-4 py-2 text-sm font-medium transition-colors hover:opacity-80"
-              style={{ color: "var(--color-text-secondary)" }}
-            >
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
-            style={{ color: "var(--color-text-primary)" }}>
-            Welcome to Evenzi!
-          </h1>
-          <p className="text-xl sm:text-2xl mb-12 max-w-2xl mx-auto"
-            style={{ color: "var(--color-text-secondary)" }}>
-            Start planning your perfect event.
-          </p>
-
-          <button
-            onClick={() => alert("Create Event Wizard coming soon!")}
-            className="px-8 py-4 font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-lg text-white"
-            style={{ background: "var(--color-primary)" }}
-          >
-            Create Your First Event
-          </button>
-        </div>
-      </main>
-    </div>
-  );
+interface EventListRow {
+  id: string;
+  name: string | null;
+  primary_date: string | null;
+  primary_venue: string | null;
+  guest_capacity: number | null;
+  cover_image_url: string | null;
+  status: string;
+  created_at: string;
+  event_types: { name: string; slug: string; icon_name: string | null } | null;
+  event_sub_events: { id: string }[] | null;
 }
 
+export default async function HomePage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth");
+  }
+
+  const { data } = await supabase
+    .from("events")
+    .select(`
+      id, name, primary_date, primary_venue, guest_capacity,
+      cover_image_url, status, created_at,
+      event_types ( name, slug, icon_name ),
+      event_sub_events ( id )
+    `)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  const rows = (data ?? []) as unknown as EventListRow[];
+
+  const events: EventListItem[] = rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    eventType: row.event_types
+      ? {
+          name: row.event_types.name,
+          slug: row.event_types.slug,
+          iconName: row.event_types.icon_name,
+        }
+      : { name: "Event", slug: "event", iconName: null },
+    primaryDate: row.primary_date,
+    primaryVenue: row.primary_venue,
+    guestCapacity: row.guest_capacity,
+    coverImageUrl: row.cover_image_url,
+    status: row.status,
+    subEventCount: row.event_sub_events?.length ?? 0,
+    createdAt: row.created_at,
+  }));
+
+  const userDisplay = user.email ?? user.phone ?? "User";
+
+  return <EventsGrid events={events} userDisplay={userDisplay} />;
+}
