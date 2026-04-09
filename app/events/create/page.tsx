@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { WizardProvider, useWizard } from '@/lib/contexts/WizardContext'
 import { WizardProgress } from './components/WizardProgress'
 import { Step1EventType } from './components/Step1EventType'
+import Step2BasicDetails from './components/Step2BasicDetails'
+import Step3SubEvents from './components/Step3SubEvents'
 
 // ---- Inner wizard content (needs useSearchParams, wrapped in Suspense) ----
 
@@ -49,21 +51,21 @@ function WizardContent(): React.JSX.Element {
       case 1:
         return <Step1EventType />
       case 2:
-        return (
-          <div className="py-24 text-center" style={{ color: 'var(--color-text-muted)' }}>
-            Step 2: Sub-Events — coming in Task 8
-          </div>
-        )
+        return <Step2BasicDetails />
       case 3:
+        if (state.eventType?.hasSubEvents) {
+          return <Step3SubEvents />
+        }
+        // If no sub-events, step 3 is Review (handled by totalSteps logic)
         return (
           <div className="py-24 text-center" style={{ color: 'var(--color-text-muted)' }}>
-            Step 3: Basic Details — coming in Task 9
+            Review &amp; Confirm — coming in Task 10
           </div>
         )
       case 4:
         return (
           <div className="py-24 text-center" style={{ color: 'var(--color-text-muted)' }}>
-            Step 4: Review &amp; Confirm — coming in Task 10
+            Review &amp; Confirm — coming in Task 10
           </div>
         )
       default:
