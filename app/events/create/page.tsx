@@ -6,7 +6,8 @@ import { WizardProvider, useWizard } from '@/lib/contexts/WizardContext'
 import { WizardProgress } from './components/WizardProgress'
 import { Step1EventType } from './components/Step1EventType'
 import Step2BasicDetails from './components/Step2BasicDetails'
-import Step3SubEvents from './components/Step3SubEvents'
+import { Step3SubEvents } from './components/Step3SubEvents'
+import { Step4ReviewConfirm } from './components/Step4ReviewConfirm'
 
 // ---- Inner wizard content (needs useSearchParams, wrapped in Suspense) ----
 
@@ -56,18 +57,10 @@ function WizardContent(): React.JSX.Element {
         if (state.eventType?.hasSubEvents) {
           return <Step3SubEvents />
         }
-        // If no sub-events, step 3 is Review (handled by totalSteps logic)
-        return (
-          <div className="py-24 text-center" style={{ color: 'var(--color-text-muted)' }}>
-            Review &amp; Confirm — coming in Task 10
-          </div>
-        )
+        // No sub-events — step 3 is Review & Confirm
+        return <Step4ReviewConfirm />
       case 4:
-        return (
-          <div className="py-24 text-center" style={{ color: 'var(--color-text-muted)' }}>
-            Review &amp; Confirm — coming in Task 10
-          </div>
-        )
+        return <Step4ReviewConfirm />
       default:
         return <Step1EventType />
     }
