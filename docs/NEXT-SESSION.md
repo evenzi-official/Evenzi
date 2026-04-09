@@ -52,7 +52,14 @@
 
 **Auth & Role Selection is DONE.** All 10 implementation tasks completed, Google OAuth and Phone OTP verified end-to-end in Chrome.
 
-**What was built this session (2026-04-08):**
+**What was built this session (2026-04-09):**
+- 3 new skills created: `/clickup-pm` (ClickUp orchestration), `/plan-review` (multi-agent plan review gate), `/session-report` (token usage + work summary)
+- 2 skills updated: `/start-session` (7 work paths, superpowers init), `/end-session` (session-report integration)
+- 5 agents enriched from basic → experienced: token_monitor, devops_engineer, task_planner, task_distributor, fullstack_engineer
+- ClickUp cleanup: deleted 5 orphaned Profile tasks, created 2 clean Auth subtasks
+- Event CRUD brainstorming started but paused to complete workflow redesign first
+
+**What was built previous session (2026-04-08):**
 - `user_profiles` table with triggers (auto-create, updated_at, role immutability) + RLS
 - Added email, phone, auth_provider columns (second migration)
 - Phone users get NULL display_name (not phone number)
@@ -80,11 +87,10 @@
 
 ### Immediate Next Steps
 
-1. **Pick next feature** — recommended order:
-   - Fix Vercel Deployment (P0, unblocks production)
-   - Reusable Component Library (P0, unblocks all UI work)
-   - Event CRUD 5-Step Wizard (P0, core feature, includes host onboarding)
-3. **Phone OTP config:** Test phone number configured in Supabase dashboard (919999999999=123456, valid until June 30 2026)
+1. **Resume Event CRUD brainstorming** — paused mid-brainstorm (visual companion offer). Pick up with `/start-session` → "Work on a ClickUp task" → Event CRUD
+2. **Complete Spec & Architecture** — finish brainstorm → write plan → `/plan-review` (multi-agent gate) → implement
+3. **Agent enrichment (remaining Medium agents)** — user wants to discuss backend_engineer, data_modeller, qa_engineer, tech_lead, product_manager enrichment separately
+4. **Phone OTP config:** Test phone number configured in Supabase dashboard (919999999999=123456, valid until June 30 2026)
 
 ### Known gaps (not blockers)
 - Phone users have no display_name — needs Profile Completion Gate + User Settings page

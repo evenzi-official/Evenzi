@@ -369,3 +369,5 @@ All tables will have Row-Level Security (RLS) policies ensuring users can only a
 | 2026-04-08 | Updated `/start-session` with "Pick a ClickUp task" option and `/end-session` with ClickUp task status updates. |
 | 2026-04-08 | Auth & Role Selection feature COMPLETE — Google OAuth fixed (PKCE + @supabase/ssr upgrade 0.1.0→0.10.0), Role Selection page built, user_profiles table created with triggers/RLS, middleware role-based routing, auth page updated to Evenzi branding. |
 | 2026-04-08 | user_profiles schema expanded — added email, phone, auth_provider columns. Phone users get NULL display_name. Brand guidelines template created. Frontend engineer agent updated with Component Reusability section. |
+| 2026-04-09 | Workflow redesign — 3 new skills (clickup-pm, plan-review, session-report), 2 updated skills (start-session, end-session). 7 work paths in start-session. Multi-agent plan review gate. Token monitoring. |
+| 2026-04-09 | 5 agents enriched from basic to experienced: token_monitor, devops_engineer, task_planner, task_distributor, fullstack_engineer. ClickUp orphan cleanup (5 deleted, 2 Auth subtasks created). |

@@ -1,6 +1,6 @@
 ---
 name: end-session
-description: End-of-session workflow — update docs, commit, push to Dev-Vibe, clear worktree
+description: End-of-session workflow — update ClickUp tasks, generate session report, update docs, commit, push to Dev-Vibe, clear worktree
 ---
 
 # End Session Workflow
@@ -17,50 +17,31 @@ Run this when wrapping up a Claude Code session. This handles all cleanup so not
 
 ### 2. Update ClickUp tasks
 
-For every ClickUp task that was worked on this session:
+Invoke `/clickup-pm` with mode `session-end`. Provide:
+- List of task IDs worked on this session
+- Summary of what was done per task
+- Current state and next steps per task
 
-**Update task status:**
-- If work is complete and ready for review → set status to `in review`
-- If work is partially done and will continue → keep status as `in progress`
-- If work is blocked → set status to `blocked` and note the blocker
-- If a phase was approved during the session → set status to `approved` or `done`
+The skill handles all status transitions, session summary comments, subtask updates, and parent task rollups.
 
-**Add a session summary comment** to each task worked on:
+### 3. Generate session report
 
-```
-📝 Session Update — [date]
+Invoke `/session-report`. It will:
+- Summarize work accomplished (files, tasks, phases)
+- Estimate token usage by phase
+- List issues discovered and tasks created
+- Provide optimization suggestions for future sessions
+- Save report to `docs/session-reports/[date]-session-report.md`
 
-**What was done:**
-- [Bullet points of actual work completed]
+### 4. Update ClickUp docs (if workspace structure changed)
 
-**Current state:**
-- [Where this task stands now]
+If this session created new features, lists, or changed dependencies, invoke `/clickup-pm` to update:
+- `docs/clickup/WORKSPACE.md` — new IDs, status changes
+- `docs/clickup/DEPENDENCIES.md` — dependency or sprint order changes
 
-**Next steps:**
-- [What remains to be done]
+**Rule:** If ClickUp structure didn't change, skip this step.
 
-**Blockers (if any):**
-- [What's preventing progress]
-```
-
-**Update subtask statuses** if individual dev phases were completed (e.g., if Frontend Dev was finished, mark it accordingly).
-
-### 3. Update ClickUp docs (if workspace structure changed)
-
-Check and update ONLY if this session changed ClickUp structure:
-
-**`docs/clickup/WORKSPACE.md`:**
-- New feature parent IDs (if features were created)
-- New list/folder IDs (if workspace structure changed)
-- Task status updates in the feature table
-
-**`docs/clickup/DEPENDENCIES.md`:**
-- Dependency changes (if new features were added or dependencies shifted)
-- Sprint order updates (if priorities changed)
-
-**Rule:** If ClickUp structure didn't change, don't touch these files.
-
-### 4. Update project docs (only if session work makes them stale)
+### 5. Update project docs (only if session work makes them stale)
 
 Check each doc and update ONLY sections that are affected by this session's work:
 
@@ -89,14 +70,16 @@ Check each doc and update ONLY sections that are affected by this session's work
 
 **Rule:** If nothing relevant changed for a doc, don't touch it. Don't make cosmetic edits.
 
-### 5. Commit all uncommitted changes
+### 6. Commit all uncommitted changes
 
 ```bash
 git add <relevant files>
 git commit -m "docs: end-of-session update — <brief summary of what changed>"
 ```
 
-### 6. Push and merge to Dev-Vibe
+Include the session report in the commit.
+
+### 7. Push and merge to Dev-Vibe
 
 ```bash
 # Push current worktree branch
@@ -112,16 +95,17 @@ git push origin Dev-Vibe
 
 If there are merge conflicts, stop and ask the user how to resolve them. Do NOT force push.
 
-### 7. Clean up worktree
+### 8. Clean up worktree
 
 Use `ExitWorktree` with action "remove" to clean up the worktree.
 
-If the worktree has uncommitted changes, the tool will refuse — go back to step 5 and commit first.
+If the worktree has uncommitted changes, the tool will refuse — go back to step 6 and commit first.
 
-### 8. Confirm completion
+### 9. Confirm completion
 
 Tell the user:
 - What ClickUp tasks were updated (status changes + comments added)
+- Session report highlights (token usage, key metrics)
 - What docs were updated
 - What was pushed to Dev-Vibe
 - What's next for the following session (from NEXT-SESSION.md)

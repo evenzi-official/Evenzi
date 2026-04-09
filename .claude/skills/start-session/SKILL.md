@@ -1,6 +1,6 @@
 ---
 name: start-session
-description: Use at the start of every Claude Code session — ensures Dev-Vibe worktree, reads project docs, pulls ClickUp tasks, initializes superpowers
+description: Use at the start of every Claude Code session — ensures Dev-Vibe worktree, reads project docs, pulls ClickUp tasks, initializes superpowers, offers multiple work paths
 ---
 
 # Start Session Workflow
@@ -14,8 +14,6 @@ Run this at the beginning of every Claude Code session to get oriented and ready
 Check if the current worktree was created from `Dev-Vibe`. If not:
 
 ```bash
-# Check what branch the worktree is based on
-git log --oneline -1 Dev-Vibe
 git merge-base --is-ancestor Dev-Vibe HEAD
 ```
 
@@ -41,15 +39,17 @@ Focus on:
 - What's the next task to pick up
 - Any blockers or pre-requisites
 
-### 3. Pull ClickUp status
+### 3. Initialize superpowers
 
-Fetch current sprint state from ClickUp:
+Invoke `superpowers:using-superpowers` to activate the skill system for this session. Do this early so all skills are available for every path.
 
-- Use `clickup_filter_tasks` with tags `["mvp-phase-1"]` and statuses `["in progress"]` to find active work
-- Use `clickup_filter_tasks` with tags `["mvp-phase-1"]` and statuses `["to do"]` to find ready tasks
-- Note any tasks with `approval-gate` tag that are waiting for user approval
+### 4. Pull ClickUp status
 
-### 4. Brief the user and ask what to work on
+Invoke `/clickup-pm` with mode `session-start`. It will:
+- Fetch in-progress, ready, and approval-gate tasks
+- Return a structured summary for briefing the user
+
+### 5. Brief the user and choose a path
 
 Give a concise summary:
 - **Last session:** What was accomplished (from NEXT-SESSION.md)
@@ -60,50 +60,62 @@ Give a concise summary:
 
 Then use `AskUserQuestion` to ask what they want to do this session:
 
-**Option 1: "Pick a ClickUp task"** — Browse and select a specific task from ClickUp to work on
-**Option 2: "Continue in-progress work"** — Pick up where we left off (show which task)
-**Option 3: "ClickUp task management"** — Work on ClickUp tasks (create subtasks, set dependencies, organize sprint)
-**Option 4: Other** — User specifies what they want
+| Path | Description |
+|------|-------------|
+| **Work on a ClickUp task** | Pick a task from sprint/backlog, go through full workflow |
+| **Fix a bug** | Describe a bug, file it in ClickUp, debug and fix |
+| **ClickUp task management** | Organize sprint, create tasks, move tasks, set dependencies |
+| **Design / brainstorm** | Explore an idea or design a feature (no implementation) |
+| **Codebase maintenance** | Refactor, cleanup, dependency updates, tech debt |
+| **Review / explore** | Read code, review architecture, understand a system |
+| **Other** | User describes what they need |
 
-### 5. Set up the session based on choice
+### 6. Execute the chosen path
 
-**If picking a ClickUp task:**
-1. Fetch all actionable tasks using `clickup_filter_tasks`:
-   - Active Sprint tasks (list ID from WORKSPACE.md)
-   - In-progress tasks across all lists
-   - Backlog feature parents
-2. Present a structured list grouped by category:
+**Work on a ClickUp task:**
+1. Fetch all actionable tasks (Active Sprint, in-progress, backlog features)
+2. Present a structured list grouped by category
+3. Use `AskUserQuestion` with the tasks as options
+4. Once selected, invoke `/clickup-pm` with mode `task-activate`
+5. Start the superpowers feature workflow:
+   ```
+   superpowers:brainstorming → spec doc
+   superpowers:writing-plans → implementation plan
+   /plan-review → multi-agent review + approval gate
+   superpowers:executing-plans → implementation
+   superpowers:requesting-code-review → code review
+   superpowers:verification-before-completion → verify
+   ```
+6. During implementation, `/clickup-pm` updates task statuses + comments throughout
 
-   **🔥 Active Sprint:**
-   - [task name] — [status] — [priority] — [assignee]
+**Fix a bug:**
+1. Ask user to describe the bug
+2. Invoke `/clickup-pm` to create bug in QA & Bugs list, link to affected feature
+3. Invoke `superpowers:systematic-debugging` to diagnose
+4. Fix the bug
+5. Invoke `superpowers:verification-before-completion` to verify
+6. `/clickup-pm` updates bug task status
 
-   **🚧 In Progress:**
-   - [task name] — [status] — [list]
+**ClickUp task management:**
+- Invoke `/clickup-pm` — it handles all task CRUD, status updates, dependencies, assignments, sprint management
+- No superpowers workflow needed
 
-   **📋 Backlog Features:**
-   - [task name] — [priority] — [subtask count]
+**Design / brainstorm:**
+1. Invoke `superpowers:brainstorming` to explore the idea
+2. Spec doc written to `docs/superpowers/specs/`
+3. No implementation this session (unless user decides to continue)
+4. No ClickUp task required upfront — create one after brainstorm if the idea solidifies
 
-3. Use `AskUserQuestion` with the tasks as options so the user can pick one
-4. Once selected:
-   - Fetch full task details with `clickup_get_task` (subtasks: true)
-   - Show the task description, subtasks, and current progress
-   - Identify the next uncompleted subtask or phase
-   - Update the task status to `in progress` if not already
-   - Add a comment: "🚀 Session started — working on this task"
-   - Start the superpowers workflow (brainstorm → plan → implement)
+**Codebase maintenance:**
+1. Identify what needs cleaning (user describes or explore codebase)
+2. Make changes
+3. Invoke `superpowers:requesting-code-review` to validate changes
+4. Invoke `superpowers:verification-before-completion` to verify
 
-**If continuing in-progress work:**
-- Read the ClickUp task details (`clickup_get_task` with subtasks)
-- Identify next uncompleted subtask or phase
-- Start the superpowers workflow (brainstorm → plan → implement)
-
-**If ClickUp task management:**
-- Show current workspace state
-- Ask what needs to be done (create tasks, set dependencies, update statuses, etc.)
-
-### 6. Initialize superpowers
-
-Invoke the `superpowers:using-superpowers` skill to activate the skill system for this session.
+**Review / explore:**
+- Read code, understand architecture, answer questions
+- No workflow needed — just exploration and discussion
+- Use agents as reference (read `ai/agents/*.md`) for domain-specific perspectives
 
 ### 7. Parallel execution reminder
 
@@ -113,6 +125,6 @@ Remind yourself: **Always dispatch parallel subagents** for independent tasks. U
 - Frontend + Backend on separate components
 - Running tests while writing docs
 
-Reference: `CLAUDE.md` → "Parallel Subagents" section, `docs/clickup/` for all ClickUp docs (TEMPLATES, GUIDELINES, WORKSPACE, INTAKE, DEPENDENCIES).
+Reference: `CLAUDE.md` → "Parallel Subagents" section, `docs/clickup/` for all ClickUp docs.
 
 Begin work.
