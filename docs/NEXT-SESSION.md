@@ -33,8 +33,8 @@
 - [ ] Reusable Component Library (L — unblocks all UI work)
 - [x] **Auth & Role Selection (M — DONE)** — Google OAuth fixed, Role Selection page built, middleware routing, user_profiles table
 - [ ] Profile Completion Gate — dashboard prompt for incomplete profiles (depends on User Settings)
-- [ ] Event CRUD — 5-Step Wizard (XL — core feature)
-- [ ] Host Dashboard (M — needs Event CRUD data)
+- [x] **Event CRUD — 4-Step Wizard (XL — FUNCTIONALLY COMPLETE)** — Spec done, 14 tasks implemented, 65 tests, E2E verified. UI polish pending (enhancement task 86d2kt2qj).
+- [x] **Host Dashboard (M — UPDATED)** — Converted to server component, shows real event cards from DB. Full dashboard design is a separate feature.
 - [ ] Event Management Hub (M — central navigation for event features)
 - [ ] Guest Management & RSVP (L)
 - [ ] Digital Invitations — WhatsApp (M)
@@ -50,52 +50,56 @@
 
 ## Context
 
-**Auth & Role Selection is DONE.** All 10 implementation tasks completed, Google OAuth and Phone OTP verified end-to-end in Chrome.
+**Event CRUD is functionally complete.** Full 4-step wizard (Type → Details → Sub-Events → Review), success screen, dashboard with real event cards, all working end-to-end.
 
-**What was built this session (2026-04-09):**
-- 3 new skills created: `/clickup-pm` (ClickUp orchestration), `/plan-review` (multi-agent plan review gate), `/session-report` (token usage + work summary)
-- 2 skills updated: `/start-session` (7 work paths, superpowers init), `/end-session` (session-report integration)
-- 5 agents enriched from basic → experienced: token_monitor, devops_engineer, task_planner, task_distributor, fullstack_engineer
-- ClickUp cleanup: deleted 5 orphaned Profile tasks, created 2 clean Auth subtasks
-- Event CRUD brainstorming started but paused to complete workflow redesign first
-
-**What was built previous session (2026-04-08):**
-- `user_profiles` table with triggers (auto-create, updated_at, role immutability) + RLS
-- Added email, phone, auth_provider columns (second migration)
-- Phone users get NULL display_name (not phone number)
-- Role Selection page at `/auth/role-selection` (Host active, Vendor "Coming Soon")
-- Middleware role-based routing (no-role → role-selection, has-role → dashboard)
-- Fixed Google OAuth PKCE (upgraded @supabase/ssr 0.1.0 → 0.10.0)
-- Fixed OAuth callback open redirect vulnerability
-- Updated auth page (Evenzi branding, separate loading states, footer, cleaned types/logs)
-- Updated home page (Evenzi branding, removed redundant auth check, brand tokens)
-- Brand CSS tokens in globals.css + BRAND-GUIDELINES.md template
-- Frontend engineer agent: added Component Reusability section
-- 22 automated tests passing, lint clean (our changes)
+**What was built this session (2026-04-10):**
+- Design spec: `docs/superpowers/specs/2026-04-09-event-crud-design.md`
+- Implementation plan: `docs/superpowers/plans/2026-04-09-event-crud-implementation.md` (14 tasks, 23 review fixes)
+- 4-agent plan review (Tech Lead, Security, Data Modeller, Frontend) — all findings addressed
+- Database: 5 new tables (event_types, sub_event_types, events, event_metadata, event_sub_events) + atomic RPC
+- Seed data: Wedding (enabled) + 5 disabled types + 7 wedding sub-event types
+- API routes: GET event-types, GET sub-events, POST/GET events, GET event detail
+- Types + Zod validation: 17 tests for schemas + validateDynamicFields
+- Wizard state: React Context + useReducer with 11 tests
+- 8 wizard components: Shell, Progress, Steps 1-4, EventTypeCard, SubEventCard
+- Success screen (server component)
+- Dashboard: converted to server component + client EventsGrid
+- Middleware: host-role guard for /events routes
+- Event placeholder page (until dashboard feature is built)
+- Shared ICON_MAP utility (lib/utils/icons.ts)
+- Enhancement task created for UI polish (86d2kt2qj)
+- Full E2E test in Chrome, code review with all fixes applied
+- 65/65 tests, build passes, 18 commits on worktree branch
 
 **ClickUp state:**
-- Auth & Role Selection: parent + all 8 subtasks marked DONE in ClickUp
-- Profile Completion Gate: created in Backlog (`86d2kbwep`), high priority
-- No pending tasks remaining
+- Spec & Architecture: Event CRUD → DONE (86d2k1mq4)
+- Feature: Event CRUD → in progress (86d2jwz3x)
+- Enhancement: UI Polish → created (86d2kt2qj)
 
 **Database (Supabase):**
-- `user_profiles` table: id, role, display_name, avatar_url, onboarding_completed, email, phone, auth_provider, created_at, updated_at
-- 3 users exist: 1 phone (display_name NULL), 2 Google (names populated)
-- RLS enabled, role immutability trigger active
+- `user_profiles` — existing (3 users)
+- `event_types` — 6 rows (1 enabled: Wedding)
+- `sub_event_types` — 7 rows (wedding sub-events)
+- `events` — has test data from E2E (Aarav & Ishani's Wedding)
+- `event_metadata` — partner name key-value pairs
+- `event_sub_events` — 3 sub-events (Wedding Ceremony, Reception, Sangeet)
+- `create_event_with_details` RPC — atomic insert with auth.uid()
 
 ## How To Resume
 
 ### Immediate Next Steps
 
-1. **Resume Event CRUD brainstorming** — paused mid-brainstorm (visual companion offer). Pick up with `/start-session` → "Work on a ClickUp task" → Event CRUD
-2. **Complete Spec & Architecture** — finish brainstorm → write plan → `/plan-review` (multi-agent gate) → implement
-3. **Agent enrichment (remaining Medium agents)** — user wants to discuss backend_engineer, data_modeller, qa_engineer, tech_lead, product_manager enrichment separately
-4. **Phone OTP config:** Test phone number configured in Supabase dashboard (919999999999=123456, valid until June 30 2026)
+1. **Event CRUD Data Modeling** (86d2k1mqc) — The Spec is done, tables exist. Data Modeling task can be marked done or refined if schema changes are needed.
+2. **UI Polish** (86d2kt2qj) — High priority enhancement. Match Figma designs for all wizard steps, dashboard cards, success screen.
+3. **Fix Success Screen redirect** — Server component may have cookie/auth issue in worktree context. Test on Dev-Vibe directly.
+4. **Agent enrichment (remaining Medium agents)** — backend_engineer, data_modeller, qa_engineer, tech_lead, product_manager
 
-### Known gaps (not blockers)
-- Phone users have no display_name — needs Profile Completion Gate + User Settings page
-- Brand guidelines are placeholder — colors/fonts not finalized
-- Vercel deployments still in ERROR state (pre-existing)
+### Known Issues
+- Success screen redirects to /home instead of rendering (cookie issue)
+- UI needs significant polish to match Figma (enhancement task created)
+- Missing test for GET /api/events/[id] route
+- Progress bar initially shows "Step 1 of 3" before type selection (totalSteps defaults to 4 but renders 3)
+- Zod upgraded to v4 (was v3) — z.record() syntax changed
 
 ---
 
@@ -103,11 +107,10 @@
 
 | Document | Purpose |
 |----------|---------|
-| `docs/superpowers/specs/2026-04-08-auth-role-selection-design.md` | Design spec (reviewed by 3 agents) |
-| `docs/superpowers/plans/2026-04-08-auth-role-selection.md` | Implementation plan (10 tasks) |
+| `docs/superpowers/specs/2026-04-09-event-crud-design.md` | Event CRUD design spec (approved) |
+| `docs/superpowers/plans/2026-04-09-event-crud-implementation.md` | Implementation plan (14 tasks, 23 review fixes) |
+| `docs/superpowers/specs/2026-04-08-auth-role-selection-design.md` | Auth design spec |
 | `docs/BRAND-GUIDELINES.md` | Brand token template (placeholder values) |
-| `docs/clickup/PENDING-TASKS.md` | ClickUp tasks to create (connector was down) |
-| `docs/clickup/TEMPLATES.md` | 11 task templates for ClickUp |
 | `docs/clickup/WORKSPACE.md` | All ClickUp IDs, workspace structure |
 | `docs/PROJECT.md` | Full feature descriptions, DB plans |
 | `CLAUDE.md` | Project guide, conventions, parallel subagents |

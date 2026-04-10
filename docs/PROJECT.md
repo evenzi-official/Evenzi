@@ -324,14 +324,18 @@ Later: vendors can list services, hosts can discover and book vendors, and the p
 | Table | Columns | Status |
 |-------|---------|--------|
 | `user_profiles` | id, role, display_name, avatar_url, onboarding_completed, email, phone, auth_provider, created_at, updated_at | LIVE — RLS enabled, auto-create trigger, role immutability trigger |
+| `event_types` | id, name, slug, description, icon_name, image_url, enabled, has_sub_events, form_schema, features, display_order, created_at, updated_at | LIVE — RLS (public read), 6 rows seeded (1 enabled: Wedding) |
+| `sub_event_types` | id, event_type_id, name, slug, icon_name, display_order, is_default, created_at, updated_at | LIVE — RLS (public read), 7 wedding sub-events |
+| `events` | id, user_id, event_type_id, name, primary_date, primary_venue, guest_capacity, cover_image_url, description, status, created_at, updated_at | LIVE — RLS (user owns), updated_at trigger |
+| `event_metadata` | id, event_id, key, value, created_at, updated_at | LIVE — RLS (via event ownership), key-value pairs for type-specific fields |
+| `event_sub_events` | id, event_id, sub_event_type_id, custom_name, date, time, venue, status, display_order, created_at, updated_at | LIVE — RLS (via event ownership) |
+
+**RPC:** `create_event_with_details` — atomic insert of event + metadata + sub-events in one transaction. Uses `COALESCE(auth.uid(), p_user_id)`.
 
 ### Planned Tables (MVP)
 
 | Table | Purpose |
 |-------|---------|
-| `events` | Event data (name, date, type, venue, description, cover_image) |
-| `event_types` | Lookup table for event types (wedding, birthday, corporate) |
-| `sub_events` | Sub-event definitions per event (mehendi, sangeet, ceremony, reception) |
 | `guests` | Guest list per event (name, phone, email, rsvp_status) |
 | `rsvp_responses` | RSVP submissions from public page |
 | `invitations` | Invitation tracking (sent, delivered, opened) |
@@ -341,7 +345,7 @@ Later: vendors can list services, hosts can discover and book vendors, and the p
 | `albums` | Photo albums per event |
 | `website_templates` | Pre-built website template definitions |
 
-All tables will have Row-Level Security (RLS) policies ensuring users can only access their own data.
+All tables have Row-Level Security (RLS) policies ensuring users can only access their own data.
 
 ---
 
@@ -371,3 +375,4 @@ All tables will have Row-Level Security (RLS) policies ensuring users can only a
 | 2026-04-08 | user_profiles schema expanded — added email, phone, auth_provider columns. Phone users get NULL display_name. Brand guidelines template created. Frontend engineer agent updated with Component Reusability section. |
 | 2026-04-09 | Workflow redesign — 3 new skills (clickup-pm, plan-review, session-report), 2 updated skills (start-session, end-session). 7 work paths in start-session. Multi-agent plan review gate. Token monitoring. |
 | 2026-04-09 | 5 agents enriched from basic to experienced: token_monitor, devops_engineer, task_planner, task_distributor, fullstack_engineer. ClickUp orphan cleanup (5 deleted, 2 Auth subtasks created). |
+| 2026-04-10 | Event CRUD feature FUNCTIONALLY COMPLETE — 4-step wizard (Type → Details → Sub-Events → Review), success screen, dashboard with real event cards. 5 DB tables + atomic RPC, 4 API routes, 65 tests, 25 new files. Full superpowers workflow: brainstorm → plan → 4-agent review → subagent implementation → code review → E2E testing. UI polish pending (enhancement task). |
