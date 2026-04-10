@@ -30,9 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files — .env.local is tracked for dev convenience
-.env.production
-.env*.production
+# env files
+.env*
+!.env.example
 client_secret.json
 
 # vercel
