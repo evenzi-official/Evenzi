@@ -73,7 +73,12 @@ function FormField({
 
 export default function Step2BasicDetails(): React.JSX.Element {
   const { state, dispatch } = useWizard()
-  const eventType = state.eventType!
+  const eventType = state.eventType
+  if (!eventType) {
+    // Guard: user arrived at Step 2 without selecting a type (e.g., direct URL)
+    dispatch({ type: 'GO_TO_STEP', payload: 1 })
+    return null
+  }
 
   // Determine if Wedding-style 2-column layout applies
   const formSchema = eventType.formSchema

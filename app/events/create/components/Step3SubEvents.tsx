@@ -190,7 +190,7 @@ export function Step3SubEvents(): React.JSX.Element {
           Sub-Event Selection
         </h2>
         <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-          Select the sub-events you are hosting for the wedding.
+          Select the sub-events you are hosting for the {eventType?.name?.toLowerCase() ?? 'event'}.
         </p>
       </div>
 
