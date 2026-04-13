@@ -20,6 +20,20 @@ Product (Space: 90166506901)
   ├── QA & Bugs (List: 901614372142)
   ├── Architecture & Configuration (List: 901614372190)
   └── Documentation (List: 901614372331)
+
+Growth & Marketing (Space: 90166506977)
+  ├── Branding (List: 901613958817)          — Wasith leads, Abhijith reviews
+  ├── Market Research (List: 901614460862)   — Cyril leads
+  ├── Content & Social Media (List: 901614372137) — Wasith leads
+  ├── Go-to-Market (List: 901613958976)      — Cyril leads
+  └── Analytics (List: 901614372138)         — Cyril leads
+
+Operations & Admin (Space: 90166506980)
+  ├── SWOT Analysis (List: 901613960293)     — Brindo & Sreelekshmy
+  ├── Policies & Terms (List: 901613884664)  — Brindo & Sreelekshmy
+  ├── Finance (List: 901614372139)           — Brindo & Sreelekshmy
+  ├── Internal Processes (List: 901614460865) — Brindo & Sreelekshmy
+  └── HR & Team (List: 901614460867)         — Brindo & Sreelekshmy
 ```
 
 ---
@@ -86,10 +100,14 @@ Ideas → Backlog (when refined) → Active Sprint (when picked for sprint) → 
 
 ## Team Members
 
-| Name | ID | Role |
-|------|-----|------|
-| Abhijith Pramod | 278583396 | Spec & Architecture, Data Modeling |
-| Dheeraj P Girish | 100996803 | Frontend, Backend, QA, Integration |
+| Name | ID | Space | Role |
+|------|-----|-------|------|
+| Abhijith Pramod | 278583396 | All (Owner) | Project owner, reviewer, requirements |
+| Dheeraj P Girish | 100996803 | Product | Frontend, Backend, QA, Integration |
+| Cyril V Mathew | 101001575 | Growth & Marketing | Sales, go-to-market, market research, analytics |
+| Abdul Wasith | 258600539 | Growth & Marketing | Branding, logo, content, social media |
+| Brindo Sylen | 100999588 | Operations & Admin | Ops, finance, legal |
+| Sreelekshmy M | 100999589 | Operations & Admin | Ops, HR, internal processes |
 
 ---
 
