@@ -35,6 +35,7 @@
 - [ ] Profile Completion Gate — dashboard prompt for incomplete profiles (depends on User Settings)
 - [x] **Event CRUD — 4-Step Wizard (XL — FUNCTIONALLY COMPLETE)** — Spec done, 14 tasks implemented, 65 tests, E2E verified. UI polish pending (enhancement task 86d2kt2qj).
 - [x] **Host Dashboard (M — UPDATED)** — Converted to server component, shows real event cards from DB. Full dashboard design is a separate feature.
+- [x] **Support Chatbot (MVP — PLANNED, not implemented)** — Spec + plan + multi-agent review + ClickUp hierarchy done. Blocked on Figma. Feature task: `86d2n3jxv`. See spec `2026-04-14-chatbot-design.md` and plan `2026-04-14-chatbot-implementation.md`.
 - [ ] Event Management Hub (M — central navigation for event features)
 - [ ] Guest Management & RSVP (L)
 - [ ] Digital Invitations — WhatsApp (M)
@@ -52,7 +53,26 @@
 
 **Event CRUD is functionally complete.** Full 4-step wizard (Type → Details → Sub-Events → Review), success screen, dashboard with real event cards, all working end-to-end.
 
-**What was done this session (2026-04-13):**
+**What was done this session (2026-04-14):**
+- Brainstormed + spec'd the Support Chatbot feature (MVP Phase 1)
+- Wrote full implementation plan (34 tasks across Phase A/B/C)
+- Multi-agent review: Tech Lead + Data Modeller + Security + Backend + Frontend + QA → 29 findings
+- Revised plan with 20 fixes (6 critical + 14 important) as Revisions R1–R20
+- Created ClickUp hierarchy: **Feature + 11 subtasks + 18 sub-subtasks = 30 tasks**, all dependencies set
+- **Implementation intentionally deferred** — awaiting Figma designs for UI tasks
+- Spec: `docs/superpowers/specs/2026-04-14-chatbot-design.md`
+- Plan: `docs/superpowers/plans/2026-04-14-chatbot-implementation.md`
+- Feature ClickUp task: `86d2n3jxv`
+
+**Chatbot architecture at a glance:**
+- RAG over Supabase pgvector with admin-editable FAQ
+- Gemini 2.5 Flash primary + Groq Llama 3.1 8B fallback + keyword degradation (all free tier)
+- Widget on most pages + `/help` page + `/admin/faq/*` CRUD + `/admin/tickets` list
+- Resend email escalation for unresolved questions
+- Zero paid API keys; graceful degradation when quota exhausted
+- Admin analytics bot + guest-aware bot deferred to Phase 2+
+
+**What was done previous session (2026-04-13):**
 - ClickUp workspace planning: Growth & Marketing + Operations & Admin spaces restructured
 - 3 list renames, 3 new lists, 32 milestone tasks created
 - Full team roster documented (6 members across 3 spaces)
