@@ -75,6 +75,20 @@ Hosts can click into any guest's record to update their details or remove them f
 
 ---
 
+### Non-Tech-Savvy Guest Handling
+
+A significant portion of Indian wedding guests are elderly relatives who may not be comfortable clicking a link in WhatsApp or filling out an online form. Evenzi addresses this in two ways:
+
+**Host manual RSVP entry:**
+Hosts can mark any guest's RSVP status directly in Evenzi — Yes, No, or Maybe — without requiring the guest to self-submit. This is the ideal flow for elderly relatives: the host simply asks by phone (or in person), then records the answer themselves in the guest list. No action is required from the guest at all.
+
+**Dead-simple RSVP page:**
+For guests who are comfortable with a smartphone, the public RSVP link opens a page with minimal friction — the guest's name pre-populated where possible, and a single tap to respond Yes, No, or Maybe. There are no accounts, no passwords, and no steps beyond that single tap.
+
+Both paths lead to the same outcome: the host's dashboard reflects an accurate RSVP count regardless of how the response was captured.
+
+---
+
 ### The Guest's Experience
 
 Guests do not need to download an app or create an account. Here's their entire experience:
@@ -103,6 +117,7 @@ The guest RSVP page is clean, mobile-first, and designed to work on even basic A
 - Public RSVP page (no login required for guests)
 - RSVP confirmation screen
 - Guest can update their RSVP via the same link
+- Manual RSVP entry by host (on behalf of guests)
 
 ### What's not included in MVP
 
@@ -127,6 +142,16 @@ Each guest link is tied to that guest's record. When the guest opens the link an
 For bulk imports, the host downloads a CSV template, fills it in with guest names and phone numbers, and uploads it back to Evenzi. The system reads each row and creates guest records automatically, saving significant manual data entry.
 
 The public RSVP page is accessible to anyone with the link — no password, no account. It's a lightweight page that loads quickly on mobile networks, designed specifically for the Indian market where mobile internet speeds can vary.
+
+---
+
+## Privacy & Data
+
+When importing or adding guest contacts, hosts confirm they have the guests' consent to share their information with Evenzi. A consent checkbox is required before any guest import can proceed.
+
+Guest data is used only for the specific event it was added to — never for marketing, profiling, or any other purpose. When a guest receives an RSVP link, the page includes a brief data notice: *"Your name and response will be shared with the event host only."*
+
+Guests can request that their data be deleted at any time by contacting support@evenzi.com. Deletion requests are processed within 30 days in compliance with the India Digital Personal Data Protection (DPDP) Act 2023.
 
 ---
 

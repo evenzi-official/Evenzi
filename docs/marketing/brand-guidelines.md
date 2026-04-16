@@ -2,7 +2,7 @@
 
 **Document:** M1 — Brand Guidelines
 **Team:** Marketing & Branding
-**Version:** 1.0 (April 2026) — DRAFT
+**Version:** 1.1 (April 2026) — DRAFT
 **Status:** Framework draft — pending design team review and validation
 
 > **Note to team:** These guidelines are a starting framework drafted to give the Marketing & Branding team a foundation to work from. Color palette, typography, and logo specifics are proposals — all require design team review and founder sign-off before being treated as final.
@@ -33,7 +33,25 @@ Evenzi exists to take the coordination chaos off a host's plate so they can actu
 
 ---
 
-## 2. Brand Personality
+## 2. The Name: Evenzi
+
+### Origin
+
+**Evenzi** = "Event" + the suffix "-zi."
+
+The suffix gives it a modern, app-like quality — think Spotify, Canva — invented names with clean, memorable suffixes that feel contemporary without being clinical. "Evenzi" is short (three syllables: Ev-en-zi), has no hard consonants, and works naturally when spoken in any Indian language. The name is final and intentional.
+
+**Bonus:** "Enzi" in Swahili means "glory" or "power" — a serendipitous alignment with the premium, celebratory brand identity Evenzi is built around.
+
+### Brand Positioning
+
+**"Luxury feel, free to start."**
+
+Evenzi is designed to look and feel premium. For wealthy hosts, it is a showcase of their celebration — a platform worthy of the scale and significance of what they are organizing. For everyone else, the free tier removes the price barrier entirely. The quality of the experience is the same regardless of tier. This is not a freemium compromise — it is a deliberate positioning statement.
+
+---
+
+## 3. Brand Personality
 
 ### Five Words That Define Evenzi
 
@@ -53,11 +71,11 @@ Evenzi exists to take the coordination chaos off a host's plate so they can actu
 | **Cold** | We do not use formal, distant language. We do not talk like a terms-and-conditions page. |
 | **Complicated** | We never make users feel like they need a manual. Simplicity is a brand value. |
 | **Cluttered** | Visually and verbally — we leave space. Not everything needs to be said. |
-| **Exclusive** | We are not a luxury product. We are not aspirational in a way that leaves people out. Evenzi is for everyone planning a celebration they care about. |
+| **Exclusive** | We are not aspirational in a way that leaves people out. Evenzi is for everyone planning a celebration they care about. |
 
 ---
 
-## 3. Tone of Voice
+## 4. Tone of Voice
 
 ### How We Speak
 
@@ -70,6 +88,16 @@ Evenzi speaks like a knowledgeable friend — someone who has planned a hundred 
 **Celebratory.** We reflect the energy of the events we help host. This does not mean every sentence needs an exclamation mark — it means we never sound bored or clinical.
 
 **Confident, not boastful.** We know what we do well. We say it clearly without overselling.
+
+### The Gravity of Our Audience
+
+We speak to people on the most important day of their lives. The tone should match that gravity — warm, celebratory, never flippant. A bride's mother reading a notification on the morning of the wedding is not a "user." She is a person in the middle of something sacred. Write with that awareness.
+
+**We are NOT a corporate SaaS tool. We are a celebration companion.**
+
+### India-Native Language
+
+Evenzi is English-first but culturally Indian. We use familiar Indian celebration terms naturally — never translated, never over-explained. Mehendi, Sangeet, Baraat: these are not exotic words requiring a footnote. They are the language of our users' lives.
 
 ### Tone Examples
 
@@ -114,7 +142,7 @@ Use these naturally in example content, marketing copy, and feature descriptions
 
 ---
 
-## 4. Logo Usage
+## 5. Logo Usage
 
 > **Note:** Logo design is pending. These guidelines define the framework for how the logo should be used once it exists. The design team will validate and finalize.
 
@@ -149,7 +177,7 @@ The logo must have clear space on all sides equal to the height of the "E" in Ev
 
 ---
 
-## 5. Color Palette
+## 6. Color Palette
 
 > **DRAFT — Pending design team confirmation.** The following palette is a strategic proposal. Use it as a starting point for design discussions, not as finalized brand colors.
 
@@ -209,7 +237,7 @@ The teal accent provides a digital and trustworthy counterbalance to the warm pa
 
 ---
 
-## 6. Typography
+## 7. Typography
 
 > **DRAFT — Pending design team confirmation.** These are proposals for discussion.
 
@@ -254,7 +282,7 @@ Inter is widely used in modern SaaS products because it is highly legible at sma
 
 ---
 
-## 7. Photography & Visual Style
+## 8. Photography & Visual Style
 
 ### What Good Evenzi Photography Looks Like
 
@@ -279,7 +307,7 @@ Inter is widely used in modern SaaS products because it is highly legible at sma
 
 ---
 
-## 8. Naming Conventions
+## 9. Naming Conventions
 
 ### The Product Name
 
@@ -307,6 +335,9 @@ Use these exact names consistently across all marketing and product copy:
 | WhatsApp invitations | Digital Invitations |
 | Checklist + budget tools | Planning Tools |
 | Support chatbot | Evenzi Help |
+| Printed photo book product | Evenzi Memories (TBD — name to be finalized closer to feature launch) |
+
+> **Note on "Evenzi Memories":** The printed photo book / event magazine product is tentatively named "Evenzi Memories." This name is not yet final — it will be decided when the feature is closer to launch. Do not use it in external-facing copy until confirmed. Internal reference only for now. "Event magazine" is used informally in team discussions.
 
 ### Things to Avoid
 
@@ -316,7 +347,7 @@ Use these exact names consistently across all marketing and product copy:
 
 ---
 
-## 9. Social Media Guidelines
+## 10. Social Media Guidelines
 
 ### Priority Platforms
 

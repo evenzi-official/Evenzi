@@ -10,6 +10,10 @@ Evenzi is a wedding and event planning platform built for India — a single, be
 
 We are building for a market that plans some of the world's most elaborate celebrations — and deserves tools that match that ambition.
 
+### The Founder's Story
+
+Abhijith built Evenzi from personal experience. He planned an event, felt the chaos of WhatsApp groups and spreadsheets at first hand, and built the solution he wished had existed. Evenzi is not a product designed at a distance — it comes from living the problem.
+
 ---
 
 ## 2. The Problem We Solve
@@ -41,6 +45,7 @@ Evenzi closes that gap. It is a subscription-based SaaS platform where a host lo
 - A photo gallery for sharing memories before and after the event
 - A public event website guests can visit for details
 - A support chatbot for quick help
+- A printed event photo book / event magazine, orderable after the celebration
 
 Every module is designed to reduce cognitive load and replace manual coordination with structured, trackable workflows. Hosts spend less time chasing people and more time celebrating.
 
@@ -51,13 +56,13 @@ Every module is designed to reduce cognitive load and replace manual coordinatio
 ### Host (MVP Focus)
 The person organising the event — typically the bride, groom, a parent, or a designated family member. They create the event, manage the guest list, send invitations, track RSVPs, manage budget, and control all platform settings. The entire MVP is built for this role.
 
-**Example:** Priya is planning her wedding for November. She creates the event on Evenzi, adds 450 guests, sends WhatsApp invitations directly from the platform, watches RSVPs come in on her dashboard, tracks the catering budget in real time, and shares a public event website with guests who need venue directions.
+**Example:** Priya is planning her wedding for November. She creates the event on Evenzi, adds 450 guests, sends WhatsApp invitations directly from the platform, watches RSVPs come in on her dashboard, tracks the catering budget in real time, and shares a public event website with guests who need venue directions. After the celebration, she orders a printed photo book of the event through Evenzi.
 
 ### Guest
-Anyone invited to an event. Guests receive an invitation (via WhatsApp or link), visit a public RSVP page, confirm attendance and meal preferences, and can view event details. No account required for basic RSVP.
+Anyone invited to an event. Guests receive an invitation (via WhatsApp or link), visit a public RSVP page, confirm attendance and meal preferences, and can view event details. No account required for basic RSVP. The RSVP page is designed to be dead-simple: a maximum of 2 taps or clicks to submit.
 
-### Vendor (Post-MVP)
-Caterers, photographers, florists, decorators, and other event service providers. In a future phase, Evenzi will allow vendors to list their services and be discovered by hosts — creating a two-sided marketplace. This is explicitly out of scope for MVP.
+### Vendor (Phase 2 — Active Collaborator Model)
+Vendors on Evenzi are **not** a directory listing. They are active collaborators in event planning. In Phase 2, event management professionals will have their own Evenzi accounts with higher-capacity plans. A host invites a vendor to collaborate on a specific event. The vendor then manages logistics, proposes venue options, decoration palettes, and other arrangements. The budget module operates as a **quotation system** — the vendor sends quotes and the host approves them. Vendors can be followed by hosts who trust their work, creating a social layer that drives discovery. This is a Phase 2+ feature.
 
 ### Admin (Planned)
 Internal Evenzi team members who monitor platform health, manage user accounts, review flagged content, and handle escalations. An Admin Module is planned for MVP but not yet started.
@@ -83,11 +88,19 @@ Internal Evenzi team members who monitor platform health, manage user accounts, 
 | 13 | Landing / Marketing Site | The public-facing acquisition website — what visitors see before they sign up. Messaging, pricing, social proof. | **Planned** |
 | 14 | Admin Module | Internal developer/admin panel for monitoring platform health, managing users, and reviewing flagged content. | **Planned** |
 
+### Post-Event Value
+
+The celebration doesn't have to end when the event does. After the event:
+
+- The **public event website stays live** for a period based on the host's subscription plan
+- Hosts can order an **Event Magazine / Photo Book** — a printed keepsake of the celebration, fulfilled through a third-party print partner (fulfilment method TBD). This is a physical memento: curated photos, event details, memories — delivered to the door.
+- **Anniversary reminders** are planned — Evenzi remembers the date so you don't have to
+
 ---
 
 ## 6. Business Model
 
-Evenzi will operate on a **subscription model with a free tier**, designed to let hosts try the platform before committing.
+Evenzi will operate on a **subscription model with a free tier**, designed to let hosts try the platform before committing. The positioning is intentional: **luxury feel, free to start.** For wealthy hosts, Evenzi is a premium showcase — not a cost concern. For everyone else, the free tier removes the barrier entirely. The same quality experience is available across all price points; paid tiers unlock capacity and features, not quality.
 
 ### Why subscription?
 
@@ -97,18 +110,50 @@ Event planning is a high-intent, time-bound activity. A host planning a wedding 
 
 | Tier | Description |
 |------|-------------|
-| **Free** | Limited access — enough to create one event and experience the product. Designed to convert to paid. |
-| **Paid Tiers** | Expanded guest limits, premium invitation templates, priority support, and advanced features. Tiered pricing TBD. |
+| **Free** | Limited access — enough to create one event and experience the product. Time-limited event website and photo storage. Designed to convert to paid. |
+| **Paid Tiers** | Expanded guest limits, premium invitation templates, longer data retention, priority support, and advanced features. Tiered pricing TBD. |
 | **Feature Add-ons** | Optional paid features on top of any subscription tier — e.g., custom event domain, premium photo storage, WhatsApp broadcast credits. |
+
+### Freemium Conversion Triggers
+
+The free-to-paid conversion is driven by four walls (specific numbers TBD):
+
+- **Storage limit** — photo storage is capped on the free tier
+- **Feature gates** — certain features are paid-only
+- **Data retention** — event website and photos expire after a defined period on the free tier; paid plans extend this
+- **Event count** — free tier supports a limited number of events
+
+### Revenue Streams
+
+| Stream | Model |
+|--------|-------|
+| Subscription (Host) | Monthly / annual recurring revenue |
+| Vendor subscriptions (Phase 2) | Separate higher-capacity plans for event management professionals |
+| Event Magazine / Photo Book | Transaction revenue per order — print fulfilled by third-party partner |
+| Feature add-ons | One-time or recurring optional paid features |
+| Post-MVP: Vendor marketplace | Commission or listing fee for bookings (under evaluation) |
 
 **Note:** Specific pricing, tier names, and feature split between tiers are not yet finalised. This will be determined based on user research and competitive analysis before the MVP goes live.
 
-### Post-MVP: Marketplace Revenue
-When the Vendor role launches, Evenzi will explore a marketplace commission or listing fee model for vendor bookings made through the platform. This is a longer-term revenue stream.
+---
+
+## 7. Why Evenzi Will Win — The Moats
+
+### 1. Network Effects
+Every event creates a growth loop. Guests become hosts. Hosts invite vendors. Vendors bring their own client networks. The platform becomes more valuable as more people use it.
+
+### 2. Vendor Relationships
+When the Phase 2 vendor model launches, Evenzi will build an exclusive or preferred vendor network. Hosts follow vendors they trust. A vendor's reputation on the platform becomes a competitive asset — driving both vendor retention and host acquisition.
+
+### 3. Brand
+Evenzi is building to become the trusted name for Indian celebrations. Brand is a moat: once a platform is associated with the most important day of someone's life, it is very hard to displace.
+
+### 4. WhatsApp Integration Depth
+Deep WhatsApp-native flows — invitation sending, RSVP collection, reminders — are technically non-trivial and require Indian user trust. Replicating the integration depth takes time. We are building this now, at the start of the market.
 
 ---
 
-## 7. Where We Are Today
+## 8. Where We Are Today
 
 **April 2026 — MVP Phase 1 actively in progress.**
 
@@ -131,7 +176,7 @@ Full MVP target: ~267 subtasks across 11 features remaining.
 
 ---
 
-## 8. Technology
+## 9. Technology
 
 Evenzi is built on a modern, proven stack chosen for speed of development, reliability at scale, and low operational overhead for a small team.
 
@@ -144,11 +189,27 @@ Evenzi is built on a modern, proven stack chosen for speed of development, relia
 | **Deployment** | Vercel | Automatic preview deployments, global CDN, zero-config Next.js hosting |
 | **Language** | TypeScript | Type-safe code catches bugs before they reach production |
 
+### Platform Delivery
+
+Evenzi is a **Progressive Web App (PWA)** — installable on any Android or iOS device directly from the browser, with no App Store required. This removes the friction of an app download for new users and gives hosts a home-screen experience without the distribution overhead of native app stores.
+
+A native mobile app (iOS + Android) is planned for Phase 2.
+
 This stack means a two-person team can build, test, and deploy features quickly without managing servers, databases, or authentication infrastructure from scratch. It scales from 10 users to 100,000 users without architectural changes.
 
 ---
 
-## 9. The Roadmap
+## 10. The Market
+
+India's wedding industry represents **₹4 lakh crore in annual spend** — one of the largest celebration economies in the world. That number covers everything: venues, food, jewellery, clothing, photography, decoration. The addressable market for a digital planning SaaS is a fraction of that total spend, but even a small slice of the planning and coordination layer represents a massive opportunity. With approximately 10 million weddings per year and a growing middle class comfortable with software subscriptions, the timing is right.
+
+The opportunity is not just weddings — birthdays, anniversaries, corporate events, engagement parties. Evenzi's platform applies to any large celebration, extending the addressable market further.
+
+**Competitors** address adjacent problems: WedMeGood and WeddingWire India focus on vendor discovery and booking, not the host's end-to-end workflow. No one owns the planning and coordination layer for Indian hosts. That is the gap Evenzi fills.
+
+---
+
+## 11. The Roadmap
 
 ```mermaid
 timeline
@@ -170,14 +231,14 @@ timeline
                    : Admin Module
                    : MVP Launch
     section Phase 2 — Growth (2027)
-        Q1 2027    : Vendor Role (marketplace)
-                   : Vendor Discovery & Booking
+        Q1 2027    : Vendor Role (active collaborator model)
+                   : Vendor Subscription Tier
                    : Analytics Dashboard
         Q2 2027    : Real-time Collaboration
                    : AI Photo Finder
                    : Advanced Reporting
     section Post-MVP Vision
-        2027+      : Mobile App (iOS + Android)
+        2027+      : Native Mobile App (iOS + Android)
                    : AI Planning Assistant
                    : Vendor Payments
                    : Multi-event Corporate Tier
@@ -188,12 +249,12 @@ timeline
 | Phase | Target | Key Deliverable |
 |-------|--------|-----------------|
 | Phase 1 — MVP | Q3 2026 | Full host-side event flow live, public launch |
-| Phase 2 — Growth | Q1–Q2 2027 | Vendor marketplace, analytics, real-time features |
-| Post-MVP Vision | 2027+ | Mobile app, AI assistant, corporate tier |
+| Phase 2 — Growth | Q1–Q2 2027 | Vendor active-collaborator model, analytics, real-time features |
+| Post-MVP Vision | 2027+ | Native mobile app, AI assistant, corporate tier |
 
 ---
 
-## 10. Why Now
+## 12. Why Now
 
 Several converging trends make April 2026 the right moment to build Evenzi:
 
@@ -201,7 +262,7 @@ Several converging trends make April 2026 the right moment to build Evenzi:
 UPI, WhatsApp, and Aadhaar-backed digital identity mean that even tier-2 and tier-3 city users are comfortable with digital payments and mobile-first products. The infrastructure that makes Evenzi work — smartphone penetration, cheap data, digital payments — is now ubiquitous.
 
 **2. The Indian wedding market is enormous and underserved.**
-The Indian wedding industry is estimated at $40–50 billion annually. Despite this scale, there is no dominant digital platform for event management. WedMeGood and other players address vendor discovery, but no one owns the host's end-to-end workflow.
+India's wedding industry represents ₹4 lakh crore in annual spend. Despite this scale, there is no dominant digital platform for event management. WedMeGood and other players address vendor discovery, but no one owns the host's end-to-end workflow.
 
 **3. Post-COVID, digital-first event management is normalised.**
 The pandemic normalised QR-code invitations, digital RSVPs, and virtual event participation. Hosts are now receptive to digital tools in ways they weren't in 2019.
@@ -214,7 +275,7 @@ Indian consumers and businesses are now comfortable paying for software subscrip
 
 ---
 
-## 11. Key Documents
+## 13. Key Documents
 
 | Document | Description | Path |
 |----------|-------------|------|

@@ -1,7 +1,7 @@
 # F3 — Evenzi Product Roadmap
 
 **Document type:** Foundation Reference
-**Version:** 1.0
+**Version:** 1.1
 **Date:** April 2026
 **Audience:** Core team, stakeholders
 
@@ -10,6 +10,8 @@
 ## 1. Vision Statement
 
 Evenzi will be India's most loved event planning platform — the single place where hosts create, manage, and celebrate every milestone, and where guests, vendors, and memories come together.
+
+The product was born from firsthand experience: the founder lived through the coordination chaos of planning an event and built Evenzi to be the tool they wished had existed.
 
 ---
 
@@ -38,23 +40,24 @@ A self-funded startup earns trust by being reliable, fast, and straightforward �
 Phase 1 — MVP (Apr–Sep 2026)
   Host-only, end-to-end event flow
   Weddings, birthdays, corporate
+  Delivered as a PWA (installable from browser — no App Store required)
 
 Phase 2 — Growth (Oct 2026–Mar 2027)
   Guest experience expansion
-  Vendor marketplace (basic)
+  Vendor collaboration (professional event managers)
   Analytics + multi-language
 
 Phase 3 — Scale (Apr 2027+)
-  Full two-sided marketplace
+  Full two-sided vendor ecosystem
   Booking + payments
-  Mobile app
+  Native mobile app (iOS + Android)
 ```
 
 | Phase | Goal | Timeline | Key Milestone |
 |-------|------|----------|---------------|
 | Phase 1 — MVP | Complete host-only event flow | Apr–Sep 2026 | First real wedding on Evenzi |
-| Phase 2 — Growth | Expand guest UX + begin vendor marketplace | Oct 2026–Mar 2027 | First vendor booking |
-| Phase 3 — Scale | Full marketplace, mobile app, payments | Apr 2027+ | 10,000 events hosted |
+| Phase 2 — Growth | Expand guest UX + introduce vendor collaboration | Oct 2026–Mar 2027 | First vendor-managed event |
+| Phase 3 — Scale | Full vendor ecosystem, native mobile app, payments | Apr 2027+ | 10,000 events hosted |
 
 ---
 
@@ -62,6 +65,8 @@ Phase 3 — Scale (Apr 2027+)
 
 ### Goal
 Deliver a complete, polished, end-to-end event planning flow for a single host managing a single event type (wedding/birthday/corporate). No vendor role. No marketplace. No real-time features. Just one host, their event, their guests.
+
+Evenzi is delivered as a **Progressive Web App (PWA)** — installable directly from the browser on Android and iOS without going through an App Store. This gives a near-native experience with faster iteration cycles.
 
 ### Success Criteria
 - A host can sign up, create an event, invite guests via WhatsApp, collect RSVPs, manage a budget, and publish a public event website — without leaving Evenzi.
@@ -104,13 +109,14 @@ Deliver a complete, polished, end-to-end event planning flow for a single host m
 ## 5. Phase 2 — Growth (Oct 2026–Mar 2027)
 
 ### Goal
-Expand the guest experience beyond passive RSVP, introduce the vendor marketplace at a basic listing level, and broaden the platform's reach with multi-language support and advanced invitation channels.
+Expand the guest experience beyond passive RSVP, introduce vendor collaboration (professional event managers who co-manage events at host invitation), and broaden the platform's reach with multi-language support and advanced invitation channels.
 
 ### Features
 
 | Feature | Description | Timeline |
 |---------|-------------|----------|
-| Vendor Role (Basic Listing) | Vendors can create a profile, list services, and be discovered by hosts | Q3 2026 |
+| Vendor Role (Collaboration) | Professional event managers get their own Evenzi account. Hosts invite vendors to co-manage events. Vendors submit budget quotations; hosts retain final approval on all decisions. Vendors are not a discovery directory — they collaborate at host invitation. | Q3 2026 |
+| Event Magazine / Photo Book | Post-event printed photo book orderable through Evenzi. Fulfilled via third-party print partner (TBD). Transaction revenue per order. Future extension: event-specific merchandise (T-shirts, frames, etc.). | Q3 2026 |
 | Guest-Aware Chatbot | Chatbot that can answer event-specific questions for guests (not just FAQ) | Q3 2026 |
 | Real-Time RSVP Updates | Live RSVP count updates on host dashboard without page refresh | Q3 2026 |
 | Analytics Dashboard | RSVP trends, guest demographics, engagement stats for hosts | Q4 2026 |
@@ -124,19 +130,19 @@ Expand the guest experience beyond passive RSVP, introduce the vendor marketplac
 ## 6. Phase 3 — Scale (Apr 2027+)
 
 ### Goal
-Build a full two-sided marketplace where hosts book and pay vendors directly through Evenzi, extend the platform to mobile, and expand event discovery so Evenzi becomes the default starting point for event planning in India.
+Build a full vendor ecosystem where hosts book and pay vendors directly through Evenzi, extend the platform to a native mobile app, and expand event discovery so Evenzi becomes the default starting point for event planning in India.
 
 ### Features
 
 | Feature | Description |
 |---------|-------------|
-| Full Vendor Role | Vendor profiles, portfolio, pricing tiers, availability calendar |
+| Full Vendor Ecosystem | Vendor profiles with portfolio, decoration palettes, venue options, service packages, and availability calendar. Vendors have higher-capacity plans with dedicated features. |
 | Booking System | Hosts request bookings; vendors confirm/decline |
 | Payments & Escrow | In-app payment with escrow protection for hosts and vendors |
 | Event Discovery | Public event directory; SEO-optimized event pages |
 | Seating Arrangements | Drag-and-drop seating chart builder |
 | Custom Event Websites | Host-editable event pages with templates, custom domains |
-| Mobile App (iOS + Android) | Native apps; push notifications; camera-first photo upload |
+| Native Mobile App (iOS + Android) | Full native apps; push notifications; camera-first photo upload. PWA serves as the interim solution through Phase 2. |
 | Meal Preferences | Collect dietary restrictions and meal choices during RSVP |
 
 ---
@@ -178,7 +184,21 @@ flowchart TD
 
 ---
 
-## 8. Release Strategy
+## 8. Competitive Advantage & Defensibility
+
+Evenzi's moats are built over time through four compounding advantages:
+
+1. **Network effects** — As more events are planned on Evenzi, more guests experience the platform passively. A meaningful fraction become future hosts. The platform grows through the events themselves.
+
+2. **Vendor relationships** — Professional event managers who use Evenzi to manage client events become locked into the platform's workflow. Their client base brings repeat hosts.
+
+3. **Brand** — In Indian weddings and celebrations, trust and aesthetics matter. A platform that feels premium and reliable becomes the default recommendation in social circles.
+
+4. **WhatsApp integration depth** — Deep integration with India's primary communication channel (invitation delivery, RSVP flows, bot replies) creates switching costs that a generic web platform cannot easily replicate.
+
+---
+
+## 9. Release Strategy
 
 ### Feature Flags
 All new features ship behind a feature flag (environment variable or Supabase config toggle). This allows:
@@ -203,13 +223,13 @@ All new features ship behind a feature flag (environment variable or Supabase co
 
 ---
 
-## 9. What We Are NOT Building (MVP Scope Exclusions)
+## 10. What We Are NOT Building (MVP Scope Exclusions)
 
 These items are explicitly out of scope for MVP Phase 1. They are noted here to prevent scope creep and to give the team a clear "no" answer when these topics arise.
 
 | Item | Reason for Deferral |
 |------|---------------------|
-| Vendor Role | Adds a second user type with its own full product surface; Phase 2 scope |
+| Vendor Role | Professional event manager collaboration requires its own product surface and account type; Phase 2 scope |
 | AI Photo Finder | Requires ML infrastructure; Phase 2 scope |
 | Real-Time Features (live RSVP) | WebSocket/Supabase Realtime adds complexity; Phase 2 scope |
 | Event Discovery / Search | Public indexing requires moderation + SEO infrastructure; Phase 3 scope |
@@ -220,6 +240,7 @@ These items are explicitly out of scope for MVP Phase 1. They are noted here to 
 | Custom Domains | DNS management complexity; Phase 3 scope |
 | Email Invitations | WhatsApp is primary channel for India; Phase 2 scope |
 | Multi-Language (Hindi) | Requires full i18n infrastructure; Phase 2 scope |
-| Mobile App (iOS/Android) | PWA-first for MVP; native app is Phase 3 |
+| Native Mobile App (iOS/Android) | PWA-first for MVP; native app is Phase 3 |
 | Payments / Escrow | Requires RBI compliance + payment gateway integration; Phase 3 scope |
 | Booking System | Depends on full vendor role; Phase 3 scope |
+| Event Magazine / Photo Book | Print fulfillment partnership needed; Phase 2 scope |

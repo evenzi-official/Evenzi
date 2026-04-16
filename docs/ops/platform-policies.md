@@ -209,9 +209,62 @@ Evenzi processes guest contact data solely to send invitations and RSVP links on
 
 ---
 
-## 5. Content Policy
+## 5. India Digital Personal Data Protection (DPDP) Act 2023 Compliance
 
-### 5.1 Event Content Standards
+*This section outlines Evenzi's obligations under the Digital Personal Data Protection (DPDP) Act 2023 enacted by the Government of India. Compliance with this Act is a legal requirement given that Evenzi collects and stores personal data about guests (name, phone number, email) uploaded by hosts.*
+
+### 5.1 Key Obligations Under the DPDP Act
+
+**1. Purpose limitation**
+Guest data uploaded by hosts may only be used for the specific event it was added to. It must never be used for marketing, re-targeting, profiling, or any purpose beyond delivering the Evenzi invitation and RSVP service for that event.
+
+**2. Data principal rights**
+Any person whose personal data is stored on Evenzi (including guests who have not registered an account) has the right to:
+- Know what personal data Evenzi holds about them
+- Request correction of inaccurate data
+- Request erasure of their personal data
+
+Guests may exercise these rights by contacting support@evenzi.com. The Ops team must escalate all such requests to Engineering for data lookup and action within 30 days.
+
+**3. Consent mechanism**
+Hosts must confirm they have the right to upload guest contact data before importing. A consent checkbox must appear at the point of guest import (CSV upload or manual add):
+
+> *"I confirm I have obtained consent from these guests to share their contact information with Evenzi for this event."*
+
+This checkbox is a required UI element. Hosts cannot proceed with guest import without checking it.
+
+**4. Data processing notice on RSVP pages**
+The public guest RSVP page must include a brief data notice visible to the guest:
+
+> *"Your name and response will be shared with the event host only."*
+
+This notice is a required UI element on all RSVP pages.
+
+**5. Significant Data Fiduciary considerations**
+At current scale, Evenzi is likely not a Significant Data Fiduciary (SDF) under the DPDP Act — SDF designation applies to platforms processing very large volumes of personal data. However, this classification must be reviewed by the Founder as the user base grows, as SDF status carries additional obligations (Data Protection Officer appointment, data audits, etc.).
+
+**6. Breach notification**
+If a data breach occurs affecting personal data of Indian users, affected data principals must be notified within 72 hours of the breach being confirmed. This is consistent with Evenzi's existing incident response policy (Section 9) and extends it to meet the DPDP Act's specific notification requirements.
+
+**7. Data deletion on account closure**
+When a host deletes their Evenzi account, all guest personal data associated with their events must be permanently deleted within 30 days. This applies to all guest records linked to that host's events — not just the host's own profile data.
+
+**8. Data localisation**
+Evenzi is currently hosted on Supabase in the ap-northeast-1 region (Tokyo, Japan). As of the DPDP Act 2023, there is no explicit data localisation mandate requiring Indian personal data to be stored within India. However, this should be monitored closely as implementing rules and government guidance are issued. The Founder should review this periodically.
+
+### 5.2 Operational Implications for the Ops Team
+
+- **Data access requests from guests:** Any guest (data principal) who contacts Evenzi to know what data is held about them must be escalated to Engineering. Target response: within 30 days.
+- **Deletion requests from guests:** Must be processed within 30 days. Engineering must confirm deletion in writing to the Ops team, who will inform the requester.
+- **Data processing register:** Maintain a simple register (spreadsheet) of all categories of personal data processed, the purpose, and the third-party processors involved. This is sufficient at current scale.
+- **Privacy policy update:** The platform's public privacy policy must be updated to reflect DPDP compliance — specifically: purpose limitation, guest rights, the consent mechanism, and the RSVP data notice — before launch.
+- **Pre-launch checklist item:** The consent checkbox on guest import and the data notice on RSVP pages are mandatory before Evenzi goes live with any real users.
+
+---
+
+## 6. Content Policy
+
+### 6.1 Event Content Standards
 
 All events created on Evenzi must represent genuine, real-world events. The following standards apply to all host-created content:
 
@@ -225,20 +278,20 @@ All events created on Evenzi must represent genuine, real-world events. The foll
 - Be created as test events and left live on the platform
 - Be used as a vehicle for promoting commercial products or services
 
-### 5.2 Cover Images and Photos
+### 6.2 Cover Images and Photos
 
 - All uploaded images must be event-related
 - Adult, explicit, or inappropriate content is strictly prohibited
 - Content that depicts or promotes violence, hate speech, or discrimination is prohibited
 - Stock photos representing unrelated events are discouraged; authentic event photos preferred
 
-### 5.3 Event Descriptions
+### 6.3 Event Descriptions
 
 - Descriptions must be in plain language and accurately describe the event
 - No URLs or links to external commercial sites in event descriptions
 - No content that targets, demeans, or harasses individuals
 
-### 5.4 Admin Rights
+### 6.4 Admin Rights
 
 The Evenzi Admin team reserves the right to:
 - Remove any content that violates this Content Policy without prior notice
@@ -249,9 +302,9 @@ Hosts may appeal content removal decisions by contacting support@evenzi.com with
 
 ---
 
-## 6. Support Policy
+## 7. Support Policy
 
-### 6.1 Support Channels
+### 7.1 Support Channels
 
 Evenzi provides support through two channels:
 
@@ -260,13 +313,13 @@ Evenzi provides support through two channels:
 | In-app chatbot (FAQ bot) | Common questions, self-service | Instant (automated) |
 | Email: support@evenzi.com | Escalated issues, account actions, billing | Within 24 hours |
 
-### 6.2 Response Time Commitment
+### 7.2 Response Time Commitment
 
 - **Standard tickets:** First human response within 24 hours of ticket receipt
 - **Urgent tickets** (account security, data requests, active service disruption): Prioritized response within 6 hours
 - **Business hours:** Support team operates Mon–Sat, 9 AM–7 PM IST. Emails received outside hours are queued for next business day
 
-### 6.3 Escalation Criteria
+### 7.3 Escalation Criteria
 
 The following issue types require escalation beyond first-line support:
 
@@ -278,46 +331,46 @@ The following issue types require escalation beyond first-line support:
 | Billing disputes (post-MVP) | Ops Lead | Unresolved after first response |
 | Feature abuse investigations | Ops Lead | Patterns suggesting coordinated abuse |
 
-### 6.4 Refund Policy
+### 7.4 Refund Policy
 
 *Note: Evenzi is fully free in MVP Phase 1. This section is a placeholder for when paid tiers launch.*
 
 When paid tiers are live:
 - Pro-rated refunds will be issued within 7 days of a billing event if the user requests it
 - Refunds are not issued for partial months beyond the 7-day window
-- See Section 7 for full Subscription & Billing Policy
+- See Section 8 for full Subscription & Billing Policy
 
 ---
 
-## 7. Subscription & Billing Policy
+## 8. Subscription & Billing Policy
 
 *Note: This section is a forward-looking placeholder. Evenzi is free in MVP Phase 1. Subscription tiers and pricing are TBD. This section will be finalized before paid features launch.*
 
-### 7.1 Free Tier
+### 8.1 Free Tier
 
 - Evenzi will offer a free tier with defined limits (limits TBD — pending product decision)
 - Free tier users have access to core event planning features
 - No credit card required for free tier
 
-### 7.2 Paid Tiers
+### 8.2 Paid Tiers
 
 - Paid tiers will be offered on monthly and annual billing cycles
 - Annual plans will be offered at a discount vs. monthly
 - Billing is processed at the start of each billing cycle
 
-### 7.3 Cancellation Policy
+### 8.3 Cancellation Policy
 
 - Users may cancel their paid subscription at any time
 - Upon cancellation, access to paid features continues until the end of the current billing period
 - No partial-month refunds after the 7-day refund window
 
-### 7.4 Refund Policy
+### 8.4 Refund Policy
 
 - Users may request a full refund within 7 days of any billing event
 - After 7 days, no refunds are issued for the current billing period
 - Refund requests must be submitted to support@evenzi.com with the registered email and billing date
 
-### 7.5 Upgrade and Downgrade
+### 8.5 Upgrade and Downgrade
 
 - Plan upgrades take effect immediately; the user is charged a prorated amount for the remainder of the billing period
 - Plan downgrades take effect at the end of the current billing period
@@ -325,9 +378,9 @@ When paid tiers are live:
 
 ---
 
-## 8. Incident Response Policy
+## 9. Incident Response Policy
 
-### 8.1 Security Breach
+### 9.1 Security Breach
 
 In the event of a confirmed security breach affecting user data:
 
@@ -338,7 +391,7 @@ In the event of a confirmed security breach affecting user data:
 5. Notification includes: what happened, what data was affected, what steps have been taken, what users should do
 6. A post-incident report is prepared within 7 days
 
-### 8.2 Service Downtime
+### 9.2 Service Downtime
 
 In the event of unplanned service outage:
 
@@ -347,7 +400,7 @@ In the event of unplanned service outage:
 3. For outages lasting more than 2 hours, all users receive an email notification
 4. Root cause and restoration summary is communicated within 24 hours of resolution
 
-### 8.3 Data Loss
+### 9.3 Data Loss
 
 In the event of data loss affecting user-generated content:
 

@@ -99,7 +99,28 @@ All five pieces are created in one atomic operation when the host confirms — m
 - **Birthday, Corporate, and other event types** — architecture supports them; they just need sub-event type definitions and will be enabled post-MVP
 - **Event status workflow** (Draft → Published → Completed) — partial in data model, not surfaced in UI yet
 
-## 8. How it works (non-technical overview)
+## 8. After the event — what comes next
+
+The Celebratory Curator wizard is the beginning of the host's journey on Evenzi, not the end. After an event is complete, Evenzi continues to serve the host:
+
+**Event website as a digital memory:**
+The event website created through Evenzi remains live for a period based on the host's subscription plan — becoming a lasting digital record of the celebration. Friends and family who missed the event can view the details; the host has a permanent page to look back on.
+
+**Printed event photo book / event magazine (Phase 2 — planned):**
+Hosts will be able to order a physical printed keepsake through Evenzi — a curated photo book or event magazine of their celebration. This turns the digital event into a tangible memory. (This is a planned Phase 2 feature and is not in MVP.)
+
+**Anniversary reminders (Phase 2 — planned):**
+Evenzi will remind hosts on the anniversary of their wedding or event — a small but meaningful touch that keeps the platform relevant beyond the event itself. (Planned feature; not in MVP.)
+
+---
+
+## 8a. Vendor collaboration (Phase 2 — forward-looking)
+
+In Phase 2, professional event managers (vendors) will be able to join an event as collaborators — taking over coordination while the host retains final approval. The Celebratory Curator wizard will support a vendor-managed mode where vendors set up the event details on behalf of the host, enabling a more professional service layer for large or complex events.
+
+---
+
+## 9. How it works (non-technical overview)
 
 ```
 Host opens the Celebratory Curator wizard
@@ -120,11 +141,11 @@ Redirected to dashboard — event card appears immediately
 
 The wizard maintains state across steps — going back doesn't clear work. The confirm step creates everything at once, so the database is never left in a partial state.
 
-## 9. Design
+## 10. Design
 
 Screens are designed in Google Stitch. The wizard uses a step indicator at the top to show progress. Each step is focused — one question or group at a time — to avoid overwhelming the host. Visual feedback (selected state on cards, expanded sub-event panels) makes the experience feel interactive rather than form-like.
 
-## 10. Timeline
+## 11. Timeline
 
 | Phase | What happened | Status |
 |---|---|---|
@@ -135,7 +156,7 @@ Screens are designed in Google Stitch. The wizard uses a step indicator at the t
 | **QA** | Full wizard flow testing | Pending alongside polish |
 | **Production** | Ready to ship once UI polish complete | Pending |
 
-## 11. Who's involved
+## 12. Who's involved
 
 | Role | Person | What they own |
 |---|---|---|
@@ -144,7 +165,7 @@ Screens are designed in Google Stitch. The wizard uses a step indicator at the t
 | **Implementation support** | Claude Code | Schema design, RPC, test support |
 | **Design** | (to be assigned) | UI polish pass in Google Stitch / Figma |
 
-## 12. Key documents
+## 13. Key documents
 
 | Document | Audience | Purpose |
 |---|---|---|
@@ -152,7 +173,7 @@ Screens are designed in Google Stitch. The wizard uses a step indicator at the t
 | `app/` (event wizard routes) | Engineering | Wizard page source code |
 | ClickUp feature task | Everyone | Subtask breakdown, status, assignments |
 
-## 13. FAQ
+## 14. FAQ
 
 **Q: Why is it called "Celebratory Curator" and not "Create Event"?**
 A: "Create Event" is developer language. "Celebratory Curator" reflects what the host is actually doing — curating something personal and meaningful. Product language should match the occasion.

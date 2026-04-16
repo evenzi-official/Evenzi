@@ -1,7 +1,7 @@
 # Business Requirements Document (BRD)
 ## Evenzi — Event Planning SaaS Platform
 
-**Document version:** 1.0
+**Document version:** 1.1
 **Date:** April 2026
 **Status:** Draft — awaiting sign-off
 **Owner:** Abhijith (Founder / Product Owner)
@@ -33,7 +33,7 @@
 Indian event hosts — primarily wedding planners, couples, and families — have no purpose-built digital platform to manage their events end-to-end. They rely on WhatsApp groups for invitations and RSVPs, Excel spreadsheets for guest lists and budgets, and fragmented verbal coordination for logistics. The result is a high-stress, error-prone planning experience that does not match the scale or importance of the occasions being planned.
 
 ### Solution
-Evenzi is a subscription-based SaaS platform that gives event hosts a single, structured workspace to create their event, manage guests, send digital invitations, track RSVPs, manage budget and checklists, share photos, and publish a public event website. It is designed specifically for the Indian market — WhatsApp-first, India-scale guest lists, and Indian event conventions.
+Evenzi is a subscription-based SaaS platform that gives event hosts a single, structured workspace to create their event, manage guests, send digital invitations, track RSVPs, manage budget and checklists, share photos, and publish a public event website. It is designed specifically for the Indian market — WhatsApp-first, India-scale guest lists, and Indian event conventions. Evenzi is delivered as a Progressive Web App (PWA) — installable from the browser on any device, no App Store required.
 
 ### Scope
 The MVP (Phase 1) covers the complete Host-side workflow across 14 modules. It is a Host-only release — the Guest experience is limited to RSVP pages and invitation viewing, and the Vendor role is deferred to Phase 2.
@@ -122,10 +122,12 @@ There is no dedicated, India-first event management platform for hosts that addr
 
 India's wedding industry is one of the largest in the world:
 
-- **Market size:** Estimated at $40–50 billion USD annually (industry reports, 2023–2024)
+- **Total wedding industry spend:** India's wedding industry represents approximately ₹4 lakh crore (roughly $40–50 billion USD) in annual spend — covering venues, food, jewellery, clothing, photography, decoration, and everything else that goes into a celebration. This is one of the largest celebration economies in the world.
 - **Volume:** Approximately 10 million weddings per year in India
 - **Average spend:** INR 5–25 lakhs for middle-class weddings; INR 1 crore+ for affluent weddings
 - **Duration:** Indian weddings typically span 3–5 days with multiple functions, meaning higher coordination complexity than Western single-day events
+
+**Important clarification on market sizing:** The ₹4 lakh crore figure represents the total spend across all wedding categories — it is not a SaaS TAM. The addressable market for a digital planning SaaS is the subset of that spend that could be directed to a software subscription and digital coordination tools. Even capturing a small fraction of the planning and coordination layer across 10 million weddings per year represents a very large revenue opportunity for a SaaS business.
 
 ### Digital Adoption Gap
 
@@ -170,7 +172,7 @@ Beyond weddings, Evenzi's platform is equally applicable to birthday parties, co
 - She's already missed three vendor payment deadlines because they were tracked in a spreadsheet she forgot to check
 - She spent four hours sending WhatsApp invitations one by one
 
-**How Evenzi helps:** Priya creates the event in the Celebratory Curator, imports her guest list, sends WhatsApp invitations in bulk, watches RSVPs come in on her dashboard, tracks budget in real time, and shares a public event website with venue details.
+**How Evenzi helps:** Priya creates the event in the Celebratory Curator, imports her guest list, sends WhatsApp invitations in bulk, watches RSVPs come in on her dashboard, tracks budget in real time, and shares a public event website with venue details. After the reception, she orders a printed event photo book through Evenzi.
 
 ---
 
@@ -204,7 +206,7 @@ Beyond weddings, Evenzi's platform is equally applicable to birthday parties, co
 - No professional tool exists for Indian event coordinators at her price point
 - Her coordination process is entirely manual, limiting how many events she can take on
 
-**How Evenzi helps (Phase 2):** A professional/multi-event tier of Evenzi will allow coordinators like Meena to manage a portfolio of events from one account, with client-specific workspaces.
+**How Evenzi helps (Phase 2):** Meena creates a vendor account on Evenzi with a higher-capacity plan. Hosts invite her to collaborate on their specific events. She manages logistics, sends budget quotations, and the host approves decisions — all within the platform. Her profile and track record on Evenzi become a professional asset that helps her win new clients.
 
 ---
 
@@ -213,11 +215,13 @@ Beyond weddings, Evenzi's platform is equally applicable to birthday parties, co
 **Background:** Vikram, 50, runs a catering business in Pune with a capacity for 500–2,000 person events. He gets most of his business through referrals and JustDial listings.
 
 **Goals:**
-- Get discovered by new clients planning events
-- Receive inquiries directly through a platform
-- Manage bookings more professionally
+- Be invited to collaborate on events that match his capacity
+- Send professional quotations that clients can approve in-platform
+- Build a reputation that attracts repeat and referral business
 
-**How Evenzi helps (Phase 2):** The Vendor marketplace allows Vikram to create a profile, list his services, and receive enquiries from hosts browsing the platform.
+**How Evenzi helps (Phase 2):** Vikram has a vendor account on Evenzi. Hosts who have worked with him can follow his profile. When a host invites him to an event, Vikram sees the event details, sends a catering quote, and the host approves it — all within Evenzi. Over time, his track record on the platform becomes a key differentiator.
+
+**Note:** Vendors on Evenzi are NOT a directory listing. They are active collaborators invited by hosts to participate in specific events. The vendor model is designed around collaboration and quotation approval — not passive discovery.
 
 ---
 
@@ -248,13 +252,13 @@ All 14 modules below are in scope for Phase 1. The MVP is Host-role only — all
 
 | Feature | Reason for Deferral |
 |---------|---------------------|
-| Vendor Role (full vendor-side flows) | Requires marketplace architecture, separate scope, Phase 2 |
+| Vendor Role (full vendor-side flows) | Requires separate account tier, quotation system, collaboration architecture — Phase 2 |
 | Vendor Discovery & Booking | Depends on Vendor Role |
 | AI Photo Finder | Advanced AI feature, post-MVP |
 | Real-time collaboration | Infrastructure complexity, post-MVP |
 | Event discovery / search | Marketplace feature, post-MVP |
 | Analytics Dashboard | Phase 2 after data accumulates |
-| Mobile App (iOS / Android) | Post-MVP; web-first for MVP |
+| Native Mobile App (iOS / Android) | Post-MVP; PWA-first for MVP |
 | Vendor Payments / Commission | Post-marketplace launch |
 | Multi-event Corporate Tier | Phase 2+ |
 | AI Planning Assistant | Post-MVP |
@@ -298,6 +302,8 @@ All 14 modules below are in scope for Phase 1. The MVP is Host-role only — all
 - Each guest has a status: Invited / Confirmed / Declined / Pending / No Response
 - Hosts can filter and search the guest list by name, group, status, or RSVP response
 - A public RSVP page is generated per event — accessible via a shareable link — where guests can confirm attendance and submit meal preferences or notes
+- **Hosts must be able to mark RSVPs manually on behalf of guests** — to accommodate non-tech-savvy guests, elderly relatives, and guests who RSVP via phone call or in person
+- **The public RSVP page must be dead-simple:** maximum 2 taps or clicks from landing to submission — no registration required, no complex forms
 - RSVP responses update the guest record in real time
 
 ### Module 6 — Digital Invitations
@@ -328,6 +334,7 @@ All 14 modules below are in scope for Phase 1. The MVP is Host-role only — all
 - Hosts can customise basic elements: colour theme, cover image, welcome message
 - The website is accessible via a shareable URL (e.g., `evenzi.in/events/[event-slug]`)
 - The website is mobile-responsive and loads fast on low-bandwidth connections
+- **Data retention:** The event website stays live for a period determined by the host's subscription plan. Free tier websites expire after a defined number of days post-event; paid plans extend this.
 
 ### Module 10 — Event Settings
 - Hosts can edit all event details created in the wizard (name, date, venue, cover photo)
@@ -357,7 +364,7 @@ All 14 modules below are in scope for Phase 1. The MVP is Host-role only — all
 - Includes: hero section, feature highlights, pricing overview, testimonials (placeholder at launch), and a sign-up CTA
 - Accessible at the root domain without authentication
 - Mobile-responsive and SEO-optimised
-- Includes a cookie/privacy notice compliant with Indian IT rules
+- Includes a cookie/privacy notice compliant with Indian IT rules and DPDP Act 2023
 
 ### Module 14 — Admin Module
 - Accessible only to users with the Admin role (internal team only)
@@ -391,6 +398,13 @@ All 14 modules below are in scope for Phase 1. The MVP is Host-role only — all
 - No horizontal scrolling on any screen
 - Forms optimised for mobile keyboard input (correct input types, autocomplete attributes)
 
+### PWA Requirements
+- Evenzi is delivered as a Progressive Web App (PWA)
+- Installable on Android and iOS from the browser — no App Store required
+- Service worker for offline-graceful handling of core views (event details viewable offline)
+- Web app manifest with app icon and splash screen
+- Native mobile app (iOS + Android) is a Phase 2 deliverable
+
 ### India-Specific Requirements
 - **WhatsApp-first:** Invitation sending via WhatsApp is a P0 feature (primary channel in India)
 - **Low-bandwidth graceful degradation:** Core functionality (viewing event details, submitting RSVP) must work on 2G/3G connections
@@ -406,10 +420,20 @@ All 14 modules below are in scope for Phase 1. The MVP is Host-role only — all
 - Screen reader compatibility for primary flows
 
 ### Data & Privacy
+
+#### General
 - User data stored in Supabase PostgreSQL (region: ap-northeast-1 / Asia Pacific)
 - Data retention policy: user data retained for 12 months after account deletion, then purged
 - Privacy policy and terms of service published before launch
-- Compliance with India's Digital Personal Data Protection Act (DPDPA) 2023 — user consent flows required
+
+#### DPDP Act 2023 Compliance
+India's **Digital Personal Data Protection (DPDP) Act 2023** applies to Evenzi. Key obligations for the platform:
+
+- **Guest data consent:** Hosts upload guest contact information (names, phone numbers, email addresses). Before importing guest data, hosts must confirm — via a checkbox — that they have obtained the consent of the guests to share their personal data with the platform for the purpose of event coordination.
+- **Data deletion on request:** Guests must be able to request deletion of their personal data. The platform must honour this request within a reasonable timeframe (consistent with DPDP Act obligations).
+- **Purpose limitation:** Guest contact data added to an event must not be used for any purpose other than coordinating that specific event. Guest data from one event cannot be shared with vendors, used for marketing, or transferred to any other party without explicit consent.
+- **Privacy notice:** A clear privacy policy must be published and linked from the registration flow, the public RSVP page, and the landing site.
+- **Data processing disclosure:** The platform must disclose what data it collects, why, and how it is processed — available in plain language.
 
 ---
 
@@ -423,9 +447,20 @@ Evenzi will operate on a freemium subscription model with three tiers:
 
 | Tier | Target User | Intent |
 |------|-------------|--------|
-| **Free** | First-time users, trial | Let users experience the product before paying. Limited by guest count or number of events. Designed to convert. |
-| **Standard (Paid)** | Individuals planning one event | Full access to all core features, higher guest limits, standard templates |
-| **Premium (Paid)** | Power users, repeat planners, coordinators | Highest guest limits, priority support, premium templates, advanced features |
+| **Free** | First-time users, trial | Let users experience the product before paying. Conversion triggered by storage limits, feature gates, data retention expiry, and event count caps. Designed to convert. |
+| **Standard (Paid)** | Individuals planning one event | Full access to all core features, higher guest limits, longer data retention, standard templates |
+| **Premium (Paid)** | Power users, repeat planners, coordinators | Highest guest limits, priority support, premium templates, advanced features, longest data retention |
+
+### Freemium Walls (Conversion Triggers)
+
+The following limits define the free-to-paid conversion triggers. Specific numbers are TBD but the walls themselves are confirmed:
+
+| Wall | Description |
+|------|-------------|
+| **Storage limit** | Photo storage is capped on the free tier. Hosts approaching the cap are prompted to upgrade. |
+| **Feature gates** | Certain features are available on paid plans only — specific features TBD based on user research. |
+| **Data retention** | Event websites and photos expire after a defined number of days post-event on the free tier. Paid plans extend this significantly. |
+| **Event count** | Free tier supports a limited number of concurrent or total events. |
 
 ### Feature Add-Ons
 
@@ -436,18 +471,24 @@ Certain features may be offered as paid add-ons on top of any subscription tier:
 - **WhatsApp broadcast credits** (for platforms that require per-message billing)
 - **Priority support** (guaranteed response time SLA)
 
+### Event Magazine / Photo Book
+
+After an event, hosts can order a **printed Event Magazine or Photo Book** through Evenzi — a physical keepsake of the celebration. Evenzi facilitates the order and fulfilment is handled by a third-party print partner (fulfilment method TBD). Revenue model: **transaction fee per order**. This is a post-event upsell and a natural extension of the Media & Memories module.
+
+### Post-MVP: Vendor Subscription Tier
+
+When the Vendor role launches (Phase 2), vendors (event management professionals) will have a separate subscription tier with higher capacity and a different feature set — designed for managing multiple client events simultaneously. This is a distinct revenue stream from the host subscription.
+
 ### Post-MVP: Marketplace Revenue
 
-When the Vendor marketplace launches (Phase 2), Evenzi will evaluate:
-- Commission on bookings made through the platform
-- Premium vendor listing/profile features
-- Promoted placement in vendor search results
+Evenzi will evaluate commission-based or listing-fee models for the vendor marketplace. Specific model TBD after Phase 2 launch.
 
 ### Pricing Philosophy
 
 - Free tier must be genuinely useful — not crippled — to build trust and word-of-mouth
 - Paid tiers must be affordable for middle-class Indian households planning events
 - Pricing will be set in INR; USD pricing for NRI market is a secondary consideration
+- **"Luxury feel, free to start"** — for wealthy hosts, Evenzi is a premium showcase (not a cost concern); for everyone else, the free tier removes the barrier. Same quality experience across all price points; paid tiers unlock capacity, not quality.
 
 ---
 
@@ -505,6 +546,7 @@ When the Vendor marketplace launches (Phase 2), Evenzi will evaluate:
 | English is sufficient for MVP; Hindi not required | May limit adoption in tier-2/3 cities; localisation needed sooner |
 | Supabase free tier is sufficient for MVP scale | May need to upgrade to a paid Supabase plan at ~500+ active users |
 | Vercel deployment error is fixable before launch | If not fixable, alternate deployment host (Railway, Render) must be evaluated |
+| PWA installation is sufficient for MVP; no native app needed | If user research shows strong preference for native app, Phase 2 timeline may need to be pulled forward |
 
 ### Constraints
 
@@ -517,6 +559,8 @@ When the Vendor marketplace launches (Phase 2), Evenzi will evaluate:
 | **No payment infrastructure** | Payment processing (Razorpay / Stripe) is not built. The free tier is the only available tier until billing is implemented. |
 | **Figma dependency** | Support Chatbot and some UI screens are blocked on Figma design completion. |
 | **India data residency** | Supabase project is in ap-northeast-1. Consider whether ap-south-1 (Mumbai) would be more appropriate for latency and data residency. |
+| **Print partner (Event Magazine)** | Event photo book / magazine fulfilment requires a third-party print partner to be identified and contracted. Fulfilment method TBD. |
+| **DPDP Act compliance** | Guest consent flows and data deletion mechanisms must be implemented before handling real guest data. This is a legal requirement, not optional. |
 
 ---
 
@@ -532,6 +576,8 @@ When the Vendor marketplace launches (Phase 2), Evenzi will evaluate:
 | Twilio configuration (Supabase) | Abhijith | Not started | Phone OTP not functional in production |
 | Razorpay/payment integration | Abhijith | Deferred | No paid tier until implemented |
 | Marketing & branding team hire | Abhijith | TBD | Landing page and brand positioning delayed |
+| Print partner (Event Magazine) | Abhijith | Not started | Event Magazine feature cannot launch |
+| DPDP Act compliance review | Abhijith | Not started | Platform cannot handle real guest data at scale without this |
 
 ### Risk Register
 
@@ -545,6 +591,7 @@ When the Vendor marketplace launches (Phase 2), Evenzi will evaluate:
 | Data breach or security vulnerability | Low | Critical | Supabase RLS enforced on all tables; security review before launch; no custom auth code |
 | Figma designs not delivered on time | Medium | Medium | Start chatbot implementation with wireframes; unblock frontend with low-fidelity specs |
 | Competition launches India-first product before Evenzi | Low | Medium | Speed to market is the mitigation; focus on shipping MVP Q3 2026 |
+| DPDP Act non-compliance at launch | Medium | High | Implement guest consent flows and privacy policy before handling real guest data; treat as P0 for legal safety |
 
 ---
 
@@ -580,7 +627,7 @@ gantt
     MVP Launch                          :milestone, launch, 2026-09, 2026-09
 
     section Phase 2 — Growth
-    Vendor Role                         :vendor, 2026-10, 2027-01
+    Vendor Role (active collaborator)   :vendor, 2026-10, 2027-01
     Analytics Dashboard                 :analytics, 2027-01, 2027-03
     Real-time Features                  :realtime, 2027-02, 2027-04
 ```
@@ -593,7 +640,7 @@ gantt
 | Host Dashboard live | May 2026 | Dashboard shows real Supabase data, all quick actions functional |
 | Core Event Flow complete | July 2026 | Create event → Add guests → Send invitations → Track RSVPs — all working end-to-end |
 | All modules feature-complete | August 2026 | All 14 modules functional, no P0/P1 bugs |
-| Launch-ready | September 2026 | Vercel deployment clean, all tests passing, QA signed off, privacy policy live |
+| Launch-ready | September 2026 | Vercel deployment clean, all tests passing, QA signed off, privacy policy live, DPDP consent flows implemented |
 | **MVP Public Launch** | **Q3 2026** | Platform publicly accessible, paid tier available |
 | Phase 2 kick-off | Q4 2026 | Post-launch learnings incorporated, Vendor role scoped and in development |
 
@@ -612,6 +659,8 @@ This document defines the business requirements for Evenzi MVP Phase 1. It is in
 - Items marked "Pricing TBD" in the Revenue Model section require a decision before MVP launch
 - The WhatsApp API dependency (Module 6) requires a business decision and action before the Digital Invitations module can be fully implemented
 - The Figma design dependency for the Support Chatbot (Module 12) requires a timeline commitment from the design team
+- DPDP Act 2023 compliance (guest consent flows, privacy policy, data deletion) is a legal requirement that must be addressed before the platform handles real guest data at scale
+- A print partner for the Event Magazine / Photo Book must be identified before that feature can be marketed
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Document:** M2 — Product Positioning
 **Team:** Marketing & Branding
-**Version:** 1.0 (April 2026)
+**Version:** 1.1 (April 2026)
 **Status:** Active — review at each major milestone or market shift
 
 ---
@@ -67,14 +67,35 @@ Less emotional investment in the event itself, more focus on efficiency and avoi
 
 | Segment | Why Out of Scope |
 |---------|-----------------|
-| Vendors (caterers, decorators, photographers) | Vendor marketplace is a separate product phase — not in MVP |
+| Vendors (caterers, decorators, photographers) | Vendor collaboration is a Phase 2 feature — not in MVP |
 | International users (outside India) | Phone OTP is India (+91) only; product is culturally specific to India |
 | Enterprise clients | MVP is self-serve; no enterprise onboarding or account management |
 | Wedding planners as primary users | May use Evenzi on behalf of clients, but not the target persona |
 
 ---
 
-## 3. The Problem We Solve
+## 3. The Founder Story
+
+### Built from Direct Experience
+
+Evenzi was built by Abhijith from direct personal experience. He planned an event, felt the chaos of managing 200 guests across WhatsApp groups, tracking RSVPs via messages, budgeting on Excel, coordinating vendors by phone — and built the tool he wished had existed.
+
+This is not a market opportunity play. It is a felt-problem solution.
+
+That distinction matters. Evenzi is not a startup that identified a category gap and designed a product to fill it. It is a tool that a person needed, built because it didn't exist, and now made available to everyone who faces the same chaos. The empathy baked into the product is not manufactured — it is the founder's own experience.
+
+**This story should appear in:**
+- Investor pitches and press interviews
+- The founder's Instagram and LinkedIn content
+- The "About Evenzi" section of the website
+- The 2-minute elevator pitch
+
+**How it shapes the "why we're different" narrative:**
+Most SaaS products are built for an assumed user persona. Evenzi was built for a real one — the founder himself. Every feature decision is filtered through the question: would this have solved the problem I actually had? That is a fundamentally different design philosophy, and it shows in the product.
+
+---
+
+## 4. The Problem We Solve
 
 ### How Indian Families Plan Events Today
 
@@ -98,7 +119,7 @@ The current state of Indian event planning looks like this:
 
 ---
 
-## 4. Our Solution
+## 5. Our Solution
 
 ### One Platform — Less Chaos
 
@@ -116,52 +137,79 @@ The biggest obstacle to adopting a new tool is friction at the entry point. Even
 
 Not "event planning software" with Indian languages added. Sub-events are named Mehendi, Sangeet, Haldi — not "pre-event 1." RSVP communications are designed around Indian social dynamics. Phone OTP works with every Indian mobile number from day one. The product understands the context.
 
----
+### Luxury Feel, Free to Start
 
-## 5. Competitive Landscape
-
-### WeddingWire India / The Knot India
-
-**What they do:** Wedding vendor directories. Couples use them to find and compare photographers, caterers, venue decorators.
-
-**Overlap with Evenzi:** Minimal. These platforms are for vendor discovery, not event management. They help you find your caterer — they do not help you track whether your caterer has confirmed the menu with you.
-
-**Evenzi's edge:** Evenzi serves the host side of event planning — coordination, guests, RSVPs, memories — which these platforms do not touch.
+Evenzi is designed to look and feel premium. For wealthy hosts, it is a showcase of their celebration — a platform that reflects the scale and significance of what they are organizing. For everyone else, the free tier removes the price barrier. The quality of the experience is identical regardless of tier. Evenzi does not compromise on design to serve the free user.
 
 ---
 
-### Shaadi.com
+## 6. What Makes Evenzi Different
 
-**What they do:** Matrimonial matchmaking platform — connecting families for marriage proposals.
+### WhatsApp-Native as a Competitive Moat
 
-**Overlap with Evenzi:** None. Shaadi.com is about finding a partner. Evenzi is about planning the wedding after you have.
+WhatsApp is not just a notification channel for Evenzi — it is the primary guest interaction layer. The invitation, the RSVP, and future reminders all happen where Indian guests already are. Building this depth of WhatsApp-native integration — invitation links, RSVP tracking, delivery confirmation — is technically non-trivial and requires Indian user trust that takes time to build. This is a real barrier to competitors. Any platform that wants to replicate what Evenzi does cannot simply add a "send via WhatsApp" button. The entire guest experience is designed around it.
 
-**Why we mention it:** Users sometimes conflate "wedding platform" broadly. Evenzi is the planning tool for after the match is made.
+### Vendors as Event Collaborators (Phase 2)
 
----
+On Evenzi, vendors do not just list their services. They join your event. A professional event manager can take over coordination — sending you budget quotations, managing the timeline, handling logistics — while you retain approval authority over every decision. This is not a vendor marketplace. It is active collaboration within the event itself. You stay in control; they do the work.
 
-### Manual Tools: WhatsApp + Excel
+This is a Phase 2 feature, but it is a significant differentiator worth noting. No other platform in India offers this level of vendor integration within the event management layer.
 
-**What they are:** The real incumbent. Not a company — a behavior. The combination of WhatsApp group chats and a shared spreadsheet is what nearly every Indian family uses today.
+### A Physical Keepsake — Evenzi Memories
 
-**Why this is the hardest competitor:**
-- Zero switching cost — everyone already uses WhatsApp
-- No learning curve — they already know how to use it
-- Familiar — they've planned events this way before and it "worked"
-- No price — it's free
+Evenzi is the only event planning platform that offers a physical keepsake product. After the event, hosts can order a printed photo book — their celebration, permanently preserved. No digital competitor offers this tangible, emotional anchor. The event ends. The platform stays useful. This extends Evenzi's relationship with the host well past the final day of the celebration.
 
-**Why Evenzi wins:**
-- WhatsApp + Excel has no RSVP tracking — just asking people again and again
-- It has no guest visibility dashboard — no one person knows the complete picture
-- It has no sub-event management — you build separate sheets and separate groups for each ceremony
-- It has no media organization — photos scatter across chats and galleries
-- It has no delegation — you cannot give a family member controlled access to part of the planning
-
-The key insight: WhatsApp + Excel does not feel like a problem until you are in the middle of it. The marketing job is to make people recognize the pain before they are drowning in it.
+*(Feature name is tentatively "Evenzi Memories" — to be finalized closer to launch.)*
 
 ---
 
-## 6. Key Messages by Audience
+## 7. Competitive Landscape
+
+### The Real Competitor
+
+The primary competitor to Evenzi is not a company. It is a behavior:
+
+**WhatsApp + Google Sheets + JustDial + a notebook.**
+
+Each individual need a host has is currently being met by a separate, generic tool — none of which was designed for event planning, and none of which talk to each other. Evenzi's core differentiation is integration: all tools connected in one place, with an experience designed specifically for Indian celebrations.
+
+The marketing challenge is not to compete against another app. It is to make people recognize that the collection of tools they are currently using is not good enough — before they are drowning in it.
+
+### Competitive Map
+
+| Competitor Type | Examples | What They Do | Evenzi's Edge |
+|----------------|----------|-------------|---------------|
+| **Direct** | None | No platform does what Evenzi does | First-mover in Indian celebration management |
+| **Guest communication** | WhatsApp | Guests are contacted, but responses are untracked | Evenzi integrates RSVP tracking into WhatsApp natively |
+| **Guest tracking** | Google Sheets | Manual entry, no automation, no visibility | Evenzi auto-updates RSVP status, sends reminders, surfaces gaps |
+| **Photo books** | Canvera, Picsbook | Post-event printed books, manually assembled | Evenzi Memories is built into the same platform as the event — photos are already organized |
+| **Vendor discovery** | WedMeGood, ShaadiSaga | Find vendors, browse profiles | Evenzi (Phase 2) integrates vendors into the event as active collaborators, not directory listings |
+| **Wedding directories** | WeddingWire, The Knot | Vendor discovery — find photographers, caterers, venues | No overlap — these platforms do not manage events, guests, or invitations |
+| **Matrimonial** | Shaadi.com | Finding a marriage partner | No overlap — Evenzi starts where Shaadi.com ends |
+
+### Why Evenzi Wins Against the Behavior
+
+| The current behavior | The Evenzi alternative |
+|---------------------|----------------------|
+| WhatsApp groups with no RSVP tracking | Automatic RSVP tracking via WhatsApp links |
+| Multiple Google Sheets, multiple versions | One guest list across all sub-events, always current |
+| Calling vendors and following up manually | Vendor joins the event, coordinates within the platform (Phase 2) |
+| Photos scattered across chats and galleries | Media & Memories in one organized place |
+| No delegation — one person handles everything | Role-based access so family members can help |
+
+---
+
+## 8. Market Sizing
+
+India's wedding industry represents over ₹4 lakh crore in annual spend — venue, catering, attire, jewellery, photography, and everything in between. The digital planning and coordination layer of this market is nascent: most hosts still coordinate via WhatsApp groups and spreadsheets.
+
+Evenzi targets this undigitised coordination layer — a market with enormous latent demand and almost no direct competition. The size of the opportunity is not the total wedding industry spend. It is the share of every wedding's planning effort that is currently managed with tools that were never designed for it.
+
+India hosts over 10 million weddings annually. Each one is a planning problem waiting to be solved. The per-event value unlocked by replacing fragmented tools with Evenzi — host time saved, vendor spend organized, memories preserved — compounds into a substantial market.
+
+---
+
+## 9. Key Messages by Audience
 
 ### For Hosts
 
@@ -172,6 +220,7 @@ The key insight: WhatsApp + Excel does not feel like a problem until you are in 
 - "Send WhatsApp invitations in seconds, track responses automatically"
 - "Your whole event: guest list, sub-events, photos — all in one place"
 - "Free to start. No credit card. No setup fees."
+- "After the event — order a printed photo book of your celebration. Your memories, permanently preserved."
 
 ---
 
@@ -188,21 +237,24 @@ The key insight: WhatsApp + Excel does not feel like a problem until you are in 
 
 ### For Investors
 
-**Primary message:** "India's event planning market is a ₹4 lakh crore opportunity. Evenzi is the first platform built from the ground up for Indian celebrations."
+**Primary message:** "India's wedding coordination layer is entirely undigitised. Evenzi is the first platform built from the ground up to fix that."
 
 **Supporting messages:**
 - "India hosts over 10 million weddings a year — each one is a planning problem waiting to be solved"
+- "The founder built Evenzi from personal experience managing 200 guests across WhatsApp groups. This is a felt-problem solution, not a market-gap play."
 - "WhatsApp-first, free-to-start, built for India: the fastest path to mass adoption in a fragmented market"
+- "WhatsApp-native integration is a technical and trust moat — not something a competitor can replicate overnight"
 - "Subscription model with a free tier drives organic growth; paid tiers unlock as hosts see value"
-- "Phase 1 is host tools. Phase 2 connects hosts to vendors. The platform play is the marketplace."
+- "Phase 1 is host tools. Phase 2 connects hosts to vendor collaborators — not a marketplace, an integration. That's a defensible platform play."
+- "Evenzi Memories — a printed photo book built into the platform — is the only physical keepsake product in the event planning category. It creates a post-event revenue stream with strong emotional purchase intent."
 
 ---
 
-## 7. The Elevator Pitch
+## 10. The Elevator Pitch
 
 ### 10 Seconds
 
-> "Evenzi is a free event planning app for Indian celebrations. You create your event, invite your guests via WhatsApp, and track everything — RSVPs, photos, sub-events — in one place."
+> "Evenzi is a free event planning app for Indian celebrations. The founder built it after personally experiencing the chaos of planning an event — 200 guests across WhatsApp groups, RSVPs tracked in Excel, vendors managed by phone. He built the tool he wished had existed."
 
 *Use when:* Someone asks what Evenzi is at a networking event, social gathering, or casual introduction.
 
@@ -210,7 +262,7 @@ The key insight: WhatsApp + Excel does not feel like a problem until you are in 
 
 ### 30 Seconds
 
-> "You know how Indian families plan weddings today — WhatsApp groups, Excel sheets, calling the same relatives three times to confirm? Evenzi fixes that. It's a free platform where you create your event, manage your complete guest list across all ceremonies — Mehendi, Sangeet, Reception — send WhatsApp invitations, track RSVPs automatically, and even share photos. Everything in one place, on your phone, for free. We're built specifically for India."
+> "You know how Indian families plan weddings today — WhatsApp groups, Excel sheets, calling the same relatives three times to confirm? Evenzi fixes that. It is a free platform where you manage your entire guest list across all ceremonies — Mehendi, Sangeet, Reception — send WhatsApp invitations, and track RSVPs automatically. Everything in one place, on your phone. And after the event, you can order a printed photo book of your celebration. The founder built it because he needed it himself. It looks and feels premium — and it is free to start."
 
 *Use when:* Someone shows genuine interest and you have a few seconds more. Meetings, introductions, demo preambles.
 
@@ -220,21 +272,25 @@ The key insight: WhatsApp + Excel does not feel like a problem until you are in 
 
 > "Every year, India hosts millions of weddings and celebrations. And almost every family planning one is doing it the same way — WhatsApp groups, scattered Excel sheets, handwritten lists, and a lot of hoping they haven't forgotten someone.
 >
-> The problem is not that people don't care about the planning. They care deeply. The problem is that the tools available were never designed for the way Indian families actually plan.
+> Evenzi's founder, Abhijith, lived that chaos firsthand. He managed 200 guests across multiple WhatsApp groups, tracked RSVPs through messages, ran budgets in Excel, and coordinated vendors by phone. At the end of it, he thought: this should not be this hard. So he built the tool he wished had existed.
 >
-> Evenzi changes that. It is a free, all-in-one event planning platform built specifically for Indian celebrations. A host creates their event, adds their sub-events — Mehendi, Sangeet, Haldi, Reception — manages a complete guest list, sends WhatsApp invitations directly from the platform, and gets automatic RSVP tracking in real time. No more calling 200 people to ask if they're coming. No more three versions of the guest list. No more losing photos across five different chats.
+> Evenzi is a free, all-in-one event planning platform built specifically for Indian celebrations. A host creates their event, adds sub-events — Mehendi, Sangeet, Haldi, Reception — manages a complete guest list, and sends WhatsApp invitations directly from the platform. RSVP tracking is automatic. No more calling 200 people to ask if they're coming. No more three versions of the guest list. No more losing photos across five different chats.
 >
-> The experience is designed for Indian users. Phone OTP login with any Indian number. WhatsApp-native invitations because that's where Indian families live. Sub-event structures that reflect how Indian weddings actually work.
+> WhatsApp is not just a notification channel for Evenzi — it is the primary guest interaction layer. The invitation, the RSVP, and future reminders all happen where Indian guests already are. Building this depth of WhatsApp-native integration is technically non-trivial and a real barrier to competitors.
 >
-> And it is free to start. Zero friction. Create an account, create your event, start inviting — in under five minutes.
+> The experience is designed to feel premium. Luxury feel, free to start. Wealthy hosts get a showcase for their celebration. Everyone else gets the same quality experience at no cost.
 >
-> We're in MVP Phase 1 right now, building out the core host experience. The next phase connects hosts to vendors — photographers, caterers, decorators — and that's where the platform becomes a marketplace. But we start with the host, because the host is the customer that matters most."
+> And after the event is over, hosts can order a printed photo book — their celebration, permanently preserved. No other event planning platform offers this. It is a physical keepsake built into the same platform where the event was planned.
+>
+> We are in MVP Phase 1 right now, building the core host experience. Phase 2 connects hosts to vendors as active event collaborators — not a directory, but an integration. A professional event manager joins your event, handles logistics, sends you quotations, and you approve every decision. That is a significantly more powerful model than anything currently available in India.
+>
+> The viral loop is built in. Every guest who RSVPs through an Evenzi-powered invitation sees a beautiful event page. Some of those guests will plan their own events. That embedded virality — guests becoming future hosts — is by design."
 
 *Use when:* Investor pitch, press interview, demo walkthrough intro, partnership meeting.
 
 ---
 
-## 8. Proof Points
+## 11. Proof Points
 
 Things we can say today and things we will be able to say as the product and user base grow.
 
@@ -246,6 +302,7 @@ Things we can say today and things we will be able to say as the product and use
 | "Free to start" | No credit card required; free tier is the MVP default |
 | "All-in-one" | Event creation, guest management, RSVP tracking, sub-events, media in a single platform |
 | "Zero complexity" | 5-step event creation wizard; WhatsApp-native flow requires no new behavior |
+| "Founder-built from personal experience" | Abhijith planned an event and built the tool he wished had existed |
 
 ### As We Grow (Future Proof Points)
 
@@ -259,11 +316,15 @@ Things we can say today and things we will be able to say as the product and use
 
 ---
 
-## 9. Launch Messaging Strategy
+## 12. Launch Messaging Strategy (GTM)
 
 ### Phase 1: Awareness in Target Market (MVP Launch)
 
 **Target:** Engaged couples and their immediate families in urban India. People who have a wedding to plan in the next 6–18 months.
+
+**Initial launch approach:** Word of mouth and social media. A dedicated marketing team is driving the initial user base through Instagram-first content — real stories, feature showcases, behind-the-scenes founder content.
+
+**The built-in viral loop:** When a host sends invitations to 200 guests via Evenzi, each of those guests sees a beautiful Evenzi-powered event page. Guests become future hosts. This embedded virality is by design — the product markets itself at every RSVP.
 
 **Channel priority:**
 
@@ -284,13 +345,12 @@ The product itself is the growth engine. When a host sends invitations to 200 gu
 
 **Referral mechanic (to be built):** When a guest RSVPs through Evenzi and later creates their own event, track the referral. Reward referring hosts when paid tiers launch.
 
-### Phase 3: Vendor Marketplace (Post-MVP)
+### Phase 3: Vendor Collaboration (Post-MVP)
 
-Once the host base is established, open the platform to vendor sign-ups. The marketplace creates a two-sided network effect: more hosts attract more vendors, more vendors attract more hosts.
+Once the host base is established, open the platform to vendor partners. Unlike a traditional marketplace, vendors on Evenzi join events as active collaborators — not listings. This changes the marketing message:
 
-This phase changes the marketing message:
-- For hosts: "Find and book the best vendors for your celebration"
-- For vendors: "Get discovered by thousands of Indian families planning their celebrations"
+- For hosts: "Get a professional to manage your event coordination, while you stay in control of every decision"
+- For vendors: "Join events, deliver results, build relationships — not just a profile in a directory"
 
 ---
 

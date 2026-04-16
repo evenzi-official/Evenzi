@@ -1,7 +1,7 @@
 # F4 — Evenzi User Types & Scope
 
 **Document type:** Foundation Reference
-**Version:** 1.0
+**Version:** 1.1
 **Date:** April 2026
 **Audience:** Core team, product, engineering
 
@@ -15,14 +15,14 @@ Evenzi is built around four distinct user types. Each has a different relationsh
 |-----------|------|--------------|------------|
 | **Host** | Creates and manages events | Yes (Phone OTP or Google OAuth) | Active — primary user |
 | **Guest** | Views event details, submits RSVP | No | Active — public pages only |
-| **Vendor** | Offers services to hosts | Yes (separate vendor auth) | Deferred to Phase 2 |
+| **Vendor** | Professional event manager — collaborates on events at host invitation | Yes (separate vendor account) | Deferred to Phase 2 |
 | **Admin** | Operates and monitors the platform | Yes (internal access) | Basic — Evenzi team only |
 
 ### Why These Four
 
 - **Host** is the product's paying customer and primary design target. Every MVP feature is built for the host.
 - **Guest** participates passively. They receive an invitation, RSVP, and view event details — no account required. Reducing friction for guests is critical because hosts are judged by how easy it is for their guests.
-- **Vendor** represents the marketplace half of the platform. Deferred until hosts are well-served because a marketplace without buyers (established host base) has no value.
+- **Vendor** represents professional event managers who actively co-manage events on behalf of hosts. Deferred until hosts are well-served, because vendor collaboration has no value without an established host base.
 - **Admin** is the Evenzi team itself. The admin role exists to manage platform health, FAQ content, and support escalations — not to be an end-user product.
 
 ---
@@ -41,6 +41,10 @@ The host is the person responsible for planning and running an event. In the Ind
 - **Digital comfort:** Moderate to high — comfortable with WhatsApp, Google, and app-based tools
 - **Language:** English primary; Hindi support planned for Phase 2
 
+### Design Philosophy: Luxury Feel, Free to Start
+
+Evenzi is designed to feel premium for all users. Wealthy hosts use it as a showcase — a beautiful, polished event experience they send to their guests. Everyone else starts free and upgrades when they need more capacity, storage, or advanced features. The same quality experience is delivered across all tiers. No user should feel like they are on a "lite" version.
+
 ### What They Need Evenzi For
 
 - A single place to manage everything about an event instead of juggling spreadsheets, WhatsApp groups, and notes
@@ -48,6 +52,14 @@ The host is the person responsible for planning and running an event. In the Ind
 - Budget tracking so overspending doesn't sneak up mid-planning
 - A shareable, beautiful event page they can send to guests
 - Photo gallery to collect and share memories after the event
+
+### Pricing Model
+
+| Plan | Who it's for | Notes |
+|------|-------------|-------|
+| Free tier | Individual hosts, first-time users | Limited by guest count, storage, or feature access |
+| Paid tiers | Hosts who need more (larger events, more storage, premium features) | Billed per event or via subscription — TBD |
+| Professional plan | Hosts who plan events frequently (e.g., corporate EAs, prolific social hosts) | Higher capacity, priority support |
 
 ### Capability List
 
@@ -61,6 +73,7 @@ The host is the person responsible for planning and running an event. In the Ind
 | Edit and manage a single event | Event Management Hub | Not started |
 | Add, import, and manage guests | Guest Management | Not started |
 | Collect RSVPs from guests | Guest Management + RSVP | Not started |
+| Mark RSVPs on behalf of guests manually (for non-tech-savvy guests) | Guest Management | Not started |
 | Send WhatsApp invitation links | Digital Invitations | Not started |
 | Track expenses and budget | Planning Tools | Not started |
 | Manage a pre-built event checklist | Planning Tools | Not started |
@@ -74,12 +87,14 @@ The host is the person responsible for planning and running an event. In the Ind
 
 | Capability | Phase |
 |------------|-------|
-| Discover and browse vendors | Phase 2 |
-| Book vendors directly through Evenzi | Phase 3 |
+| Invite a vendor to co-manage an event | Phase 2 |
+| Review and approve vendor budget quotations | Phase 2 |
+| Order a printed photo book / event magazine | Phase 2 |
 | Receive real-time RSVP notifications | Phase 2 |
 | View event analytics (RSVP trends, engagement) | Phase 2 |
 | Send email invitations | Phase 2 |
 | Use AI to find tagged photos of specific guests | Phase 2 |
+| Book vendors directly through Evenzi (payments) | Phase 3 |
 | Build a fully custom event website with templates | Phase 3 |
 | Set up a custom domain for the event website | Phase 3 |
 | Manage seating arrangements | Phase 3 |
@@ -163,48 +178,85 @@ In MVP, guests interact only with public pages delivered via a shareable link. T
 
 This is a deliberate design decision. Requiring guests to sign up creates friction that reduces RSVP completion rates. The guest experience is designed to be frictionless: one link, one page, one form.
 
+### Pricing
+
+Guests are always free. No account, no subscription, no paywall. This is non-negotiable — guests must never encounter a barrier to viewing an event or submitting an RSVP.
+
+### Accessibility Consideration: Non-Tech-Savvy Guests
+
+> **Known gap — to be addressed in design.**
+
+In Indian weddings, a significant portion of guests are elderly relatives who may not click a WhatsApp link, navigate a browser, or fill in an online form. This is a real usability problem that cannot be solved purely through UX — some guests will simply not self-RSVP regardless of how simple the interface is.
+
+**Mitigation (Phase 1):**
+- The public RSVP page must be dead-simple: name pre-filled where possible, a single Yes/No/Maybe choice, one tap to confirm.
+- Hosts can manually mark RSVPs on behalf of non-tech-savvy guests directly within Evenzi — no guest action required.
+
+**Future consideration (Phase 2+):**
+- WhatsApp bot RSVP (reply to a message — no browser needed) may address the intermediate-literacy segment.
+- Voice-based RSVP or phone call-back flows are a longer-term consideration for the fully offline segment.
+
+The goal is that no guest should be "lost" from an RSVP list simply because they couldn't navigate technology.
+
 ---
 
 ## 4. Vendor (Post-MVP)
 
 ### Who They Are
 
-Vendors are service providers in the Indian wedding and events ecosystem:
+Vendors on Evenzi are **professional event managers and coordinators** — not individual service providers like photographers or caterers. They are professionals who take end-to-end responsibility for managing an event on behalf of a host.
 
-- Photographers and videographers
-- Caterers and food vendors
-- Decorators and florists
-- Venues and banquet halls
-- Musicians, DJs, and performers
-- Makeup artists and stylists
-- Wedding planners (as subcontractors)
+This is a critical distinction from a vendor marketplace model. Evenzi vendors are **collaborators**, not listings.
+
+### How Vendors Work on Evenzi
+
+The vendor model is built around a collaboration workflow:
+
+1. **Host creates an event** on Evenzi in the normal way.
+2. **Host invites a vendor** to collaborate — the vendor receives an invitation to join the event as a co-manager.
+3. **Vendor takes over management** — they can access event details, manage logistics, communicate with the host, and structure the planning work.
+4. **Host retains approval authority** — all major decisions (budget line items, vendor selections, changes to event details) require host approval.
+5. **Budget quotations** — the vendor submits cost breakdowns and quotations through Evenzi; the host approves or negotiates line items within the platform.
+6. **Communication** — all coordination between host and vendor happens within Evenzi (not scattered across WhatsApp and email).
+
+### Vendor Account Type
+
+Vendors have their own Evenzi account type with:
+- A dedicated vendor plan (higher capacity than individual host plans)
+- A vendor profile that can list their services, decoration palettes, venue partners, and package options
+- Access to manage multiple client events simultaneously
+- A distinct feature set from the host account
+
+Vendor accounts are separate from host accounts. A vendor cannot sign up using the host flow.
 
 ### Future Capability List (Phase 2+)
 
 | Capability | Phase |
 |------------|-------|
-| Create a vendor profile with services and pricing | Phase 2 |
-| List portfolio (photos, past events) | Phase 2 |
-| Be discovered by hosts via search/browse | Phase 2 |
-| Receive and respond to booking inquiries | Phase 3 |
-| Accept payments through Evenzi | Phase 3 |
+| Create a vendor profile with services, packages, and portfolio | Phase 2 |
+| Receive event invitations from hosts | Phase 2 |
+| Co-manage events: access planning tools, checklist, budget | Phase 2 |
+| Submit budget quotations for host approval | Phase 2 |
+| Communicate with host within the event context | Phase 2 |
+| Manage multiple client events from a vendor dashboard | Phase 2 |
+| Accept payments through Evenzi (for their services) | Phase 3 |
 | Manage availability calendar | Phase 3 |
 | Receive reviews from hosts | Phase 3 |
+
+### Pricing Model
+
+Vendors have a dedicated vendor plan — priced separately from host plans and calibrated for professional, higher-volume use. Pricing TBD in Phase 2 planning.
 
 ### Why Deferred
 
 Building a vendor role in parallel with the host MVP would multiply the product surface, the engineering effort, and the QA scope by more than two — because:
 
-1. Vendors need a completely separate product flow (profile creation, portfolio management, inquiry handling, calendar availability)
-2. Marketplace value requires a host base first — vendors have no reason to join a platform with no hosts
-3. Discovery, search, and booking require moderation and trust infrastructure that doesn't exist yet
+1. Vendors need a completely separate product flow (profile creation, invitation acceptance, co-management tools, quotation workflows)
+2. Vendor collaboration has no value without an established host base — vendors have no reason to join a platform with no hosts
+3. The collaboration model requires trust infrastructure (host approval gates, audit trails) that doesn't exist yet
 4. Payments require regulatory compliance (RBI guidelines, payment gateway integration) that is not MVP scope
 
-The vendor role will begin in Phase 2 with a basic listing (no bookings), and graduate to full booking and payments in Phase 3.
-
-### How Vendors Connect to Hosts
-
-In Phase 2, hosts discover vendors through a browse/search interface. Vendors appear as cards with portfolio images, service categories, and location. Hosts send an inquiry message. In Phase 3, hosts book and pay directly through Evenzi.
+The vendor role will begin in Phase 2 with the full collaboration model (profile, invitation, co-management, quotations), and graduate to payments and booking in Phase 3.
 
 ---
 
@@ -238,6 +290,10 @@ Admins are members of the Evenzi team — Abhijith and Dheeraj in the early stag
 
 Admin users authenticate via Supabase Auth and are identified by a role flag in the database. The Admin Module is not accessible to host or guest accounts.
 
+### Pricing
+
+Admin is an internal role. No subscription applies.
+
 ---
 
 ## 6. Permissions Matrix
@@ -249,16 +305,19 @@ The following table shows which actions are available to each user type. "Post-M
 | Sign up / create account | Yes | No | Post-MVP | Internal only |
 | Log in | Yes | No | Post-MVP | Yes |
 | Create an event | Yes | No | No | No |
-| View own event list (dashboard) | Yes | No | No | No |
-| Edit event details | Yes | No | No | No |
+| View own event list (dashboard) | Yes | No | Post-MVP (vendor dashboard) | No |
+| Edit event details | Yes | No | Post-MVP (with host approval) | No |
 | Delete event | Yes | No | No | No |
 | View public event page | Yes | Yes | Yes | Yes |
 | Submit RSVP | No (host) | Yes | No | No |
-| View guest list | Yes | No | No | Admin only |
+| Mark RSVP on behalf of guest | Yes | No | No | No |
+| View guest list | Yes | No | Post-MVP | Admin only |
 | Add / import guests | Yes | No | No | No |
 | Send WhatsApp invitations | Yes | No | No | No |
-| Track budget / expenses | Yes | No | No | No |
-| Manage checklist | Yes | No | No | No |
+| Track budget / expenses | Yes | No | Post-MVP (vendor co-manages) | No |
+| Submit budget quotation | No | No | Post-MVP | No |
+| Approve budget quotation | Yes | No | No | No |
+| Manage checklist | Yes | No | Post-MVP (vendor co-manages) | No |
 | Upload photos (host) | Yes | No | No | No |
 | Upload photos (guest) | No | Post-MVP | No | No |
 | View event gallery | Yes | Yes (if public) | No | No |
@@ -270,8 +329,9 @@ The following table shows which actions are available to each user type. "Post-M
 | Review support tickets | No | No | No | Yes |
 | View platform analytics | No | No | No | Post-MVP |
 | Create vendor profile | No | No | Post-MVP | No |
-| Browse/discover vendors | Post-MVP | No | No | No |
-| Book vendor | Post-MVP | No | No | No |
+| Invite vendor to collaborate | Post-MVP | No | No | No |
+| Accept vendor collaboration invitation | No | No | Post-MVP | No |
+| Book vendor (payments) | Post-MVP | No | No | No |
 
 ---
 
@@ -296,8 +356,9 @@ flowchart TD
         G3 --> G4{RSVP decision}
         G4 -->|Attending| G5[Submits RSVP - Yes]
         G4 -->|Not attending| G6[Submits RSVP - No]
-        G5 --> G7[Receives confirmation]
-        G7 --> G8[Views event gallery post-event]
+        G4 -->|Cannot self-RSVP| G7[Host marks RSVP manually]
+        G5 --> G8[Receives confirmation]
+        G8 --> G9[Views event gallery post-event]
     end
 
     H7 -.->|sends link to| G1
@@ -313,16 +374,17 @@ This diagram shows how each user type interacts with others and with the Evenzi 
 flowchart LR
     HOST[Host]
     GUEST[Guest]
-    VENDOR[Vendor\nPost-MVP]
+    VENDOR[Vendor\nPost-MVP\nProfessional Event Manager]
     ADMIN[Admin\nEvenzi Team]
     PLATFORM[Evenzi Platform]
 
     HOST -->|Creates events, manages guests| PLATFORM
     HOST -->|Sends WhatsApp invitation link| GUEST
-    HOST -->|Discovers and contacts Post-MVP| VENDOR
+    HOST -->|Invites to collaborate Post-MVP| VENDOR
+    VENDOR -->|Co-manages event, submits quotations Post-MVP| PLATFORM
+    HOST -->|Approves vendor decisions Post-MVP| PLATFORM
     GUEST -->|RSVPs via public page| PLATFORM
     GUEST -->|Views event details| PLATFORM
-    VENDOR -->|Lists services Post-MVP| PLATFORM
     ADMIN -->|Manages FAQ, tickets, users| PLATFORM
     PLATFORM -->|Sends RSVP confirmation to| GUEST
     PLATFORM -->|Sends alerts and summaries to| HOST
@@ -355,6 +417,10 @@ For the Indian market, phone number is the most universal identifier:
 - **Device:** Android-first (Android accounts for ~96% of smartphone market in India)
 - **Storage:** Limit default photo upload size; compress images server-side before storage
 - **Data cost awareness:** Heavy media features (photo galleries, video) are opt-in, not auto-loading
+
+### Guest Accessibility
+
+A significant portion of Indian wedding guests are elderly relatives with low digital literacy. This is not an edge case — it is the norm for large family events. The platform must account for guests who will not self-RSVP regardless of how simple the interface is. See the Guest section (Accessibility Consideration) for the mitigation strategy.
 
 ### Language
 
