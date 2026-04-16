@@ -6,6 +6,18 @@
 
 ## Progress Tracker
 
+### Full Document Suite (DONE — 2026-04-16)
+- [x] Foundation docs (F1–F6 + Indian Events Dictionary) — `docs/foundation/`
+- [x] Feature overviews for all 13 MVP modules — `docs/features/overviews/`
+- [x] Ops docs (Platform Policies + Support Best Practices) — `docs/ops/`
+- [x] Marketing docs (Brand Guidelines + Product Positioning) — `docs/marketing/`
+- [x] PPT Script (investor + stakeholder) — `docs/presentations/`
+- [x] Investor/User/Vendor Q&A scrutiny session — gaps identified and corrected
+- [x] Open decisions documented — `docs/foundation/open-decisions.md`
+- [ ] **5 open decisions need team discussion** — see `docs/foundation/open-decisions.md`
+- [ ] **Share doc suite with Admin & Ops and Marketing & Branding teams via Google Drive**
+- [ ] **Abhijith to fill 5 placeholders in `evenzi-ppt-script.docx` before presenting**
+
 ### Phase 1: ClickUp Setup (DONE)
 - [x] Create Ideas list in Product space
 - [x] Create workflow tags and assign to all existing tasks
@@ -52,6 +64,14 @@
 ## Context
 
 **Event CRUD is functionally complete.** Full 4-step wizard (Type → Details → Sub-Events → Review), success screen, dashboard with real event cards, all working end-to-end.
+
+**What was done this session (2026-04-16):**
+- Created full Evenzi document suite: 50 files (25 .md + 25 .docx) across Foundation, Feature Overviews, Ops, Marketing, Presentations
+- 9 parallel agents built the initial suite; 5 parallel agents refined it after a founder Q&A
+- Q&A scrutinised docs from investor/user/vendor perspectives — 6 critical gaps fixed (vendor model, DPDP Act, event magazine, market sizing, PWA, guest accessibility)
+- New: Indian Wedding & Events Dictionary (5 traditions, 33 sub-events, 26-term glossary)
+- New: Open Decisions doc (5 decisions pending team discussion before external sharing)
+- New: Session report saved to `docs/session-reports/2026-04-16-session-report.md`
 
 **What was done this session (2026-04-14):**
 - Brainstormed + spec'd the Support Chatbot feature (MVP Phase 1)
@@ -116,7 +136,10 @@
 
 ### Immediate Next Steps
 
-1. **Event CRUD Data Modeling** (86d2k1mqc) — The Spec is done, tables exist. Data Modeling task can be marked done or refined if schema changes are needed.
+1. **Team discussion on 5 open decisions** (`docs/foundation/open-decisions.md`) — pricing, free tier limits, magazine name, WhatsApp approach, vendor plan name
+2. **Share document suite via Google Drive** — Admin & Ops and Marketing & Branding teams
+3. **Abhijith fills PPT placeholders** — fund ask, bios, pricing limits, timeline, contact
+4. **Event CRUD Data Modeling** (86d2k1mqc) — The Spec is done, tables exist. Data Modeling task can be marked done or refined if schema changes are needed.
 2. **UI Polish** (86d2kt2qj) — High priority enhancement. Match Figma designs for all wizard steps, dashboard cards, success screen.
 3. **Fix Success Screen redirect** — Server component may have cookie/auth issue in worktree context. Test on Dev-Vibe directly.
 4. **Agent enrichment (remaining Medium agents)** — backend_engineer, data_modeller, qa_engineer, tech_lead, product_manager
