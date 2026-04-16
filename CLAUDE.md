@@ -297,8 +297,9 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 | Landing Section (Marketing Site) | P2 | Not Started | 0 |
 | Admin Module (Developer Panel) | P2 | Not Started | 0 |
 | Digital Invitations (WhatsApp) | P3 | Not Started | 0 |
+| Support Chatbot (FAQ + Admin + Escalation) | P1 | Planned (Figma-blocked) | 30 |
 
-**Total:** 237 subtasks created across 10 features. 4 features still need subtasks (Batch 4).
+**Total:** 267 subtasks across 11 features. 4 features still need subtasks (Batch 4).
 
 **Out of scope for MVP:** Vendor role, AI Photo Finder, real-time features, event discovery/search, analytics.
 
