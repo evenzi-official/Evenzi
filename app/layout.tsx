@@ -8,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "WeddingPlanner - The Smartest Way to Plan & Share Your Wedding",
-  description: "AI-Powered Photos, Smart Invites, and Beautiful Websites. Create your free wedding event today.",
+  title: "Evenzi — Plan, Manage & Celebrate Your Events",
+  description: "Create events, manage guest lists, send invitations, and build beautiful event websites. All in one place.",
 };
 
 export default function RootLayout({
