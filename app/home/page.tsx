@@ -10,7 +10,7 @@ interface EventListRow {
   primary_venue: string | null;
   guest_capacity: number | null;
   cover_image_url: string | null;
-  status: string;
+  status: string; 
   created_at: string;
   event_types: { name: string; slug: string; icon_name: string | null } | null;
   event_sub_events: { id: string }[] | null;
