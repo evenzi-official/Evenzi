@@ -8,7 +8,7 @@ interface EventListRow {
   name: string | null;
   primary_date: string | null;
   primary_venue: string | null;
-  guest_capacity: number | null;
+  guest_capacity: number | null; 
   cover_image_url: string | null;
   status: string;
   created_at: string;
