@@ -87,7 +87,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       )
     }
 
-    const { eventTypeId, metadata, primaryDate, primaryVenue, guestCapacity, subEvents } = parsed.data
+    const { eventTypeId, eventTitle, metadata, primaryDate, primaryVenue, guestCapacity, subEvents } = parsed.data
 
     // Verify event type exists and is enabled
     const { data: eventTypeData, error: typeError } = await supabase
@@ -106,8 +106,9 @@ export async function POST(request: Request): Promise<NextResponse> {
       return NextResponse.json({ error: 'Event type is not available' }, { status: 400 })
     }
 
-    // Generate event name from metadata
-    const eventName = generateEventName(eventType.slug, eventType.name, metadata)
+    // Use user-provided title if given, otherwise auto-generate from metadata
+    const eventName =
+      eventTitle?.trim() || generateEventName(eventType.slug, eventType.name, metadata)
 
     // Build RPC params
     const pMetadata = Object.entries(metadata).map(([key, value]) => ({ key, value }))

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('mcpServers', {}\\), indent=2\\)\\)\")",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/events/create)",
+      "Bash(kill 23612 *)",
+      "Bash(env)",
+      "Bash(npx tsc *)",
+      "WebFetch(domain:www.figma.com)",
+      "Read(//Users/dheerajpgirish/.claude/image-cache/**)",
+      "WebFetch(domain:api.figma.com)",
+      "Bash(curl -s -o /tmp/figma_thumb.png \"https://www.figma.com/file/LjoTKwL7pkpYVnAW6hr4s8/thumbnail?ver=1\" -L -w \"%{http_code}\")",
+      "Bash(curl -s 'https://api.figma.com/v1/images/LjoTKwL7pkpYVnAW6hr4s8?ids=54:1575&format=png&scale=2' -H 'X-Figma-Token: bppIRWVZgh1TUERq-4' -w '\\\\nHTTP_STATUS:%{http_code}')"
+    ]
+  }
+}

@@ -2,17 +2,20 @@
 
 :root {
   /* Brand colors — placeholder values, see docs/BRAND-GUIDELINES.md */
-  --color-primary: #111827;
+  --color-primary: #BB0020;
   --color-primary-hover: #1f2937;
   --color-bg-primary: #f9fafb;
   --color-bg-card: #ffffff;
-  --color-text-primary: #111827;
+  --color-text-primary: #BB0020;
   --color-text-secondary: #6b7280;
   --color-text-muted: #9ca3af;
   --color-border: #e5e7eb;
   --color-error: #ef4444;
   --color-error-bg: #fef2f2;
   --color-error-border: #fecaca;
+  --color-bg-primary-shade: rgba(187, 0, 32, 0.05);
+  --color-bg-primary-shade-border: rgba(187, 0, 32, 0.1);
+
 
   /* Spacing & radius */
   --radius-sm: 8px;

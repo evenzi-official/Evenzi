@@ -20,14 +20,17 @@ export default function RoleSelectionPage() {
       } = await supabase.auth.getUser();
 
       if (!user) {
+        setLoading(false);
         router.push("/auth");
         return;
       }
 
-      const { error: updateError } = await supabase
+      // Try to update an existing row; .select() lets us detect 0-row-updated (silent no-op)
+      const { data: updated, error: updateError } = await supabase
         .from("user_profiles")
         .update({ role: "host" })
-        .eq("id", user.id);
+        .eq("id", user.id)
+        .select("id");
 
       if (updateError) {
         console.error("Role update error:", updateError);
@@ -36,7 +39,32 @@ export default function RoleSelectionPage() {
         return;
       }
 
-      router.push("/home");
+      // No existing profile row — create one so the update doesn't silently fail
+      if (!updated || updated.length === 0) {
+        const { error: insertError } = await supabase
+          .from("user_profiles")
+          .insert({
+            id: user.id,
+            role: "host",
+            display_name:
+              user.user_metadata?.full_name ||
+              user.user_metadata?.name ||
+              null,
+            avatar_url: user.user_metadata?.avatar_url || null,
+            onboarding_completed: false,
+          });
+
+        if (insertError) {
+          console.error("Profile creation error:", insertError);
+          setError("Failed to set your role. Please try again.");
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Hard navigation: prevents the App Router from staying on this page
+      // when middleware redirects back (which would leave loading=true forever)
+      window.location.href = "/home";
     } catch (err) {
       console.error("Role selection error:", err);
       setError("Something went wrong. Please try again.");
@@ -134,7 +162,7 @@ export default function RoleSelectionPage() {
             {/* Icon */}
             <div
               className="w-20 h-20 rounded-full flex items-center justify-center mb-8"
-              style={{ background: "var(--color-bg-primary)" }}
+              style={{ background: "var(--color-bg-primary-shade)", border:"1px solid var(--color-bg-primary-shade-border)" }}
             >
               <svg
                 width="40"
@@ -145,7 +173,7 @@ export default function RoleSelectionPage() {
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                style={{ color: "var(--color-text-primary)" }}
+                style={{ color: "var(--color-primary)" }}
               >
                 <path d="M5.8 11.3 2 22l10.7-3.79" />
                 <path d="M4 3h.01" />
@@ -238,7 +266,7 @@ export default function RoleSelectionPage() {
             {/* Icon */}
             <div
               className="w-20 h-20 rounded-full flex items-center justify-center mb-8"
-              style={{ background: "var(--color-bg-primary)" }}
+              style={{ background: "var(--color-bg-primary-shade)" }}
             >
               <svg
                 width="40"
@@ -249,7 +277,7 @@ export default function RoleSelectionPage() {
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                style={{ color: "var(--color-text-muted)" }}
+                style={{ color: "var(--color-primary)",opacity:"0.5" }}
               >
                 <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
                 <rect width="20" height="14" x="2" y="6" rx="2" />
