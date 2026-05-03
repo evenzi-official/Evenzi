@@ -30,7 +30,6 @@ export const step3Schema = z.object({
 // Full create event API payload — [I5] max 50 sub-events, [I6] max 500 char values, [I7] max 20 keys, [S4] min(1) aligned
 export const createEventSchema = z.object({
   eventTypeId: z.string().uuid(),
-  eventTitle: z.string().max(200).nullable().optional(),
   metadata: z
     .record(z.string(), z.string().min(1).max(500))
     .refine((obj) => Object.keys(obj).length <= 20, 'Too many metadata fields (max 20)'),

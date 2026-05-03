@@ -2,131 +2,65 @@
 
 import { useWizard } from '@/lib/contexts/WizardContext'
 
-interface StepDef {
-  label: string
+const STEP_LABELS: Record<number, string> = {
+  1: 'Event Type',
+  2: 'Basic Details',
+  3: 'Sub-Events',
+  4: 'Review & Confirm',
 }
 
-const STEPS_4: StepDef[] = [
-  { label: 'EVENT TYPE' },
-  { label: 'DETAILS' },
-  { label: 'SUB-EVENTS' },
-  { label: 'REVIEW' },
-]
-
-const STEPS_3: StepDef[] = [
-  { label: 'EVENT TYPE' },
-  { label: 'DETAILS' },
-  { label: 'REVIEW' },
-]
+function getStepLabel(step: number, totalSteps: number): string {
+  if (totalSteps === 3) {
+    // Without sub-events: step 3 is Review & Confirm
+    if (step === 3) return 'Review & Confirm'
+    return STEP_LABELS[step] ?? `Step ${step}`
+  }
+  return STEP_LABELS[step] ?? `Step ${step}`
+}
 
 export function WizardProgress(): React.JSX.Element {
   const { state } = useWizard()
   const { currentStep, totalSteps } = state
-  const steps = totalSteps === 4 ? STEPS_4 : STEPS_3
+
+  const label = getStepLabel(currentStep, totalSteps)
+  const progressPercent = Math.round((currentStep / totalSteps) * 100)
 
   return (
-    <nav aria-label="Event creation progress" style={{ width: '100%', padding: '16px 32px', display: 'flex', justifyContent: 'center' }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        {steps.map((step, index) => {
-          const stepNumber = index + 1
-          const isActive = stepNumber === currentStep
-          const isCompleted = stepNumber < currentStep
-          const isLast = index === steps.length - 1
-
-          return (
-            <div
-              key={stepNumber}
-              aria-current={isActive ? 'step' : undefined}
-              style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}
-            >
-              {/* Circle + Label group */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-                {/* Step circle */}
-                <div
-                  style={{
-                    width: '34px',
-                    height: '34px',
-                    minWidth: '34px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 700,
-                    fontSize: '13px',
-                    lineHeight: 1,
-                    userSelect: 'none',
-                    transition: 'background 0.3s, box-shadow 0.3s',
-                    background:
-                      isActive || isCompleted ? 'var(--color-primary)' : '#EBEBEB',
-                    color: isActive || isCompleted ? '#ffffff' : '#AAAAAA',
-                    boxShadow: isActive
-                      ? '0 0 0 4px rgba(180,0,40,0.12)'
-                      : 'none',
-                  }}
-                >
-                  {isCompleted ? (
-                    <svg
-                      width="13"
-                      height="10"
-                      viewBox="0 0 13 10"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M1.5 5L5 8.5L11.5 1.5"
-                        stroke="white"
-                        strokeWidth="2.2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  ) : (
-                    stepNumber
-                  )}
-                </div>
-
-                {/* Step label — hidden on mobile via className */}
-                <span
-                  className="hidden sm:block"
-                  style={{
-                    fontSize: '10px',
-                    letterSpacing: '0.12em',
-                    whiteSpace: 'nowrap',
-                    fontWeight: isActive ? 700 : 500,
-                    transition: 'color 0.2s',
-                    color: isActive
-                      ? 'var(--color-primary)'
-                      : isCompleted
-                      ? '#777777'
-                      : '#AAAAAA',
-                  }}
-                >
-                  {`STEP ${stepNumber}: ${step.label}`}
-                </span>
-              </div>
-
-              {/* Connector line between steps */}
-              {!isLast && (
-                <div
-                  style={{
-                    width: '80px',
-                    height: '1px',
-                    margin: '0 12px',
-                    flexShrink: 0,
-                    transition: 'background 0.3s',
-                    background: isCompleted ? 'var(--color-primary)' : '#E0E0E0',
-                  }}
-                />
-              )}
-            </div>
-          )
-        })}
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
+      {/* Step label */}
+      <div className="flex items-center justify-between mb-2">
+        <span
+          className="text-sm font-medium"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          Step {currentStep} of {totalSteps}: {label}
+        </span>
+        <span
+          className="text-sm"
+          style={{ color: 'var(--color-text-muted)' }}
+        >
+          {progressPercent}%
+        </span>
       </div>
-    </nav>
+
+      {/* Progress bar */}
+      <div
+        className="w-full h-1.5 rounded-full overflow-hidden"
+        style={{ background: 'var(--color-border)' }}
+        role="progressbar"
+        aria-valuenow={currentStep}
+        aria-valuemin={1}
+        aria-valuemax={totalSteps}
+        aria-label={`Step ${currentStep} of ${totalSteps}`}
+      >
+        <div
+          className="h-full rounded-full transition-all duration-300 ease-in-out"
+          style={{
+            width: `${progressPercent}%`,
+            background: 'var(--color-text-primary)',
+          }}
+        />
+      </div>
+    </div>
   )
 }

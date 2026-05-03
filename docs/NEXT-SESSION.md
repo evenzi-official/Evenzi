@@ -41,12 +41,13 @@
 - [ ] Create Sprint 2+ and assign remaining features per dependency order
 
 ### Phase 3: Implementation (IN PROGRESS)
-- [ ] Fix Vercel Deployment (S — unblocks production)
+- [x] **Fix Vercel Deployment (S — DONE)** — Live at evenzi.vercel.app
 - [ ] Reusable Component Library (L — unblocks all UI work)
-- [x] **Auth & Role Selection (M — DONE)** — Google OAuth fixed, Role Selection page built, middleware routing, user_profiles table
+- [x] **Auth & Role Selection (M — DONE)** — Google OAuth, phone OTP, role selection, middleware routing, user_profiles table, auth-routing fix landed
 - [ ] Profile Completion Gate — dashboard prompt for incomplete profiles (depends on User Settings)
-- [x] **Event CRUD — 4-Step Wizard (XL — FUNCTIONALLY COMPLETE)** — Spec done, 14 tasks implemented, 65 tests, E2E verified. UI polish pending (enhancement task 86d2kt2qj).
-- [x] **Host Dashboard (M — UPDATED)** — Converted to server component, shows real event cards from DB. Full dashboard design is a separate feature.
+- [x] **Event CRUD — 4-Step Wizard (XL — IN REVIEW)** — Spec done, 14 tasks implemented, 65 tests, E2E verified, revamp delivered, UI polish enhancement closed. Awaiting feature-level review.
+- [x] **Host Dashboard (M — IN REVIEW)** — Server component with real event cards, hero CTA, empty state. Awaiting review.
+- [ ] **Landing Section (L — IN PROGRESS)** — Subtask hierarchy in place (9 components). Static pages (Home, Layout, Legal) intentionally skip Backend Dev per JSON-config content architecture.
 - [x] **Support Chatbot (MVP — PLANNED, not implemented)** — Spec + plan + multi-agent review + ClickUp hierarchy done. Blocked on Figma. Feature task: `86d2n3jxv`. See spec `2026-04-14-chatbot-design.md` and plan `2026-04-14-chatbot-implementation.md`.
 - [ ] Event Management Hub (M — central navigation for event features)
 - [ ] Guest Management & RSVP (L)
@@ -56,16 +57,29 @@
 - [ ] Digital Presence — Event Website (L)
 - [ ] Event Settings (M)
 - [ ] User Settings (M)
-- [ ] Landing Section (L — marketing site)
 - [ ] Admin Module (L — developer monitoring panel)
 
 ---
 
 ## Context
 
-**Event CRUD is functionally complete.** Full 4-step wizard (Type → Details → Sub-Events → Review), success screen, dashboard with real event cards, all working end-to-end.
+**Event CRUD is functionally complete.** Full 4-step wizard (Type → Details → Sub-Events → Review), success screen, dashboard with real event cards, all working end-to-end. Vercel deployment is live at evenzi.vercel.app.
 
-**What was done this session (2026-04-16):**
+**What was done this session (2026-05-03):**
+- ClickUp connection validated (workspace ID 90161512057, 3 spaces resolved)
+- 6 ClickUp task transitions applied with comments:
+  - Fix Vercel Deployment (`86d2jmkn4`) → done
+  - UI Polish enhancement (`86d2kt2qj`) → done (revamp covered it)
+  - Auth & Role Selection (`86d2jwz1h`) → already done, confirmation comment
+  - Event CRUD wizard (`86d2jwz3x`) → review
+  - Host Dashboard (`86d2jwz6v`) → review
+  - Landing Section (`86d2k1kwh`) → in progress
+- Three tasks moved from Backlog to Active Sprint to access `done`/`review` statuses
+- Branch sync: force-pushed `origin/Dev-Vibe` to match `origin/Dev-Vibe-Testing` tip (`b5e4804`); the prior `078289d chore:testing main dev` commit was discarded
+- Discovered + fixed status name mismatch: ClickUp uses `review` (not `in review`); GUIDELINES.md and clickup-pm/SKILL.md updated, also flagged that the Backlog list doesn't expose `done`/`review` statuses (must move to Active Sprint first)
+- Installed `gh` CLI 2.92.0 via Homebrew to enable git auth from this environment
+
+**What was done previous session (2026-04-16):**
 - Created full Evenzi document suite: 50 files (25 .md + 25 .docx) across Foundation, Feature Overviews, Ops, Marketing, Presentations
 - 9 parallel agents built the initial suite; 5 parallel agents refined it after a founder Q&A
 - Q&A scrutinised docs from investor/user/vendor perspectives — 6 critical gaps fixed (vendor model, DPDP Act, event magazine, market sizing, PWA, guest accessibility)
@@ -73,7 +87,7 @@
 - New: Open Decisions doc (5 decisions pending team discussion before external sharing)
 - New: Session report saved to `docs/session-reports/2026-04-16-session-report.md`
 
-**What was done this session (2026-04-14):**
+**What was done previous session (2026-04-14):**
 - Brainstormed + spec'd the Support Chatbot feature (MVP Phase 1)
 - Wrote full implementation plan (34 tasks across Phase A/B/C)
 - Multi-agent review: Tech Lead + Data Modeller + Security + Backend + Frontend + QA → 29 findings
@@ -118,10 +132,14 @@
 - Full E2E test in Chrome, code review with all fixes applied
 - 65/65 tests, build passes, 18 commits on worktree branch
 
-**ClickUp state:**
-- Spec & Architecture: Event CRUD → DONE (86d2k1mq4)
-- Feature: Event CRUD → in progress (86d2jwz3x)
-- Enhancement: UI Polish → created (86d2kt2qj)
+**ClickUp state (after 2026-05-03):**
+- Fix Vercel Deployment (86d2jmkn4) → done
+- Auth & Role Selection (86d2jwz1h) → done
+- UI Polish enhancement (86d2kt2qj) → done
+- Event CRUD wizard (86d2jwz3x) → review (awaiting feature-level approval)
+- Host Dashboard (86d2jwz6v) → review
+- Landing Section (86d2k1kwh) → in progress
+- Spec & Architecture: Event CRUD (86d2k1mq4) → done
 
 **Database (Supabase):**
 - `user_profiles` — existing (3 users)
@@ -139,10 +157,11 @@
 1. **Team discussion on 5 open decisions** (`docs/foundation/open-decisions.md`) — pricing, free tier limits, magazine name, WhatsApp approach, vendor plan name
 2. **Share document suite via Google Drive** — Admin & Ops and Marketing & Branding teams
 3. **Abhijith fills PPT placeholders** — fund ask, bios, pricing limits, timeline, contact
-4. **Event CRUD Data Modeling** (86d2k1mqc) — The Spec is done, tables exist. Data Modeling task can be marked done or refined if schema changes are needed.
-2. **UI Polish** (86d2kt2qj) — High priority enhancement. Match Figma designs for all wizard steps, dashboard cards, success screen.
-3. **Fix Success Screen redirect** — Server component may have cookie/auth issue in worktree context. Test on Dev-Vibe directly.
-4. **Agent enrichment (remaining Medium agents)** — backend_engineer, data_modeller, qa_engineer, tech_lead, product_manager
+4. **Review Event CRUD wizard + Host Dashboard** (`86d2jwz3x`, `86d2jwz6v` — both `review`) — sign off or send back with feedback. Approving unblocks Component QA / Integration Testing.
+5. **Landing Section** (`86d2k1kwh` — `in progress`) — Spec & Architecture is the next phase to start (subtask `86d2k1n3d`).
+6. **Event CRUD Data Modeling** (`86d2k1mqc`) — Spec is done, tables exist. Mark done or refine if schema changes are needed.
+7. **Fix Success Screen redirect** — Server component may have cookie/auth issue. Test on Dev-Vibe directly.
+8. **Agent enrichment (remaining Medium agents)** — backend_engineer, data_modeller, qa_engineer, tech_lead, product_manager
 
 ### Known Issues
 - Success screen redirects to /home instead of rendering (cookie issue)

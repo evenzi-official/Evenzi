@@ -277,16 +277,17 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 
 | Feature | Priority | Status | Subtasks |
 |---------|----------|--------|----------|
-| Fix Vercel Deployment | P0 | Blocked (pre-existing) | 0 |
-| Reusable Component Library | P0 | Not Started | 28 |
+| Fix Vercel Deployment | P0 | DONE — live at evenzi.vercel.app | 0 |
 | Auth & Role Selection | P0 | DONE | 10 |
+| Event CRUD (4-Step Wizard) | P0 | In Review (revamp landed) | 45 |
+| Host Dashboard | P0 | In Review (revamp landed) | 21 |
+| Landing Section (Marketing Site) | P2 | In Progress | 13 |
+| Reusable Component Library | P0 | Not Started | 28 |
 
 **Backlog:**
 
 | Feature | Priority | Status | Subtasks |
 |---------|----------|--------|----------|
-| Event CRUD (5-Step Wizard) | P0 | Not Started | 45 |
-| Host Dashboard | P0 | Shell exists, needs real data | 21 |
 | Event Management Hub | P0 | Not Started | 16 |
 | Guest Management & RSVP | P1 | Not Started | 25 |
 | Event Settings | P1 | Not Started | 20 |
@@ -294,12 +295,9 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 | Planning Tools (Checklist + Budget) | P2 | Not Started | 15 |
 | Media & Memories (Photo Gallery) | P2 | Not Started | 25 |
 | Digital Presence (Event Website) | P2 | Not Started | Partial |
-| Landing Section (Marketing Site) | P2 | Not Started | 0 |
-| Admin Module (Developer Panel) | P2 | Not Started | 0 |
-| Digital Invitations (WhatsApp) | P3 | Not Started | 0 |
+| Admin Module (Developer Panel) | P2 | Not Started | 15 |
+| Digital Invitations (WhatsApp) | P3 | Parked (depends on Digital Presence + Guest Mgmt) | 0 |
 | Support Chatbot (FAQ + Admin + Escalation) | P1 | Planned (Figma-blocked) | 30 |
-
-**Total:** 267 subtasks across 11 features. 4 features still need subtasks (Batch 4).
 
 **Out of scope for MVP:** Vendor role, AI Photo Finder, real-time features, event discovery/search, analytics.
 

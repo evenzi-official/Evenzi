@@ -10,7 +10,6 @@ export interface WizardState {
   totalSteps: number
   eventType: EventType | null
   basicDetails: {
-    eventTitle: string | null
     primaryDate: string | null
     primaryVenue: string | null
     guestCapacity: number | null
@@ -24,7 +23,6 @@ export const initialWizardState: WizardState = {
   totalSteps: 3,
   eventType: null,
   basicDetails: {
-    eventTitle: null,
     primaryDate: null,
     primaryVenue: null,
     guestCapacity: null,

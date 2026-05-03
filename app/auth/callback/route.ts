@@ -7,17 +7,12 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
 
-  // Prefer the explicit site URL env var so redirects always point to the
-  // correct public host, even when the request arrives via an internal proxy.
-  const siteOrigin =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? origin
-
   if (!code) {
-    return NextResponse.redirect(`${siteOrigin}/auth?error=auth_failed`)
+    return NextResponse.redirect(`${origin}/auth?error=auth_failed`)
   }
 
   // Prepare redirect response — session cookies will be set on it
-  const response = NextResponse.redirect(`${siteOrigin}/auth/role-selection`, { status: 302 })
+  const response = NextResponse.redirect(`${origin}/auth/role-selection`, { status: 302 })
 
   // Now using @supabase/ssr v0.10.0 with getAll/setAll API
   const supabase = createServerClient(
@@ -41,7 +36,7 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     console.error('OAuth callback error:', error.message)
-    return NextResponse.redirect(`${siteOrigin}/auth?error=auth_failed`)
+    return NextResponse.redirect(`${origin}/auth?error=auth_failed`)
   }
 
   if (data.user) {
@@ -49,9 +44,9 @@ export async function GET(request: NextRequest) {
     const redirectPath = profile?.role ? '/home' : '/auth/role-selection'
 
     // Update redirect location — cookies are already set on `response`
-    response.headers.set('location', `${siteOrigin}${redirectPath}`)
+    response.headers.set('location', `${origin}${redirectPath}`)
     return response
   }
 
-  return NextResponse.redirect(`${siteOrigin}/auth?error=auth_failed`)
+  return NextResponse.redirect(`${origin}/auth?error=auth_failed`)
 }

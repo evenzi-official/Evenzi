@@ -70,39 +70,21 @@ function WizardContent(): React.JSX.Element {
           borderColor: 'var(--color-border)',
         }}
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center relative">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center">
           <span
             className="text-xl font-bold"
             style={{ color: 'var(--color-text-primary)' }}
           >
             Evenzi
           </span>
-          <span
-            className="absolute left-1/2 -translate-x-1/2"
-            style={{
-              fontFamily: 'var(--font-manrope), sans-serif',
-              fontSize: '14px',
-              lineHeight: '20px',
-              letterSpacing: '3.5px',
-              color: 'var(--color-text-primary)',
-            }}
-          >
-            CELEBRATORY CURATOR
-          </span>
         </div>
+
+        {/* Progress bar — below logo row */}
+        <WizardProgress />
       </header>
 
       {/* Main content */}
       <main className="flex-1 w-full">
-        {/* Progress stepper — sits between header and step content */}
-        <div
-          style={{
-            background: 'transparent',
-            marginTop: '40px',
-          }}
-        >
-          <WizardProgress />
-        </div>
         {renderStep()}
       </main>
 

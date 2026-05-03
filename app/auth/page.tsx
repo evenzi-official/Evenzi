@@ -153,16 +153,10 @@ export default function AuthPage() {
     setGoogleLoading(true);
 
     try {
-      // Use NEXT_PUBLIC_SITE_URL when set (required for production deployments).
-      // Falls back to window.location.origin for local development.
-      const baseUrl =
-        process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
-        window.location.origin;
-
       const { error: googleError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${baseUrl}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 

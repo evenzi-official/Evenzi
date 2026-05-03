@@ -3,87 +3,121 @@
 import React, { useState } from 'react'
 import { useWizard } from '@/lib/contexts/WizardContext'
 import { validateDynamicFields } from '@/lib/validations/events'
+import type { FormSchemaField } from '@/lib/types/events'
+
+// --- Types ---
 
 interface FieldErrors {
   [field: string]: string
 }
 
-function getHeadingSecondLine(slug: string | undefined, name: string): string {
-  switch (slug) {
-    case 'wedding': return 'your union.'
-    case 'birthday': return 'your birthday.'
-    case 'anniversary': return 'your anniversary.'
-    case 'corporate': return 'your event.'
-    default: return `your ${name.toLowerCase()}.`
-  }
-}
+// --- Sub-components ---
 
-const INPUT_STYLE: React.CSSProperties = {
-  width: '100%',
-  padding: '14px 20px',
-  fontSize: '14px',
-  color: '#1a1a1a',
-  background: '#ffffff',
-  border: '1.5px solid #e5e7eb',
-  borderRadius: '12px',
-  outline: 'none',
-  fontFamily: 'inherit',
-  transition: 'border-color 0.15s',
-}
+function FormField({
+  fieldDef,
+  value,
+  error,
+  onChange,
+}: {
+  fieldDef: FormSchemaField
+  value: string
+  error?: string
+  onChange: (field: string, value: string) => void
+}): React.JSX.Element {
+  const inputId = `field-${fieldDef.field}`
 
-const INPUT_ERROR_STYLE: React.CSSProperties = {
-  ...INPUT_STYLE,
-  borderColor: 'var(--color-error)',
-}
-
-const LABEL_STYLE: React.CSSProperties = {
-  display: 'block',
-  fontSize: '13px',
-  fontWeight: 500,
-  color: '#374151',
-  marginBottom: '8px',
-}
-
-function FieldLabel({ htmlFor, children, required }: { htmlFor: string; children: React.ReactNode; required?: boolean }) {
   return (
-    <label htmlFor={htmlFor} style={LABEL_STYLE}>
-      {children}
-      {required && <span style={{ color: 'var(--color-error)', marginLeft: '3px' }}>*</span>}
-    </label>
+    <div className="flex flex-col gap-1.5">
+      <label
+        htmlFor={inputId}
+        className="text-xs font-semibold uppercase tracking-widest"
+        style={{ color: 'var(--color-text-muted)' }}
+      >
+        {fieldDef.label}
+        {fieldDef.required && (
+          <span className="ml-0.5" style={{ color: 'var(--color-error)' }}>
+            *
+          </span>
+        )}
+      </label>
+      <input
+        id={inputId}
+        type={fieldDef.type === 'number' ? 'number' : fieldDef.type === 'date' ? 'date' : 'text'}
+        value={value}
+        placeholder={fieldDef.placeholder ?? ''}
+        onChange={(e) => onChange(fieldDef.field, e.target.value)}
+        className="w-full rounded-lg border px-4 py-3 text-sm outline-none transition-colors focus:ring-2"
+        style={{
+          background: 'var(--color-bg-primary)',
+          borderColor: error ? 'var(--color-error)' : 'var(--color-border)',
+          color: 'var(--color-text-primary)',
+        }}
+        aria-describedby={error ? `${inputId}-error` : undefined}
+        aria-invalid={!!error}
+      />
+      {error && (
+        <p
+          id={`${inputId}-error`}
+          className="text-xs"
+          style={{ color: 'var(--color-error)' }}
+          role="alert"
+        >
+          {error}
+        </p>
+      )}
+    </div>
   )
 }
+
+// --- Main Component ---
 
 export default function Step2BasicDetails(): React.JSX.Element | null {
   const { state, dispatch } = useWizard()
   if (!state.eventType) {
+    // Guard: user arrived at Step 2 without selecting a type (e.g., direct URL)
     dispatch({ type: 'GO_TO_STEP', payload: 1 })
     return null
   }
   const eventType = state.eventType
-  const formSchema = eventType.formSchema
 
-  const [eventTitle, setEventTitle] = useState<string>(state.basicDetails.eventTitle ?? '')
+  // Determine if Wedding-style 2-column layout applies
+  const formSchema = eventType.formSchema
+  const isTwoColumn = formSchema.length === 2
+
+  // Local state — initialize from wizard context
   const [metadata, setMetadata] = useState<Record<string, string>>(
     () => state.basicDetails.metadata ?? {}
   )
-  const [primaryDate, setPrimaryDate] = useState<string>(state.basicDetails.primaryDate ?? '')
-  const [primaryVenue, setPrimaryVenue] = useState<string>(state.basicDetails.primaryVenue ?? '')
+  const [primaryDate, setPrimaryDate] = useState<string>(
+    state.basicDetails.primaryDate ?? ''
+  )
+  const [primaryVenue, setPrimaryVenue] = useState<string>(
+    state.basicDetails.primaryVenue ?? ''
+  )
   const [guestCapacity, setGuestCapacity] = useState<string>(
-    state.basicDetails.guestCapacity != null ? String(state.basicDetails.guestCapacity) : ''
+    state.basicDetails.guestCapacity != null
+      ? String(state.basicDetails.guestCapacity)
+      : ''
   )
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [guestCapacityError, setGuestCapacityError] = useState<string>('')
 
+  // --- Helpers ---
+
   function handleMetadataChange(field: string, value: string): void {
     setMetadata((prev) => ({ ...prev, [field]: value }))
+    // Clear field error on change
     if (fieldErrors[field]) {
-      setFieldErrors((prev) => { const n = { ...prev }; delete n[field]; return n })
+      setFieldErrors((prev) => {
+        const next = { ...prev }
+        delete next[field]
+        return next
+      })
     }
   }
 
   function buildBasicDetails() {
     return {
-      eventTitle: eventTitle.trim() || null,
       primaryDate: primaryDate.trim() || null,
       primaryVenue: primaryVenue.trim() || null,
       guestCapacity: guestCapacity.trim() !== '' ? parseInt(guestCapacity, 10) : null,
@@ -91,21 +125,33 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
     }
   }
 
+  function saveToContext(): void {
+    dispatch({ type: 'SET_BASIC_DETAILS', payload: buildBasicDetails() })
+  }
+
+  // --- Validation ---
+
   function validate(): boolean {
     let valid = true
+
+    // Validate required dynamic fields
     const dynamicErrors = validateDynamicFields(metadata, formSchema)
     if (dynamicErrors.length > 0) {
       const errorMap: FieldErrors = {}
-      for (const err of dynamicErrors) errorMap[err.field] = err.message
+      for (const err of dynamicErrors) {
+        errorMap[err.field] = err.message
+      }
       setFieldErrors(errorMap)
       valid = false
     } else {
       setFieldErrors({})
     }
+
+    // Validate guest capacity — must be positive integer if provided
     if (guestCapacity.trim() !== '') {
       const parsed = parseInt(guestCapacity, 10)
       if (isNaN(parsed) || parsed <= 0 || !Number.isInteger(parsed)) {
-        setGuestCapacityError('Must be a positive whole number')
+        setGuestCapacityError('Guest capacity must be a positive whole number')
         valid = false
       } else {
         setGuestCapacityError('')
@@ -113,226 +159,224 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
     } else {
       setGuestCapacityError('')
     }
+
     return valid
   }
 
+  // --- Navigation ---
+
   function handleContinue(): void {
     if (!validate()) return
-    dispatch({ type: 'SET_BASIC_DETAILS', payload: buildBasicDetails() })
+    saveToContext()
     const nextStep = eventType.hasSubEvents ? 3 : state.totalSteps
     dispatch({ type: 'GO_TO_STEP', payload: nextStep })
   }
 
   function handleBack(): void {
-    dispatch({ type: 'SET_BASIC_DETAILS', payload: buildBasicDetails() })
+    saveToContext()
     dispatch({ type: 'GO_TO_STEP', payload: 1 })
   }
 
-  const headingLine2 = getHeadingSecondLine(eventType.slug, eventType.name)
+  // --- Render ---
 
   return (
-    <section className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-10">
-
-      {/* Heading */}
-      <div className="text-center mb-10">
-        <h1
+    <div
+      className="w-full max-w-2xl mx-auto rounded-2xl p-8"
+      style={{
+        background: 'var(--color-bg-card)',
+        border: '1px solid var(--color-border)',
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-8">
+        <span
+          className="flex items-center justify-center w-10 h-10 rounded-full text-lg"
           style={{
-            fontFamily: 'var(--font-manrope), sans-serif',
-            fontSize: '56px',
-            fontWeight: 700,
-            lineHeight: '1.1',
-            color: '#1a1a1a',
-            marginBottom: '0',
+            background: 'var(--color-bg-primary)',
+            border: '1px solid var(--color-border)',
           }}
+          aria-hidden="true"
         >
-          Tell us about
-        </h1>
-        <h1
-          style={{
-            fontFamily: 'var(--font-manrope), sans-serif',
-            fontSize: '56px',
-            fontWeight: 700,
-            lineHeight: '1.1',
-            color: 'var(--color-text-primary)',
-            marginBottom: '24px',
-          }}
-        >
-          {headingLine2}
-        </h1>
-        <p
-          style={{
-            fontSize: '16px',
-            color: 'var(--color-text-secondary)',
-            lineHeight: '1.65',
-            maxWidth: '480px',
-            margin: '0 auto',
-          }}
-        >
-          We&apos;re curating a bespoke experience tailored to your unique journey. Let&apos;s start with the foundational details of your big day.
-        </p>
-      </div>
-
-      {/* Form */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
-        {/* Event Title */}
+          ⚙️
+        </span>
         <div>
-          <FieldLabel htmlFor="event-title">Event Title</FieldLabel>
-          <input
-            id="event-title"
-            type="text"
-            value={eventTitle}
-            placeholder="e.g. Smith-Jones Wedding Gala"
-            onChange={(e) => setEventTitle(e.target.value)}
-            style={INPUT_STYLE}
-          />
-          <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
-            Note: If an event title is not provided, one will be automatically generated for you.
+          <h2
+            className="text-xl font-semibold leading-tight"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            Basic Details
+          </h2>
+          <p
+            className="text-sm mt-0.5"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            Tell us a bit about your {eventType.name.toLowerCase()}
           </p>
         </div>
+      </div>
 
-        {/* Dynamic formSchema fields (partner names etc.) */}
+      <div className="flex flex-col gap-6">
+        {/* Dynamic fields from form_schema */}
         {formSchema.length > 0 && (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: formSchema.length >= 2 ? '1fr 1fr' : '1fr',
-              gap: '16px',
-            }}
-          >
-            {formSchema.map((fieldDef) => (
-              <div key={fieldDef.field}>
-                <FieldLabel htmlFor={`field-${fieldDef.field}`} required={fieldDef.required}>
-                  {fieldDef.label}
-                </FieldLabel>
-                <input
-                  id={`field-${fieldDef.field}`}
-                  type={fieldDef.type === 'number' ? 'number' : 'text'}
+          <div>
+            <p
+              className="text-xs font-semibold uppercase tracking-widest mb-4"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              Event Information
+            </p>
+            <div
+              className={
+                isTwoColumn
+                  ? 'grid grid-cols-1 sm:grid-cols-2 gap-4'
+                  : 'flex flex-col gap-4'
+              }
+            >
+              {formSchema.map((fieldDef) => (
+                <FormField
+                  key={fieldDef.field}
+                  fieldDef={fieldDef}
                   value={metadata[fieldDef.field] ?? ''}
-                  placeholder={fieldDef.placeholder ?? ''}
-                  onChange={(e) => handleMetadataChange(fieldDef.field, e.target.value)}
-                  style={fieldErrors[fieldDef.field] ? INPUT_ERROR_STYLE : INPUT_STYLE}
-                  aria-invalid={!!fieldErrors[fieldDef.field]}
+                  error={fieldErrors[fieldDef.field]}
+                  onChange={handleMetadataChange}
                 />
-                {fieldErrors[fieldDef.field] && (
-                  <p style={{ fontSize: '12px', color: 'var(--color-error)', marginTop: '4px' }} role="alert">
-                    {fieldErrors[fieldDef.field]}
-                  </p>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Event Date + Guest Count */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <div>
-            <FieldLabel htmlFor="primary-date">Event Date</FieldLabel>
-            <input
-              id="primary-date"
-              type="date"
-              value={primaryDate}
-              onChange={(e) => setPrimaryDate(e.target.value)}
-              style={INPUT_STYLE}
-            />
-          </div>
-          <div>
-            <FieldLabel htmlFor="guest-capacity">Guest Count</FieldLabel>
-            <input
-              id="guest-capacity"
-              type="number"
-              min={1}
-              value={guestCapacity}
-              placeholder="Estimated guests"
-              onChange={(e) => { setGuestCapacity(e.target.value); if (guestCapacityError) setGuestCapacityError('') }}
-              style={guestCapacityError ? INPUT_ERROR_STYLE : INPUT_STYLE}
-              aria-invalid={!!guestCapacityError}
-            />
-            {guestCapacityError && (
-              <p style={{ fontSize: '12px', color: 'var(--color-error)', marginTop: '4px' }} role="alert">
-                {guestCapacityError}
-              </p>
-            )}
-          </div>
-        </div>
+        {/* Divider */}
+        <div
+          className="border-t"
+          style={{ borderColor: 'var(--color-border)' }}
+        />
 
-        {/* Venue Location */}
+        {/* Common optional fields */}
         <div>
-          <FieldLabel htmlFor="primary-venue">Venue Location</FieldLabel>
-          <div style={{ position: 'relative' }}>
-            <span
-              aria-hidden="true"
-              style={{
-                position: 'absolute',
-                left: '16px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: '#9ca3af',
-                pointerEvents: 'none',
-                lineHeight: 1,
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 1.5C5.51 1.5 3.5 3.51 3.5 6c0 3.5 4.5 8.5 4.5 8.5S12.5 9.5 12.5 6c0-2.49-2.01-4.5-4.5-4.5Zm0 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z" fill="currentColor"/>
-              </svg>
-            </span>
-            <input
-              id="primary-venue"
-              type="text"
-              value={primaryVenue}
-              placeholder="Search for a city or venue"
-              onChange={(e) => setPrimaryVenue(e.target.value)}
-              style={{ ...INPUT_STYLE, paddingLeft: '40px' }}
-            />
+          <p
+            className="text-xs font-semibold uppercase tracking-widest mb-4"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            Optional Details
+          </p>
+          <div className="flex flex-col gap-4">
+            {/* Primary Event Date */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="primary-date"
+                className="text-xs font-semibold uppercase tracking-widest"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                Primary Event Date
+              </label>
+              <input
+                id="primary-date"
+                type="date"
+                value={primaryDate}
+                onChange={(e) => setPrimaryDate(e.target.value)}
+                className="w-full rounded-lg border px-4 py-3 text-sm outline-none transition-colors focus:ring-2"
+                style={{
+                  background: 'var(--color-bg-primary)',
+                  borderColor: 'var(--color-border)',
+                  color: 'var(--color-text-primary)',
+                }}
+              />
+            </div>
+
+            {/* Primary Venue / City */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="primary-venue"
+                className="text-xs font-semibold uppercase tracking-widest"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                Primary Venue / City
+              </label>
+              <input
+                id="primary-venue"
+                type="text"
+                value={primaryVenue}
+                placeholder="e.g. The Grand Ballroom, Mumbai"
+                onChange={(e) => setPrimaryVenue(e.target.value)}
+                className="w-full rounded-lg border px-4 py-3 text-sm outline-none transition-colors focus:ring-2"
+                style={{
+                  background: 'var(--color-bg-primary)',
+                  borderColor: 'var(--color-border)',
+                  color: 'var(--color-text-primary)',
+                }}
+              />
+            </div>
+
+            {/* Guest Capacity */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="guest-capacity"
+                className="text-xs font-semibold uppercase tracking-widest"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                Guest Capacity
+              </label>
+              <input
+                id="guest-capacity"
+                type="number"
+                min={1}
+                value={guestCapacity}
+                placeholder="e.g. 150"
+                onChange={(e) => {
+                  setGuestCapacity(e.target.value)
+                  if (guestCapacityError) setGuestCapacityError('')
+                }}
+                className="w-full rounded-lg border px-4 py-3 text-sm outline-none transition-colors focus:ring-2"
+                style={{
+                  background: 'var(--color-bg-primary)',
+                  borderColor: guestCapacityError
+                    ? 'var(--color-error)'
+                    : 'var(--color-border)',
+                  color: 'var(--color-text-primary)',
+                }}
+                aria-describedby={
+                  guestCapacityError ? 'guest-capacity-error' : undefined
+                }
+                aria-invalid={!!guestCapacityError}
+              />
+              {guestCapacityError && (
+                <p
+                  id="guest-capacity-error"
+                  className="text-xs"
+                  style={{ color: 'var(--color-error)' }}
+                  role="alert"
+                >
+                  {guestCapacityError}
+                </p>
+              )}
+            </div>
           </div>
         </div>
-
-        {/* Bottom note */}
-        <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', textAlign: 'center', lineHeight: '1.6' }}>
-          Note: Only partner names are required to proceed. All other details can be configured later from your dashboard.
-        </p>
 
         {/* Actions */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', paddingTop: '8px' }}>
+        <div className="flex flex-col gap-3 pt-2">
           <button
             type="button"
             onClick={handleContinue}
+            className="w-full rounded-xl py-3.5 text-sm font-semibold transition-opacity hover:opacity-90 active:opacity-80"
             style={{
-              padding: '18px 56px',
               background: 'var(--color-text-primary)',
-              color: '#ffffff',
-              fontSize: '15px',
-              fontWeight: 600,
-              borderRadius: '9999px',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              fontFamily: 'var(--font-manrope), sans-serif',
-              transition: 'opacity 0.15s',
+              color: 'var(--color-bg-primary)',
             }}
           >
-            Continue to Details
-            <span aria-hidden="true">→</span>
+            Continue to Next Step
           </button>
+
           <button
             type="button"
             onClick={handleBack}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '14px',
-              color: 'var(--color-text-secondary)',
-              padding: '4px 8px',
-            }}
+            className="w-full py-2 text-sm transition-opacity hover:opacity-70"
+            style={{ color: 'var(--color-text-secondary)' }}
           >
-            ← Back
+            Back
           </button>
         </div>
-
       </div>
-    </section>
+    </div>
   )
 }

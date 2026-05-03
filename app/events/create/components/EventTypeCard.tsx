@@ -13,134 +13,159 @@ export function EventTypeCard({
   isSelected,
   onSelect,
 }: EventTypeCardProps): React.JSX.Element {
-  const { enabled, name, description, imageUrl } = eventType
-
-  const selectionDot = (
-    <div
-      aria-hidden="true"
-      style={{
-        position: 'absolute',
-        top: '16px',
-        right: '16px',
-        width: '16px',
-        height: '16px',
-        borderRadius: '50%',
-        background: isSelected ? 'var(--color-text-primary)' : 'rgba(255,255,255,0.9)',
-        border: isSelected ? 'none' : '2px solid #d1d5db',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-      }}
-    />
-  )
-
-  const imageBlock = (
-    <div style={{ position: 'relative', padding: '10px 10px 0' }}>
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          aspectRatio: '1 / 1',
-        }}
-      >
-        {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-        ) : (
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              background: '#111827',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <span style={{ fontSize: '48px' }} aria-hidden="true">🎉</span>
-          </div>
-        )}
-      </div>
-      {selectionDot}
-    </div>
-  )
-
-  const textBlock = (
-    <div style={{ padding: '16px 16px 20px', textAlign: 'center' }}>
-      <h3
-        style={{
-          fontFamily: 'var(--font-manrope), sans-serif',
-          fontSize: '18px',
-          fontWeight: 700,
-          color: '#1a1a1a',
-          lineHeight: '1.3',
-          marginBottom: '8px',
-        }}
-      >
-        {name}
-      </h3>
-      {description && (
-        <p
-          style={{
-            fontSize: '13px',
-            color: 'var(--color-text-secondary)',
-            lineHeight: '1.55',
-            margin: 0,
-          }}
-        >
-          {description}
-        </p>
-      )}
-    </div>
-  )
+  const { enabled, name, description, features, imageUrl } = eventType
 
   if (!enabled) {
+    // Disabled card — not interactive
     return (
       <div
         aria-disabled="true"
+        className="relative flex flex-col rounded-xl border overflow-hidden select-none cursor-not-allowed"
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          background: '#ffffff',
-          borderRadius: '16px',
-          border: '2px solid transparent',
-          boxShadow: '0 1px 6px rgba(0,0,0,0.06)',
-          opacity: 0.5,
-          cursor: 'default',
-          userSelect: 'none',
+          background: 'var(--color-bg-card)',
+          borderColor: 'var(--color-border)',
+          opacity: 0.6,
         }}
       >
-        {imageBlock}
-        {textBlock}
+        {/* Coming Soon badge */}
+        <div className="absolute top-3 right-3 z-10">
+          <span
+            className="px-2 py-0.5 text-xs font-medium rounded-full"
+            style={{
+              background: 'var(--color-border)',
+              color: 'var(--color-text-muted)',
+            }}
+          >
+            Coming Soon
+          </span>
+        </div>
+
+        {/* Image placeholder */}
+        <div
+          className="w-full h-32 flex items-center justify-center"
+          style={{ background: 'var(--color-bg-primary)' }}
+        >
+          {imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imageUrl}
+              alt={name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span
+              className="text-4xl"
+              aria-hidden="true"
+            >
+              🎉
+            </span>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex flex-col gap-2 p-4">
+          <h3
+            className="text-base font-semibold"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            {name}
+          </h3>
+          {description && (
+            <p
+              className="text-sm"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              {description}
+            </p>
+          )}
+        </div>
       </div>
     )
   }
 
+  // Enabled card — semantic button
   return (
     <button
       type="button"
       onClick={() => onSelect(eventType)}
       aria-label={`Select ${name}`}
       aria-pressed={isSelected}
+      className={[
+        'relative flex flex-col rounded-xl border overflow-hidden text-left transition-all duration-150',
+        'hover:shadow-md focus-visible:outline-none focus-visible:ring-2 [--tw-ring-color:var(--color-text-primary)]',
+        'focus-visible:ring-offset-2',
+      ].join(' ')}
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        textAlign: 'left',
-        background: '#ffffff',
-        borderRadius: '16px',
-        border: `2px solid ${isSelected ? 'var(--color-text-primary)' : 'transparent'}`,
-        boxShadow: isSelected
-          ? '0 4px 16px rgba(187,0,32,0.12)'
-          : '0 1px 6px rgba(0,0,0,0.07)',
-        cursor: 'pointer',
-        transition: 'border-color 0.15s, box-shadow 0.15s',
-        outline: 'none',
+        background: 'var(--color-bg-card)',
+        borderColor: isSelected ? 'var(--color-text-primary)' : 'var(--color-border)',
+        boxShadow: isSelected ? '0 0 0 2px var(--color-text-primary)' : undefined,
       }}
     >
-      {imageBlock}
-      {textBlock}
+      {/* Image placeholder */}
+      <div
+        className="w-full h-32 flex items-center justify-center"
+        style={{ background: 'var(--color-bg-primary)' }}
+      >
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt={name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span
+            className="text-4xl"
+            aria-hidden="true"
+          >
+            💍
+          </span>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-col gap-2 p-4">
+        <h3
+          className="text-base font-semibold"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          {name}
+        </h3>
+
+        {description && (
+          <p
+            className="text-sm leading-relaxed"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            {description}
+          </p>
+        )}
+
+        {features.length > 0 && (
+          <ul className="flex flex-col gap-1 mt-1">
+            {features.map((feature) => (
+              <li
+                key={feature}
+                className="flex items-center gap-1.5 text-xs"
+                style={{ color: 'var(--color-text-secondary)' }}
+              >
+                <span aria-hidden="true" className="shrink-0">✓</span>
+                {feature}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* CTA */}
+        <div className="mt-3">
+          <span
+            className="text-sm font-medium"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            Select →
+          </span>
+        </div>
+      </div>
     </button>
   )
 }
