@@ -20,6 +20,22 @@ Evenzi is an early-stage wedding/event planning SaaS platform. Users create even
 - **Email:** Resend (`resend` package) — notifications
 - **ClickUp:** REST API integration — task intake and pipeline triggers
 
+---
+
+## Project Connectors (MCP)
+
+This project uses these specific accounts/workspaces. When multiple are available across MCPs, **always use these — never default to the first one listed**. If unsure, ask before acting.
+
+| Tool | Identifier | Purpose |
+|------|-----------|---------|
+| **ClickUp** | Workspace `90161512057` → Product space `90166506901` | Task intake & pipeline. See [docs/clickup/WORKSPACE.md](docs/clickup/WORKSPACE.md) for all list IDs. |
+| **Supabase** | Project `smjkbmkxweevqpvygabe` (region `ap-northeast-1`) | Auth + DB |
+| **Vercel** | Team `evenzi` / Project `evenzi` (`prj_dXWmfgGtBOJDsBO18BOmcNxfwwoX`) | Deployments → `evenzi.vercel.app` |
+| **Figma** | File key `LjoTKwL7pkpYVnAW6hr4s8` ([Evenzi](https://www.figma.com/design/LjoTKwL7pkpYVnAW6hr4s8/Evenzi)) | **Locked / hand-off ready** designs (canonical source) |
+| **Stitch** | Project `3859360114226566614` | **Active design workshop** — drafts before promotion to Figma |
+
+**Design source-of-truth rule:** when implementing a component, prefer **Figma**. Fall back to **Stitch** only if the screen isn't in Figma yet.
+
 ## Commands
 
 ```bash
