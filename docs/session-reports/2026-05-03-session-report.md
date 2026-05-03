@@ -132,3 +132,60 @@ No code-level bugs discovered.
 2. Start Spec & Architecture phase for Landing Section (`86d2k1n3d`).
 3. Address open decisions in `docs/foundation/open-decisions.md`.
 4. Decide whether to commit the WIP wizard/dashboard/auth files in the main worktree (not done this session).
+
+---
+
+# PM Session — Agent Dev Kit setup
+
+> Configured Layers 1, 2, 3, 5 of the Agent Dev Kit framework (CLAUDE.md, Skills, Hooks, Plugins). No product code touched.
+
+## Summary
+
+User watched a framework comparison (5-layer Agent Dev Kit: CLAUDE.md, Skills, Hooks, Subagents, Plugins). We audited the Evenzi setup against it and identified 3 gaps: no hooks layer, ambiguous MCP connector pinning across multiple projects, no global cross-project safety net.
+
+Implemented all three.
+
+## Changes shipped
+
+### Layer 1 — CLAUDE.md (Memory)
+- Added `## Project Connectors (MCP)` table to `CLAUDE.md` with pinned IDs: ClickUp `90161512057`/`90166506901`, Supabase `smjkbmkxweevqpvygabe`, Vercel team `evenzi` / project `prj_dXWmfgGtBOJDsBO18BOmcNxfwwoX`, Figma `LjoTKwL7pkpYVnAW6hr4s8`, Stitch `3859360114226566614`.
+- Established design source-of-truth rule: Figma is canonical, Stitch is workshop.
+
+### Layer 3 — Hooks (NEW)
+- **Global** (`~/.claude/hooks/PreToolUse.sh`) — blocks `rm -rf /|~|*|.`, `git push --force`, `git reset --hard`, `git clean -f`, `git checkout .`, `git restore .`, `git branch -D`, `--no-verify`, `--no-gpg-sign`, and any Bash write to `.env.local`. Wired in `~/.claude/settings.json` for `Bash` matcher. Smoke-tested → blocks `rm -rf /` (verified by self-blocking the smoke-test command).
+- **Project SessionStart** (`.claude/hooks/SessionStart.sh`) — prints active connectors at session start so future Claude doesn't default to wrong workspace.
+- **Project PostToolUse-lint** (`.claude/hooks/PostToolUse-lint.sh`) — runs `npx eslint` on `.ts/.tsx/.js/.jsx` after Edit/Write, surfaces issues back to Claude in same turn.
+- **Project Stop** (`.claude/hooks/Stop.sh`) — heuristic warning when UI files were edited but `preview_*` tools never used. Non-blocking.
+- Wired in `.claude/settings.json` (project, in main repo on Dev-Vibe).
+
+### Layer 5 — Plugins
+- Added marketplace `nextlevelbuilder/ui-ux-pro-max-skill` (user scope).
+- Installed `ui-ux-pro-max@ui-ux-pro-max-skill` (user scope) — auto-enabled in `~/.claude/settings.json`.
+- Enabled it in project `.claude/settings.json` too.
+
+### Memory layer (auto-memory system)
+Wrote 3 entries + index at `~/.claude/projects/-Users-xcalider-Documents-Projects-Evenzi/memory/`:
+- `feedback_validate_before_writes.md` — multi-file changes need a draft + sign-off
+- `user_multi_project_connectors.md` — confirm workspace IDs against CLAUDE.md before MCP calls
+- `feedback_scope_split.md` — project-specific config in repo, only safety nets in `~/.claude/`
+
+## Files changed
+- Worktree: `CLAUDE.md` (+16 lines)
+- Main repo (Dev-Vibe): `.claude/settings.json`, `.claude/hooks/SessionStart.sh`, `.claude/hooks/PostToolUse-lint.sh`, `.claude/hooks/Stop.sh`
+- Global: `~/.claude/settings.json`, `~/.claude/hooks/PreToolUse.sh`
+- Memory: 4 files at `~/.claude/projects/-Users-xcalider-Documents-Projects-Evenzi/memory/`
+
+## What's still TODO (user action needed)
+1. **Stitch MCP** — user needs to run `claude mcp add stitch --transport http --url "https://stitch.googleapis.com/mcp" --header "X-Goog-Api-Key: <key>"` in their terminal. Hooks can't add MCPs.
+2. **Pre-existing main-repo changes** — flagged but not committed:
+   - `ai/agents/frontend_engineer.md` — YAML frontmatter looks corrupted (closing `---` removed, `role:` turned into `## role:` heading). Likely an accidental edit, needs review.
+   - `.claude/skills/clickup-pm/SKILL.md` — status name fix (`in review` → `review`) — appears legitimate but origin unclear.
+   - `.DS_Store` deletion + stale `blissful-bose` worktree reference.
+3. **Replicate pattern in other projects** — for each repo, copy `.claude/hooks/SessionStart.sh`, edit connector lines, add a `## Project Connectors` block to that repo's CLAUDE.md, and add the same `hooks` block to its `.claude/settings.json`. Global PreToolUse covers all of them automatically.
+
+## Hook activation note
+The hooks were installed during this session, but **don't take effect until the next session start** because settings were already loaded. First real test: next time you open Claude Code on this repo, you should see the connector table printed at session start.
+
+## Optimization observations
+- `ai/agents/*.md` files are knowledge docs, not dispatchable subagents (Layer 4 is still missing). Worth converting 3-4 of them (`frontend_engineer`, `code_reviewer`, `security_expert`, `data_modeller`) into real `.claude/agents/*.md` definitions in a future session — would reduce main-context noise during plan/review phases.
+- No global CLAUDE.md exists yet (`~/.claude/CLAUDE.md`) — could hold cross-project voice/preferences (terse responses, parallel-by-default) once you start the second project.
