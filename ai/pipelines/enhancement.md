@@ -43,6 +43,6 @@ input: step.implement
 description: Review for quality and regressions
 
 ### 8. qa
-agent: qa_engineer
+agent: test_engineer
 input: step.implement + step.review
 description: Generate tests for the enhancement

@@ -417,7 +417,7 @@ The `ai/agents/` directory contains enriched agent definitions used by Claude Co
 | `backend_engineer.md` | API design, Supabase patterns |
 | `security_expert.md` | Security vulnerabilities, Next.js security |
 | `code_reviewer.md` | Code review standards, confidence scoring |
-| `qa_engineer.md` | Testing strategy, test writing |
+| `test_engineer.md` | All forms of testing — planning (AC → test cases), execution (unit/component/integration/E2E/a11y/perf), maintenance (triage + backfill); sad-path catalogue |
 | `tech_lead.md` | Architecture decisions, trade-offs |
 
 ### Step 5: First Task

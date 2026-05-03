@@ -1,6 +1,6 @@
 # Next Session — Pick Up Here
 
-> Use `/start-session` to begin. It reads this file, pulls ClickUp status, and asks what to work on.
+> Use `/start-evenzi-session` to begin (asks Abhijith / Dheeraj, then branches). It reads this file, pulls ClickUp status, and asks what to work on.
 
 ---
 
@@ -65,7 +65,17 @@
 
 **Event CRUD is functionally complete.** Full 4-step wizard (Type → Details → Sub-Events → Review), success screen, dashboard with real event cards, all working end-to-end. Vercel deployment is live at evenzi.vercel.app.
 
-**What was done this session (2026-05-03):**
+**What was done this session (2026-05-04):**
+- Created `/start-evenzi-session` and `/end-evenzi-session` as **proper project skills** at `.claude/skills/start-evenzi-session/SKILL.md` and `.claude/skills/end-evenzi-session/SKILL.md`. Both ask "Who's using? (Abhijith / Dheeraj)" and branch the flow accordingly (Abhijith path = full ClickUp + Dev-Vibe; Dheeraj path = `dheeraj-progress.md` + feature branch only)
+- Renamed-not-duplicated: deleted the original `.claude/skills/start-session/` and `.claude/skills/end-session/` (these were the generic ancestors; the Evenzi-specific upgrades replace them)
+- Updated `.claude/skills/clickup-pm/SKILL.md` with two new modes: `sync-dheeraj-progress` (approval-gated read of un-synced entries from `dheeraj-progress.md`, push to ClickUp as comments + status updates, archive into `## Synced`) and `regenerate-digests` (overwrites per-user `abhijith.md` / `dheeraj.md` digests from current ClickUp state)
+- Updated `.claude/skills/session-report/SKILL.md` references from `/end-session` → `/end-evenzi-session`
+- Created `docs/sprint/README.md` — pointer to active sprint (none yet), folder layout spec, ownership matrix, append-only rules
+- **Renamed `ai/agents/qa_engineer.md` → `ai/agents/test_engineer.md`** and enriched it: 3 modes (Planning / Execution / Maintenance), 10-row stack-and-coverage matrix (Vitest, Playwright, axe, Lighthouse, etc.), sad-path catalogue (auth/validation/DB/network/state/third-party/UI), test plan template that writes to `docs/test-plans/<slug>.md`, backlog of features needing backfill (Auth, Event CRUD, Host Dashboard)
+- Updated all live references to the renamed agent: `ai/pipelines/feature.md`, `enhancement.md`, `bug.md`, `ai/agents/task_distributor.md` (6 places + sweet-spot row rewrite), `CLAUDE.md` (env var comment), `.claude/skills/plan-review/SKILL.md` (table + perspective bullets), `docs/foundation/team-structure.md`. Historical specs/plans (chatbot, agent-runner, mission-control) intentionally left unmodified
+- Updated memory entries `project_team_split.md` and `project_dheeraj_no_clickup.md` to confirm the skills exist as files (not just references) and to instruct using `/start-evenzi-session` + `/end-evenzi-session` over the generic ancestors
+
+**What was done previous session (2026-05-03):**
 - ClickUp connection validated (workspace ID 90161512057, 3 spaces resolved)
 - 6 ClickUp task transitions applied with comments:
   - Fix Vercel Deployment (`86d2jmkn4`) → done
@@ -161,7 +171,7 @@
 5. **Landing Section** (`86d2k1kwh` — `in progress`) — Spec & Architecture is the next phase to start (subtask `86d2k1n3d`).
 6. **Event CRUD Data Modeling** (`86d2k1mqc`) — Spec is done, tables exist. Mark done or refine if schema changes are needed.
 7. **Fix Success Screen redirect** — Server component may have cookie/auth issue. Test on Dev-Vibe directly.
-8. **Agent enrichment (remaining Medium agents)** — backend_engineer, data_modeller, qa_engineer, tech_lead, product_manager
+8. **Agent enrichment (remaining Medium agents)** — backend_engineer, data_modeller, tech_lead, product_manager (test_engineer was enriched + renamed from qa_engineer on 2026-05-04)
 
 ### Known Issues
 - Success screen redirects to /home instead of rendering (cookie issue)

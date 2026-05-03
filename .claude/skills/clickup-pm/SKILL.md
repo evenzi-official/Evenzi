@@ -1,16 +1,16 @@
 ---
 name: clickup-pm
-description: ClickUp Product Manager — orchestrates all task CRUD, status transitions, list movement, comments, dependencies, and assignments. Called by start-session, end-session, and mid-session.
+description: ClickUp Product Manager — orchestrates all task CRUD, status transitions, list movement, comments, dependencies, assignments, sprint digests, and Dheeraj→Abhijith progress sync. Called by /start-evenzi-session, /end-evenzi-session, and mid-session. Abhijith path only — never invoked from the Dheeraj path.
 ---
 
 # ClickUp PM — Task Orchestration Skill
 
-Central hub for ALL ClickUp operations in Evenzi. No other skill or workflow should directly call ClickUp tools — they call this skill instead.
+Central hub for ALL ClickUp operations in Evenzi. No other skill or workflow should directly call ClickUp tools — they call this skill instead. **This skill is invoked only on the Abhijith path** (Dheeraj has no ClickUp seat — see `project_dheeraj_no_clickup.md`).
 
 ## When to Invoke
 
-- `/start-session` calls this with mode `session-start`
-- `/end-session` calls this with mode `session-end`
+- `/start-evenzi-session` (Abhijith path) calls this with modes `sync-dheeraj-progress`, `session-start`, then `regenerate-digests`
+- `/end-evenzi-session` (Abhijith path) calls this with modes `session-end`, then `regenerate-digests`
 - Mid-session when any ClickUp operation is needed (create tasks, move tasks, update statuses, etc.)
 - When user says anything about ClickUp tasks, sprints, or task management
 
@@ -29,7 +29,7 @@ Always read these before performing ClickUp operations:
 
 ### Mode: `session-start`
 
-Called by `/start-session`. Fetches current state and briefs the user.
+Called by `/start-evenzi-session` (Abhijith path). Fetches current state and briefs the user.
 
 **Steps:**
 1. Fetch in-progress tasks: `clickup_filter_tasks` with tags `["mvp-phase-1"]`, statuses `["in progress"]`
@@ -42,7 +42,7 @@ Called by `/start-session`. Fetches current state and briefs the user.
 
 ### Mode: `session-end`
 
-Called by `/end-session`. Updates all tasks worked on this session.
+Called by `/end-evenzi-session` (Abhijith path). Updates all tasks worked on this session.
 
 **Steps:**
 1. Receive list of task IDs worked on during the session
@@ -69,6 +69,87 @@ Called by `/end-session`. Updates all tasks worked on this session.
    ```
 4. Update subtask statuses if individual phases were completed
 5. If a feature parent has all subtasks done → set parent to `done`
+
+### Mode: `sync-dheeraj-progress`
+
+Called by `/start-evenzi-session` (Abhijith path) before fetching state. Pulls Dheeraj's last-session work into ClickUp via an approval gate.
+
+**Inputs:** active sprint folder path (e.g. `docs/sprint/sprint-1/`).
+
+**Steps:**
+1. Read `<sprint>/dheeraj-progress.md`. Identify entries that are NOT under the `## Synced` section (i.e. anything in the file body before `## Synced` if it exists, or all entries if it doesn't).
+2. If no un-synced entries → return `{"synced": 0, "skipped": 0, "modified": 0}` and exit.
+3. **Show the un-synced entries to Abhijith verbatim**, per task — no summarization that drops detail.
+4. For each entry (or batched per H2 if many), `AskUserQuestion`:
+   - **Approve** — sync as written
+   - **Modify** — Abhijith dictates corrected status / comment, then sync
+   - **Skip** — leave un-synced (will re-appear next session)
+5. For each Approved/Modified entry:
+   - Update task status via `clickup_update_task` (validate transition per the status workflow rules below).
+   - Add a comment via `clickup_create_task_comment` with prefix `From Dheeraj — [date] —` followed by the verbatim Worked on / Decisions / Issues / Notes from the entry.
+   - If the entry mentions a bug Dheeraj found, file it via `create-bug` mode (see below).
+6. Move synced entries into a `## Synced` section in `dheeraj-progress.md` with a `### Synced YYYY-MM-DD HH:MM (by Abhijith)` heading. The body of synced entries can be the original block verbatim, just relocated.
+7. Return counts to the caller.
+
+**Comment template:**
+```
+From Dheeraj — YYYY-MM-DD
+
+**Worked on:**
+- <verbatim>
+
+**Decisions:**
+- <verbatim>
+
+**Issues found:**
+- <verbatim>
+
+**Files changed:**
+- <verbatim>
+
+**Tests:**
+- <verbatim>
+
+**Notes:**
+- <verbatim>
+
+**Push:** <commit/branch from Dheeraj's entry>
+
+(Synced from docs/sprint/sprint-N/dheeraj-progress.md by Abhijith on YYYY-MM-DD HH:MM)
+```
+
+### Mode: `regenerate-digests`
+
+Called by `/start-evenzi-session` (Abhijith path, after `session-start`) and `/end-evenzi-session` (Abhijith path, after `session-end`). Overwrites the per-user sprint digests from current ClickUp state.
+
+**Inputs:** active sprint folder path.
+
+**Steps:**
+1. Determine sprint identifier (e.g. `sprint-1`) and active sprint tag (e.g. `sprint:1`) from the folder name.
+2. Fetch all sprint tasks: `clickup_filter_tasks` filtered by the sprint tag (or list `901614390914` for current Active Sprint, depending on convention in WORKSPACE.md).
+3. Bucket each task into one of: `In progress`, `To do`, `In review`, `Blocked`.
+4. For Abhijith: include tasks assigned to `278583396` OR unassigned spec/data/backend/design tasks.
+5. For Dheeraj: include tasks assigned to `100996803` OR unassigned frontend/QA/integration tasks.
+6. Overwrite `<sprint>/abhijith.md` and `<sprint>/dheeraj.md` using the digest format below.
+
+**Digest format (one file per user):**
+```
+# Sprint N — <user> digest (generated YYYY-MM-DD HH:MM)
+
+## In progress
+- <task name> (<clickup-id>) — <priority> — <short context, 1 line>
+
+## To do
+- <task name> (<clickup-id>) — <priority>
+
+## In review (waiting on Abhijith approval)
+- <task name> (<clickup-id>) — <what to review>
+
+## Blocked
+- <task name> (<clickup-id>) — <blocker>
+```
+
+Empty sections may be omitted to keep the file scannable.
 
 ### Mode: `task-activate`
 

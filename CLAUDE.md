@@ -95,7 +95,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=<supabase-anon-key>
 # LLM Providers (at least one required)
 ANTHROPIC_API_KEY=sk-ant-xxxx           # primary provider
 OPENAI_API_KEY=sk-proj-xxxx             # optional — used by task_planner, task_distributor
-GOOGLE_GENERATIVE_AI_API_KEY=AIzaxxxx   # optional — used by qa_engineer
+GOOGLE_GENERATIVE_AI_API_KEY=AIzaxxxx   # optional — used by test_engineer
 GROQ_API_KEY=gsk_xxxx                   # optional
 OLLAMA_BASE_URL=http://localhost:11434/api  # optional, local only
 
