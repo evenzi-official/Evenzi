@@ -65,7 +65,16 @@
 
 **Event CRUD is functionally complete.** Full 4-step wizard (Type → Details → Sub-Events → Review), success screen, dashboard with real event cards, all working end-to-end. Vercel deployment is live at evenzi.vercel.app.
 
-**What was done this session (2026-05-04):**
+**What was done this session (2026-05-09 — design exploration, no ClickUp tasks):**
+- Designed the **Event Management Hub / Event Control** screen end-to-end as a self-contained HTML/CSS/JS prototype at `designs/event-control.html` + `designs/hero-image.jpg`. Single source-of-truth for the per-event command center landing screen — replaces earlier Stitch drafts.
+- Visual language locked: **Apple-style Liquid Glass** (themed light/dark tokens — black-tinted in light to avoid wash-out, white-tinted in dark for refraction), **Evenzi red brand** (`#BB0020` light / `#ee3f3a` dark), **Poppins** typography, claymorphism radii (24/16/9999px).
+- Page composition: floating glass nav (logo + Dashboard/Website tabs + bell/theme/settings/avatar) → sticky breadcrumb → full-viewport hero (Anya & Kabir's wedding) with parallax bg image + interactive Quick Actions card + Venue/Date glass chips + 4-stat strip → "Our Journey" timeline snapshot (circular progress ring + featured "Catering menu finalisation" card + 7-step roadmap dots) → "Manage your event" 5-card bento (Guest mgmt, Invitations, Planning, Media, Website — uniform brand-red icons + numbered corners 01–05) → Up next checklist + Recent activity (both scrollable glass cards with mask-fade edges) → footer.
+- Interactive layer: scroll-progress hairline at top, scroll-spy on tool rail, count-up stat numbers, progress-fill bars, IntersectionObserver-driven section reveals, mouse parallax on hero, theme persist via localStorage.
+- Tested across 1280/768/375 × light/dark — all sections legible, glass elements hold up, no JS errors.
+- Preview server config added to `.claude/launch.json` as `stitch-preview` (Python http.server on port 8770 from `designs/`). Original `nextjs-dev` config preserved.
+- **Open follow-ups:** wire to real Next.js routes (links currently 404), add `manifest.webmanifest` for the PWA shortcut path, switch from Tailwind CDN to project Tailwind build when integrated.
+
+**What was done previous session (2026-05-04):**
 - Created `/start-evenzi-session` and `/end-evenzi-session` as **proper project skills** at `.claude/skills/start-evenzi-session/SKILL.md` and `.claude/skills/end-evenzi-session/SKILL.md`. Both ask "Who's using? (Abhijith / Dheeraj)" and branch the flow accordingly (Abhijith path = full ClickUp + Dev-Vibe; Dheeraj path = `dheeraj-progress.md` + feature branch only)
 - Renamed-not-duplicated: deleted the original `.claude/skills/start-session/` and `.claude/skills/end-session/` (these were the generic ancestors; the Evenzi-specific upgrades replace them)
 - Updated `.claude/skills/clickup-pm/SKILL.md` with two new modes: `sync-dheeraj-progress` (approval-gated read of un-synced entries from `dheeraj-progress.md`, push to ClickUp as comments + status updates, archive into `## Synced`) and `regenerate-digests` (overwrites per-user `abhijith.md` / `dheeraj.md` digests from current ClickUp state)
