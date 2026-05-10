@@ -212,6 +212,12 @@
 
   /* page eyebrow used inside cs-stage demos */
   .cs-page-eyebrow{font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;letter-spacing:.22em;color:var(--brand);text-transform:uppercase}
+
+  /* Inline-code chip — used in tile descriptions to call out class names */
+  .cs-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--brand);background:var(--brand-tint);padding:1px 6px;border-radius:4px;font-size:.95em}
+
+  /* Showcase note text — non-uppercase explanatory copy under demos */
+  .cs-note{font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;color:var(--muted);max-width:32rem;letter-spacing:0;line-height:1.5;margin:0}
 </style>
 </head>
 <body data-page="components" data-section="dashboard">
@@ -500,6 +506,48 @@
         </div>
       </article>
     </div>
+
+    <!-- S8 notification dropdown panel (static) -->
+    <article class="cs-component" style="margin-top:1rem">
+      <p class="cs-label"><span class="cs-label-name">S8</span> · Notification dropdown panel · auto-injected on every bell button</p>
+      <div class="cs-stage" style="padding:1.5rem;align-items:flex-start">
+        <div class="fn-notif-panel is-open" style="position:relative;top:auto;right:auto;width:340px;max-width:100%">
+          <div class="fn-notif-header">
+            <span class="fn-notif-title">Notifications</span>
+            <button class="fn-notif-mark-all" type="button">Mark all read</button>
+          </div>
+          <ul class="fn-notif-list" style="max-height:none">
+            <li class="fn-notif-item is-unread">
+              <span class="fn-notif-icon"><span class="material-symbols-outlined">how_to_reg</span></span>
+              <div>
+                <p class="fn-notif-text"><strong>Karthik &amp; Ananya</strong> confirmed for the Reception.</p>
+                <p class="fn-notif-time">2 hours ago</p>
+              </div>
+              <span class="fn-notif-unread" aria-hidden="true"></span>
+            </li>
+            <li class="fn-notif-item">
+              <span class="fn-notif-icon"><span class="material-symbols-outlined">forward_to_inbox</span></span>
+              <div>
+                <p class="fn-notif-text">Save-the-dates sent to <strong>156 guests</strong>.</p>
+                <p class="fn-notif-time">Yesterday</p>
+              </div>
+              <span class="fn-notif-unread" aria-hidden="true"></span>
+            </li>
+            <li class="fn-notif-item">
+              <span class="fn-notif-icon"><span class="material-symbols-outlined">payments</span></span>
+              <div>
+                <p class="fn-notif-text">Payment recorded — <strong>₹50,000</strong> to Heritage Palace.</p>
+                <p class="fn-notif-time">3 days ago</p>
+              </div>
+              <span class="fn-notif-unread" aria-hidden="true"></span>
+            </li>
+          </ul>
+          <div class="fn-notif-footer">
+            <a href="#" class="fn-notif-view-all">View all<span class="material-symbols-outlined">arrow_forward</span></a>
+          </div>
+        </div>
+      </div>
+    </article>
   </section>
 
   <!-- ════════════════════════════════════════════════ -->
@@ -628,12 +676,22 @@
         </div>
       </article>
 
-      <!-- B2 CTA pill -->
+      <!-- B2 btn-pill (canonical CTA) -->
       <article class="cs-component">
-        <p class="cs-label"><span class="cs-label-name">B2</span> · CTA Pill Button · default · hover</p>
-        <div class="cs-stage" style="gap:1rem">
-          <a href="#" class="clay-pill bg-brand text-white font-display font-semibold text-sm tracking-wide px-5 h-11 inline-flex items-center gap-2">VIEW DETAILS<span class="material-symbols-outlined text-base">arrow_forward</span></a>
-          <a href="#" class="clay-pill text-white font-display font-semibold text-sm tracking-wide px-5 h-11 inline-flex items-center gap-2" style="background:var(--brand-hover)">HOVER<span class="material-symbols-outlined text-base">arrow_forward</span></a>
+        <p class="cs-label"><span class="cs-label-name">B2</span> · Pill Button · primary · secondary · large · with leading icon</p>
+        <div class="cs-stage cs-stage--col" style="padding:1.25rem;gap:1rem;align-items:flex-start">
+          <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:center">
+            <button type="button" class="btn-pill btn-pill-primary">SAVE EVENT<span class="material-symbols-outlined">arrow_forward</span></button>
+            <button type="button" class="btn-pill btn-pill-primary" style="background:var(--brand-hover);transform:translateY(-1px)">HOVER<span class="material-symbols-outlined">arrow_forward</span></button>
+            <button type="button" class="btn-pill btn-pill-primary" disabled>DISABLED<span class="material-symbols-outlined">arrow_forward</span></button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:center">
+            <button type="button" class="btn-pill btn-pill-primary"><span class="material-symbols-outlined">person_add</span>Add guest</button>
+            <button type="button" class="btn-pill btn-pill-secondary">CANCEL</button>
+            <button type="button" class="btn-pill btn-pill-secondary" style="background:var(--brand-tint);color:var(--brand);border-color:var(--brand-tint-2)">SECONDARY HOVER</button>
+          </div>
+          <button type="button" class="btn-pill btn-pill-primary btn-pill-lg" style="width:100%;justify-content:center">PUBLISH EVENT WEBSITE<span class="material-symbols-outlined">arrow_forward</span></button>
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Use <code class="cs-code">.btn-pill</code> for all CTAs. Composes with <code class="cs-code">.btn-pill-primary</code> / <code class="cs-code">.btn-pill-secondary</code> / <code class="cs-code">.btn-pill-lg</code>.</p>
         </div>
       </article>
 
@@ -694,15 +752,379 @@
           <span class="w-6 h-6 rounded-lg border-2 border-brand bg-brand flex items-center justify-center"><span class="material-symbols-outlined text-base text-white">check</span></span>
         </div>
       </article>
+
+      <!-- B8 toggle-switch -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B8</span> · Toggle Switch · on · off · disabled</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
+            <div>
+              <p style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;color:var(--ink);margin:0">Email me when guests RSVP</p>
+              <p class="form-helper" style="margin:.1rem 0 0">You'll get a daily digest at 9 AM.</p>
+            </div>
+            <button type="button" class="toggle-switch" role="switch" aria-checked="true" aria-label="Email RSVP notifications">
+              <span class="toggle-switch-thumb"></span>
+            </button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
+            <div>
+              <p style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;color:var(--ink);margin:0">Two-factor authentication</p>
+              <p class="form-helper" style="margin:.1rem 0 0">Recommended for accounts with payment info.</p>
+            </div>
+            <button type="button" class="toggle-switch" role="switch" aria-checked="false" aria-label="Two-factor authentication">
+              <span class="toggle-switch-thumb"></span>
+            </button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;opacity:.55">
+            <div>
+              <p style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;color:var(--ink);margin:0;display:inline-flex;align-items:center;gap:.4rem">WhatsApp delivery reports <span class="clay-pill bg-brand-tint text-brand" style="padding:1px 8px;font-size:9px;letter-spacing:.18em;font-weight:700">PRO</span></p>
+              <p class="form-helper" style="margin:.1rem 0 0">Available on the Curator and Pro plans.</p>
+            </div>
+            <button type="button" class="toggle-switch" role="switch" aria-checked="true" aria-label="WhatsApp reports" disabled style="cursor:not-allowed">
+              <span class="toggle-switch-thumb"></span>
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- B9 segmented control — used as a filter / view-mode toggle (radiogroup) -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B9</span> · Segmented Control · view-mode filter (no panels)</p>
+        <div class="cs-stage cs-stage--col" style="gap:.85rem;padding:1.25rem;align-items:flex-start">
+          <div class="nav-tabs inline-flex" role="radiogroup" aria-label="Event filter">
+            <button type="button" role="radio" class="nav-tab is-active" aria-checked="true">
+              <span aria-hidden="true" class="material-symbols-outlined icon-fill">event_available</span>
+              <span class="nav-tab-label">Active</span>
+            </button>
+            <button type="button" role="radio" class="nav-tab" aria-checked="false">
+              <span aria-hidden="true" class="material-symbols-outlined">history</span>
+              <span class="nav-tab-label">Past</span>
+            </button>
+            <button type="button" role="radio" class="nav-tab" aria-checked="false">
+              <span aria-hidden="true" class="material-symbols-outlined">archive</span>
+              <span class="nav-tab-label">Archived</span>
+            </button>
+          </div>
+          <p class="cs-note">
+            The <code class="cs-code">.nav-tabs</code> primitive is visual; pick the role to match the semantics. Use <code class="cs-code">role="tablist"</code> + <code class="cs-code">role="tab"</code> + <code class="cs-code">aria-selected</code> when each button maps to a <code class="cs-code">tabpanel</code> (the live nav at top of this page is one). Use <code class="cs-code">role="radiogroup"</code> + <code class="cs-code">role="radio"</code> + <code class="cs-code">aria-checked</code> for filters / view-mode toggles like this one — see FF8 for stacked variant.
+          </p>
+        </div>
+      </article>
     </div>
   </section>
 
   <!-- ════════════════════════════════════════════════ -->
-  <!-- 6. DATA DISPLAY                                    -->
+  <!-- 6. FORM FIELDS                                    -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="forms">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">06 · Form fields</p>
+      <h2 class="cs-h2">Inputs, selects, errors</h2>
+      <p class="cs-h2-sub">All form primitives compose from <code class="cs-code">.form-group</code> + <code class="cs-code">.form-label</code> + the field + optional <code class="cs-code">.form-helper</code> / <code class="cs-code">.form-error</code>. Labels are visible, never placeholder-only (a11y floor).</p>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <!-- F1 form-input states -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF1</span> · Text input · default · focus · error · disabled</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div class="form-group">
+            <label class="form-label" for="cs-f1-name">Event name</label>
+            <input id="cs-f1-name" class="form-input" type="text" placeholder="e.g., Anya &amp; Kabir's Wedding" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f1-focus">Event name <span style="color:var(--brand)">· focused</span></label>
+            <input id="cs-f1-focus" class="form-input" type="text" value="Anya &amp; Kabir's Wedding" style="border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-tint)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f1-err">Mobile number</label>
+            <input id="cs-f1-err" class="form-input" type="tel" value="98765" aria-invalid="true" aria-describedby="cs-f1-err-msg" />
+            <p id="cs-f1-err-msg" class="form-error" role="alert">
+              <span class="material-symbols-outlined">error</span>
+              Mobile number must be 10 digits
+            </p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f1-disabled">Phone (verified)</label>
+            <input id="cs-f1-disabled" class="form-input" type="tel" value="+91 9876543210" disabled />
+            <p class="form-helper">Locked once verified. <a href="#" style="color:var(--brand)">Contact support</a> to change.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- F2 form-password -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF2</span> · Password · with eye toggle</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div class="form-group">
+            <label class="form-label" for="cs-f2-pw">Password</label>
+            <div class="form-password">
+              <input id="cs-f2-pw" class="form-input" type="password" value="weddingseason26" />
+              <button type="button" class="form-password-toggle" aria-label="Show password" data-pw-toggle>
+                <span class="material-symbols-outlined">visibility</span>
+              </button>
+            </div>
+            <p class="form-helper">8+ characters, one number.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f2-pw-open">Password <span style="color:var(--brand)">· revealed</span></label>
+            <div class="form-password">
+              <input id="cs-f2-pw-open" class="form-input" type="text" value="weddingseason26" />
+              <button type="button" class="form-password-toggle" aria-label="Hide password" style="color:var(--brand);background:var(--brand-tint)">
+                <span class="material-symbols-outlined">visibility_off</span>
+              </button>
+            </div>
+            <p class="form-helper form-helper-success">
+              <span class="material-symbols-outlined">check_circle</span>
+              Strong password
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- F3 form-textarea -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF3</span> · Textarea · multi-line · clay-sm radius</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div class="form-group">
+            <label class="form-label" for="cs-f3-desc">Event description</label>
+            <textarea id="cs-f3-desc" class="form-textarea" rows="4" placeholder="Tell guests what to expect — dress code, schedule, parking, anything else they should know.">Three days of festivities at the Heritage Palace — Sangeet on Friday, Wedding ceremony Saturday morning, Reception in the evening. Dress code: Indian formal.</textarea>
+            <p class="form-helper">236 / 500 characters</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f3-err">Notes <span style="color:var(--brand)">· error</span></label>
+            <textarea id="cs-f3-err" class="form-textarea" rows="3" aria-invalid="true">A really long event name that goes on and on and ought to be shorter than this</textarea>
+            <p class="form-error" role="alert"><span class="material-symbols-outlined">error</span>Description is over the 500 character limit.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- F4 form-select -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF4</span> · Select · native picker · pill-styled trigger</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div class="form-group">
+            <label class="form-label" for="cs-f4-type">Event type</label>
+            <div class="form-select">
+              <select id="cs-f4-type">
+                <option>Wedding</option>
+                <option>Engagement</option>
+                <option>Anniversary</option>
+                <option>Birthday</option>
+                <option>Corporate</option>
+                <option>Other</option>
+              </select>
+              <span class="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f4-cat">Expense category</label>
+            <div class="form-select">
+              <select id="cs-f4-cat">
+                <option>Catering</option>
+                <option>Venue</option>
+                <option>Decor</option>
+                <option>Photography &amp; Video</option>
+                <option>Outfits &amp; Jewellery</option>
+                <option>Travel &amp; Stay</option>
+              </select>
+              <span class="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
+            </div>
+            <p class="form-helper">Used to group your spending in the budget tracker.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- F5 phone-input / form-input-group -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF5</span> · Input group · phone (+91) · currency (₹)</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div class="form-group">
+            <label class="form-label" for="cs-f5-phone">Phone</label>
+            <div class="form-input form-input-group">
+              <span class="form-input-prefix">+91</span>
+              <input id="cs-f5-phone" class="form-input-field" type="tel" inputmode="numeric" placeholder="9876543210" maxlength="10" />
+            </div>
+            <p class="form-helper">India only for now. More countries coming soon.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f5-amt">Total budget</label>
+            <div class="form-input form-input-group">
+              <span class="form-input-prefix">₹</span>
+              <input id="cs-f5-amt" class="form-input-field" type="text" inputmode="numeric" value="15,00,000" />
+              <span class="form-input-suffix">INR</span>
+            </div>
+            <p class="form-helper">We'll group your spending against this in the planner.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- F6 date / time triggers -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF6</span> · Date · time · native picker, styled trigger</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div class="form-group">
+            <label class="form-label" for="cs-f6-date-trigger">Event date</label>
+            <button id="cs-f6-date-trigger" type="button" class="form-input form-input-trigger" data-date-trigger>
+              <span class="form-input-trigger-value" data-placeholder="DD / MM / YYYY">Sat · 22 Dec 2025</span>
+              <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+            </button>
+            <input type="date" class="sr-only" tabindex="-1" aria-hidden="true" value="2025-12-22" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f6-time-trigger">Ceremony time</label>
+            <button id="cs-f6-time-trigger" type="button" class="form-input form-input-trigger" data-time-trigger>
+              <span class="form-input-trigger-value" data-placeholder="--:-- AM">10:30 AM</span>
+              <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+            </button>
+            <input type="time" class="sr-only" tabindex="-1" aria-hidden="true" value="10:30" />
+          </div>
+        </div>
+      </article>
+
+      <!-- F7 pin-input / OTP -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF7</span> · OTP code · 6-cell, auto-advance</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:flex-start">
+          <p style="font-family:'Poppins',sans-serif;font-weight:500;font-size:13px;color:var(--muted);margin:0">Enter the 6-digit code sent to <strong style="color:var(--ink)">+91 9876543210</strong></p>
+          <div class="pin-input" data-len="6" role="group" aria-label="6-digit verification code">
+            <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " autocomplete="one-time-code" value="9" />
+            <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " value="8" />
+            <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " value="2" />
+            <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " value="" />
+            <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " value="" />
+            <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " value="" />
+          </div>
+          <button type="button" class="btn-pill btn-pill-secondary" style="margin-top:.25rem">Resend code</button>
+          <p class="form-helper" style="margin-top:0">Try pasting a 6-digit code — it'll distribute across the cells.</p>
+        </div>
+      </article>
+
+      <!-- F8 radio-pill-group -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF8</span> · Radio pill group · RSVP · Yes / No / Maybe</p>
+        <div class="cs-stage cs-stage--col" style="gap:.85rem;padding:1.25rem;align-items:stretch">
+          <span id="cs-f8-q" class="form-label">Will you be attending?</span>
+          <div class="radio-pill-group" role="radiogroup" aria-labelledby="cs-f8-q">
+            <button type="button" role="radio" aria-checked="true" class="radio-pill is-checked">
+              <span class="material-symbols-outlined icon-fill" aria-hidden="true">check_circle</span>
+              Yes, I'll be there
+            </button>
+            <button type="button" role="radio" aria-checked="false" class="radio-pill">
+              <span class="material-symbols-outlined icon-fill" aria-hidden="true">check_circle</span>
+              Maybe, will confirm soon
+            </button>
+            <button type="button" role="radio" aria-checked="false" class="radio-pill">
+              <span class="material-symbols-outlined icon-fill" aria-hidden="true">check_circle</span>
+              Sorry, can't make it
+            </button>
+          </div>
+          <p class="form-helper">Mutually exclusive — uses <code class="cs-code">role="radiogroup"</code> + <code class="cs-code">aria-checked</code>. Stacks on mobile, rows ≥480px.</p>
+        </div>
+      </article>
+
+      <!-- F9 form-error / form-helper-success -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF9</span> · Inline message · error · helper · success</p>
+        <div class="cs-stage cs-stage--col" style="gap:.75rem;padding:1.25rem;align-items:flex-start">
+          <p class="form-error" role="alert">
+            <span class="material-symbols-outlined">error</span>
+            Mobile number must be 10 digits
+          </p>
+          <p class="form-error" role="alert">
+            <span class="material-symbols-outlined">error</span>
+            We couldn't reach this number — check the country prefix.
+          </p>
+          <p class="form-helper">We'll only use this for RSVP delivery.</p>
+          <p class="form-helper form-helper-success">
+            <span class="material-symbols-outlined">check_circle</span>
+            OTP verified
+          </p>
+          <p class="form-helper form-helper-success">
+            <span class="material-symbols-outlined">check_circle</span>
+            Event saved as draft
+          </p>
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0;margin-top:.25rem">Color is never the only signal — every state pairs with an icon.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 7. AVATARS & PEOPLE                               -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="avatars">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">07 · Avatars &amp; people</p>
+      <h2 class="cs-h2">Identity surfaces</h2>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <!-- AV1 avatar-edit -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">AV1</span> · Avatar editor · initials · image · 96×96</p>
+        <div class="cs-stage" style="gap:2rem;padding:1.5rem">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem">
+            <div class="avatar-edit">
+              <div class="avatar-edit-img">A</div>
+              <button type="button" class="avatar-edit-btn" aria-label="Change profile photo">
+                <span class="material-symbols-outlined" aria-hidden="true">photo_camera</span>
+              </button>
+            </div>
+            <span class="cs-type-meta">Initials</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem">
+            <div class="avatar-edit">
+              <div class="avatar-edit-img" style="background:linear-gradient(135deg,var(--brand),var(--brand-hover))"></div>
+              <button type="button" class="avatar-edit-btn" aria-label="Change profile photo">
+                <span class="material-symbols-outlined" aria-hidden="true">photo_camera</span>
+              </button>
+            </div>
+            <span class="cs-type-meta">Photo</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- AV2 avatar-stack -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">AV2</span> · Avatar stack · 3 · 5 + overflow · 1 single</p>
+        <div class="cs-stage cs-stage--col" style="gap:1.25rem;padding:1.5rem;align-items:flex-start">
+          <div style="display:flex;align-items:center;gap:.85rem">
+            <div class="avatar-stack">
+              <span class="avatar-stack-item">A</span>
+              <span class="avatar-stack-item">K</span>
+              <span class="avatar-stack-item">I</span>
+            </div>
+            <span class="cs-type-meta" style="text-transform:none;letter-spacing:0">3 — Anya, Kabir, Ishani</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.85rem">
+            <div class="avatar-stack">
+              <span class="avatar-stack-item" style="background:var(--avatar-1)">A</span>
+              <span class="avatar-stack-item" style="background:var(--avatar-2)">K</span>
+              <span class="avatar-stack-item" style="background:var(--avatar-3)">I</span>
+              <span class="avatar-stack-item">R</span>
+              <span class="avatar-stack-item">M</span>
+              <span class="avatar-stack-overflow">+12</span>
+            </div>
+            <span class="cs-type-meta" style="text-transform:none;letter-spacing:0">5 + 12 more — RSVPed for the Reception</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.85rem">
+            <div class="avatar-stack">
+              <span class="avatar-stack-item">A</span>
+            </div>
+            <span class="cs-type-meta" style="text-transform:none;letter-spacing:0">1 single — assigned to Anya</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 8. DATA DISPLAY                                   -->
   <!-- ════════════════════════════════════════════════ -->
   <section class="cs-section reveal" id="data">
     <header class="cs-section-head">
-      <p class="cs-eyebrow">06 · Data Display</p>
+      <p class="cs-eyebrow">08 · Data Display</p>
       <h2 class="cs-h2">Stats, charts, lists</h2>
     </header>
 
@@ -881,6 +1303,26 @@
       </article>
     </div>
 
+    <!-- D8 scrollable-list -->
+    <article class="cs-component" style="margin-top:1rem">
+      <p class="cs-label"><span class="cs-label-name">D8</span> · Scrollable list · mask-fade edges · custom thumb</p>
+      <div class="cs-stage cs-stage--col" style="padding:1rem">
+        <div class="lg-glass-card p-3 w-full">
+          <ul class="scrollable-list" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px">
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Confirm Sangeet catering menu</span><span class="checklist-sub">Tadka Heritage · Vendor</span></span><span class="checklist-due is-urgent"><span aria-hidden="true" class="material-symbols-outlined">schedule</span>Oct 18</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Brief photographer &amp; videographer</span><span class="checklist-sub">Shot list · Pre-wedding to reception</span></span><span class="checklist-due">Nov 02</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox" checked/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Send save-the-dates</span><span class="checklist-sub">156 invitees · WhatsApp + email</span></span><span class="checklist-due">Done · Aug 28</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Finalise mehndi artist booking</span><span class="checklist-sub">Heena Patel · 4 hours, 60 guests</span></span><span class="checklist-due">Oct 24</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Confirm hotel block for out-of-town family</span><span class="checklist-sub">Heritage Palace · 18 rooms</span></span><span class="checklist-due">Nov 10</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Approve invitation card design</span><span class="checklist-sub">Studio Ink · 3 variants pending</span></span><span class="checklist-due">Oct 12</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Wedding-day timeline draft</span><span class="checklist-sub">Share with both families</span></span><span class="checklist-due">Nov 18</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Final outfit fittings</span><span class="checklist-sub">All four — bride, groom, parents</span></span><span class="checklist-due">Dec 05</span></label></li>
+          </ul>
+        </div>
+        <p class="cs-type-meta" style="text-transform:none;letter-spacing:0;margin-top:.5rem">Top + bottom mask-fade. Brand-tinted scrollbar thumb on hover. Use anywhere a list might overflow inside a card.</p>
+      </div>
+    </article>
+
     <!-- D7 active milestone spotlight -->
     <article class="cs-component" style="margin-top:1rem">
       <p class="cs-label"><span class="cs-label-name">D7</span> · Active Milestone Spotlight</p>
@@ -916,11 +1358,11 @@
   </section>
 
   <!-- ════════════════════════════════════════════════ -->
-  <!-- 7. SECTION / LAYOUT PRIMITIVES                    -->
+  <!-- 9. SECTION / LAYOUT PRIMITIVES                    -->
   <!-- ════════════════════════════════════════════════ -->
   <section class="cs-section reveal" id="layout">
     <header class="cs-section-head">
-      <p class="cs-eyebrow">07 · Section &amp; Layout primitives</p>
+      <p class="cs-eyebrow">09 · Section &amp; Layout primitives</p>
       <h2 class="cs-h2">Composition patterns</h2>
     </header>
 
@@ -941,24 +1383,106 @@
           <p class="mt-2 text-sm text-muted">Manage your invitee list, RSVPs, and sub-event attendance.</p>
         </div>
       </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">L4</span> · Section rule · brand-dash heading</p>
+        <div class="cs-stage cs-stage--col" style="padding:1.5rem;align-items:flex-start;gap:1.5rem">
+          <h2 class="section-rule">
+            <span class="section-rule-bar" aria-hidden="true"></span>
+            Profile information
+          </h2>
+          <h2 class="section-rule">
+            <span class="section-rule-bar" aria-hidden="true"></span>
+            Danger zone
+          </h2>
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">L1 (eyebrow) is for hero / page-top headings; L4 (section-rule) is for in-card sub-section anchors. Different roles — pair them, don't substitute.</p>
+        </div>
+      </article>
     </div>
 
+    <!-- L3 (replaced) — empty-cta-card -->
     <article class="cs-component" style="margin-top:1rem">
-      <p class="cs-label"><span class="cs-label-name">L3</span> · Empty content area</p>
-      <div class="cs-stage" style="padding:1rem">
-        <div class="lg-glass-card w-full p-10 min-h-[160px] flex items-center justify-center">
-          <p class="text-muted-soft text-[10px] font-bold uppercase tracking-[0.32em]">Content area</p>
-        </div>
+      <p class="cs-label"><span class="cs-label-name">L3</span> · Empty CTA card · default + hover</p>
+      <div class="cs-stage" style="gap:1rem;padding:1rem;align-items:stretch">
+        <a href="#" class="empty-cta-card" style="flex:1;max-width:260px">
+          <span class="empty-cta-icon"><span class="material-symbols-outlined" aria-hidden="true">add</span></span>
+          <p class="empty-cta-title">Create your first event</p>
+          <p class="empty-cta-sub">Tap to start the 4-step Curator.</p>
+        </a>
+        <a href="#" class="empty-cta-card" style="flex:1;max-width:260px;border-color:var(--brand);background:var(--brand-tint);transform:translateY(-2px)">
+          <span class="empty-cta-icon"><span class="material-symbols-outlined" aria-hidden="true">add</span></span>
+          <p class="empty-cta-title">Create your first event</p>
+          <p class="empty-cta-sub">Tap to start the 4-step Curator.</p>
+        </a>
       </div>
     </article>
   </section>
 
   <!-- ════════════════════════════════════════════════ -->
-  <!-- 8. BACKGROUND FLOURISHES                          -->
+  <!-- 10. DIALOGS                                       -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="dialogs">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">10 · Dialogs</p>
+      <h2 class="cs-h2">Modal &amp; bottom sheet</h2>
+      <p class="cs-h2-sub">Single component, two presentations. ≥768px → centered modal. &lt;768px → bottom sheet with drag handle. Static demos below force one variant each via <code class="cs-code">.modal-static</code>.</p>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <!-- DLG1 modal (centered) -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">DLG1</span> · Modal · centered, desktop ≥768px</p>
+        <div class="cs-stage" style="padding:1rem;min-height:280px">
+          <div class="modal-scrim modal-static" aria-hidden="true">
+            <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="cs-dlg1-title">
+              <h2 id="cs-dlg1-title" class="modal-title">Send WhatsApp invitation?</h2>
+              <p class="modal-body">142 guests will receive a message with the RSVP link. Delivery typically takes under a minute.</p>
+              <div class="modal-actions">
+                <button type="button" class="btn-pill btn-pill-secondary">CANCEL</button>
+                <button type="button" class="btn-pill btn-pill-primary">SEND <span class="material-symbols-outlined">arrow_forward</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- DLG2 bottom-sheet (mobile) -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">DLG2</span> · Bottom sheet · mobile &lt;768px · drag handle</p>
+        <div class="cs-stage" style="padding:1rem;min-height:280px;align-items:flex-end">
+          <div class="modal-scrim modal-static modal-static-sheet" aria-hidden="true">
+            <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="cs-dlg2-title">
+              <h2 id="cs-dlg2-title" class="modal-title">Delete event?</h2>
+              <p class="modal-body">"Anya &amp; Kabir's Wedding" and all its guest data will be permanently removed. This cannot be undone.</p>
+              <div class="modal-actions">
+                <button type="button" class="btn-pill btn-pill-secondary">CANCEL</button>
+                <button type="button" class="btn-pill btn-pill-primary">DELETE EVENT</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <article class="cs-component" style="margin-top:1rem">
+      <p class="cs-label">Live demo · click to open</p>
+      <div class="cs-stage cs-stage--col" style="padding:1.5rem;gap:1rem;align-items:flex-start">
+        <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Click to open a real modal — Esc, scrim click, or Cancel will dismiss it. Below 768px it slides up as a bottom sheet automatically (resize the window to test).</p>
+        <button type="button" class="btn-pill btn-pill-primary" data-modal-target="#cs-modal-live">
+          <span class="material-symbols-outlined">open_in_new</span>
+          Open dialog
+        </button>
+        <p class="form-helper" style="font-size:11px;margin-top:.25rem">Note: live modal target is rendered just before <code class="cs-code">&lt;/body&gt;</code> — modals must live outside any ancestor with <code class="cs-code">transform</code> or <code class="cs-code">filter</code> set, otherwise <code class="cs-code">position:fixed</code> is scoped to that ancestor (CSS containing-block rule).</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 11. BACKGROUND FLOURISHES                         -->
   <!-- ════════════════════════════════════════════════ -->
   <section class="cs-section reveal" id="backgrounds">
     <header class="cs-section-head">
-      <p class="cs-eyebrow">08 · Background flourishes</p>
+      <p class="cs-eyebrow">11 · Background flourishes</p>
       <h2 class="cs-h2">Decorative layers</h2>
     </header>
 
@@ -996,11 +1520,11 @@
   </section>
 
   <!-- ════════════════════════════════════════════════ -->
-  <!-- 9. MOTION PATTERNS                                -->
+  <!-- 12. MOTION PATTERNS                               -->
   <!-- ════════════════════════════════════════════════ -->
   <section class="cs-section reveal" id="motion">
     <header class="cs-section-head">
-      <p class="cs-eyebrow">09 · Motion patterns</p>
+      <p class="cs-eyebrow">12 · Motion patterns</p>
       <h2 class="cs-h2">Live demos</h2>
       <p class="cs-h2-sub">Each tile animates on its own — scroll, hover, or click to trigger.</p>
     </header>
@@ -1082,6 +1606,19 @@
 <div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
   <span class="bc-live" aria-hidden="true"></span>
   <span id="bc-toast-text">PATH COPIED</span>
+</div>
+
+<!-- Live modal target — lives at body level (outside any transformed ancestor)
+     so position:fixed resolves against the viewport. -->
+<div id="cs-modal-live" class="modal-scrim" data-modal>
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="cs-modal-live-title">
+    <h2 id="cs-modal-live-title" class="modal-title">Confirm payment</h2>
+    <p class="modal-body">₹50,000 will be marked as advance to <strong>Heritage Palace</strong>. The remaining balance will appear in your budget tracker.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>CANCEL</button>
+      <button type="button" class="btn-pill btn-pill-primary" data-modal-close>CONFIRM PAYMENT</button>
+    </div>
+  </div>
 </div>
 
 <script src="shared/shell.js"></script>

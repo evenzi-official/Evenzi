@@ -367,3 +367,272 @@
     }
   });
 })();
+
+/* ── Password show/hide toggle ─────────────────────
+   <div class="form-password">
+     <input type="password" class="form-input">
+     <button class="form-password-toggle" data-pw-toggle>
+       <span class="material-symbols-outlined">visibility</span>
+     </button>
+   </div>
+   data-pw-toggle="<input-id>" also supported. With no value the
+   button targets the previous-sibling .form-input within the
+   same .form-password wrapper.
+*/
+(function () {
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-pw-toggle]');
+    if (!btn) return;
+    var targetId = btn.getAttribute('data-pw-toggle');
+    var input = targetId
+      ? document.getElementById(targetId)
+      : btn.parentElement && btn.parentElement.querySelector('input.form-input');
+    if (!input) return;
+    var hidden = input.type === 'password';
+    input.type = hidden ? 'text' : 'password';
+    var icon = btn.querySelector('.material-symbols-outlined');
+    if (icon) icon.textContent = hidden ? 'visibility_off' : 'visibility';
+    btn.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+  });
+})();
+
+/* ── Radio pill group ──────────────────────────────
+   <div class="radio-pill-group" role="radiogroup">
+     <button role="radio" aria-checked="true" class="radio-pill is-checked"…>
+     <button role="radio" aria-checked="false" class="radio-pill"…>
+   </div>
+   Click toggles aria-checked + .is-checked across the group.
+*/
+(function () {
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.radio-pill[role="radio"]');
+    if (!btn) return;
+    var group = btn.closest('.radio-pill-group');
+    if (!group) return;
+    group.querySelectorAll('.radio-pill[role="radio"]').forEach(function (p) {
+      p.setAttribute('aria-checked', 'false');
+      p.classList.remove('is-checked');
+    });
+    btn.setAttribute('aria-checked', 'true');
+    btn.classList.add('is-checked');
+  });
+  document.addEventListener('keydown', function (e) {
+    var btn = e.target.closest && e.target.closest('.radio-pill[role="radio"]');
+    if (!btn) return;
+    var group = btn.closest('.radio-pill-group');
+    if (!group) return;
+    var pills = Array.prototype.slice.call(group.querySelectorAll('.radio-pill[role="radio"]'));
+    var idx = pills.indexOf(btn);
+    var next = null;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = pills[(idx + 1) % pills.length];
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = pills[(idx - 1 + pills.length) % pills.length];
+    if (!next) return;
+    e.preventDefault();
+    next.focus();
+    next.click();
+  });
+})();
+
+/* ── Date / time picker trigger ────────────────────
+   <button class="form-input form-input-trigger" data-date-trigger>
+     <span class="form-input-trigger-value">Sat · 22 Dec 2025</span>
+     <span class="material-symbols-outlined">calendar_month</span>
+   </button>
+   <input type="date" class="sr-only" tabindex="-1" aria-hidden="true">
+   The hidden native input must be the trigger's immediate next sibling.
+   data-time-trigger uses 12-hour AM/PM rendering.
+*/
+(function () {
+  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    var parts = iso.split('-');
+    if (parts.length !== 3) return iso;
+    var d = new Date(parts[0], parseInt(parts[1], 10) - 1, parts[2]);
+    if (isNaN(d.getTime())) return iso;
+    return DAYS[d.getDay()] + ' · ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+  }
+  function fmtTime(value) {
+    if (!value) return '';
+    var hm = value.split(':');
+    if (hm.length < 2) return value;
+    var h = parseInt(hm[0], 10);
+    var m = hm[1];
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    var h12 = h % 12;
+    if (h12 === 0) h12 = 12;
+    return h12 + ':' + m + ' ' + ampm;
+  }
+
+  function wire(triggerSel, fmt) {
+    var triggers = document.querySelectorAll(triggerSel);
+    triggers.forEach(function (btn) {
+      var input = btn.nextElementSibling;
+      if (!input || (input.type !== 'date' && input.type !== 'time')) return;
+      var label = btn.querySelector('.form-input-trigger-value');
+
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (typeof input.showPicker === 'function') {
+          try { input.showPicker(); return; } catch (_) {}
+        }
+        input.focus();
+        input.click();
+      });
+      input.addEventListener('change', function () {
+        if (label) label.textContent = fmt(input.value);
+      });
+      if (input.value && label && !label.textContent.trim()) {
+        label.textContent = fmt(input.value);
+      }
+    });
+  }
+
+  wire('[data-date-trigger]', fmtDate);
+  wire('[data-time-trigger]', fmtTime);
+})();
+
+/* ── PIN / OTP input ─────────────────────────────
+   <div class="pin-input" data-len="6" role="group" aria-label="6-digit code">
+     <input class="pin-input-cell" maxlength="1" inputmode="numeric"
+            autocomplete="one-time-code"> ×N
+   </div>
+   Auto-advance on input, backspace falls back to previous cell,
+   paste distributes across cells, ArrowLeft/Right navigate.
+*/
+(function () {
+  var groups = document.querySelectorAll('.pin-input');
+  if (!groups.length) return;
+
+  groups.forEach(function (group) {
+    var cells = Array.prototype.slice.call(group.querySelectorAll('.pin-input-cell'));
+    if (!cells.length) return;
+
+    cells.forEach(function (cell, idx) {
+      cell.addEventListener('input', function (e) {
+        var v = cell.value.replace(/\D/g, '').slice(-1);
+        cell.value = v;
+        if (v && idx < cells.length - 1) cells[idx + 1].focus();
+      });
+      cell.addEventListener('keydown', function (e) {
+        if (e.key === 'Backspace' && !cell.value && idx > 0) {
+          cells[idx - 1].focus();
+        } else if (e.key === 'ArrowLeft' && idx > 0) {
+          e.preventDefault(); cells[idx - 1].focus();
+        } else if (e.key === 'ArrowRight' && idx < cells.length - 1) {
+          e.preventDefault(); cells[idx + 1].focus();
+        }
+      });
+      cell.addEventListener('paste', function (e) {
+        var text = (e.clipboardData || window.clipboardData).getData('text');
+        if (!text) return;
+        e.preventDefault();
+        var digits = text.replace(/\D/g, '').split('');
+        for (var i = 0; i < cells.length - idx && i < digits.length; i++) {
+          cells[idx + i].value = digits[i];
+        }
+        var next = Math.min(idx + digits.length, cells.length - 1);
+        cells[next].focus();
+      });
+    });
+  });
+})();
+
+/* ── Modal / bottom-sheet ─────────────────────────
+   <button data-modal-target="#m1">Open</button>
+   <div id="m1" class="modal-scrim" data-modal>
+     <div class="modal-card lg-glass-card" role="dialog" aria-modal="true">…</div>
+   </div>
+   Open via .is-open class. Esc, scrim click, [data-modal-close] all close.
+   Body scroll locked while any modal is open. Focus is trapped inside the
+   card while open and restored to the trigger on close.
+   Static showcase modals (.modal-static) are excluded — they're inline demos.
+*/
+(function () {
+  var FOCUSABLE = 'button, a[href], [tabindex]:not([tabindex="-1"]), input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])';
+  var lastFocused = null;
+
+  function getFocusable(card) {
+    return Array.prototype.slice.call(card.querySelectorAll(FOCUSABLE))
+      .filter(function (el) { return !el.hasAttribute('disabled') && el.offsetParent !== null; });
+  }
+
+  function trapTab(e, modal) {
+    if (e.key !== 'Tab') return;
+    var card = modal.querySelector('.modal-card');
+    if (!card) return;
+    var focusables = getFocusable(card);
+    if (!focusables.length) {
+      e.preventDefault();
+      card.focus();
+      return;
+    }
+    var first = focusables[0];
+    var last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  function openModal(modal) {
+    if (!modal || modal.classList.contains('modal-static')) return;
+    lastFocused = document.activeElement;
+    modal.classList.add('is-open');
+    document.body.classList.add('no-scroll');
+    var card = modal.querySelector('.modal-card');
+    if (card) {
+      if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '-1');
+      var focusables = getFocusable(card);
+      (focusables[0] || card).focus();
+    }
+  }
+
+  function closeModal(modal) {
+    if (!modal || modal.classList.contains('modal-static')) return;
+    modal.classList.remove('is-open');
+    if (!document.querySelector('.modal-scrim.is-open')) {
+      document.body.classList.remove('no-scroll');
+    }
+    if (lastFocused && typeof lastFocused.focus === 'function') {
+      try { lastFocused.focus(); } catch (_) {}
+      lastFocused = null;
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    var trigger = e.target.closest('[data-modal-target]');
+    if (trigger) {
+      e.preventDefault();
+      var sel = trigger.getAttribute('data-modal-target');
+      var modal = sel && document.querySelector(sel);
+      openModal(modal);
+      return;
+    }
+    var closer = e.target.closest('[data-modal-close]');
+    if (closer) {
+      var m = closer.closest('.modal-scrim');
+      closeModal(m);
+      return;
+    }
+    /* scrim click (only on the scrim itself, not its children) */
+    if (e.target.classList && e.target.classList.contains('modal-scrim') && !e.target.classList.contains('modal-static')) {
+      closeModal(e.target);
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    var open = document.querySelector('.modal-scrim.is-open:not(.modal-static)');
+    if (!open) return;
+    if (e.key === 'Escape') {
+      closeModal(open);
+    } else if (e.key === 'Tab') {
+      trapTab(e, open);
+    }
+  });
+})();

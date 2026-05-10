@@ -793,6 +793,16 @@ html{scroll-behavior:smooth}
   border:1px solid var(--line);
 }
 @media (hover:hover) and (pointer:fine){.btn-pill-secondary:hover{background:var(--brand-tint);color:var(--brand);border-color:var(--brand-tint-2)}}
+.btn-pill:disabled,
+.btn-pill[aria-disabled="true"]{
+  opacity:.5;cursor:not-allowed;
+  transform:none;
+}
+@media (hover:hover) and (pointer:fine){
+  .btn-pill:disabled:hover,
+  .btn-pill[aria-disabled="true"]:hover{transform:none;background:var(--brand)}
+  .btn-pill-secondary:disabled:hover{background:var(--cream-soft);color:var(--ink);border-color:var(--line)}
+}
 /* Larger size used for full-page action footer */
 .btn-pill-lg{
   padding:0 1.5rem;height:46px;font-size:12px;
@@ -1038,6 +1048,402 @@ html{scroll-behavior:smooth}
 .empty-cta-sub{font-size:12px;color:var(--muted);max-width:18rem;line-height:1.4}
 
 /* ════════════════════════════════════════════════════════════════════
+   FORM TEXTAREA — multi-line input, clay-sm radius (16px)
+   form-input is fully-pill (9999px) and can't host multi-line content.
+   ════════════════════════════════════════════════════════════════════ */
+.form-textarea{
+  width:100%;min-height:96px;max-height:240px;
+  padding:.85rem 1.1rem;
+  border-radius:16px;
+  border:1px solid var(--brand-tint-2);
+  background:var(--card);color:var(--ink);
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
+  line-height:1.5;letter-spacing:-.005em;
+  resize:vertical;outline:none;
+  transition:border-color .2s,box-shadow .2s,background-color .2s;
+}
+.form-textarea::placeholder{color:var(--muted-soft);font-weight:500}
+@media (hover:hover) and (pointer:fine){
+  .form-textarea:hover{border-color:color-mix(in oklab,var(--brand) 35%,var(--brand-tint-2))}
+}
+.form-textarea:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px var(--brand-tint);
+}
+.form-textarea:disabled{opacity:.55;cursor:not-allowed}
+.form-textarea[aria-invalid="true"]{
+  border-color:#ef4444;
+  box-shadow:0 0 0 4px rgba(239,68,68,.12);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FORM SELECT — native <select> wrapped in form-pill style
+   Pairs with .form-group/.form-label/.form-helper. Native picker on
+   mobile (better UX on Indian Android than custom popovers).
+   ════════════════════════════════════════════════════════════════════ */
+.form-select{position:relative;display:block;width:100%}
+.form-select select{
+  width:100%;height:44px;
+  padding:0 2.75rem 0 1.1rem;
+  border-radius:9999px;
+  border:1px solid var(--brand-tint-2);
+  background:var(--card);color:var(--ink);
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
+  letter-spacing:-.005em;
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  cursor:pointer;outline:none;
+  transition:border-color .2s,box-shadow .2s,background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .form-select select:hover{border-color:color-mix(in oklab,var(--brand) 35%,var(--brand-tint-2))}
+}
+.form-select select:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px var(--brand-tint);
+}
+.form-select select:disabled{opacity:.55;cursor:not-allowed}
+.form-select select[aria-invalid="true"]{
+  border-color:#ef4444;
+  box-shadow:0 0 0 4px rgba(239,68,68,.12);
+}
+.form-select-chevron{
+  position:absolute;top:50%;right:1rem;
+  transform:translateY(-50%);
+  color:var(--muted);pointer-events:none;
+  transition:color .2s,transform .2s;
+  font-size:20px;
+}
+.form-select select:focus + .form-select-chevron{color:var(--brand)}
+
+/* ════════════════════════════════════════════════════════════════════
+   FORM INPUT GROUP — phone (+91 prefix), currency (₹), units, etc.
+   Composition: <div class="form-input form-input-group">
+                  <span class="form-input-prefix">+91</span>
+                  <input class="form-input-field" type="tel" inputmode="numeric">
+                </div>
+   The outer .form-input-group inherits border/radius/focus from form-input
+   via :focus-within. Inner field has no border, transparent background.
+   ════════════════════════════════════════════════════════════════════ */
+.form-input-group{
+  display:flex;align-items:stretch;
+  padding:0;overflow:hidden;
+}
+.form-input-group:focus-within{
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px var(--brand-tint);
+}
+.form-input-group[aria-invalid="true"]{
+  border-color:#ef4444;
+  box-shadow:0 0 0 4px rgba(239,68,68,.12);
+}
+.form-input-prefix,
+.form-input-suffix{
+  display:inline-flex;align-items:center;
+  padding:0 .85rem;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;
+  color:var(--muted);
+  background:transparent;flex-shrink:0;
+}
+.form-input-prefix{
+  border-right:1px solid var(--brand-tint-2);
+  padding-right:.7rem;padding-left:1.1rem;
+}
+.form-input-suffix{
+  border-left:1px solid var(--brand-tint-2);
+  padding-left:.7rem;padding-right:1.1rem;
+}
+.form-input-field{
+  flex:1;min-width:0;height:100%;
+  padding:0 1.1rem;
+  border:0;background:transparent;color:var(--ink);
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
+  letter-spacing:-.005em;outline:none;
+}
+.form-input-field::placeholder{color:var(--muted-soft);font-weight:500}
+.form-input-field:disabled{cursor:not-allowed}
+.form-input-group:has(.form-input-field:disabled){opacity:.55}
+
+/* ════════════════════════════════════════════════════════════════════
+   FORM INPUT TRIGGER — pill button that opens the native date/time picker
+   Composition:
+     <button class="form-input form-input-trigger" data-date-trigger>
+       <span class="form-input-trigger-value">Sat · 22 Dec 2025</span>
+       <span class="material-symbols-outlined">calendar_month</span>
+     </button>
+     <input type="date" class="sr-only" tabindex="-1" aria-hidden="true">
+   shell.js wires the click → focus the hidden native input → format the
+   change event back to DD/MM/YYYY (or 12-hour AM/PM for time).
+   ════════════════════════════════════════════════════════════════════ */
+.form-input-trigger{
+  display:inline-flex;align-items:center;justify-content:space-between;
+  gap:.75rem;
+  text-align:left;cursor:pointer;
+}
+.form-input-trigger .material-symbols-outlined{
+  color:var(--brand);font-size:20px;flex-shrink:0;
+}
+.form-input-trigger-value{
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.form-input-trigger-value:empty::before{
+  content:attr(data-placeholder);
+  color:var(--muted-soft);font-weight:500;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   PIN INPUT — 6-cell OTP code field with auto-advance
+   Composition: <div class="pin-input" data-len="6" role="group"
+                  aria-label="6-digit code">
+                  <input class="pin-input-cell" maxlength="1"
+                         inputmode="numeric" autocomplete="one-time-code"> ×6
+                </div>
+   shell.js handles auto-advance, backspace fallback, paste distribution.
+   ════════════════════════════════════════════════════════════════════ */
+.pin-input{
+  display:inline-flex;gap:.5rem;
+  flex-wrap:wrap;
+}
+.pin-input-cell{
+  width:44px;height:52px;
+  padding:0;text-align:center;
+  border-radius:12px;
+  border:1px solid var(--brand-tint-2);
+  background:var(--card);color:var(--ink);
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:22px;
+  letter-spacing:-.01em;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s,background-color .2s,transform .15s;
+  -moz-appearance:textfield;appearance:textfield;
+}
+.pin-input-cell::-webkit-outer-spin-button,
+.pin-input-cell::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+@media (hover:hover) and (pointer:fine){
+  .pin-input-cell:hover{border-color:color-mix(in oklab,var(--brand) 35%,var(--brand-tint-2))}
+}
+.pin-input-cell:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px var(--brand-tint);
+  transform:translateY(-1px);
+}
+.pin-input-cell:not(:placeholder-shown){
+  background:var(--brand-tint);border-color:var(--brand);
+  color:var(--brand);
+}
+.pin-input[aria-invalid="true"] .pin-input-cell{
+  border-color:#ef4444;
+  box-shadow:0 0 0 3px rgba(239,68,68,.12);
+}
+@media (max-width:380px){
+  .pin-input-cell{width:38px;height:46px;font-size:20px}
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   RADIO PILL GROUP — RSVP Yes/No/Maybe, settings toggles
+   Composition:
+     <div class="radio-pill-group" role="radiogroup" aria-labelledby="…">
+       <button type="button" role="radio" aria-checked="true"
+               class="radio-pill is-checked">
+         <span class="material-symbols-outlined icon-fill">check_circle</span>
+         Yes, I'll be there
+       </button>
+       …
+     </div>
+   Stacked column on mobile, horizontal row ≥480px.
+   ════════════════════════════════════════════════════════════════════ */
+.radio-pill-group{
+  display:flex;flex-direction:column;gap:.6rem;
+  width:100%;
+}
+@media (min-width:480px){
+  .radio-pill-group{flex-direction:row;flex-wrap:wrap}
+  .radio-pill-group .radio-pill{flex:1;min-width:0}
+}
+.radio-pill{
+  position:relative;display:inline-flex;align-items:center;gap:.6rem;
+  padding:.85rem 1.25rem;
+  min-height:48px;
+  border-radius:9999px;
+  border:1px solid var(--brand-tint-2);
+  background:var(--card);color:var(--ink);
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;
+  letter-spacing:-.005em;
+  cursor:pointer;text-align:left;
+  transition:border-color .2s,background-color .2s,color .2s,transform .15s,box-shadow .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .radio-pill:hover{
+    border-color:var(--brand);
+    background:color-mix(in oklab,var(--brand-tint) 40%,transparent);
+  }
+}
+.radio-pill:focus-visible{
+  outline:2px solid var(--brand);outline-offset:3px;
+}
+.radio-pill .material-symbols-outlined{
+  font-size:20px;color:var(--muted-soft);
+  transition:color .2s;
+  flex-shrink:0;
+}
+.radio-pill[aria-checked="true"],
+.radio-pill.is-checked{
+  background:var(--brand-tint);
+  border-color:var(--brand);
+  color:var(--brand);
+  box-shadow:0 0 0 1px var(--brand);
+}
+.radio-pill[aria-checked="true"] .material-symbols-outlined,
+.radio-pill.is-checked .material-symbols-outlined{
+  color:var(--brand);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FORM ERROR / SUCCESS MESSAGE — inline below a field
+   Composition:
+     <p class="form-error" role="alert">
+       <span class="material-symbols-outlined">error</span>
+       Mobile number must be 10 digits
+     </p>
+     <p class="form-helper form-helper-success">
+       <span class="material-symbols-outlined">check_circle</span>
+       OTP verified
+     </p>
+   Color is never the only signal — every state pairs with an icon.
+   ════════════════════════════════════════════════════════════════════ */
+.form-error{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;
+  color:#ef4444;
+  margin:0;
+}
+.form-error .material-symbols-outlined{
+  font-size:14px;
+  font-variation-settings:'FILL' 1;
+}
+.form-helper-success{
+  display:inline-flex;align-items:center;gap:.4rem;
+  color:#22c55e;
+}
+.form-helper-success .material-symbols-outlined{
+  font-size:14px;
+  font-variation-settings:'FILL' 1;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   MODAL + BOTTOM SHEET — single component, two presentations
+   Composition:
+     <div class="modal-scrim is-open" data-modal>
+       <div class="modal-card lg-glass-card">
+         <h2 class="modal-title">Send WhatsApp invitation?</h2>
+         <p class="modal-body">142 guests will receive a message…</p>
+         <div class="modal-actions">
+           <button class="btn-pill btn-pill-secondary">CANCEL</button>
+           <button class="btn-pill btn-pill-primary">SEND</button>
+         </div>
+       </div>
+     </div>
+   ≥768px → centered modal. <768px → bottom sheet with drag handle bar.
+   .modal-static disables fixed positioning for inline showcase tiles.
+   ════════════════════════════════════════════════════════════════════ */
+.modal-scrim{
+  position:fixed;inset:0;z-index:80;
+  background:rgba(17,24,39,.5);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  padding:1rem;
+  opacity:0;pointer-events:none;
+  transition:opacity .22s cubic-bezier(.2,.7,.2,1);
+}
+.dark .modal-scrim{background:rgba(0,0,0,.65)}
+.modal-scrim.is-open{opacity:1;pointer-events:auto}
+.modal-card{
+  position:relative;
+  width:100%;max-width:520px;
+  padding:1.5rem 1.5rem 1.25rem;
+  transform:translateY(12px) scale(.98);
+  transition:transform .22s cubic-bezier(.2,.7,.2,1);
+}
+.modal-scrim.is-open .modal-card{transform:translateY(0) scale(1)}
+.modal-card .modal-title{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:20px;
+  color:var(--ink);letter-spacing:-.01em;line-height:1.25;
+  margin:0;
+}
+.modal-card .modal-body{
+  font-family:'Poppins',sans-serif;font-size:14px;
+  color:var(--muted);line-height:1.5;
+  margin:.5rem 0 0;
+}
+.modal-actions{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;
+  gap:.6rem;
+  margin-top:1.25rem;
+}
+/* Bottom-sheet variant: <768px (excludes .modal-static showcase tiles
+   so the desktop-modal demo can render its forced variant on mobile too) */
+@media (max-width:767px){
+  .modal-scrim:not(.modal-static){align-items:flex-end;padding:0}
+  .modal-scrim:not(.modal-static) .modal-card{
+    max-width:100%;
+    border-radius:24px 24px 0 0;
+    padding-bottom:calc(1.25rem + env(safe-area-inset-bottom,0px));
+    transform:translateY(100%);
+  }
+  .modal-scrim:not(.modal-static).is-open .modal-card{transform:translateY(0)}
+  .modal-scrim:not(.modal-static) .modal-card::before{
+    content:'';position:absolute;top:10px;left:50%;
+    transform:translateX(-50%);
+    width:40px;height:4px;border-radius:9999px;
+    background:var(--muted-soft);opacity:.5;
+  }
+  .modal-scrim:not(.modal-static) .modal-card .modal-title{margin-top:.85rem}
+  .modal-scrim:not(.modal-static) .modal-actions{flex-direction:column-reverse;align-items:stretch}
+  .modal-scrim:not(.modal-static) .modal-actions .btn-pill{justify-content:center;width:100%;height:44px;padding:0 1rem}
+}
+/* Static showcase variant — disable fixed positioning so it can sit inline */
+.modal-static{
+  position:relative;inset:auto;width:100%;
+  opacity:1;pointer-events:auto;
+  background:transparent;
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+  padding:1.25rem;
+  border-radius:18px;
+  border:1px dashed var(--line);
+}
+.modal-static .modal-card{transform:none}
+.modal-static.modal-static-sheet{
+  align-items:flex-end;padding:0;
+  background:rgba(17,24,39,.18);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.dark .modal-static.modal-static-sheet{background:rgba(0,0,0,.4)}
+.modal-static.modal-static-sheet .modal-card{
+  border-radius:24px 24px 0 0;
+  padding-bottom:1.5rem;
+}
+.modal-static.modal-static-sheet .modal-card::before{
+  content:'';position:absolute;top:10px;left:50%;
+  transform:translateX(-50%);
+  width:40px;height:4px;border-radius:9999px;
+  background:var(--muted-soft);opacity:.5;
+}
+.modal-static.modal-static-sheet .modal-card .modal-title{margin-top:.85rem}
+.modal-static.modal-static-sheet .modal-actions{
+  flex-direction:column-reverse;align-items:stretch;
+}
+.modal-static.modal-static-sheet .modal-actions .btn-pill{
+  justify-content:center;width:100%;height:44px;padding:0 1rem;
+}
+/* prevent body scroll when modal open (set by shell.js) */
+body.no-scroll{overflow:hidden}
+
+/* Reduce-motion respect */
+@media (prefers-reduced-motion: reduce){
+  .modal-scrim,.modal-card{transition:none}
+  .modal-card{transform:none}
+}
+
+/* ════════════════════════════════════════════════════════════════════
    Backdrop-filter fallback
    On older WebView (Android 8 stock browser, some Samsung Internet
    versions, WhatsApp's in-app browser on aging devices) backdrop-filter
@@ -1054,8 +1460,11 @@ html{scroll-behavior:smooth}
   .qa-tile,
   .stats-strip-card,
   .hero-pill,
-  .hero-meta-chip{
+  .hero-meta-chip,
+  .modal-scrim{
     background:var(--card);
     border-color:var(--line);
   }
+  .modal-scrim{background:rgba(17,24,39,.65)}
+  .dark .modal-scrim{background:rgba(0,0,0,.8)}
 }

@@ -65,7 +65,25 @@
 
 **Event CRUD is functionally complete.** Full 4-step wizard (Type → Details → Sub-Events → Review), success screen, dashboard with real event cards, all working end-to-end. Vercel deployment is live at evenzi.vercel.app.
 
-**What was done this session (2026-05-10 — design path skill + UI/UX agent + design folder fixes, no ClickUp tasks):**
+**What was done this session (2026-05-11 — components.html form fields + 10 new shell primitives, no ClickUp tasks):**
+- Extended `designs/components.html` from 9 to 12 sections. New: **06 Form fields** (FF1–FF9), **07 Avatars & people** (AV1–AV2), **10 Dialogs** (DLG1–DLG2 + live demo). Added tiles in existing sections: S8 fn-notif-panel, B8 toggle-switch, B9 segmented-radiogroup, D8 scrollable-list, L4 section-rule. Replaced legacy `clay-pill` "VIEW DETAILS" CTA with canonical `btn-pill` set (B2). Replaced placeholder L3 with `empty-cta-card`.
+- Added **10 new primitives** to `shell.css` (~411 lines): `form-textarea` (clay-sm radius), `form-select` + chevron (native picker, pill-styled), `form-input-group` + prefix/suffix/field (phone +91, currency ₹), `form-input-trigger` (date/time native picker bridge), `pin-input` 6-cell OTP, `radio-pill-group` (RSVP Yes/No/Maybe — `role="radiogroup"`), `form-error` + `form-helper-success` (semantic colors with icon — never color-only), `modal-scrim` + `modal-card` (single component, two presentations: centered ≥768px, bottom-sheet <768px with drag handle), `btn-pill:disabled` rule, `cs-code` + `cs-note` showcase utilities. `@supports not` fallback updated to include `.modal-scrim`.
+- Added **4 new IIFEs** to `shell.js` (~269 lines): password show/hide toggle (delegated, supports both `data-pw-toggle="<id>"` and bare attr), radio-pill click + arrow-key navigation, date/time trigger that opens hidden native `<input>` sibling and formats DD MMM YYYY / 12-hour AM/PM back to label, modal/sheet open-close with **focus-trap (Tab/Shift+Tab cycle within `.modal-card`) + lastFocused restore on close + body.no-scroll lock**.
+- **UI/UX agent ran two passes** — pre-build gap audit (24 components recommended; selected 10 P0 + 12 showcase tiles for already-existing primitives) and post-build review (4 P1s caught: B9 self-contradicting role-tablist demo, 80+ inline `style="..."` hits including 15+ verbatim `<code style>` blocks, FF1 autofocus stealing caret on page load, modal missing focus-trap/restore — a11y blocker). All 4 P1s fixed in-session.
+- **Two build bugs caught and fixed**: (1) `<768px` media query was styling `.modal-static` showcase tiles, making DLG1 "centered modal" demo render with drag handle on mobile — fixed by scoping to `.modal-scrim:not(.modal-static)`; (2) live modal trapped inside `.reveal` containing block (CSS rule: `transform` on ancestor scopes `position:fixed`) — fixed by moving live modal target to body level just before `</body>`. Both fixes documented inline in markup.
+- **Founder decisions locked in**: bottom-sheet `<768px` + centered modal `≥768px`; `form-textarea` uses `clay-sm` radius (16px); native `<input type="date|time">` with styled trigger (Android Webview reliability + WhatsApp in-app browser); legacy `clay-pill` "VIEW DETAILS" deleted.
+- Plan doc + ## Built section: `designs/_plans/components-additions-plan.md`.
+- Session report: `docs/session-reports/2026-05-11-session-report.md`.
+- **Open follow-ups for next session:**
+  - **Settings page form-input borders** — Abhijith flagged in screenshot: 3 fields rendering with overly saturated red borders against dark background. Likely a `var(--brand-tint-2)` saturation issue at 18% opacity in dark mode, OR `settings.css` has overrides. Investigate before tweaking shell.css. **This was Abhijith's stated next-session intent.**
+  - **Form-validation JS helper (`data-validate` hook)** — agent's highest-value follow-up. Without it, Auth/Wizard/Guest invite/RSVP will each fork their own `form-error` wiring against the brand-new primitive within two pages.
+  - WhatsApp Android Webview test of every new primitive (modal/sheet, OTP, radio-pill, form-input) — needs real device session.
+  - `status-badge` primitive (canonical color-coded set: success / warning / danger / info) — most-requested deferred P1 from the gap audit.
+  - Existing `.nav-tabs` usage in `floating-nav` and other pages still uses `role="tablist"` for buttons with no panels — match B9's reframing to `role="radiogroup"` where it's a filter, not page-content tabs.
+  - Remove inline IIFE password toggle from `settings.html` (handler now lives in `shell.js`).
+  - FF7 OTP showcase tile doesn't yet expose `aria-invalid="true"` error state — add when expanding form-field tiles.
+
+**What was done previous session (2026-05-10 — design path skill + UI/UX agent + design folder fixes, no ClickUp tasks):**
 - Added **"Design next page" path** to `/start-evenzi-session` (5a.7) under Abhijith. Five sub-sections: init (`ui-ux-pro-max` + UI/UX agent + `npm run design`), plan (component reuse audit + agent review + sign-off), build (no inline CSS/JS, mobile-first, agent passes per increment), test (component states + interaction + 6-width responsiveness + cross-page + mobile device + agent review), close. Eight path-specific rules. New table row in 5a.6 surface menu.
 - Added **`npm run design`** script using `live-server` on :4000 / host 0.0.0.0 (LAN-reachable from phone). Added `live-server` devDep + `.claude/launch.json` `design` config.
 - **Reorganized `designs/`** flat → structured: `designs/{shared/, pages/<page>/, assets/}`. Dashboard renamed to root `index.html`. All 9 HTMLs and `index.css` path-rewritten. Smoke test: every internal href returns 200.
@@ -218,7 +236,9 @@
 
 ### Immediate Next Steps
 
-1. **Team discussion on 5 open decisions** (`docs/foundation/open-decisions.md`) — pricing, free tier limits, magazine name, WhatsApp approach, vendor plan name
+1. **Settings page polish** — Abhijith flagged form-input borders rendering overly saturated red against dark background (3 fields all look semi-focused at rest). Investigate `settings.css` overrides vs shell.css default border (`var(--brand-tint-2)` at 18% opacity may be reading too red in dark). His stated next-session intent.
+2. **Form-validation JS helper** — `data-validate` hook + `data-error-required`/`data-error-pattern` attributes that flip `aria-invalid` and toggle `form-error` messages. UI/UX agent's #1 follow-up — without it every consumer page (Auth, Wizard, Guest invite, RSVP) will fork its own wiring against the brand-new primitives shipped this session.
+3. **Team discussion on 5 open decisions** (`docs/foundation/open-decisions.md`) — pricing, free tier limits, magazine name, WhatsApp approach, vendor plan name
 2. **Share document suite via Google Drive** — Admin & Ops and Marketing & Branding teams
 3. **Abhijith fills PPT placeholders** — fund ask, bios, pricing limits, timeline, contact
 4. **Review Event CRUD wizard + Host Dashboard** (`86d2jwz3x`, `86d2jwz6v` — both `review`) — sign off or send back with feedback. Approving unblocks Component QA / Integration Testing.
