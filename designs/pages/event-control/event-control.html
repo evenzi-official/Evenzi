@@ -545,7 +545,7 @@
   .hero-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
   .hero-bg-img{
     position:absolute;inset:-8%;width:116%;height:116%;
-    background-image:url("./hero-image.jpg");
+    background-image:url("../../assets/hero-image.jpg");
     background-size:cover;background-position:center;
     transition:transform .9s cubic-bezier(.2,.7,.2,1),filter .4s;
     will-change:transform;
@@ -747,7 +747,7 @@
     *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;transform:none !important}
   }
 </style>
-<link rel="stylesheet" href="shell.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
 </head>
 <body class="min-h-dvh">
 
@@ -759,7 +759,7 @@
   <div class="floating-nav-inner">
 
     <!-- LEFT: logo -->
-    <a href="dashboard.html" class="fn-logo-link" aria-label="Evenzi home">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
       <span class="fn-logo">EVENZI</span>
       <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
         <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
@@ -773,7 +773,7 @@
         <span aria-hidden="true" class="material-symbols-outlined icon-fill">dashboard</span>
         <span class="nav-tab-label">Dashboard</span>
       </a>
-      <a href="website.html" role="tab" aria-selected="false" class="nav-tab" aria-label="Website">
+      <a href="../website/website.html" role="tab" aria-selected="false" class="nav-tab" aria-label="Website">
         <span aria-hidden="true" class="material-symbols-outlined">language</span>
         <span class="nav-tab-label">Website</span>
       </a>
@@ -801,16 +801,16 @@
 
 <!-- ────────────────────── FLOATING TOOL RAIL ────────────────────── -->
 <aside class="tool-rail" aria-label="Event tools">
-  <a href="guests.html" class="tr-btn" data-label="Guest management" data-page="guests">
+  <a href="../guests/guests.html" class="tr-btn" data-label="Guest management" data-page="guests">
     <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
   </a>
-  <a href="invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations">
+  <a href="../invitations/invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations">
     <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
   </a>
-  <a href="planning.html" class="tr-btn" data-label="Planning" data-page="planning">
+  <a href="../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning">
     <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
   </a>
-  <a href="media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media">
+  <a href="../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media">
     <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
   </a>
   <span class="tr-divider" aria-hidden="true"></span>
@@ -863,12 +863,12 @@
     <!-- BREADCRUMB on the hero (sticky below nav) -->
     <div class="mb-7 md:mb-9 sticky z-20" style="top:5.5rem">
       <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
-        <a href="dashboard.html" class="bc-back" aria-label="Back to dashboard" data-bc-back>
+        <a href="../../index.html" class="bc-back" aria-label="Back to dashboard" data-bc-back>
           <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
         </a>
 
         <ol class="bc-path">
-          <li><a href="dashboard.html" data-bc-link>DASHBOARD</a></li>
+          <li><a href="../../index.html" data-bc-link>DASHBOARD</a></li>
           <li class="bc-sep" aria-hidden="true">
             <svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg>
           </li>
@@ -1192,7 +1192,7 @@
   <div class="grid grid-cols-12 gap-5 lg:gap-6">
 
     <!-- 1. Guest management — RECOMMENDED, active -->
-    <a href="guests.html" id="guests" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-5 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="../guests/guests.html" id="guests" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-5 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">01</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">groups</span>
@@ -1206,7 +1206,7 @@
     </a>
 
     <!-- 2. Digital invitations -->
-    <a href="invitations.html" id="invitations" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-4 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="../invitations/invitations.html" id="invitations" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-4 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">02</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">forward_to_inbox</span>
@@ -1220,7 +1220,7 @@
     </a>
 
     <!-- 3. Planning tools — small -->
-    <a href="planning.html" id="planning" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-3 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="../planning/planning.html" id="planning" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-3 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">03</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">checklist_rtl</span>
@@ -1233,7 +1233,7 @@
     </a>
 
     <!-- 4. Media & memories -->
-    <a href="media.html" id="media" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-7 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="../media/media.html" id="media" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-7 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">04</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">photo_library</span>
@@ -1247,7 +1247,7 @@
     </a>
 
     <!-- 5. Event website -->
-    <a href="website.html" id="website" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-5 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="../website/website.html" id="website" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-5 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">05</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">language</span>
@@ -1477,7 +1477,7 @@
   <span id="bc-toast-text">PATH COPIED</span>
 </div>
 
-<script src="shell.js"></script>
+<script src="../../shared/shell.js"></script>
 <script>
 
   /* ── Hero parallax: bg follows mouse, mandala counter-parallaxes ── */

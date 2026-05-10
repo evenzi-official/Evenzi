@@ -98,8 +98,96 @@ Then `AskUserQuestion` with paths:
 | **Fix a bug** | Describe → file in QA & Bugs via `/clickup-pm` → debug → fix → verify |
 | **ClickUp task management** | Sprint planning, task CRUD, dependencies — handled by `/clickup-pm` |
 | **Design / brainstorm** | `superpowers:brainstorming` → spec doc, no implementation |
+| **Design next page** | Pure HTML/CSS/JS design work in `designs/`. No superpowers. Plan → build → test, reuses `shell.css`/`shell.js`, mobile-first, UI/UX agent throughout |
 | **Codebase maintenance** | Refactor, cleanup, dependency updates |
 | **Review / explore** | Read code, understand a system |
+
+#### 5a.7 Path: Design next page
+
+**No superpowers.** Pure design work — HTML/CSS/JS in `designs/`, mobile-web target. Pages are built as static prototypes that get converted to React later.
+
+##### 5a.7.1 Initialize
+
+1. Invoke the `ui-ux-pro-max` skill.
+2. Read in parallel: `designs/shell.css`, `designs/shell.js`, `designs/components.html`, `docs/BRAND-GUIDELINES.md`, and the file listing of `designs/` (titles of every existing `*.html`).
+3. Start the design server in background: `npm run design` (live-server on :4000, host `0.0.0.0` so the LAN URL is reachable from Abhijith's phone).
+4. Invoke the UI/UX agent (`ai/agents/ui_ux_designer.md`) as the design partner for this session — it participates in plan review, build review, and test review. If the agent file doesn't exist yet, surface that to Abhijith and proceed without it (agent creation is a separate task).
+
+`docs/BRAND-GUIDELINES.md` is the source of truth for brand decisions.
+
+##### 5a.7.2 Plan phase (required, before any markup)
+
+For the page Abhijith wants to design:
+
+1. Ask which page/screen and the user goal of that screen.
+2. Ask if there's a Figma/Stitch reference. If yes, read it as a **wireframe-level reference only** — colors, spacing, exact layout are NOT binding. Free to design beyond it.
+3. List every UI element the page needs.
+4. For each element, check `designs/components.html` + `shell.css` for an existing component. Categorize:
+   - **Reuse as-is** → cite component name from shell
+   - **Reuse with variation** → extend via modifier class in `shell.css`, no fork
+   - **New, generic** → add to `shell.css` / `shell.js`
+   - **New, page-specific** → add to `<page>.css` / `<page>.js`
+5. Write the plan to `designs/_plans/<page>-plan.md` (create folder if missing).
+6. Have the UI/UX agent review the plan — it flags missing states, accessibility concerns, mobile ergonomics, hierarchy issues. Address or document deferrals before plan sign-off.
+7. Get Abhijith's sign-off on the plan before writing any markup.
+
+##### 5a.7.3 Build phase
+
+- Create `designs/<page>.html`, `designs/<page>.css` (if any page-specific styles), `designs/<page>.js` (if any page-specific behavior).
+- **No inline CSS or JS. Ever.** Everything in its own file: generic → `shell.*`, page-specific → `<page>.*`.
+- Mobile-first: viewport meta, touch targets ≥44px, no hover-only interactions, `env(safe-area-inset-*)` on fixed chrome, design at 360px first then scale up.
+- After each major component or section is built, run a quick UI/UX agent pass on that increment. Don't wait for the full page to be done — catch issues early.
+
+##### 5a.7.4 Test phase (required, before closing)
+
+Every page goes through testing before it's considered done. The UI/UX agent leads this phase as a parallel reviewer. If the agent doesn't exist yet, run the checks manually but call it out.
+
+Test matrix — go through ALL of these:
+
+1. **Component-level**
+   - Every interactive element renders in all visual states (default / hover / active / focus / disabled / loading / error / empty).
+   - Reused shell components inherit shell tokens correctly (no overrides unless intentional via modifier class).
+
+2. **Interaction**
+   - Every button, link, toggle, tab, dropdown, modal trigger fires.
+   - Keyboard: Tab order is logical; Enter/Space activate focused controls; Esc closes overlays.
+   - No dead links — every `<a href>` either navigates to an existing `designs/*.html` page or is explicitly marked `href="#"` with a comment.
+
+3. **Responsiveness** — test at:
+   - 360px (small phone), 390px (iPhone), 414px (large phone)
+   - 768px (tablet), 1024px (small laptop), 1440px (desktop)
+   - No horizontal scroll on any width. No clipped content. Touch targets ≥44px on mobile widths.
+
+4. **Cross-page**
+   - Navigation links from this page lead where they should.
+   - Back-chip / breadcrumb behaves consistently with sibling pages.
+   - Light/dark toggle works on this page (if the shell exposes it).
+
+5. **Mobile device test (manual)**
+   - Abhijith opens the page on his phone via the LAN URL printed by live-server. Walks through the full flow.
+   - Report findings; iterate.
+
+6. **UI/UX agent review**
+   - Invoke the UI/UX agent with the page URL + plan doc. Agent returns a critique covering visual consistency with shell, hierarchy, motion, accessibility, mobile ergonomics. Address findings or document deferrals in the plan doc.
+
+Do NOT mark a page done until every row above is checked.
+
+##### 5a.7.5 Closing
+
+- Update `designs/components.html` if any new shared components landed.
+- Append the page summary + decisions to `designs/_plans/<page>-plan.md` under `## Built` heading (what shipped, what was deferred).
+- No ClickUp updates from this path — design is pre-task; ticket-tracking happens when handed off to frontend dev.
+
+##### Rules for the design path
+
+1. **Reuse before create.** Always read `shell.css` + `components.html` first. Existing component matches the need? Use it.
+2. **Generic → shell. Page-specific → `<page>.*`.** No exceptions.
+3. **No inline CSS/JS.** Separate files only.
+4. **`docs/BRAND-GUIDELINES.md` is the brand source of truth.**
+5. **Plan, then build, then test.** No markup before plan sign-off. No "done" without test phase passing.
+6. **Figma is wireframe-level.** Liberty to design beyond it.
+7. **Mobile is the primary target.** Test on phone after each meaningful change.
+8. **UI/UX agent participates in plan, build, and test phases.** Not optional once the agent exists.
 
 ### 5b. Path: Dheeraj
 

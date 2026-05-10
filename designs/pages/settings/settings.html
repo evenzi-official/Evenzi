@@ -38,7 +38,7 @@
     }
   }
 </script>
-<link rel="stylesheet" href="shell.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
 <link rel="stylesheet" href="settings.css" />
 </head>
 <body data-page="settings" data-section="dashboard">
@@ -48,7 +48,7 @@
 <!-- ────────────────────── SETTINGS NAV (no segmented tabs, no Create Event) ────────────────────── -->
 <nav class="floating-nav" aria-label="Main">
   <div class="floating-nav-inner settings-nav-inner">
-    <a href="dashboard.html" class="fn-logo-link" aria-label="Evenzi home">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
       <span class="fn-logo">EVENZI</span>
       <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
         <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
@@ -79,11 +79,11 @@
 <!-- ────────────────────── BREADCRUMB ────────────────────── -->
 <div class="max-w-[1440px] mx-auto px-6 md:px-10 pt-6 reveal">
   <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
-    <a href="dashboard.html" class="bc-back" aria-label="Back to dashboard" data-bc-back data-bc-back-label="DASHBOARD">
+    <a href="../../index.html" class="bc-back" aria-label="Back to dashboard" data-bc-back data-bc-back-label="DASHBOARD">
       <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
     </a>
     <ol class="bc-path">
-      <li><a href="dashboard.html" data-bc-link>DASHBOARD</a></li>
+      <li><a href="../../index.html" data-bc-link>DASHBOARD</a></li>
       <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
       <li class="bc-active" aria-current="page">
         <span class="bc-dot" aria-hidden="true"></span>
@@ -290,7 +290,7 @@
   <span id="bc-toast-text">PATH COPIED</span>
 </div>
 
-<script src="shell.js"></script>
+<script src="../../shared/shell.js"></script>
 <script>
   /* Password visibility toggles */
   document.querySelectorAll('[data-pw-toggle]').forEach(function (btn) {

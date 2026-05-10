@@ -38,8 +38,8 @@
     }
   }
 </script>
-<link rel="stylesheet" href="shell.css" />
-<link rel="stylesheet" href="dashboard.css" />
+<link rel="stylesheet" href="shared/shell.css" />
+<link rel="stylesheet" href="index.css" />
 </head>
 <body data-page="dashboard" data-section="dashboard" data-ownership="my" data-time="active">
 
@@ -48,7 +48,7 @@
 <!-- ────────────────────── DASHBOARD NAV (no center tabs; +Create Event CTA) ────────────────────── -->
 <nav class="floating-nav" aria-label="Main">
   <div class="floating-nav-inner dash-nav-inner">
-    <a href="dashboard.html" class="fn-logo-link" aria-label="Evenzi home">
+    <a href="index.html" class="fn-logo-link" aria-label="Evenzi home">
       <span class="fn-logo">EVENZI</span>
       <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
         <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
@@ -71,7 +71,7 @@
         <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
         <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
       </button>
-      <a href="settings.html" aria-label="Settings" class="fn-icon-btn">
+      <a href="pages/settings/settings.html" aria-label="Settings" class="fn-icon-btn">
         <span aria-hidden="true" class="material-symbols-outlined">settings</span>
       </a>
       <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
@@ -120,7 +120,7 @@
   <section class="event-grid event-section reveal mt-10 md:mt-12" data-section="my-active" aria-label="My active events">
 
     <!-- Featured: Anya & Kabir's Wedding -->
-    <a href="event-control.html" class="featured-event-card">
+    <a href="pages/event-control/event-control.html" class="featured-event-card">
       <div class="fec-cover">
         <span class="fec-cover-tag fec-cover-featured">★ Featured</span>
         <span class="fec-cover-tag fec-cover-rolepill">
@@ -515,7 +515,7 @@
   <span id="bc-toast-text">PATH COPIED</span>
 </div>
 
-<script src="shell.js"></script>
+<script src="shared/shell.js"></script>
 <script>
   /* Filter pill toggle — updates body[data-ownership] / body[data-time] */
   (function () {

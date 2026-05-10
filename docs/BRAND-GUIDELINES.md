@@ -1,115 +1,219 @@
 # Evenzi Brand Guidelines
 
-> **Status:** DRAFT — Pending confirmation. All values below are placeholders.
-> Once confirmed, update this file and all UI components will reference these tokens.
+> **Source of truth:** `designs/shell.css` and `designs/shell.js`. This document mirrors the tokens defined there. If a value here disagrees with `shell.css`, **shell.css wins** — update this file to match.
 
 ---
 
-## Brand Name
-- **Full name:** Evenzi
-- **Tagline:** TBD
+## Brand Name & Identity
 
-## Logo
-- **Primary logo:** TBD (currently using text "Evenzi" in bold)
-- **Icon/favicon:** TBD
-- **Usage rules:** TBD
+- **Full name:** Evenzi
+- **Tagline:** TBD (not yet committed in any design)
+- **Logo:** Wordmark "Evenzi" set in Poppins 800, letter-spacing `-0.05em`, in brand red. No icon mark yet.
+- **Visual signature:** Liquid Glass (Apple-style frosted glass with rim, inset highlights, and a directional specular streak) layered over a warm light background or near-black dark background.
 
 ---
 
 ## Color Palette
 
-> These are placeholder values. Update when brand colors are confirmed.
+All colors below are CSS custom properties defined in `designs/shell.css`. Light mode is the default; dark mode activates via `.dark` class on the root.
 
-### Primary Colors
-| Token | Name | Hex | Usage |
-|-------|------|-----|-------|
-| `--color-primary` | Primary | `#111827` | Buttons, headings, key actions |
-| `--color-primary-hover` | Primary Hover | `#1f2937` | Button hover states |
+### Brand
 
-### Accent Colors
-| Token | Name | Hex | Usage |
-|-------|------|-----|-------|
-| `--color-accent` | Accent | TBD | Highlights, badges, active states |
-| `--color-accent-hover` | Accent Hover | TBD | Accent hover states |
+| Token | Light | Dark | Usage |
+|-------|-------|------|-------|
+| `--brand` | `#BB0020` | `#ee3f3a` | Logo, primary actions, focus ring, key emphasis |
+| `--brand-hover` | `#1f2937` | `#ff5a55` | Hover state on brand surfaces |
+| `--brand-tint` | `rgba(187,0,32,0.05)` | `rgba(238,63,58,0.10)` | Subtle brand washes, hairline backgrounds |
+| `--brand-tint-2` | `rgba(187,0,32,0.10)` | `rgba(238,63,58,0.18)` | Slightly stronger tint, scrollbar thumb, divider |
 
-### Neutrals
-| Token | Name | Hex | Usage |
-|-------|------|-----|-------|
-| `--color-bg-primary` | Background | `#f9fafb` | Page backgrounds |
-| `--color-bg-card` | Card Background | `#ffffff` | Card/panel backgrounds |
-| `--color-text-primary` | Text Primary | `#111827` | Headings, body text |
-| `--color-text-secondary` | Text Secondary | `#6b7280` | Subtitles, descriptions |
-| `--color-text-muted` | Text Muted | `#9ca3af` | Footers, fine print |
-| `--color-border` | Border | `#e5e7eb` | Card borders, dividers |
+> Brand red is the single accent. There is no separate "accent" color — `--brand` plays both roles.
 
-### Semantic Colors
-| Token | Name | Hex | Usage |
-|-------|------|-----|-------|
-| `--color-success` | Success | `#22c55e` | Success messages, confirmations |
-| `--color-error` | Error | `#ef4444` | Error messages, alerts |
-| `--color-warning` | Warning | `#f59e0b` | Warnings, caution states |
-| `--color-info` | Info | `#3b82f6` | Informational messages |
+### Surfaces
+
+| Token | Light | Dark | Usage |
+|-------|-------|------|-------|
+| `--bg` | `#f9fafb` | `#0d0d0d` | Page background |
+| `--card` | `#ffffff` | `#18181b` | Card / panel surface |
+| `--dark-card` | `#111827` | `#1f2937` | Inverted hero surfaces (used inside light mode for contrast) |
+| `--dark-card-soft` | `#1f2937` | `#374151` | Softer inverted variant |
+| `--cream-soft` | `rgba(187,0,32,0.08)` | `rgba(238,63,58,0.08)` | Soft brand-tinted surfaces (chip backgrounds) |
+| `--peach` | `rgba(187,0,32,0.05)` | `#1f2937` | Decorative warm wash (light); neutral fill (dark) |
+| `--peach-deep` | `rgba(187,0,32,0.10)` | `#374151` | Stronger warm wash (light); neutral fill (dark) |
+
+### Text & Lines
+
+| Token | Light | Dark | Usage |
+|-------|-------|------|-------|
+| `--ink` | `#111827` | `#f9fafb` | Primary text, headings |
+| `--ink-soft` | `#374151` | `#e5e7eb` | Secondary headings, body emphasis |
+| `--muted` | `#6b7280` | `#a8a8a8` | Secondary text, descriptions |
+| `--muted-soft` | `#9ca3af` | `#7a7a7a` | Footnotes, fine print, placeholder |
+| `--line` | `#e5e7eb` | `#2a2a2a` | Card borders, dividers |
+| `--line-soft` | `#f3f4f6` | `#1f1f1f` | Subtle internal dividers |
+
+### Decorative gradients
+
+| Token | Usage |
+|-------|-------|
+| `--featured-grad` | Background for featured / hero cards (brand-tinted diagonal) |
+| `--avatar-1` / `--avatar-2` / `--avatar-3` | Avatar fallback gradients (brand-tinted) |
+| `--dot-color` | Dot-pattern background for empty states |
+
+### Semantic colors
+
+> Not yet tokenized in `shell.css`. When introduced, use these values consistent with the warm/red brand palette:
+
+| Purpose | Suggested value | Notes |
+|---------|-----------------|-------|
+| Success | `#22c55e` | Confirmations |
+| Error | `#ef4444` | Errors (avoid clash with brand red — error is brighter, more orange-leaning) |
+| Warning | `#f59e0b` | Warnings |
+| Info | `#3b82f6` | Informational |
+
+When semantic tokens are added to `shell.css`, update this section with the actual token names.
 
 ---
 
 ## Typography
 
-> Placeholder fonts. Update when brand typography is confirmed.
+### Font families
 
-### Font Families
-| Token | Name | Font | Usage |
-|-------|------|------|-------|
-| `--font-display` | Display | TBD | Page headings, hero text |
-| `--font-body` | Body | TBD | Body text, descriptions |
-| `--font-mono` | Mono | TBD | Code, technical text |
+| Family | Source | Usage |
+|--------|--------|-------|
+| **Poppins** | Google Fonts | All text (display + body). Loaded sitewide. |
+| **Material Symbols Outlined** | Google Fonts | Icons. Default variation: `FILL 0, wght 500, GRAD 0, opsz 24`. `.icon-fill` toggles `FILL 1`. |
 
-### Font Sizes
-| Token | Size | Line Height | Usage |
-|-------|------|-------------|-------|
-| `--text-xs` | 12px | 16px | Badges, fine print |
-| `--text-sm` | 14px | 20px | Captions, labels |
-| `--text-base` | 16px | 24px | Body text |
-| `--text-lg` | 18px | 28px | Subtitles |
-| `--text-xl` | 20px | 28px | Section headings |
-| `--text-2xl` | 24px | 32px | Card titles |
-| `--text-3xl` | 30px | 36px | Page subheadings |
-| `--text-4xl` | 36px | 40px | Page headings |
+There is no separate body / display family — Poppins is used for both, distinguished by weight and size.
 
-### Font Weights
-| Token | Weight | Usage |
-|-------|--------|-------|
-| `--font-normal` | 400 | Body text |
-| `--font-medium` | 500 | Labels, subtle emphasis |
-| `--font-semibold` | 600 | Buttons, CTAs |
-| `--font-bold` | 700 | Headings |
+### Type scale (used in shell)
 
----
+The shell currently uses inline sizes rather than a tokenized type scale. Common sizes observed across `shell.css` and the page templates:
 
-## Spacing & Radius
+| Role | Size | Weight | Letter-spacing | Notes |
+|------|------|--------|----------------|-------|
+| Logo wordmark | `1.5rem` (1.25rem on mobile) | 800 | `-0.05em` | Brand red |
+| Page heading (h1) | per page | 700–800 | `-0.02em` | Display style |
+| Section heading (h2/h3) | per page | 700 | `-0.02em` | |
+| Tool-card title | `14px` | 800 | default | |
+| Body text | `13–14px` | 400 | default | |
+| Nav tab label | `12.5px` | 600 | `-0.005em` | |
+| Eyebrow / caps label | `9–11px` | 700 | `0.18em–0.32em` | All-caps, wide-tracked |
+| Stat label | `11px` | 700 | `0.05em` | |
+| Footnote | `10–11px` | 700 | varies | |
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--radius-sm` | 8px | Small buttons, inputs |
-| `--radius-md` | 12px | Buttons, cards |
-| `--radius-lg` | 16px | Large cards, modals |
-| `--radius-full` | 9999px | Pills, badges, avatars |
+When the type scale is tokenized in `shell.css`, update this table with the token names.
+
+### Font weights used
+
+| Weight | Usage |
+|--------|-------|
+| 400 | Body text |
+| 500 | Material Symbols default |
+| 600 | Buttons, CTAs, nav tabs |
+| 700 | Headings, eyebrows, stat labels |
+| 800 | Logo wordmark, hero titles, tool-card titles |
 
 ---
 
-## Shadows
+## Shape
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--shadow-sm` | `0px 1px 2px rgba(0,0,0,0.05)` | Cards, subtle elevation |
-| `--shadow-md` | `0px 4px 6px rgba(0,0,0,0.07)` | Dropdowns, modals |
-| `--shadow-lg` | `0px 10px 15px rgba(0,0,0,0.1)` | Popovers, dialogs |
+### Border radius
+
+Inline values in `shell.css` (not tokenized yet):
+
+| Value | Usage |
+|-------|-------|
+| `8px` | Focus-visible ring rounding |
+| `24px` | Card surfaces (`.clay-card`, `.lg-glass-card`) |
+| `9999px` | Pills, badges, avatar wells, floating nav, action buttons |
+
+When radius tokens are added to `shell.css`, update this table.
+
+### Spacing
+
+The shell uses Tailwind utility classes for spacing rather than custom CSS spacing tokens. Mobile-first padding patterns:
+
+- Page gutter: `px-6` (mobile) → `md:px-10` (tablet+)
+- Floating nav width: `max-width: 1440px` (matches main content container)
+- Touch targets: ≥36px in chrome, ≥44px in primary actions
+
+---
+
+## Shadows & Elevation
+
+### Clay surface shadows
+
+Multi-layer soft shadow with inset rim — gives the "molded" feel.
+
+| Token | Light | Dark |
+|-------|-------|------|
+| `--shadow-clay` | Soft drop + inset highlight rim | Deeper drop + faint inner highlight |
+| `--shadow-clay-hover` | Stronger drop on hover (`translateY(-3px)`) | Stronger drop on hover |
+| `--shadow-clay-pill` | Brand-tinted drop + inset highlight (used on pill CTAs) | Brand-tinted drop + inset highlight |
+
+Exact values are defined in `shell.css` lines 28–30 (light) and 56–58 (dark).
+
+### Liquid Glass tokens
+
+Apple-style frosted glass. Used for the floating nav, hero pills, stats strip, QA cards, and any surface where translucency over a hero image or warm background is desired.
+
+| Token | Purpose |
+|-------|---------|
+| `--lg-bg-grad` | Glass body — diagonal gradient with low alpha |
+| `--lg-rim` | Border color for the glass rim |
+| `--lg-inset-top` | Top inner highlight |
+| `--lg-inset-bottom` | Bottom inner shadow |
+| `--lg-shadow` | External multi-layer drop shadow |
+| `--lg-spec` | Specular streak overlay (35° highlight) |
+| `--lg-blur` | `blur(30px) saturate(180%)` — applied via `backdrop-filter` |
+
+Light-mode opacity for stats overlaying hero imagery is **28%** (reduced from earlier 75%) so the hero image bleeds through.
+
+### When to use which surface
+
+| Surface | When |
+|---------|------|
+| `.clay-card` | Default card. Most content panels. |
+| `.lg-glass-card` | Glass card with explicit border + inset highlights, no backdrop-filter (for non-translucent contexts). |
+| Liquid Glass with `backdrop-filter` | Floating chrome over imagery (nav, hero pills, meta chips). |
+| `.featured-bg` | Hero / featured cards. |
+
+---
+
+## Motion
+
+| Pattern | Duration | Easing | Notes |
+|---------|----------|--------|-------|
+| Hover lift on cards | `0.25s` | `ease-out` | `translateY(-3px)` + shadow change |
+| Color/background transitions | `0.2–0.3s` | `ease` | |
+| Reveal animation | `0.7s` | `cubic-bezier(.2,.7,.2,1)` | With per-element `--reveal-delay` |
+| Progress bar fill | `1.4s` | `cubic-bezier(.2,.8,.2,1)` | |
+| Scroll-progress bar | `0.08s linear` | linear | |
+| Breadcrumb pulse | `~2s loop` | linear | Brand-colored ripple |
+
+**Reduced motion:** `prefers-reduced-motion: reduce` is honored — `.reveal` snaps to final state, all animations clamp to `0.01ms`. Always respect this.
+
+---
+
+## Accessibility
+
+- **Focus ring:** `outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 8px;` on all `a`, `button`, `[role="button"]` `:focus-visible`.
+- **Touch targets:** ≥44px on primary actions; ≥36px in dense chrome.
+- **Safe area:** `env(safe-area-inset-top, 0px)` on the floating nav so it clears iOS status bar in PWA mode.
+- **Reduced motion:** honored sitewide.
+- **Dark mode:** every component must work in both modes — toggle is at the user's discretion.
+- **Keyboard nav:** every interactive element must be focusable and operable with Enter/Space; overlays close on Esc.
 
 ---
 
 ## Implementation Notes
 
-All brand values should be defined as **CSS custom properties** (via Tailwind `theme.extend` in `tailwind.config.ts`) so components reference tokens, not raw values. When brand guidelines are confirmed:
+- All brand values are CSS custom properties on `:root` (light) and `.dark` (dark mode), defined in `designs/shell.css`.
+- Components reference tokens — never raw hex/rgba — so a token change cascades.
+- Page-specific colors / sizes go in `<page>.css`; shared tokens stay in `shell.css`.
+- The Tailwind setup (when the React port lands) should mirror these tokens via `theme.extend` so React components consume the same values.
 
-1. Update this document with final values
-2. Update `tailwind.config.ts` theme tokens
-3. All components automatically pick up changes — no per-file edits needed
+When extending the system:
+1. Add the token to `designs/shell.css` first.
+2. Mirror it in this document under the matching section.
+3. Reference it from components — never inline new raw values.
