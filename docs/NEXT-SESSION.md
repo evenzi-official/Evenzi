@@ -65,7 +65,29 @@
 
 **Event CRUD is functionally complete.** Full 4-step wizard (Type → Details → Sub-Events → Review), success screen, dashboard with real event cards, all working end-to-end. Vercel deployment is live at evenzi.vercel.app.
 
-**What was done this session (2026-05-10 — design system + 8 new screens, no ClickUp tasks):**
+**What was done this session (2026-05-10 — design path skill + UI/UX agent + design folder fixes, no ClickUp tasks):**
+- Added **"Design next page" path** to `/start-evenzi-session` (5a.7) under Abhijith. Five sub-sections: init (`ui-ux-pro-max` + UI/UX agent + `npm run design`), plan (component reuse audit + agent review + sign-off), build (no inline CSS/JS, mobile-first, agent passes per increment), test (component states + interaction + 6-width responsiveness + cross-page + mobile device + agent review), close. Eight path-specific rules. New table row in 5a.6 surface menu.
+- Added **`npm run design`** script using `live-server` on :4000 / host 0.0.0.0 (LAN-reachable from phone). Added `live-server` devDep + `.claude/launch.json` `design` config.
+- **Reorganized `designs/`** flat → structured: `designs/{shared/, pages/<page>/, assets/}`. Dashboard renamed to root `index.html`. All 9 HTMLs and `index.css` path-rewritten. Smoke test: every internal href returns 200.
+- **Created `ai/agents/ui_ux_designer.md`** — Evenzi UI/UX role book (216 lines). Two-user split, free-tier-feels-paid, WhatsApp-aware, anti-trend stance, component reuse, content-length resilience, mobile-dominant responsive, motion restraint, glass surgical, a11y floor, performance discipline, `code quality in designs/`. Defers project facts to `docs/foundation/*` and `BRAND-GUIDELINES.md` (read at task time, not baked in). Evolves freely with new patterns learned per pass.
+- **Reconciled `docs/BRAND-GUIDELINES.md`** to mirror `designs/shared/shell.css` — brand red `#BB0020`/`#ee3f3a`, Poppins, Liquid Glass tokens, clay shadow system, light + dark values, motion + a11y. Replaced placeholder draft.
+- **Updated `/end-evenzi-session`** symmetrically: 4a.1 ClickUp step now conditional (skip for design-only sessions), new 4a.7 design-path closing (verify `## Built` block, verify `components.html`, agent file evolution expected, stop design server), renumbered downstream sections.
+- **First UI/UX agent review pass on `designs/`** — full sweep, ~5000-word findings. P0/P1 fixes applied directly:
+  - **P0** Extracted 688-line inline `<style>` from `event-control.html` into new `event-control.css`. Fixed live `.stats-strip-card` opacity bug where the inline 75% was winning the cascade against shell.css's documented 28% bleed-through.
+  - **P0** Wrapped 34 `:hover` rules in `@media (hover:hover) and (pointer:fine)` across `shell.css` (28), `index.css` (4), `settings.css` (2). No more sticky-hover on touch.
+  - **P1** Added `@supports not (backdrop-filter)` fallback for 9 Liquid Glass primitives.
+  - **P1** Switched breadcrumb clock to 12-hour AM/PM. `tickClock` now pauses on `document.hidden` + `visibilitychange` (battery saver).
+  - **P1** All 3 dashboard featured-event cards: `<a>` wrapping faux-button `<span>`s → `<article>` + `<h2><a class="fec-link-stretched">` + real `<a>` action buttons (z-index pattern).
+  - **P1** Dashboard filter pills: `role="tablist"` → `role="radiogroup"`, `aria-selected` → `aria-checked` (correct semantics; they're toggles, not tabs).
+- **Memory: paired-skill consistency rule** — when editing one of start-evenzi-session ↔ end-evenzi-session, audit and update the partner. Saved to `~/.claude/projects/.../memory/feedback_paired_skill_consistency.md`.
+- **Open follow-ups for next session:**
+  - Replace `designs/assets/hero-image.jpg` (6.8 MB → ~250 KB sized variant). Blocks meaningful perf testing on guest devices.
+  - **Design the public RSVP page** — guest-facing surface, AAA contrast, two-tap, WhatsApp-in-app-browser tested. First real exercise of the new design path skill end-to-end.
+  - Auto-inject chrome (head, footer, FAB, toast, nav, tool-rail) via `shell.js` to stop the 8x duplication.
+  - Tokenize type scale, radii, spacing, semantic colors in `shell.css`.
+  - Doc consistency cleanup: 4-step vs 5-step wizard mismatch between `user-types-scope.md` and `user-flows.md`.
+
+**What was done previous session (2026-05-10 — design system + 8 new screens, no ClickUp tasks):**
 - Built the **Evenzi static-prototype design system**. Two new shared files: `designs/shell.css` (~700 lines: tokens, Liquid Glass, clay surfaces, floating nav, breadcrumb, tool rail, footer, FAB, toast, scroll-progress, reveal, motion patterns + component primitives — clay pill, hero pill/meta chip, tool card, qa card/tile, stats strip, stat icon, avatar stack, empty CTA card, checklist row, btn-pill, form-input/label/password, toggle switch, section rule, avatar-edit, notification dropdown panel) and `designs/shell.js` (theme switcher, breadcrumb interactivity, tool rail/nav-tab active state via `body[data-page]/[data-section]`, scroll progress, scroll reveal w/ sync in-viewport fallback, count-up + bar-fill, **auto-injected notification dropdown** for any bell button).
 - Created **5 sub-page shells**: `designs/guests.html`, `invitations.html`, `planning.html`, `media.html`, `website.html` — all link `shell.css` + `shell.js`, share the same nav/breadcrumb/tool-rail/footer/help-FAB/toast/scroll-progress shell, render only a page header + empty content card. Auto-active state per page via `body data-page` and `data-section`.
 - Created **`designs/components.html`** — full component-library showcase: 9 sections (Foundations, Shell/Chrome, Surfaces, Pills/Chips, Buttons/Controls, Data Display, Layout primitives, Backgrounds, Motion patterns), 30 components with all states, ~42 tiles total.
@@ -221,7 +243,8 @@
 | `docs/superpowers/specs/2026-04-09-event-crud-design.md` | Event CRUD design spec (approved) |
 | `docs/superpowers/plans/2026-04-09-event-crud-implementation.md` | Implementation plan (14 tasks, 23 review fixes) |
 | `docs/superpowers/specs/2026-04-08-auth-role-selection-design.md` | Auth design spec |
-| `docs/BRAND-GUIDELINES.md` | Brand token template (placeholder values) |
+| `docs/BRAND-GUIDELINES.md` | Brand source of truth — reconciled to `designs/shared/shell.css` (brand red `#BB0020`, Poppins, Liquid Glass tokens, clay shadows) |
+| `ai/agents/ui_ux_designer.md` | UI/UX role book — design + review + code quality in `designs/`. Evolves freely. |
 | `docs/clickup/WORKSPACE.md` | All ClickUp IDs, workspace structure |
 | `docs/PROJECT.md` | Full feature descriptions, DB plans |
 | `CLAUDE.md` | Project guide, conventions, parallel subagents |

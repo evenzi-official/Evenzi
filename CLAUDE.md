@@ -39,7 +39,8 @@ This project uses these specific accounts/workspaces. When multiple are availabl
 ## Commands
 
 ```bash
-npm run dev            # Start dev server on localhost:3000
+npm run dev            # Start Next.js dev server on localhost:3000
+npm run design         # Start live-server for designs/ on localhost:4000 (LAN — mobile-testable)
 npm run build          # Production build
 npm start              # Start production server
 npm run lint           # Run ESLint
@@ -223,6 +224,7 @@ Key enriched agents:
 - `frontend_engineer.md` — design thinking, typography, color, motion, anti-patterns (from frontend-design plugin)
 - `code_reviewer.md` — confidence scoring, false positive filtering, multi-perspective review (from code-review plugin)
 - `security_expert.md` — 9 vulnerability patterns, defense-in-depth, Next.js security (from security-guidance plugin)
+- `ui_ux_designer.md` — Evenzi-specific design role book: two-user split, free-tier-feels-paid, WhatsApp-aware, component reuse, content-length resilience, code quality in `designs/`. Evolves freely with new patterns learned per pass.
 
 ### Parked: Automated Runner
 
