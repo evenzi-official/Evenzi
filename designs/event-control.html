@@ -747,6 +747,7 @@
     *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;transform:none !important}
   }
 </style>
+<link rel="stylesheet" href="shell.css" />
 </head>
 <body class="min-h-dvh">
 
@@ -758,7 +759,7 @@
   <div class="floating-nav-inner">
 
     <!-- LEFT: logo -->
-    <a href="/" class="fn-logo-link" aria-label="Evenzi home">
+    <a href="dashboard.html" class="fn-logo-link" aria-label="Evenzi home">
       <span class="fn-logo">EVENZI</span>
       <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
         <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
@@ -768,11 +769,11 @@
 
     <!-- CENTER: tabs -->
     <div class="nav-tabs inline-flex" role="tablist" aria-label="Primary view">
-      <a href="/" role="tab" aria-selected="true" aria-current="page" class="nav-tab is-active" aria-label="Dashboard">
+      <a href="event-control.html" role="tab" aria-selected="true" aria-current="page" class="nav-tab is-active" aria-label="Dashboard">
         <span aria-hidden="true" class="material-symbols-outlined icon-fill">dashboard</span>
         <span class="nav-tab-label">Dashboard</span>
       </a>
-      <a href="/website" role="tab" aria-selected="false" class="nav-tab" aria-label="Website">
+      <a href="website.html" role="tab" aria-selected="false" class="nav-tab" aria-label="Website">
         <span aria-hidden="true" class="material-symbols-outlined">language</span>
         <span class="nav-tab-label">Website</span>
       </a>
@@ -800,16 +801,16 @@
 
 <!-- ────────────────────── FLOATING TOOL RAIL ────────────────────── -->
 <aside class="tool-rail" aria-label="Event tools">
-  <a href="/guests" class="tr-btn" data-label="Guest management" data-page="guests">
+  <a href="guests.html" class="tr-btn" data-label="Guest management" data-page="guests">
     <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
   </a>
-  <a href="/invitations" class="tr-btn" data-label="Invitations" data-page="invitations">
+  <a href="invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations">
     <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
   </a>
-  <a href="/planning" class="tr-btn" data-label="Planning" data-page="planning">
+  <a href="planning.html" class="tr-btn" data-label="Planning" data-page="planning">
     <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
   </a>
-  <a href="/media" class="tr-btn" data-label="Media &amp; memories" data-page="media">
+  <a href="media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media">
     <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
   </a>
   <span class="tr-divider" aria-hidden="true"></span>
@@ -862,16 +863,16 @@
     <!-- BREADCRUMB on the hero (sticky below nav) -->
     <div class="mb-7 md:mb-9 sticky z-20" style="top:5.5rem">
       <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
-        <a href="/" class="bc-back" aria-label="Back to dashboard" data-bc-back>
+        <a href="dashboard.html" class="bc-back" aria-label="Back to dashboard" data-bc-back>
           <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
         </a>
 
         <ol class="bc-path">
-          <li><a href="/" data-bc-link>DASHBOARD</a></li>
+          <li><a href="dashboard.html" data-bc-link>DASHBOARD</a></li>
           <li class="bc-sep" aria-hidden="true">
             <svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg>
           </li>
-          <li class="hidden md:inline-flex"><a href="/events/anya-kabir" data-bc-link>ANYA &amp; KABIR</a></li>
+          <li class="hidden md:inline-flex"><a href="event-control.html" data-bc-link>ANYA &amp; KABIR</a></li>
           <li class="bc-sep hidden md:inline-flex" aria-hidden="true">
             <svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg>
           </li>
@@ -1191,7 +1192,7 @@
   <div class="grid grid-cols-12 gap-5 lg:gap-6">
 
     <!-- 1. Guest management — RECOMMENDED, active -->
-    <a href="/guests" id="guests" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-5 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="guests.html" id="guests" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-5 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">01</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">groups</span>
@@ -1205,7 +1206,7 @@
     </a>
 
     <!-- 2. Digital invitations -->
-    <a href="/invitations" id="invitations" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-4 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="invitations.html" id="invitations" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-4 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">02</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">forward_to_inbox</span>
@@ -1219,7 +1220,7 @@
     </a>
 
     <!-- 3. Planning tools — small -->
-    <a href="/planning" id="planning" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-3 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="planning.html" id="planning" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-3 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">03</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">checklist_rtl</span>
@@ -1232,7 +1233,7 @@
     </a>
 
     <!-- 4. Media & memories -->
-    <a href="/media" id="media" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-7 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="media.html" id="media" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-7 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">04</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">photo_library</span>
@@ -1246,7 +1247,7 @@
     </a>
 
     <!-- 5. Event website -->
-    <a href="/website" id="website" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-5 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="website.html" id="website" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-5 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">05</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">language</span>
@@ -1278,87 +1279,115 @@
         </div>
         <a href="#" class="font-display font-semibold text-sm text-brand hover:underline whitespace-nowrap">Full checklist →</a>
       </div>
-      <ul class="space-y-2 scrollable-list pr-2">
+      <ul class="scrollable-list pr-2 list-none m-0 p-0" style="display:flex;flex-direction:column;gap:2px">
         <li>
-          <label class="flex items-center justify-between gap-4 p-4 rounded-2xl hover:bg-cream-soft transition-colors cursor-pointer group">
-            <span class="flex items-center gap-4 min-w-0">
-              <input type="checkbox" class="peer sr-only" aria-label="Mark complete: floral arrangements"/>
-              <span aria-hidden="true" class="w-6 h-6 rounded-lg border-2 border-muted-soft group-hover:border-brand peer-checked:bg-brand peer-checked:border-brand transition-colors flex-shrink-0 flex items-center justify-center">
-                <span class="material-symbols-outlined text-base text-white opacity-0 peer-checked:opacity-100">check</span>
-              </span>
-              <span class="font-body font-medium text-ink">Finalize floral arrangements with Blooms of Bangalore</span>
+          <label class="checklist-row">
+            <input type="checkbox" aria-label="Mark complete: floral arrangements"/>
+            <span class="checklist-check" aria-hidden="true">
+              <span class="material-symbols-outlined">check</span>
             </span>
-            <span class="text-xs font-bold tracking-widest text-muted uppercase whitespace-nowrap">Due Oct 15</span>
+            <span class="checklist-body">
+              <span class="checklist-title">Finalise floral arrangements</span>
+              <span class="checklist-sub">Blooms of Bangalore · Vendor</span>
+            </span>
+            <span class="checklist-due is-urgent">
+              <span aria-hidden="true" class="material-symbols-outlined">schedule</span>
+              Oct 15
+            </span>
           </label>
         </li>
         <li>
-          <label class="flex items-center justify-between gap-4 p-4 rounded-2xl hover:bg-cream-soft transition-colors cursor-pointer group">
-            <span class="flex items-center gap-4 min-w-0">
-              <input type="checkbox" class="peer sr-only" aria-label="Mark complete: Sangeet catering"/>
-              <span aria-hidden="true" class="w-6 h-6 rounded-lg border-2 border-muted-soft group-hover:border-brand transition-colors flex-shrink-0"></span>
-              <span class="font-body font-medium text-ink">Confirm Sangeet catering menu (Tadka Heritage)</span>
+          <label class="checklist-row">
+            <input type="checkbox" aria-label="Mark complete: Sangeet catering"/>
+            <span class="checklist-check" aria-hidden="true">
+              <span class="material-symbols-outlined">check</span>
             </span>
-            <span class="text-xs font-bold tracking-widest text-muted uppercase whitespace-nowrap">Due Oct 18</span>
+            <span class="checklist-body">
+              <span class="checklist-title">Confirm Sangeet catering menu</span>
+              <span class="checklist-sub">Tadka Heritage · Vendor</span>
+            </span>
+            <span class="checklist-due is-urgent">
+              <span aria-hidden="true" class="material-symbols-outlined">schedule</span>
+              Oct 18
+            </span>
           </label>
         </li>
         <li>
-          <label class="flex items-center justify-between gap-4 p-4 rounded-2xl hover:bg-cream-soft transition-colors cursor-pointer group">
-            <span class="flex items-center gap-4 min-w-0">
-              <input type="checkbox" class="peer sr-only" aria-label="Mark complete: RSVP reminders"/>
-              <span aria-hidden="true" class="w-6 h-6 rounded-lg border-2 border-muted-soft group-hover:border-brand transition-colors flex-shrink-0"></span>
-              <span class="font-body font-medium text-ink">Send second round of digital RSVP reminders</span>
+          <label class="checklist-row">
+            <input type="checkbox" aria-label="Mark complete: RSVP reminders"/>
+            <span class="checklist-check" aria-hidden="true">
+              <span class="material-symbols-outlined">check</span>
             </span>
-            <span class="text-xs font-bold tracking-widest text-muted uppercase whitespace-nowrap">Due Oct 20</span>
+            <span class="checklist-body">
+              <span class="checklist-title">Send second round of RSVP reminders</span>
+              <span class="checklist-sub">Communications · 92 pending</span>
+            </span>
+            <span class="checklist-due">Oct 20</span>
           </label>
         </li>
         <li>
-          <label class="flex items-center justify-between gap-4 p-4 rounded-2xl hover:bg-cream-soft transition-colors cursor-pointer group">
-            <span class="flex items-center gap-4 min-w-0">
-              <input type="checkbox" class="peer sr-only" aria-label="Mark complete: outfit fittings"/>
-              <span aria-hidden="true" class="w-6 h-6 rounded-lg border-2 border-muted-soft group-hover:border-brand transition-colors flex-shrink-0"></span>
-              <span class="font-body font-medium text-ink">Schedule final outfit fittings at Sabyasachi Studio</span>
+          <label class="checklist-row">
+            <input type="checkbox" aria-label="Mark complete: outfit fittings"/>
+            <span class="checklist-check" aria-hidden="true">
+              <span class="material-symbols-outlined">check</span>
             </span>
-            <span class="text-xs font-bold tracking-widest text-muted uppercase whitespace-nowrap">Due Oct 24</span>
+            <span class="checklist-body">
+              <span class="checklist-title">Schedule final outfit fittings</span>
+              <span class="checklist-sub">Sabyasachi Studio · Bride &amp; groom</span>
+            </span>
+            <span class="checklist-due">Oct 24</span>
           </label>
         </li>
         <li>
-          <label class="flex items-center justify-between gap-4 p-4 rounded-2xl hover:bg-cream-soft transition-colors cursor-pointer group">
-            <span class="flex items-center gap-4 min-w-0">
-              <input type="checkbox" class="peer sr-only" aria-label="Mark complete: mehendi artist"/>
-              <span aria-hidden="true" class="w-6 h-6 rounded-lg border-2 border-muted-soft group-hover:border-brand transition-colors flex-shrink-0"></span>
-              <span class="font-body font-medium text-ink">Book mehendi artist for the bridal henna ceremony</span>
+          <label class="checklist-row">
+            <input type="checkbox" aria-label="Mark complete: mehendi artist"/>
+            <span class="checklist-check" aria-hidden="true">
+              <span class="material-symbols-outlined">check</span>
             </span>
-            <span class="text-xs font-bold tracking-widest text-muted uppercase whitespace-nowrap">Due Oct 28</span>
+            <span class="checklist-body">
+              <span class="checklist-title">Book mehendi artist for bridal henna</span>
+              <span class="checklist-sub">Reema's Henna · Vendor</span>
+            </span>
+            <span class="checklist-due">Oct 28</span>
           </label>
         </li>
         <li>
-          <label class="flex items-center justify-between gap-4 p-4 rounded-2xl hover:bg-cream-soft transition-colors cursor-pointer group">
-            <span class="flex items-center gap-4 min-w-0">
-              <input type="checkbox" class="peer sr-only" aria-label="Mark complete: photographer briefing"/>
-              <span aria-hidden="true" class="w-6 h-6 rounded-lg border-2 border-muted-soft group-hover:border-brand transition-colors flex-shrink-0"></span>
-              <span class="font-body font-medium text-ink">Brief photographer &amp; videographer on shot list</span>
+          <label class="checklist-row">
+            <input type="checkbox" aria-label="Mark complete: photographer briefing"/>
+            <span class="checklist-check" aria-hidden="true">
+              <span class="material-symbols-outlined">check</span>
             </span>
-            <span class="text-xs font-bold tracking-widest text-muted uppercase whitespace-nowrap">Due Nov 02</span>
+            <span class="checklist-body">
+              <span class="checklist-title">Brief photographer &amp; videographer</span>
+              <span class="checklist-sub">Shot list · Pre-wedding to reception</span>
+            </span>
+            <span class="checklist-due">Nov 02</span>
           </label>
         </li>
         <li>
-          <label class="flex items-center justify-between gap-4 p-4 rounded-2xl hover:bg-cream-soft transition-colors cursor-pointer group">
-            <span class="flex items-center gap-4 min-w-0">
-              <input type="checkbox" class="peer sr-only" aria-label="Mark complete: hotel block"/>
-              <span aria-hidden="true" class="w-6 h-6 rounded-lg border-2 border-muted-soft group-hover:border-brand transition-colors flex-shrink-0"></span>
-              <span class="font-body font-medium text-ink">Confirm hotel room blocks for out-of-town guests</span>
+          <label class="checklist-row">
+            <input type="checkbox" aria-label="Mark complete: hotel block"/>
+            <span class="checklist-check" aria-hidden="true">
+              <span class="material-symbols-outlined">check</span>
             </span>
-            <span class="text-xs font-bold tracking-widest text-muted uppercase whitespace-nowrap">Due Nov 08</span>
+            <span class="checklist-body">
+              <span class="checklist-title">Confirm hotel room blocks</span>
+              <span class="checklist-sub">Out-of-town guests · 38 rooms</span>
+            </span>
+            <span class="checklist-due">Nov 08</span>
           </label>
         </li>
         <li>
-          <label class="flex items-center justify-between gap-4 p-4 rounded-2xl hover:bg-cream-soft transition-colors cursor-pointer group">
-            <span class="flex items-center gap-4 min-w-0">
-              <input type="checkbox" class="peer sr-only" aria-label="Mark complete: pandit"/>
-              <span aria-hidden="true" class="w-6 h-6 rounded-lg border-2 border-muted-soft group-hover:border-brand transition-colors flex-shrink-0"></span>
-              <span class="font-body font-medium text-ink">Finalise pheras &amp; pandit timing with Pandit Sharma</span>
+          <label class="checklist-row">
+            <input type="checkbox" aria-label="Mark complete: pandit"/>
+            <span class="checklist-check" aria-hidden="true">
+              <span class="material-symbols-outlined">check</span>
             </span>
-            <span class="text-xs font-bold tracking-widest text-muted uppercase whitespace-nowrap">Due Nov 15</span>
+            <span class="checklist-body">
+              <span class="checklist-title">Finalise pheras &amp; pandit timing</span>
+              <span class="checklist-sub">Pandit Sharma · Wedding ceremony</span>
+            </span>
+            <span class="checklist-due">Nov 15</span>
           </label>
         </li>
       </ul>
@@ -1375,7 +1404,7 @@
       </div>
       <ol class="relative pl-7 space-y-6 scrollable-list pr-2 before:content-[''] before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-line">
         <li class="relative">
-          <span aria-hidden="true" class="absolute -left-7 top-1.5 w-5 h-5 rounded-full bg-brand ring-4 ring-brand/20"></span>
+          <span aria-hidden="true" class="absolute -left-7 top-1.5 w-5 h-5 rounded-full bg-brand" style="box-shadow:0 0 0 4px var(--brand-tint-2)"></span>
           <p class="font-display font-bold text-ink">New RSVP received</p>
           <p class="text-sm text-muted">Karthik &amp; Ananya confirmed for the Reception.</p>
           <p class="text-[10px] font-bold tracking-widest text-muted-soft uppercase mt-1">2 hours ago</p>
@@ -1448,216 +1477,8 @@
   <span id="bc-toast-text">PATH COPIED</span>
 </div>
 
+<script src="shell.js"></script>
 <script>
-  /* ── Theme switcher (default dark, persists) ───────── */
-  (function () {
-    var root = document.documentElement;
-    var stored = null;
-    try { stored = localStorage.getItem('evenzi-theme'); } catch (e) {}
-    if (stored === 'light') root.classList.remove('dark');
-    else root.classList.add('dark');
-    var btn = document.getElementById('theme-toggle');
-    if (btn) {
-      btn.addEventListener('click', function () {
-        root.classList.toggle('dark');
-        try { localStorage.setItem('evenzi-theme', root.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
-      });
-    }
-  })();
-
-  /* ── Breadcrumb interactivity ───────────────────────── */
-  (function () {
-    /* Live IST clock — ticks every second */
-    var clock = document.getElementById('bc-clock');
-    function pad(n){ return n < 10 ? '0'+n : ''+n; }
-    function tickClock() {
-      if (!clock) return;
-      var d = new Date();
-      var ist = new Date(d.getTime() + (d.getTimezoneOffset()*60000) + (5.5*3600000));
-      clock.textContent = pad(ist.getHours()) + ':' + pad(ist.getMinutes()) + ':' + pad(ist.getSeconds()) + ' IST';
-    }
-    tickClock();
-    setInterval(tickClock, 1000);
-
-    /* Ripple click feedback — fires on every interactive bc element */
-    function spawnRipple(host, e) {
-      var rect = host.getBoundingClientRect();
-      var x = (e.clientX || (rect.left + rect.width/2)) - rect.left;
-      var y = (e.clientY || (rect.top + rect.height/2)) - rect.top;
-      var r = document.createElement('span');
-      r.className = 'bc-ripple';
-      r.style.left = x + 'px';
-      r.style.top = y + 'px';
-      r.style.width = r.style.height = Math.max(rect.width, rect.height) * 0.4 + 'px';
-      host.appendChild(r);
-      setTimeout(function(){ r.remove(); }, 600);
-    }
-    var rippleTargets = document.querySelectorAll('[data-bc-back],[data-bc-link],[data-bc-copy]');
-    rippleTargets.forEach(function (el) {
-      var prev = getComputedStyle(el).position;
-      if (prev === 'static') el.style.position = 'relative';
-      el.style.overflow = 'hidden';
-      el.addEventListener('click', function (e) { spawnRipple(el, e); });
-    });
-
-    /* Keyboard shortcut: backspace / Esc when focus is on the back chip */
-    var back = document.querySelector('[data-bc-back]');
-    if (back) {
-      back.addEventListener('click', function (e) {
-        e.preventDefault();
-        /* In a real app this would route. Here we demo a confirm-style toast. */
-        showToast('RETURN: DASHBOARD');
-      });
-    }
-
-    /* Copy-path button */
-    var copyBtn = document.querySelector('[data-bc-copy]');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', function () {
-        var path = 'evenzi://dashboard / anya-kabir / event-control';
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(path).then(function () {
-            showToast('PATH COPIED');
-          }).catch(function () {
-            showToast('COPY FAILED');
-          });
-        } else {
-          showToast('COPY UNSUPPORTED');
-        }
-      });
-    }
-
-    /* Path-segment clicks demo */
-    document.querySelectorAll('[data-bc-link]').forEach(function (a) {
-      a.addEventListener('click', function (e) {
-        e.preventDefault();
-        showToast('NAVIGATE: ' + a.textContent.trim());
-      });
-    });
-
-    /* Toast helper */
-    var toast = document.getElementById('bc-toast');
-    var toastText = document.getElementById('bc-toast-text');
-    var toastTimer = null;
-    function showToast(msg) {
-      if (!toast) return;
-      toastText.textContent = msg;
-      toast.classList.add('is-show');
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(function(){ toast.classList.remove('is-show'); }, 1800);
-    }
-  })();
-
-  /* ── Tool rail: highlight active by current URL path ───────── */
-  (function () {
-    var rail = document.querySelector('.tool-rail');
-    if (!rail) return;
-    var btns = Array.prototype.slice.call(rail.querySelectorAll('.tr-btn[data-page]'));
-    if (!btns.length) return;
-    var path = (location.pathname || '/').replace(/\/$/, '');
-    btns.forEach(function (btn) {
-      var page = btn.getAttribute('data-page');
-      var matches = path === '/' + page || path.indexOf('/' + page) === 0;
-      btn.classList.toggle('is-active', matches);
-    });
-  })();
-
-  /* ── Scroll progress bar (top hairline) ───────── */
-  (function () {
-    var bar = document.getElementById('scroll-progress');
-    if (!bar) return;
-    var ticking = false;
-    function update() {
-      var doc = document.documentElement;
-      var max = (doc.scrollHeight - doc.clientHeight) || 1;
-      var pct = Math.min(100, Math.max(0, (doc.scrollTop / max) * 100));
-      bar.style.setProperty('--scroll-pct', pct.toFixed(2) + '%');
-      ticking = false;
-    }
-    window.addEventListener('scroll', function () {
-      if (!ticking) { window.requestAnimationFrame(update); ticking = true; }
-    }, { passive: true });
-    update();
-  })();
-
-  /* ── Scroll-reveal: fade + slide sections in on viewport entry ───── */
-  (function () {
-    var els = document.querySelectorAll('.reveal');
-    if (!els.length) return;
-    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) {
-      els.forEach(function (el) { el.classList.add('in'); });
-      return;
-    }
-    if (!('IntersectionObserver' in window)) {
-      els.forEach(function (el) { el.classList.add('in'); });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in');
-          io.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.12 });
-    els.forEach(function (el) { io.observe(el); });
-  })();
-
-  /* ── Count-up: numbers tick from 0 to target on viewport entry ──── */
-  (function () {
-    var nodes = document.querySelectorAll('[data-count]');
-    if (!nodes.length) return;
-    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function animate(el) {
-      var target = parseFloat(el.getAttribute('data-count')) || 0;
-      var suffix = el.getAttribute('data-suffix') || '';
-      if (prefersReduced) { el.textContent = target + suffix; return; }
-      var duration = 1400;
-      var start = performance.now();
-      function tick(now) {
-        var t = Math.min(1, (now - start) / duration);
-        var eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
-        var v = target * eased;
-        el.textContent = (target % 1 === 0 ? Math.round(v) : v.toFixed(1)) + suffix;
-        if (t < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    }
-    if (!('IntersectionObserver' in window)) { nodes.forEach(animate); return; }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          animate(entry.target);
-          io.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.4 });
-    nodes.forEach(function (el) { io.observe(el); });
-  })();
-
-  /* ── Progress bar fill animation ───────── */
-  (function () {
-    var bars = document.querySelectorAll('.pf-bar[data-fill]');
-    if (!bars.length) return;
-    if (!('IntersectionObserver' in window)) {
-      bars.forEach(function (b) { b.style.width = b.getAttribute('data-fill') + '%'; });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          var b = entry.target;
-          /* small delay so the bar starts from 0 visibly */
-          requestAnimationFrame(function () {
-            b.style.width = b.getAttribute('data-fill') + '%';
-          });
-          io.unobserve(b);
-        }
-      });
-    }, { threshold: 0.3 });
-    bars.forEach(function (b) { io.observe(b); });
-  })();
 
   /* ── Hero parallax: bg follows mouse, mandala counter-parallaxes ── */
   (function () {

@@ -1,0 +1,171 @@
+/* ════════════════════════════════════════════════════════════════════
+   Evenzi · Settings page styles
+   Page-specific layout for designs/settings.html.
+   Reusable form/toggle/section-rule/avatar-edit primitives are in shell.css.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Page header */
+.settings-eyebrow{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.32em;text-transform:uppercase;color:var(--brand);
+}
+.settings-h1{
+  font-family:'Poppins',sans-serif;font-weight:700;
+  font-size:clamp(2rem,3vw + 1rem,3.25rem);
+  color:var(--ink);letter-spacing:-.02em;line-height:1.05;
+  margin-top:.4rem;
+}
+.settings-lead{
+  font-size:15px;color:var(--muted);max-width:36rem;
+  margin-top:.6rem;line-height:1.55;
+}
+
+/* Section spacing */
+.settings-section{margin-top:3rem}
+.settings-section-head{margin-bottom:1.25rem}
+
+/* Per-card padding override — clay-card from shell.css supplies the surface */
+.settings-card-inner{padding:1.75rem}
+.settings-card-inner:hover{transform:none;box-shadow:var(--shadow-clay)}
+@media (min-width:768px){
+  .settings-card-inner{padding:2rem 2.25rem}
+}
+
+/* ── Profile section grid: 2-col fields + avatar block on the right ── */
+.settings-profile{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1.5rem 2rem;
+  align-items:start;
+}
+@media (min-width:768px){
+  .settings-profile{grid-template-columns:1fr 1fr auto}
+}
+.settings-profile .form-group:nth-of-type(1),
+.settings-profile .form-group:nth-of-type(2){grid-column:span 1 / span 1}
+.settings-profile .form-group:nth-of-type(3){grid-column:1 / -2}
+@media (max-width:767px){
+  .settings-profile .form-group:nth-of-type(3){grid-column:1 / -1}
+}
+.settings-avatar-block{
+  grid-row:1 / 3;grid-column:auto;
+  display:flex;flex-direction:column;align-items:center;gap:.75rem;
+  justify-self:end;
+}
+@media (max-width:767px){
+  .settings-avatar-block{grid-row:auto;grid-column:1;justify-self:center}
+}
+.settings-avatar-label{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+}
+
+/* ── Security section: split layout — passwords on left, 2FA on right ── */
+.settings-security{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:2rem;
+  align-items:start;
+}
+@media (min-width:880px){
+  .settings-security{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2.5rem}
+  .settings-security-divider{
+    grid-column:initial;
+    border-left:1px solid var(--line);
+    padding-left:2.5rem;
+    margin-left:-1.25rem;
+  }
+}
+.settings-security-fields{display:flex;flex-direction:column;gap:1.25rem}
+.settings-security-actions{margin-top:.75rem}
+
+.settings-2fa-title{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;
+  color:var(--ink);letter-spacing:-.005em;margin:0;
+}
+.settings-2fa-desc{
+  font-size:13px;color:var(--muted);line-height:1.55;
+  margin:.6rem 0 1.25rem;
+}
+.settings-2fa-toggle-row{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:1rem 1.1rem;border-radius:9999px;
+  background:color-mix(in oklab,var(--brand-tint) 50%,transparent);
+  border:1px solid var(--brand-tint-2);
+}
+.settings-2fa-label{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--ink);
+}
+
+/* ── Notification preferences: 3-col grid of choice cards ── */
+.notif-prefs-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:1.25rem;
+}
+.choice-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:1.5rem;
+  display:flex;flex-direction:column;gap:.85rem;
+  cursor:pointer;
+  transition:border-color .25s,transform .25s,box-shadow .25s,background-color .25s;
+  text-align:left;
+  font:inherit;color:inherit;
+}
+.choice-card:hover{
+  border-color:var(--brand-tint-2);
+  transform:translateY(-2px);
+  box-shadow:0 12px 28px -16px rgba(17,24,39,.18);
+}
+.choice-card-icon{
+  width:44px;height:44px;border-radius:14px;
+  background:var(--brand-tint);color:var(--brand);
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.choice-card-icon .material-symbols-outlined{font-size:22px}
+.choice-card-title{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:16px;
+  color:var(--ink);letter-spacing:-.005em;margin:0;
+}
+.choice-card-desc{
+  font-size:13px;color:var(--muted);line-height:1.5;
+  flex:1;margin:0;
+}
+.choice-card-state{
+  display:inline-flex;align-items:center;gap:.55rem;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+  margin-top:.25rem;
+}
+.choice-card-dot{
+  width:20px;height:20px;border-radius:9999px;
+  border:2px solid var(--muted-soft);
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;background:transparent;
+  transition:border-color .2s,background-color .2s;
+}
+.choice-card-dot .material-symbols-outlined{
+  font-size:13px;color:#fff;opacity:0;
+  font-variation-settings:'FILL' 1,'wght' 700;
+  transition:opacity .15s;
+}
+.choice-card.is-active{border-color:var(--brand-tint-2);background:color-mix(in oklab,var(--brand-tint) 35%,var(--card))}
+.choice-card.is-active .choice-card-dot{background:var(--brand);border-color:var(--brand)}
+.choice-card.is-active .choice-card-dot .material-symbols-outlined{opacity:1}
+.choice-card.is-active .choice-card-state{color:var(--brand)}
+
+/* ── Action footer: save + discard (uses .btn-pill from shell.css) ── */
+.settings-actions{
+  display:flex;justify-content:flex-end;gap:.75rem;
+  margin-top:2.5rem;
+  flex-wrap:wrap;
+}
+
+/* Settings nav variant — minimal, no Create Event CTA, no segmented tabs */
+.settings-nav-inner{
+  grid-template-columns:auto 1fr auto !important;
+  padding:.4rem .55rem .4rem 1.1rem !important;
+}
