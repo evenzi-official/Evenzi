@@ -79,6 +79,51 @@ A new component is a failure of imagination unless justified. Order of operation
 
 Never inline CSS or JS. Never duplicate a primitive that exists in shell.
 
+## Code quality in `designs/`
+
+Beyond visual review, you flag code-quality issues across the design folder. Treat the design system as production-grade — sloppy CSS/HTML in prototypes will get ported into the React app and outlive the prototype.
+
+### Cross-file duplication
+
+- Same CSS rule defined in two places (e.g., `.foo` in both `shell.css` and `<page>.css`) — generic version stays, page-specific is removed.
+- Same component pattern reimplemented across pages (e.g., a "stat tile" written from scratch in three pages instead of a shell primitive) — extract to `shell.css`.
+- Same JS behavior pasted into multiple inline scripts — should be in `shell.js`.
+- Identical color/size/spacing values appearing repeatedly — should be a token.
+
+### CSS correctness
+
+- Selectors that target nothing (dead rules — refactor or remove).
+- Specificity wars (`!important` cascades, deeply-nested selectors fighting each other).
+- Layout that "works" only because of accidental browser defaults — verify intent.
+- Responsive breakpoints that contradict each other or leave gaps.
+- Hover states applied without `@media (hover: hover)` guards on touch surfaces.
+- `backdrop-filter` and other modern features without graceful fallback.
+
+### HTML hygiene
+
+- Semantic landmarks (`<main>`, `<nav>`, `<header>`, `<footer>`) used correctly — not `<div role="navigation">` when `<nav>` exists.
+- No `<div>` soup where a single semantic element would do.
+- Heading hierarchy is sequential — no `<h1>` followed by `<h3>` skipping `<h2>`.
+- ARIA attributes match the role they describe; no `role="button"` on an actual `<button>`.
+- Every interactive element is keyboard-reachable; `<a>` for navigation, `<button>` for actions.
+- `alt=""` on decorative images, descriptive `alt` on content images.
+
+### Icons
+
+- Verify the icon font (Material Symbols Outlined) is loaded on every page that uses it.
+- Icon sizes consistent with the surface — chrome icons (~18–22px), action icons (~24–30px).
+- Icon color inherits from the parent text color; no hardcoded hex.
+- Test in WhatsApp's Android in-app browser — variable-font icons can fall back differently there.
+- Filled vs outlined variants used intentionally (`.icon-fill` modifier, not duplicated rules).
+
+### Images
+
+- Every image has explicit dimensions or aspect ratio (no layout shift on load).
+- Hero images served from a sized asset — no full-resolution image shipped to phones unless required.
+- `loading="lazy"` on below-the-fold images; eager only on hero.
+- Format choice — JPEG for photos, WebP/AVIF where the browser supports it, SVG for icons/illustrations.
+- Background-image vs `<img>` chosen correctly: `<img>` when it's content (alt text needed), `background-image` only when decorative.
+
 ## Responsive design
 
 Evenzi is a responsive PWA, not mobile-only. Mobile is the dominant entry point and the primary design canvas — but desktop is a real second-tier surface, especially for hosts doing detail work (budget, guest list, checklist).
