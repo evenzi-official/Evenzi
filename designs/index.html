@@ -89,23 +89,24 @@
     <h1 class="welcome-h1" id="dash-title">Your Events</h1>
     <p class="mt-3 text-base md:text-lg text-muted max-w-2xl">Everything you're hosting, planning and helping with — in one place.</p>
 
-    <!-- Filter row: ownership + time -->
+    <!-- Filter row: ownership + time. Two independent radiogroups (4 combos),
+         not tabs — there are no tabpanels matching tabs 1:1. -->
     <div class="filter-row">
-      <div class="nav-tabs inline-flex" role="tablist" aria-label="Ownership filter">
-        <button type="button" role="tab" data-set-ownership="my" class="nav-tab is-active" aria-selected="true">
+      <div class="nav-tabs inline-flex" role="radiogroup" aria-label="Ownership filter">
+        <button type="button" role="radio" data-set-ownership="my" class="nav-tab is-active" aria-checked="true">
           <span aria-hidden="true" class="material-symbols-outlined icon-fill" style="font-size:14px">home_pin</span>
           <span>My events</span>
         </button>
-        <button type="button" role="tab" data-set-ownership="collab" class="nav-tab" aria-selected="false">
+        <button type="button" role="radio" data-set-ownership="collab" class="nav-tab" aria-checked="false">
           <span aria-hidden="true" class="material-symbols-outlined" style="font-size:14px">groups</span>
           <span>Collaborations</span>
         </button>
       </div>
-      <div class="nav-tabs inline-flex" role="tablist" aria-label="Time filter">
-        <button type="button" role="tab" data-set-time="active" class="nav-tab is-active" aria-selected="true">
+      <div class="nav-tabs inline-flex" role="radiogroup" aria-label="Time filter">
+        <button type="button" role="radio" data-set-time="active" class="nav-tab is-active" aria-checked="true">
           <span>Active</span>
         </button>
-        <button type="button" role="tab" data-set-time="past" class="nav-tab" aria-selected="false">
+        <button type="button" role="radio" data-set-time="past" class="nav-tab" aria-checked="false">
           <span>Past</span>
         </button>
       </div>
@@ -120,7 +121,7 @@
   <section class="event-grid event-section reveal mt-10 md:mt-12" data-section="my-active" aria-label="My active events">
 
     <!-- Featured: Anya & Kabir's Wedding -->
-    <a href="pages/event-control/event-control.html" class="featured-event-card">
+    <article class="featured-event-card">
       <div class="fec-cover">
         <span class="fec-cover-tag fec-cover-featured">★ Featured</span>
         <span class="fec-cover-tag fec-cover-rolepill">
@@ -130,7 +131,7 @@
       </div>
       <div class="fec-body">
         <p class="fec-type-eyebrow">Wedding · Final preparations</p>
-        <h2 class="fec-title">Anya &amp; Kabir's Wedding</h2>
+        <h2 class="fec-title"><a href="pages/event-control/event-control.html" class="fec-link-stretched">Anya &amp; Kabir's Wedding</a></h2>
 
         <div class="fec-meta">
           <span class="hero-meta-chip">
@@ -170,18 +171,18 @@
             45 days to go
           </span>
           <div class="fec-actions">
-            <span class="btn-pill btn-pill-secondary">
+            <a href="pages/website/website.html" class="btn-pill btn-pill-secondary">
               <span aria-hidden="true" class="material-symbols-outlined">language</span>
               Live website
-            </span>
-            <span class="btn-pill btn-pill-primary">
+            </a>
+            <a href="pages/event-control/event-control.html" class="btn-pill btn-pill-primary">
               Manage event
               <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
-            </span>
+            </a>
           </div>
         </div>
       </div>
-    </a>
+    </article>
 
     <!-- Compact: Sarah's 30th -->
     <a href="#" class="compact-event-card">
@@ -253,7 +254,7 @@
   <section class="event-grid event-section reveal mt-10 md:mt-12" data-section="my-past" aria-label="My past events">
 
     <!-- Featured: The Kapoor Wedding -->
-    <a href="#" class="featured-event-card">
+    <article class="featured-event-card">
       <div class="fec-cover">
         <span class="fec-cover-tag" style="background:rgba(0,0,0,.55);border-color:rgba(255,255,255,.16)">
           <span aria-hidden="true" class="material-symbols-outlined" style="font-size:12px">check_circle</span>
@@ -266,7 +267,7 @@
       </div>
       <div class="fec-body">
         <p class="fec-type-eyebrow">Wedding · Held Feb 14, 2024</p>
-        <h2 class="fec-title">The Kapoor Wedding</h2>
+        <h2 class="fec-title"><a href="#" class="fec-link-stretched">The Kapoor Wedding</a></h2>
 
         <div class="fec-meta">
           <span class="hero-meta-chip">
@@ -305,18 +306,18 @@
             Held 21 months ago
           </span>
           <div class="fec-actions">
-            <span class="btn-pill btn-pill-secondary">
+            <a href="#" class="btn-pill btn-pill-secondary">
               <span aria-hidden="true" class="material-symbols-outlined">photo_library</span>
               Photo gallery
-            </span>
-            <span class="btn-pill btn-pill-primary">
+            </a>
+            <a href="#" class="btn-pill btn-pill-primary">
               Event report
               <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
-            </span>
+            </a>
           </div>
         </div>
       </div>
-    </a>
+    </article>
 
     <!-- Compact: Annual Tech Summit 2025 -->
     <a href="#" class="compact-event-card">
@@ -371,7 +372,7 @@
   <section class="event-grid event-section reveal mt-10 md:mt-12" data-section="collab-active" aria-label="Active collaborations">
 
     <!-- Featured: Mehta & Shah Sangeet -->
-    <a href="#" class="featured-event-card">
+    <article class="featured-event-card">
       <div class="fec-cover">
         <span class="fec-cover-tag fec-cover-featured">★ Featured</span>
         <span class="fec-cover-tag fec-cover-rolepill">
@@ -381,7 +382,7 @@
       </div>
       <div class="fec-body">
         <p class="fec-type-eyebrow">Wedding sangeet · Planning</p>
-        <h2 class="fec-title">Mehta &amp; Shah Sangeet</h2>
+        <h2 class="fec-title"><a href="#" class="fec-link-stretched">Mehta &amp; Shah Sangeet</a></h2>
 
         <div class="fec-meta">
           <span class="hero-meta-chip">
@@ -421,18 +422,18 @@
             12 days to go
           </span>
           <div class="fec-actions">
-            <span class="btn-pill btn-pill-secondary">
+            <a href="#" class="btn-pill btn-pill-secondary">
               <span aria-hidden="true" class="material-symbols-outlined">checklist_rtl</span>
               My tasks
-            </span>
-            <span class="btn-pill btn-pill-primary">
+            </a>
+            <a href="#" class="btn-pill btn-pill-primary">
               Open dashboard
               <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
-            </span>
+            </a>
           </div>
         </div>
       </div>
-    </a>
+    </article>
 
     <!-- Compact: Corporate Gala 2026 -->
     <a href="#" class="compact-event-card">
@@ -526,7 +527,7 @@
       document.querySelectorAll('[' + attr + ']').forEach(function (el) {
         var match = el.getAttribute(attr) === value;
         el.classList.toggle('is-active', match);
-        el.setAttribute('aria-selected', match ? 'true' : 'false');
+        el.setAttribute('aria-checked', match ? 'true' : 'false');
       });
       if (group === 'ownership' && titleEl) {
         titleEl.textContent = value === 'collab' ? 'Event Collaborations' : 'Your Events';

@@ -1,0 +1,91 @@
+/* ════════════════════════════════════════════════════════════════════
+   Evenzi · Event Control page styles
+   Page-specific only. All shared primitives (clay-card, lg-glass-card,
+   floating-nav, breadcrumb, tool-rail, reveal, scroll-progress,
+   help-fab, hero-pill, hero-meta-*, qa-card, qa-tile, stats-strip-card,
+   stat-icon, tool-card) live in ../../shared/shell.css.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── HERO SCREEN (full viewport, scroll-snap) ───────── */
+body[data-page="event-control"]{scroll-snap-type:y proximity}
+.snap{scroll-snap-align:start;scroll-snap-stop:always}
+
+.hero-screen{
+  position:relative;min-height:100dvh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:5rem 0 2.5rem;
+}
+@media (max-width:768px){
+  .hero-screen{min-height:auto;padding:5.5rem 0 7rem;justify-content:flex-start}
+}
+
+/* Bg layer keeps its own clipping so the oversized image doesn't bleed */
+.hero-screen > .hero-bg{overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.hero-bg-img{
+  position:absolute;inset:-8%;width:116%;height:116%;
+  background-image:url("../../assets/hero-image.jpg");
+  background-size:cover;background-position:center;
+  transition:transform .9s cubic-bezier(.2,.7,.2,1),filter .4s;
+  will-change:transform;
+  filter:brightness(.55) saturate(1.05) contrast(.95);
+}
+.dark .hero-bg-img{filter:brightness(.5) saturate(1.10)}
+
+.hero-bg-overlay{
+  position:absolute;inset:0;
+  background:
+    linear-gradient(to right,color-mix(in oklab,var(--bg) 70%,transparent) 0%,transparent 60%),
+    linear-gradient(to bottom,var(--bg) 0%,color-mix(in oklab,var(--bg) 45%,transparent) 18%,color-mix(in oklab,var(--bg) 35%,transparent) 50%,color-mix(in oklab,var(--bg) 70%,transparent) 80%,var(--bg) 100%);
+}
+.dark .hero-bg-overlay{
+  background:
+    linear-gradient(to right,color-mix(in oklab,var(--bg) 55%,transparent) 0%,transparent 60%),
+    linear-gradient(to bottom,var(--bg) 0%,color-mix(in oklab,var(--bg) 30%,transparent) 18%,color-mix(in oklab,var(--bg) 25%,transparent) 50%,color-mix(in oklab,var(--bg) 60%,transparent) 80%,var(--bg) 100%);
+}
+
+.hero-mandala{
+  position:absolute;left:50%;top:50%;
+  width:min(600px,55vw);height:auto;
+  transform:translate(-50%,-50%);
+  pointer-events:none;opacity:.55;
+  transition:transform .9s cubic-bezier(.2,.7,.2,1);
+  will-change:transform;
+}
+.hero-mandala .hm-spin{transform-origin:center;animation:hm-spin 60s linear infinite}
+@keyframes hm-spin{to{transform:rotate(360deg)}}
+
+.hero-particle{
+  position:absolute;width:6px;height:6px;border-radius:50%;
+  background:var(--brand);opacity:.5;pointer-events:none;
+  box-shadow:0 0 8px var(--brand);
+  animation:hp-drift var(--p-dur,9s) ease-in-out infinite;
+  animation-delay:var(--p-delay,0s);
+}
+@keyframes hp-drift{
+  0%,100%{transform:translate(0,0) scale(1);opacity:.3}
+  50%{transform:translate(var(--p-x,15px),var(--p-y,-25px)) scale(1.2);opacity:.7}
+}
+
+.hero-content{position:relative;z-index:2;width:100%}
+.hero-title-1{
+  font-family:'Poppins',sans-serif;font-weight:800;letter-spacing:-.04em;line-height:.92;
+  font-size:clamp(2.25rem,7vw,5.5rem);color:var(--ink);
+  text-shadow:0 2px 24px rgba(255,255,255,.45),0 1px 3px rgba(0,0,0,.08);
+}
+.dark .hero-title-1{text-shadow:0 2px 30px rgba(0,0,0,.4)}
+.hero-eyebrow{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.35em;color:var(--brand);text-transform:uppercase;
+}
+
+/* ── ROADMAP STRIP — horizontal scroll on mobile ─────── */
+@media (max-width:768px){
+  .roadmap-strip{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .roadmap-strip::-webkit-scrollbar{display:none}
+  .roadmap-strip > ol{display:flex !important;grid-template-columns:none !important;min-width:max-content;padding:0 .5rem}
+  .roadmap-strip > ol > li{flex:0 0 78px}
+  .roadmap-strip > ol > li p,
+  .roadmap-strip > ol > li button{white-space:normal}
+  .roadmap-strip-track{display:none}
+}

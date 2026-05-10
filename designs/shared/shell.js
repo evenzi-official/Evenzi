@@ -28,12 +28,17 @@
   function pad(n){ return n < 10 ? '0'+n : ''+n; }
   function tickClock() {
     if (!clock) return;
+    if (document.hidden) return;
     var d = new Date();
     var ist = new Date(d.getTime() + (d.getTimezoneOffset()*60000) + (5.5*3600000));
-    clock.textContent = pad(ist.getHours()) + ':' + pad(ist.getMinutes()) + ':' + pad(ist.getSeconds()) + ' IST';
+    var h = ist.getHours();
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    var h12 = h % 12; if (h12 === 0) h12 = 12;
+    clock.textContent = h12 + ':' + pad(ist.getMinutes()) + ':' + pad(ist.getSeconds()) + ' ' + ampm + ' IST';
   }
   tickClock();
   setInterval(tickClock, 1000);
+  document.addEventListener('visibilitychange', tickClock);
 
   function spawnRipple(host, e) {
     var rect = host.getBoundingClientRect();

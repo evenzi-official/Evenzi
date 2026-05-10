@@ -116,7 +116,7 @@
 .scrollable-list::-webkit-scrollbar{width:6px}
 .scrollable-list::-webkit-scrollbar-track{background:transparent}
 .scrollable-list::-webkit-scrollbar-thumb{background:var(--brand-tint-2);border-radius:9999px}
-.scrollable-list::-webkit-scrollbar-thumb:hover{background:var(--brand)}
+@media (hover:hover) and (pointer:fine){.scrollable-list::-webkit-scrollbar-thumb:hover{background:var(--brand)}}
 
 /* ── Body / typography / icons ─────────────── */
 body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--ink);transition:background-color .3s ease,color .3s ease}
@@ -130,7 +130,7 @@ h1,h2,h3,.font-display{font-family:'Poppins',sans-serif;letter-spacing:-0.02em}
   box-shadow:var(--shadow-clay);
   transition:transform .25s ease-out,box-shadow .25s ease-out,background-color .3s ease;
 }
-.clay-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}
+@media (hover:hover) and (pointer:fine){.clay-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}}
 .clay-pill{border-radius:9999px;box-shadow:var(--shadow-clay-pill)}
 a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:8px}
 
@@ -201,7 +201,7 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
   color:var(--ink);background:transparent;border:0;cursor:pointer;
   transition:background-color .25s,color .25s,transform .25s;
 }
-.fn-icon-btn:hover{background:var(--brand-tint);color:var(--brand);transform:scale(1.05)}
+@media (hover:hover) and (pointer:fine){.fn-icon-btn:hover{background:var(--brand-tint);color:var(--brand);transform:scale(1.05)}}
 .fn-icon-btn .material-symbols-outlined{font-size:20px}
 .fn-dot{
   position:absolute;top:8px;right:9px;
@@ -217,7 +217,7 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
   transition:transform .25s,box-shadow .25s;
   box-shadow:0 6px 14px -4px color-mix(in oklab,var(--brand) 60%,transparent);
 }
-.fn-avatar:hover{transform:scale(1.06)}
+@media (hover:hover) and (pointer:fine){.fn-avatar:hover{transform:scale(1.06)}}
 /* Compact tabs inside the floating nav */
 .floating-nav .nav-tabs{
   background:color-mix(in oklab,var(--bg) 35%,transparent);
@@ -255,13 +255,13 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
   font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;letter-spacing:-.005em;
   transition:color .25s,background-color .25s,box-shadow .25s,transform .25s;
 }
-.nav-tab:hover{color:var(--brand);background:var(--brand-tint)}
+@media (hover:hover) and (pointer:fine){.nav-tab:hover{color:var(--brand);background:var(--brand-tint)}}
 .nav-tab.is-active{
   background:var(--brand);color:#fff;
   box-shadow:0 6px 14px -4px color-mix(in oklab,var(--brand) 60%,transparent),inset 0 1px 0 rgba(255,255,255,.18);
 }
 .nav-tab .material-symbols-outlined{font-size:18px;transition:transform .25s}
-.nav-tab:hover .material-symbols-outlined{transform:scale(1.06)}
+@media (hover:hover) and (pointer:fine){.nav-tab:hover .material-symbols-outlined{transform:scale(1.06)}}
 
 /* ════════════════════════════════════════════════════════════════════
    FUTURISTIC BREADCRUMB
@@ -304,11 +304,11 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
   background:var(--brand);color:#fff;flex-shrink:0;position:relative;
   transition:transform .2s,background .2s;
 }
-.bc-back:hover{transform:translateX(-2px);background:var(--brand-hover)}
+@media (hover:hover) and (pointer:fine){.bc-back:hover{transform:translateX(-2px);background:var(--brand-hover)}}
 .bc-back .material-symbols-outlined{font-size:18px}
 .bc-path{display:inline-flex;align-items:center;gap:.45rem;list-style:none;font-size:11px;font-weight:700;letter-spacing:.18em;position:relative;margin:0;padding:0}
 .bc-path a{color:var(--ink);transition:color .2s,text-shadow .2s;position:relative;text-decoration:none}
-.bc-path a:hover{color:var(--brand);text-shadow:0 0 12px color-mix(in oklab,var(--brand) 60%,transparent)}
+@media (hover:hover) and (pointer:fine){.bc-path a:hover{color:var(--brand);text-shadow:0 0 12px color-mix(in oklab,var(--brand) 60%,transparent)}}
 .bc-sep{display:inline-flex;color:var(--muted-soft)}
 .bc-sep svg{width:9px;height:9px;stroke:currentColor;stroke-width:2;fill:none}
 .bc-active{
@@ -389,13 +389,13 @@ html{scroll-behavior:smooth}
   color:var(--muted);
   transition:color .25s,background-color .25s,transform .25s,box-shadow .25s;
 }
-.tr-btn:hover{color:var(--brand);background:var(--brand-tint);transform:scale(1.07)}
+@media (hover:hover) and (pointer:fine){.tr-btn:hover{color:var(--brand);background:var(--brand-tint);transform:scale(1.07)}}
 .tr-btn.is-active{
   background:var(--brand);color:#fff;
   box-shadow:0 8px 18px -4px color-mix(in oklab,var(--brand) 65%,transparent),inset 0 1px 0 rgba(255,255,255,.18);
 }
 .tr-btn .material-symbols-outlined{font-size:22px;transition:transform .25s}
-.tr-btn:hover .material-symbols-outlined{transform:scale(1.05)}
+@media (hover:hover) and (pointer:fine){.tr-btn:hover .material-symbols-outlined{transform:scale(1.05)}}
 .tr-btn::after{
   content:attr(data-label);position:absolute;
   padding:6px 12px;background:var(--card);color:var(--ink);
@@ -408,11 +408,11 @@ html{scroll-behavior:smooth}
 }
 @media (min-width:1400px){
   .tr-btn::after{left:calc(100% + 14px);top:50%;transform:translateY(-50%) translateX(-6px)}
-  .tr-btn:hover::after,.tr-btn:focus-visible::after{opacity:1;transform:translateY(-50%) translateX(0)}
+@media (hover:hover) and (pointer:fine){  .tr-btn:hover::after,.tr-btn:focus-visible::after{opacity:1;transform:translateY(-50%) translateX(0)}}
 }
 @media (max-width:1399px){
   .tr-btn::after{bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px)}
-  .tr-btn:hover::after,.tr-btn:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (hover:hover) and (pointer:fine){  .tr-btn:hover::after,.tr-btn:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(0)}}
 }
 .tr-status{
   display:inline-flex;align-items:center;justify-content:center;gap:4px;
@@ -486,7 +486,7 @@ html{scroll-behavior:smooth}
   border:1px solid var(--brand-tint-2);
   transition:border-color .3s,box-shadow .3s,transform .25s;
 }
-.tool-card:hover{transform:translateY(-3px);border-color:color-mix(in oklab,var(--brand) 45%,var(--brand-tint-2))}
+@media (hover:hover) and (pointer:fine){.tool-card:hover{transform:translateY(-3px);border-color:color-mix(in oklab,var(--brand) 45%,var(--brand-tint-2))}}
 .tool-card.is-active{
   border-color:var(--brand);
   box-shadow:
@@ -509,7 +509,7 @@ html{scroll-behavior:smooth}
     inset 0 1px 0 rgba(255,255,255,.20);
   transition:transform .25s,box-shadow .25s;
 }
-.tool-card:hover .tool-card-icon{transform:scale(1.04)}
+@media (hover:hover) and (pointer:fine){.tool-card:hover .tool-card-icon{transform:scale(1.04)}}
 .tool-card-icon .material-symbols-outlined{font-size:30px}
 
 /* B3 · Quick Action card + tile — Liquid Glass card holding translucent tiles */
@@ -540,13 +540,13 @@ html{scroll-behavior:smooth}
   cursor:pointer;
 }
 .dark .qa-tile{background:color-mix(in oklab,var(--bg) 55%,transparent)}
-.qa-tile:hover{transform:translateY(-2px);border-color:var(--brand);background:var(--brand-tint)}
+@media (hover:hover) and (pointer:fine){.qa-tile:hover{transform:translateY(-2px);border-color:var(--brand);background:var(--brand-tint)}}
 .qa-tile-icon{
   width:32px;height:32px;border-radius:10px;
   background:var(--brand-tint);color:var(--brand);
   display:inline-flex;align-items:center;justify-content:center;margin-bottom:.5rem;
 }
-.qa-tile:hover .qa-tile-icon{background:var(--brand);color:#fff}
+@media (hover:hover) and (pointer:fine){.qa-tile:hover .qa-tile-icon{background:var(--brand);color:#fff}}
 
 /* D1 · Stats strip card — heavily translucent surface so hero image bleeds through */
 .stats-strip-card{
@@ -624,7 +624,7 @@ html{scroll-behavior:smooth}
   background:var(--lg-spec);mix-blend-mode:screen;
 }
 .hero-meta-chip > *{position:relative;z-index:1}
-.hero-meta-chip:hover{transform:translateY(-1px);border-color:var(--brand)}
+@media (hover:hover) and (pointer:fine){.hero-meta-chip:hover{transform:translateY(-1px);border-color:var(--brand)}}
 .hero-meta-icon{
   width:34px;height:34px;border-radius:9999px;flex-shrink:0;
   background:var(--brand);color:#fff;
@@ -711,7 +711,7 @@ html{scroll-behavior:smooth}
   padding:.35rem .55rem;border-radius:9999px;
   transition:background .2s,color .2s;
 }
-.fn-notif-mark-all:hover{background:var(--brand-tint)}
+@media (hover:hover) and (pointer:fine){.fn-notif-mark-all:hover{background:var(--brand-tint)}}
 .fn-notif-list{
   list-style:none;margin:0;padding:.35rem 0;
   max-height:380px;overflow-y:auto;
@@ -728,7 +728,7 @@ html{scroll-behavior:smooth}
   align-items:flex-start;
 }
 .fn-notif-item:last-child{border-bottom:0}
-.fn-notif-item:hover{background:var(--brand-tint)}
+@media (hover:hover) and (pointer:fine){.fn-notif-item:hover{background:var(--brand-tint)}}
 .fn-notif-icon{
   width:34px;height:34px;border-radius:12px;
   background:var(--brand-tint);color:var(--brand);
@@ -763,7 +763,7 @@ html{scroll-behavior:smooth}
   text-decoration:none;
   transition:gap .2s;
 }
-.fn-notif-view-all:hover{gap:.6rem}
+@media (hover:hover) and (pointer:fine){.fn-notif-view-all:hover{gap:.6rem}}
 .fn-notif-view-all .material-symbols-outlined{font-size:14px}
 @media (max-width:480px){
   .fn-notif-panel{width:calc(100vw - 1.5rem)}
@@ -787,12 +787,12 @@ html{scroll-behavior:smooth}
   background:var(--brand);color:#fff;
   box-shadow:var(--shadow-clay-pill);
 }
-.btn-pill-primary:hover{background:var(--brand-hover);transform:translateY(-1px)}
+@media (hover:hover) and (pointer:fine){.btn-pill-primary:hover{background:var(--brand-hover);transform:translateY(-1px)}}
 .btn-pill-secondary{
   background:var(--cream-soft);color:var(--ink);
   border:1px solid var(--line);
 }
-.btn-pill-secondary:hover{background:var(--brand-tint);color:var(--brand);border-color:var(--brand-tint-2)}
+@media (hover:hover) and (pointer:fine){.btn-pill-secondary:hover{background:var(--brand-tint);color:var(--brand);border-color:var(--brand-tint-2)}}
 /* Larger size used for full-page action footer */
 .btn-pill-lg{
   padding:0 1.5rem;height:46px;font-size:12px;
@@ -817,7 +817,7 @@ html{scroll-behavior:smooth}
   outline:none;
 }
 .form-input::placeholder{color:var(--muted-soft);font-weight:500}
-.form-input:hover{border-color:color-mix(in oklab,var(--brand) 35%,var(--brand-tint-2))}
+@media (hover:hover) and (pointer:fine){.form-input:hover{border-color:color-mix(in oklab,var(--brand) 35%,var(--brand-tint-2))}}
 .form-input:focus{
   border-color:var(--brand);
   box-shadow:0 0 0 4px var(--brand-tint);
@@ -837,7 +837,7 @@ html{scroll-behavior:smooth}
   color:var(--muted);background:transparent;border:0;cursor:pointer;
   transition:color .2s,background-color .2s;
 }
-.form-password-toggle:hover{color:var(--brand);background:var(--brand-tint)}
+@media (hover:hover) and (pointer:fine){.form-password-toggle:hover{color:var(--brand);background:var(--brand-tint)}}
 .form-password-toggle .material-symbols-outlined{font-size:18px}
 .form-helper{
   font-family:'Poppins',sans-serif;font-size:12px;color:var(--muted);
@@ -913,7 +913,7 @@ html{scroll-behavior:smooth}
   box-shadow:var(--shadow-clay-pill);
   transition:transform .2s,background-color .2s;
 }
-.avatar-edit-btn:hover{transform:scale(1.08);background:var(--brand-hover)}
+@media (hover:hover) and (pointer:fine){.avatar-edit-btn:hover{transform:scale(1.08);background:var(--brand-hover)}}
 .avatar-edit-btn .material-symbols-outlined{font-size:16px}
 
 /* ════════════════════════════════════════════════════════════════════
@@ -934,7 +934,7 @@ html{scroll-behavior:smooth}
   transition:background-color .2s;
   min-height:44px;
 }
-.checklist-row:hover{background:color-mix(in oklab,var(--brand-tint) 55%,transparent)}
+@media (hover:hover) and (pointer:fine){.checklist-row:hover{background:color-mix(in oklab,var(--brand-tint) 55%,transparent)}}
 .checklist-row > input[type="checkbox"]{
   position:absolute;width:1px;height:1px;padding:0;margin:-1px;
   overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
@@ -952,9 +952,11 @@ html{scroll-behavior:smooth}
   font-variation-settings:'FILL' 1,'wght' 700;
   transition:opacity .15s;
 }
-.checklist-row:hover .checklist-check{
-  border-color:var(--brand);
-  box-shadow:0 0 0 4px var(--brand-tint-2);
+@media (hover:hover) and (pointer:fine){
+  .checklist-row:hover .checklist-check{
+    border-color:var(--brand);
+    box-shadow:0 0 0 4px var(--brand-tint-2);
+  }
 }
 .checklist-row:has(> input[type="checkbox"]:checked) .checklist-check{
   background:var(--brand);border-color:var(--brand);
@@ -1018,10 +1020,12 @@ html{scroll-behavior:smooth}
   transition:border-color .3s,background .3s,transform .25s;
   cursor:pointer;color:inherit;text-decoration:none;
 }
-.empty-cta-card:hover{
-  border-color:var(--brand);
-  background:var(--brand-tint);
-  transform:translateY(-2px);
+@media (hover:hover) and (pointer:fine){
+  .empty-cta-card:hover{
+    border-color:var(--brand);
+    background:var(--brand-tint);
+    transform:translateY(-2px);
+  }
 }
 .empty-cta-icon{
   width:56px;height:56px;border-radius:9999px;
@@ -1032,3 +1036,26 @@ html{scroll-behavior:smooth}
 .empty-cta-icon .material-symbols-outlined{font-size:28px}
 .empty-cta-title{font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;color:var(--ink);letter-spacing:-.005em}
 .empty-cta-sub{font-size:12px;color:var(--muted);max-width:18rem;line-height:1.4}
+
+/* ════════════════════════════════════════════════════════════════════
+   Backdrop-filter fallback
+   On older WebView (Android 8 stock browser, some Samsung Internet
+   versions, WhatsApp's in-app browser on aging devices) backdrop-filter
+   is unsupported — without a fallback, glass surfaces become transparent
+   and overlaid text becomes unreadable on imagery. Force solid surfaces
+   on those engines.
+   ════════════════════════════════════════════════════════════════════ */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .floating-nav-inner,
+  .nav-tabs,
+  .bc-shell,
+  .tool-rail,
+  .qa-card,
+  .qa-tile,
+  .stats-strip-card,
+  .hero-pill,
+  .hero-meta-chip{
+    background:var(--card);
+    border-color:var(--line);
+  }
+}

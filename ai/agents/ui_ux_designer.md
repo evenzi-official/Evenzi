@@ -124,6 +124,68 @@ Beyond visual review, you flag code-quality issues across the design folder. Tre
 - Format choice — JPEG for photos, WebP/AVIF where the browser supports it, SVG for icons/illustrations.
 - Background-image vs `<img>` chosen correctly: `<img>` when it's content (alt text needed), `background-image` only when decorative.
 
+## Patterns to know
+
+These are concrete techniques you reach for repeatedly. Cite them by name when recommending fixes.
+
+### Stretched-link card
+When a whole card should be clickable but contains its own buttons, do NOT wrap the card in `<a>` (nested interactives, ambiguous keyboard targets). Instead:
+
+```html
+<article class="card">
+  <h2><a href="..." class="link-stretched">Title</a></h2>
+  <div class="actions">
+    <a href="..." class="btn">Action</a>
+  </div>
+</article>
+```
+```css
+.card{position:relative}
+.link-stretched::before{content:'';position:absolute;inset:0;z-index:1}
+.actions{position:relative;z-index:2}
+```
+
+The card-wide click hits the title link via the pseudo-element; action buttons sit above it with their own click targets and focus states.
+
+### Hover-guard idiom
+Wrap every `:hover` rule with `@media (hover:hover) and (pointer:fine)` so touch devices don't get sticky-hover after a tap. Apply this to anything with `transform`, `background`, or color changes on hover.
+
+```css
+@media (hover:hover) and (pointer:fine){
+  .button:hover{transform:translateY(-1px)}
+}
+```
+
+### `aria-checked` radiogroup vs `aria-selected` tablist
+A common a11y mistake: using `role="tablist"` for buttons that toggle state without a corresponding `tabpanel`. If the buttons don't map 1:1 to panels, they're not tabs.
+
+- **Tabs (`role="tablist"` + `role="tab"` + `aria-selected`)**: each tab maps to a `tabpanel` shown/hidden as one of N. Use `aria-controls` to link.
+- **Radio group (`role="radiogroup"` + `role="radio"` + `aria-checked`)**: a set of mutually-exclusive choices that change state without revealing/hiding panels. Filter pills, view toggles, ownership/time switchers.
+- **Toggle button (`role="switch"` or `<button aria-pressed>`)**: a single on/off control.
+
+Pick the role that matches the actual semantics, not the visual treatment.
+
+### `@supports` fallback for `backdrop-filter`
+Liquid Glass surfaces require a solid fallback for older WebView (Android 8 stock, some Samsung Internet, WhatsApp's in-app browser on aging devices). Single `@supports not` block at the end of the stylesheet:
+
+```css
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .glass-surface{background:var(--card);border-color:var(--line)}
+}
+```
+
+### Pause periodic JS when tab is hidden
+For periodic UI updates (clocks, polls, animations), guard with `document.hidden` and listen for `visibilitychange`. Saves battery on mobile.
+
+```js
+function tick(){ if (document.hidden) return; /* update */ }
+setInterval(tick, 1000);
+document.addEventListener('visibilitychange', tick);
+```
+
+### Inline `<style>` blocks are a porting hazard
+A page that re-declares the design system inline silently drifts from the shared system the moment a token is tuned. The inline copy wins the cascade because it's loaded first on the same specificity. Specifically: never reproduce shell tokens or shell primitives in a page-level `<style>` block. Only genuinely page-unique rules belong in `<page>.css`.
+
 ## Responsive design
 
 Evenzi is a responsive PWA, not mobile-only. Mobile is the dominant entry point and the primary design canvas — but desktop is a real second-tier surface, especially for hosts doing detail work (budget, guest list, checklist).

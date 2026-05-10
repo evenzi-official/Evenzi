@@ -21,7 +21,7 @@
   transition:transform .2s,box-shadow .2s,background .2s;
   margin-right:.35rem;
 }
-.dash-create-btn:hover{transform:translateY(-1px);background:var(--brand-hover)}
+@media (hover:hover) and (pointer:fine){.dash-create-btn:hover{transform:translateY(-1px);background:var(--brand-hover)}}
 .dash-create-btn .material-symbols-outlined{font-size:18px}
 .dash-create-label{display:none}
 @media (min-width:560px){.dash-create-label{display:inline}}
@@ -61,7 +61,7 @@
   text-decoration:none;color:inherit;
 }
 @media (min-width:1024px){.featured-event-card{grid-column:span 7 / span 7}}
-.featured-event-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}
+@media (hover:hover) and (pointer:fine){.featured-event-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}}
 
 .fec-cover{
   position:relative;height:200px;
@@ -117,7 +117,19 @@
 }
 .fec-countdown .material-symbols-outlined{font-size:16px}
 
-.fec-actions{display:inline-flex;gap:.5rem;flex-wrap:wrap}
+.fec-actions{display:inline-flex;gap:.5rem;flex-wrap:wrap;position:relative;z-index:2}
+
+/* Stretched-link pattern: the whole card is clickable via the title link,
+   but the action buttons inside remain independently focusable. */
+.fec-link-stretched{color:inherit;text-decoration:none}
+.fec-link-stretched::before{
+  content:'';position:absolute;inset:0;z-index:1;
+  border-radius:inherit;
+}
+.fec-link-stretched:focus-visible{outline:none}
+.featured-event-card:has(.fec-link-stretched:focus-visible){
+  outline:2px solid var(--brand);outline-offset:3px;
+}
 /* Pill buttons use .btn-pill / .btn-pill-primary / .btn-pill-secondary from shell.css */
 
 /* Compact event card — single column, status-driven */
@@ -130,7 +142,7 @@
   text-decoration:none;color:inherit;
   min-height:180px;
 }
-.compact-event-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}
+@media (hover:hover) and (pointer:fine){.compact-event-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}}
 .cec-cover{
   position:relative;height:80px;
   display:flex;align-items:center;justify-content:flex-start;padding:.85rem 1rem;
@@ -183,7 +195,7 @@
   color:var(--brand);text-decoration:none;
   transition:gap .2s;
 }
-.cec-action:hover{gap:.5rem}
+@media (hover:hover) and (pointer:fine){.cec-action:hover{gap:.5rem}}
 .cec-action .material-symbols-outlined{font-size:14px}
 
 /* Compact card sizing in the grid */
