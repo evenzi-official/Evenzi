@@ -39,6 +39,9 @@ Both users:
 ### 4a. Path: Abhijith
 
 #### 4a.1 Update ClickUp tasks
+
+If the session worked exclusively on the design path (5a.7 of start-evenzi-session) with no ClickUp-tracked feature touched, **skip this step** — design path is pre-task and has no tickets. Note in the session report that no ClickUp tasks were touched. Otherwise:
+
 Invoke `/clickup-pm` with mode `session-end`. Provide:
 - List of task IDs worked on
 - Summary per task (what done, current state, next steps)
@@ -72,7 +75,16 @@ Append to `docs/sprint/sprint-N/abhijith-log.md` under today's date:
 
 If today's H2 doesn't exist yet (rare — should already exist from session start), create it.
 
-#### 4a.7 Commit, push, merge to Dev-Vibe
+#### 4a.7 Design path closing (only if the design path was used this session)
+
+If Abhijith ran the design path (5a.7 of start-evenzi-session), run this checklist before commit:
+
+1. **Plan doc** — for each page designed or reviewed, verify `designs/_plans/<page>-plan.md` has a `## Built` section appended (what shipped, what was deferred). If missing, prompt Abhijith to add it.
+2. **Components showcase** — if any shared components were added to or modified in `shell.css` / `shell.js`, verify `designs/components.html` has been updated to reflect them. Stub entries should show the new component in light + dark, with relevant states.
+3. **Agent evolution** — if the UI/UX agent file (`ai/agents/ui_ux_designer.md`) was updated this session with new patterns or learnings, that is expected behavior (the agent evolves with each pass). Include the update in the commit.
+4. **Stop the design server** — `npm run design` (live-server on :4000) was started at session start. Find the background process and stop it before worktree removal. Long-running background processes are NOT killed by `ExitWorktree` alone.
+
+#### 4a.8 Commit, push, merge to Dev-Vibe
 ```bash
 git add <relevant files>
 git commit -m "docs: end-of-session update — <brief summary>"
@@ -84,10 +96,10 @@ git push origin Dev-Vibe
 
 If merge conflicts: stop and ask Abhijith. **Never force push.**
 
-#### 4a.8 Clean up worktree
-`ExitWorktree` with action `remove`. If it refuses (uncommitted changes), go back to 4a.7.
+#### 4a.9 Clean up worktree
+`ExitWorktree` with action `remove`. If it refuses (uncommitted changes), go back to 4a.8.
 
-#### 4a.9 Confirm
+#### 4a.10 Confirm
 
 Tell Abhijith:
 - ClickUp tasks updated (statuses + comments)
@@ -187,3 +199,5 @@ Same one-time-header treatment for `abhijith-log.md` and `dheeraj-log.md`:
 4. **Dheeraj's `dheeraj-progress.md` is append-only.** The `## Synced` section is owned by `/start-evenzi-session` (Abhijith path).
 5. **Sprint-log files are append-only.** Group by date.
 6. **Confirm before destructive actions** — worktree removal, merge to Dev-Vibe. Never force push.
+7. **Design path is Abhijith-only.** Dheeraj's path will never trigger 4a.7. If Dheeraj somehow has design changes, treat them as bugs of the start-session flow and ask before committing.
+8. **Stop background servers explicitly** — `npm run design`, `npm run dev`, `preview_start` servers. Worktree removal does not kill them.
