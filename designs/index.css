@@ -25,6 +25,10 @@
 .dash-create-btn .material-symbols-outlined{font-size:18px}
 .dash-create-label{display:none}
 @media (min-width:560px){.dash-create-label{display:inline}}
+/* Hide the Create-event CTA on phones — nav gets too crowded with the bell + theme + avatar.
+   Users land on the dashboard with prominent empty-CTA cards and the existing event grid;
+   they can create events from those instead. */
+@media (max-width:768px){.dash-create-btn{display:none}}
 
 /* Welcome header */
 .welcome-eyebrow{
