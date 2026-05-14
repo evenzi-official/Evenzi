@@ -34,7 +34,7 @@ Called by `/start-evenzi-session` (Abhijith path). Fetches current state and bri
 **Steps:**
 1. Fetch in-progress tasks: `clickup_filter_tasks` with tags `["mvp-phase-1"]`, statuses `["in progress"]`
 2. Fetch ready tasks: `clickup_filter_tasks` with tags `["mvp-phase-1"]`, statuses `["to do"]`
-3. Check for approval gates: `clickup_filter_tasks` with tags `["approval-gate"]`, statuses `["in review"]`
+3. Check for approval gates: `clickup_filter_tasks` with tags `["approval-gate"]`, statuses `["review"]`
 4. Return structured summary to the calling skill:
    - **In progress** tasks (name, ID, priority, list)
    - **Ready** tasks (name, ID, priority)
@@ -47,7 +47,7 @@ Called by `/end-evenzi-session` (Abhijith path). Updates all tasks worked on thi
 **Steps:**
 1. Receive list of task IDs worked on during the session
 2. For each task, determine appropriate status:
-   - Work complete and ready for review → `in review`
+   - Work complete and ready for review → `review`
    - Work partially done, will continue → keep `in progress`
    - Work is blocked → `blocked`
    - Phase approved during session → `done`
@@ -235,14 +235,16 @@ Update one or more task statuses.
 **Steps:**
 1. Validate the transition is legal per the status workflow:
    ```
-   backlog → to do → in progress → in review → approved → done
-   Revision: in review → in progress → in review
+   backlog → to do → in progress → review → approved → done
+   Revision: review → in progress → review
    Special: any → blocked (with blocker note)
    ```
-2. Update task status
-3. If transitioning to `in review`, add comment describing what needs review
-4. If transitioning to `done`, verify all child tasks are also done
-5. If transitioning from `blocked`, add comment about what was unblocked
+   ⚠️ The status is named `review` (not `in review`). Passing `"in review"` returns `Status does not exist`.
+2. If task is in **Backlog** list and you're transitioning to `done` or `review`, move it to **Active Sprint** (`901614390914`) first — those statuses don't exist in the Backlog list.
+3. Update task status
+4. If transitioning to `review`, add comment describing what needs review
+5. If transitioning to `done`, verify all child tasks are also done
+6. If transitioning from `blocked`, add comment about what was unblocked
 
 ### Mode: `move-task`
 
@@ -309,13 +311,15 @@ Batch update multiple tasks at once. Use parallel subagents for independent oper
 ## Status Workflow Reference
 
 ```
-backlog → to do → in progress → in review → approved → done
+backlog → to do → in progress → review → approved → done
                                     ↓                    
                               in progress (revision)     
                                                          
 Any status → blocked (with blocker note)                 
 blocked → previous status (when unblocked)               
 ```
+
+> ⚠️ Canonical name in ClickUp is `review` (not `in review`). The Backlog list does not expose `done` or `review` statuses — move the task to Active Sprint first.
 
 ## Naming Conventions
 
@@ -427,7 +431,7 @@ When testing or implementing a feature, you will often discover issues that aren
 
 ## Rules
 
-1. **Never skip approval gates** — every phase goes through `in review` before proceeding
+1. **Never skip approval gates** — every phase goes through `review` before proceeding
 2. **Never hardcode IDs** — always reference WORKSPACE.md (this skill embeds key IDs above for convenience, but WORKSPACE.md is the source of truth)
 3. **Never create freeform tasks** — always use a template from TEMPLATES.md
 4. **Always add tags** — every task gets its phase tag + `mvp-phase-1`

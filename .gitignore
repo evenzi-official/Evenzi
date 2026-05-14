@@ -44,3 +44,6 @@ next-env.d.ts
 
 # agent runner logs
 .runner/
+
+# claude code worktrees (transient per-session checkouts)
+.claude/worktrees/

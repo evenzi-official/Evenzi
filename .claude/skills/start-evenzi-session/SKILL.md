@@ -102,6 +102,21 @@ Then `AskUserQuestion` with paths:
 | **Codebase maintenance** | Refactor, cleanup, dependency updates |
 | **Review / explore** | Read code, understand a system |
 
+#### 5a.6.1 Start the right dev server
+
+After the path is chosen, start the appropriate server in background — but only if it isn't already running. Use Bash with `run_in_background: true` and surface the URL to Abhijith.
+
+| Path                        | Server           | Port | Notes |
+|-----------------------------|------------------|------|-------|
+| Design next page            | `npm run design` | 4000 | Handled in 5a.7.1 — skip here |
+| Work on a ClickUp task      | `npm run dev`    | 3000 | |
+| Review Dheeraj's work       | `npm run dev`    | 3000 | |
+| Fix a bug                   | `npm run dev`    | 3000 | |
+| Codebase maintenance        | `npm run dev`    | 3000 | Only if change is verifiable in browser |
+| ClickUp task management     | none             | —    | |
+| Design / brainstorm         | none             | —    | |
+| Review / explore            | none             | —    | |
+
 #### 5a.7 Path: Design next page
 
 **No superpowers.** Pure design work — HTML/CSS/JS in `designs/`, mobile-web target. Pages are built as static prototypes that get converted to React later.
@@ -203,6 +218,10 @@ If `dheeraj.md` doesn't exist, tell Dheeraj clearly: *"No sprint digest at `docs
 
 Do **NOT** invoke `/clickup-pm`. Any ClickUp call from this branch is a bug. Dheeraj has no ClickUp access.
 
+#### 5b.2.1 Start dev server
+
+Dheeraj is always on frontend. Start `npm run dev` in background (port 3000) at session start, unless it's already running. Use Bash with `run_in_background: true`. Surface the URL to Dheeraj.
+
 #### 5b.3 Append session-start log entry
 
 Append to `docs/sprint/sprint-N/dheeraj-log.md` (create if missing). Group by date.
@@ -249,5 +268,6 @@ Always dispatch parallel subagents for independent tasks via `superpowers:dispat
 5. **Sprint-log files are append-only** and grouped by date — never rewrite past entries; never reorder.
 6. **Digest files are derived state** — overwriting on regenerate is fine.
 7. **Date and time:** use the user's local clock (24-hour format). If the date isn't certain, ask.
+8. **Dev server starts with the path** — design path → `npm run design` (:4000); code paths (work on task, review Dheeraj, fix bug, codebase maintenance if browser-verifiable) → `npm run dev` (:3000); pure-PM/brainstorm/explore paths → none. Dheeraj always gets `npm run dev`. Servers are stopped at session end (see end-evenzi-session 4a.7 / Rule 8).
 
 Begin work.
