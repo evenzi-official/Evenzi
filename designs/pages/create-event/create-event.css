@@ -6,69 +6,9 @@
    .form-input, .auth-shell-header/.auth-shell-footer patterns, .auth-bg).
    ════════════════════════════════════════════════════════════════════ */
 
-/* [hidden] safety net — the UA default has 0,0,0 specificity and is easily
-   overridden by any class rule that sets display. This guard makes sure
-   the attribute always wins on wizard surfaces. */
-.cc-shell [hidden],
-.cc-shell-header [hidden]{display:none !important}
-
-/* Page chrome reuses the auth shell sticky-footer flex layout */
-.cc-shell{
-  display:flex;flex-direction:column;
-  min-height:100dvh;
-}
-.cc-shell-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:1.1rem 1.25rem;
-  max-width:1200px;width:100%;margin:0 auto;
-  gap:1rem;
-}
-.cc-logo{
-  font-family:'Poppins',sans-serif;font-weight:800;font-size:1.5rem;
-  color:var(--brand);letter-spacing:-.04em;line-height:1;
-  text-decoration:none;
-  padding:.25rem .35rem;border-radius:.5rem;
-}
-.cc-logo:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
-@media (min-width:640px){
-  .cc-logo{font-size:1.75rem}
-}
-.cc-eyebrow{
-  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
-  letter-spacing:.32em;text-transform:uppercase;color:var(--brand);
-  white-space:nowrap;
-}
-@media (max-width:640px){
-  .cc-eyebrow{font-size:10px;letter-spacing:.22em}
-}
-.cc-shell-actions{
-  display:inline-flex;align-items:center;gap:.5rem;
-}
-.cc-theme-toggle{
-  position:relative;width:44px;height:44px;border-radius:9999px;
-  display:inline-flex;align-items:center;justify-content:center;
-  color:var(--muted);background:transparent;border:0;cursor:pointer;
-  appearance:none;-webkit-appearance:none;
-  transition:background-color .2s,color .2s;
-}
-@media (hover:hover) and (pointer:fine){
-  .cc-theme-toggle:hover{background:var(--brand-tint);color:var(--brand)}
-}
-.cc-theme-toggle:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-.cc-theme-toggle .material-symbols-outlined{font-size:20px}
-.cc-close{
-  display:inline-flex;align-items:center;gap:.35rem;
-  padding:.5rem 1rem;min-height:44px;border-radius:9999px;
-  font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;
-  color:var(--muted);background:transparent;border:0;cursor:pointer;
-  text-decoration:none;
-  transition:color .2s,background-color .2s;
-}
-@media (hover:hover) and (pointer:fine){
-  .cc-close:hover{color:var(--brand);background:var(--brand-tint)}
-}
-.cc-close:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-.cc-close .material-symbols-outlined{font-size:18px}
+/* Page chrome (.page-shell, .page-shell-header, .page-logo, .page-eyebrow,
+   .page-help, .page-close, .page-theme-toggle, .page-shell-actions, .page-main,
+   .page-main-center, .page-main-wide, .page-shell-footer) lives in shell.css. */
 
 .cc-stepper-row{
   display:flex;justify-content:center;

@@ -1690,20 +1690,137 @@ body.no-scroll{overflow:hidden}
   }
 }
 
-/* .auth-bg — subtle brand-tinted backdrop for auth screens.
-   Mounted on <body> via class. Low-cost warmth without the marketing-page feel. */
-.auth-bg{
+/* ════════════════════════════════════════════════════════════════════
+   PAGE SHELL — sticky-footer flex layout for standalone surfaces
+   (auth, create-event wizard, etc.) that don't use the floating-nav +
+   tool-rail shell. Unifies the prior .auth-shell-* and .cc-shell-* families.
+
+   Composition:
+     <body class="page-bg page-shell" data-step|page="...">
+       <header class="page-shell-header">
+         <a class="page-logo" href="…">Evenzi</a>
+         <span class="page-eyebrow">Celebratory Curator</span>   <!-- optional -->
+         <div class="page-shell-actions">
+           <button id="theme-toggle" class="page-theme-toggle">…</button>
+           <a class="page-help" href="…">Need help?</a>           <!-- or .page-close -->
+         </div>
+       </header>
+       <main class="page-main">                                 <!-- top-aligned -->
+       <main class="page-main page-main-center">                <!-- vertical-center -->
+       <main class="page-main page-main-center page-main-wide"> <!-- wide variant -->
+         …
+       </main>
+       <footer class="page-shell-footer">© 2026 …</footer>
+     </body>
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Subtle brand-tinted backdrop, mounted on <body> via class. */
+.page-bg{
   background:
     radial-gradient(circle at 18% 12%, color-mix(in oklab, var(--brand) 14%, transparent) 0%, transparent 38%),
     radial-gradient(circle at 82% 88%, color-mix(in oklab, var(--brand) 10%, transparent) 0%, transparent 40%),
     var(--bg);
   min-height:100dvh;
 }
-.dark .auth-bg{
+.dark .page-bg{
   background:
     radial-gradient(circle at 18% 12%, color-mix(in oklab, var(--brand) 22%, transparent) 0%, transparent 42%),
     radial-gradient(circle at 82% 88%, color-mix(in oklab, var(--brand) 16%, transparent) 0%, transparent 44%),
     var(--bg);
+}
+
+.page-shell{
+  display:flex;flex-direction:column;
+  min-height:100dvh;
+}
+/* Safety net so [hidden] always wins on shell surfaces (flex/grid
+   children with display rules would otherwise override the UA default). */
+.page-shell [hidden],
+.page-shell-header [hidden]{display:none !important}
+
+.page-shell-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 1.25rem;
+  max-width:1200px;width:100%;margin:0 auto;
+  gap:1rem;
+}
+
+.page-logo{
+  font-family:'Poppins',sans-serif;font-weight:800;font-size:1.5rem;
+  color:var(--brand);letter-spacing:-.04em;line-height:1;
+  text-decoration:none;
+  padding:.25rem .35rem;border-radius:.5rem;
+}
+.page-logo:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+@media (min-width:640px){
+  .page-logo{font-size:1.75rem}
+}
+
+.page-eyebrow{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.32em;text-transform:uppercase;color:var(--brand);
+  white-space:nowrap;
+}
+@media (max-width:640px){
+  .page-eyebrow{font-size:10px;letter-spacing:.22em}
+}
+
+.page-shell-actions{
+  display:inline-flex;align-items:center;gap:.5rem;
+}
+
+.page-theme-toggle{
+  position:relative;width:44px;height:44px;border-radius:9999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--muted);background:transparent;border:0;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  transition:background-color .25s,color .25s;
+}
+@media (hover:hover) and (pointer:fine){
+  .page-theme-toggle:hover{background:var(--brand-tint);color:var(--brand)}
+}
+.page-theme-toggle:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.page-theme-toggle .material-symbols-outlined{font-size:20px}
+
+.page-help{
+  display:inline-flex;align-items:center;min-height:44px;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;
+  color:var(--muted);text-decoration:none;
+  padding:.55rem .85rem;border-radius:9999px;
+  transition:color .2s,background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .page-help:hover{color:var(--brand);background:var(--brand-tint)}
+}
+.page-help:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+.page-close{
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.5rem 1rem;min-height:44px;border-radius:9999px;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;
+  color:var(--muted);background:transparent;border:0;cursor:pointer;
+  text-decoration:none;
+  transition:color .2s,background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .page-close:hover{color:var(--brand);background:var(--brand-tint)}
+}
+.page-close:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.page-close .material-symbols-outlined{font-size:18px}
+
+.page-main{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;
+  padding:1rem 1.25rem 2rem;
+}
+.page-main-center{justify-content:center}
+.page-main-wide{max-width:560px;width:100%;margin:0 auto}
+
+.page-shell-footer{
+  padding:1.25rem 1.25rem max(1.25rem, env(safe-area-inset-bottom, 0px));
+  text-align:center;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
 }
 
 /* "Coming soon" pill — small chip used inside radio-pills, cards, etc.
