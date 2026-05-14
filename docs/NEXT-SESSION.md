@@ -82,7 +82,13 @@
 
 **Open follow-ups for next session:**
 
-1. **P1 #5 — Page-chrome promotion to `.page-shell` family** (deferred). Currently `.auth-shell-*` and `.cc-shell-*` are duplicated across `designs/pages/auth/auth.css` and `designs/pages/create-event/create-event.css` (~80 LOC each). Promote a single `.page-shell-*` family into `shell.css` and update the 8 HTML files (auth.html, verify-otp.html, role-select.html, step-1/2/3/4-*.html, success.html) to use the new class names. Mechanical but careful work — risk is breaking 8 pages at once if a class name slips. Estimated 30-45 min.
+1. ~~**P1 #5 — Page-chrome promotion to `.page-shell` family**~~ ✅ **DONE 2026-05-15** (commit `cb568d1`). Unified `.page-shell-*` family in shell.css, 8 HTML files renamed, auth.css + create-event.css trimmed to page-specific rules only. Net -5 LOC.
+
+**Also done 2026-05-15:**
+- ✅ Settings gear moved from top floating-nav → side tool-rail on 6 event pages. Top nav cleaner (Bell + Theme + Avatar only).
+- ✅ Dashboard "+ Create event" CTA hidden at ≤768px (mobile nav was crowded).
+- ✅ Built `designs/pages/event-settings/` with 6 polished pages: general, website, admins, guest-list, registry, plan-billing. Shared left sidebar nav, mobile horizontal-scroll-of-pills fallback, Save handlers + toasts.
+- ✅ Promoted `.bc-copy` Tailwind utility chain (P1 from settings audit). Now `display:none` default + `@media (min-width:768px) { display:inline-flex }` in shell.css. Stripped 9 Tailwind tokens across 7 HTML files.
 
 2. **Anniversary celebrations** — agent flagged that Indian 25th/50th anniversaries often have a puja + reception arc. Currently anniversary is "Coming Soon"; when it ships, decide whether Step 3 (Celebrations picker) is shown or hidden. Hint: maybe a simpler 2-celebration default (puja + reception).
 

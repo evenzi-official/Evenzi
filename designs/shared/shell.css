@@ -349,11 +349,15 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
 .bc-live{width:6px;height:6px;border-radius:999px;background:var(--brand);box-shadow:0 0 0 0 color-mix(in oklab,var(--brand) 50%,transparent);animation:bc-pulse 2s ease-in-out infinite}
 .bc-mono{font-feature-settings:"tnum","ss01"}
 .bc-copy{
-  display:inline-flex;align-items:center;justify-content:center;
+  /* Hidden on mobile (the breadcrumb gets cramped); revealed at ≥768px.
+     Replaces the per-consumer `hidden md:inline-flex` Tailwind chain. */
+  display:none;
+  align-items:center;justify-content:center;
   width:28px;height:28px;border-radius:9999px;
   background:transparent;color:var(--muted);border:0;cursor:pointer;
   transition:color .2s,background-color .2s;
 }
+@media (min-width:768px){.bc-copy{display:inline-flex}}
 @media (hover:hover) and (pointer:fine){.bc-copy:hover{color:var(--brand);background:var(--brand-tint)}}
 .bc-copy:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .bc-copy .material-symbols-outlined{font-size:15px}
