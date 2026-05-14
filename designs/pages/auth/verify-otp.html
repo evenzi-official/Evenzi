@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Verify phone number</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Enter the 6-digit verification code sent to your phone." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="auth.css" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+</head>
+<body data-page="verify-otp" class="auth-bg auth-shell">
+
+<header class="auth-shell-header">
+  <a href="../../index.html" class="auth-logo" aria-label="Evenzi home">Evenzi</a>
+  <div class="auth-shell-actions">
+    <button id="theme-toggle" type="button" class="auth-theme-toggle" aria-label="Toggle dark mode">
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+    </button>
+    <a href="mailto:evenzi.official@gmail.com" class="auth-help">Need help?</a>
+  </div>
+</header>
+
+<main class="auth-main">
+  <section class="auth-card clay-card" aria-labelledby="verify-title">
+    <div class="auth-card-head">
+      <h1 class="auth-card-title" id="verify-title">Verify your phone number</h1>
+      <p class="auth-card-lead">Enter the 6-digit code we just sent you.</p>
+    </div>
+
+    <div class="auth-verify-meta">
+      <p class="auth-verify-phone" data-verify-phone>+91 99999 99999</p>
+      <a href="auth.html" class="auth-verify-change" data-change-number>Change number</a>
+    </div>
+
+    <div class="pin-input" data-len="6" role="group" aria-label="6-digit verification code" aria-describedby="otp-err">
+      <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " autocomplete="one-time-code" autofocus />
+      <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " autocomplete="one-time-code" />
+      <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " autocomplete="one-time-code" />
+      <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " autocomplete="one-time-code" />
+      <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " autocomplete="one-time-code" />
+      <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " autocomplete="one-time-code" />
+    </div>
+    <p class="form-error" id="otp-err" role="alert" hidden></p>
+
+    <button type="button" class="btn-pill btn-pill-primary btn-pill-lg" data-verify-otp>
+      <span>Verify and continue</span>
+      <span aria-hidden="true" class="btn-pill-spinner"></span>
+    </button>
+
+    <p class="auth-resend">
+      Didn't get the code?
+      <button type="button" class="auth-resend-btn" data-resend disabled>
+        <span data-resend-counter>Resend in <span data-resend-count>30</span>s</span>
+        <span data-resend-active hidden>Resend code</span>
+      </button>
+    </p>
+  </section>
+</main>
+
+<footer class="auth-shell-footer">
+  © 2026 Evenzi · All rights reserved
+</footer>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">VERIFIED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>

@@ -70,6 +70,9 @@
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ toast.classList.remove('is-show'); }, 1800);
   }
+  /* Expose toast helper for page-specific scripts (auth.js, settings.js, etc.) */
+  window.evenzi = window.evenzi || {};
+  window.evenzi.showToast = showToast;
 
   /* Back chip — demo toast (real route hop is the href) */
   var back = document.querySelector('[data-bc-back]');
@@ -396,6 +399,32 @@
   });
 })();
 
+/* ── Toggle switch (role="switch") ──────────────────
+   <button class="toggle-switch" role="switch" aria-checked="false">
+     <span class="toggle-switch-thumb"></span>
+   </button>
+   Click + Space/Enter both flip aria-checked. Space.preventDefault()
+   stops the page from scrolling when the switch is below the fold.
+*/
+(function () {
+  function toggle(btn) {
+    var on = btn.getAttribute('aria-checked') === 'true';
+    btn.setAttribute('aria-checked', on ? 'false' : 'true');
+  }
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[role="switch"].toggle-switch');
+    if (!btn || btn.disabled || btn.getAttribute('aria-disabled') === 'true') return;
+    toggle(btn);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== ' ' && e.key !== 'Enter' && e.key !== 'Spacebar') return;
+    var btn = e.target.closest && e.target.closest('[role="switch"].toggle-switch');
+    if (!btn || btn.disabled || btn.getAttribute('aria-disabled') === 'true') return;
+    e.preventDefault();
+    toggle(btn);
+  });
+})();
+
 /* ── Radio pill group ──────────────────────────────
    <div class="radio-pill-group" role="radiogroup">
      <button role="radio" aria-checked="true" class="radio-pill is-checked"…>
@@ -404,9 +433,13 @@
    Click toggles aria-checked + .is-checked across the group.
 */
 (function () {
+  function isDisabled(el){
+    return el.disabled || el.getAttribute('aria-disabled') === 'true';
+  }
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('.radio-pill[role="radio"]');
     if (!btn) return;
+    if (isDisabled(btn)) return; /* disabled pills opt-out of selection — page-level handler can still toast */
     var group = btn.closest('.radio-pill-group');
     if (!group) return;
     group.querySelectorAll('.radio-pill[role="radio"]').forEach(function (p) {
@@ -424,9 +457,12 @@
     var pills = Array.prototype.slice.call(group.querySelectorAll('.radio-pill[role="radio"]'));
     var idx = pills.indexOf(btn);
     var next = null;
-    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = pills[(idx + 1) % pills.length];
-    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = pills[(idx - 1 + pills.length) % pills.length];
-    if (!next) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      do { idx = (idx + 1) % pills.length; next = pills[idx]; } while (isDisabled(next) && next !== btn);
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      do { idx = (idx - 1 + pills.length) % pills.length; next = pills[idx]; } while (isDisabled(next) && next !== btn);
+    }
+    if (!next || next === btn) return;
     e.preventDefault();
     next.focus();
     next.click();
@@ -512,9 +548,21 @@
 
     cells.forEach(function (cell, idx) {
       cell.addEventListener('input', function (e) {
-        var v = cell.value.replace(/\D/g, '').slice(-1);
-        cell.value = v;
-        if (v && idx < cells.length - 1) cells[idx + 1].focus();
+        var digits = (cell.value || '').replace(/\D/g, '');
+        if (digits.length <= 1) {
+          /* Normal typing — keep single digit, auto-advance */
+          cell.value = digits;
+          if (digits && idx < cells.length - 1) cells[idx + 1].focus();
+          return;
+        }
+        /* Multi-digit input — likely iOS SMS auto-fill ("123456" into cell 0).
+           Distribute across cells starting from this index. */
+        cell.value = digits[0];
+        for (var i = 1; i < cells.length - idx && i < digits.length; i++) {
+          cells[idx + i].value = digits[i];
+        }
+        var next = Math.min(idx + digits.length, cells.length - 1);
+        cells[next].focus();
       });
       cell.addEventListener('keydown', function (e) {
         if (e.key === 'Backspace' && !cell.value && idx > 0) {
@@ -633,6 +681,35 @@
       closeModal(open);
     } else if (e.key === 'Tab') {
       trapTab(e, open);
+    }
+  });
+})();
+
+/* ── Avatar file-input change handler ──────────────
+   <div class="avatar-edit">
+     <span class="avatar-edit-img">A</span>
+     <input type="file" class="avatar-edit-input" id="avatar-upload" accept="image/*">
+     <label for="avatar-upload" class="avatar-edit-btn" aria-label="Change avatar">
+       <span class="material-symbols-outlined">photo_camera</span>
+     </label>
+   </div>
+   On file pick: announce via toast. Enforces 5 MB cap with #avatar-error fallback.
+*/
+(function () {
+  document.addEventListener('change', function (e) {
+    var input = e.target.closest && e.target.closest('.avatar-edit-input');
+    if (!input || !input.files || !input.files[0]) return;
+    var file = input.files[0];
+    var sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+    var errEl = document.getElementById('avatar-error');
+    if (file.size > 5 * 1024 * 1024) {
+      if (errEl) { errEl.hidden = false; errEl.textContent = 'Photo is ' + sizeMb + ' MB — max 5 MB.'; }
+      input.value = '';
+      return;
+    }
+    if (errEl) errEl.hidden = true;
+    if (window.evenzi && window.evenzi.showToast) {
+      window.evenzi.showToast('PHOTO READY');
     }
   });
 })();

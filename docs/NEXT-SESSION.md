@@ -65,7 +65,85 @@
 
 **Event CRUD is functionally complete.** Full 4-step wizard (Type → Details → Sub-Events → Review), success screen, dashboard with real event cards, all working end-to-end. Vercel deployment is live at evenzi.vercel.app.
 
-**What was done this session (2026-05-11 — components.html form fields + 10 new shell primitives, no ClickUp tasks):**
+---
+
+**What was done this session (2026-05-15 — Celebratory Curator wizard + auth/settings improvements):**
+
+- **Celebratory Curator wizard (NEW)** — full 5-screen event-creation flow in `designs/pages/create-event/`. Triggered from Dashboard's `+ Create event` nav button and the empty-CTA "Start a new event" card on `designs/index.html`. Per-step routing via sessionStorage state machine (`evz-event` key). All 5 screens: step-1-type, step-2-details, step-3-celebrations, step-4-review, success.
+- **Wedding-only MVP scope** — Step 1 has Wedding clickable; Birthday, Anniversary, Corporate dimmed with brand-tinted "SOON" tag and `aria-disabled="true"`. Click on disabled card fires a toast `BIRTHDAY COMING SOON` etc.
+- **New shell primitive**: `.cw-stepper` family — 4-step progress indicator with `.is-done` / `.is-active` / upcoming states, mobile-collapses labels at ≤640px, connector min-width tightens further at ≤380px to fit small phones.
+- **New shell primitive**: `.btn-pill-danger` — for destructive-but-not-primary CTAs (Sign Out). Transparent bg, brand-red border/text, brand-tint hover.
+- **Loading-state visual upgrade**: `.btn-pill-spinner` replaced from a rotating circle to **3 bouncing dots** (using ::before/::after pseudo-elements + staggered animation delays). Reduced-motion fallback swaps to synchronous opacity pulse. Show-rule generalised to `.is-loading > .btn-pill-spinner` so any button (`.btn-pill`, `.btn-google`, etc.) inherits the pattern.
+- **Auth flow follow-ups landed**: Logo bumped to 1.625rem mobile / 1.875rem desktop. `.nav-tabs.auth-tabs` track bg switched from `var(--peach)` (which is `#1f2937` solid in dark) to `color-mix(in oklab, var(--brand) 6%, var(--card))` — fixes the dark-mode "navy ring around tabs" bug. `.nav-tab` made self-sufficient (transparent bg + border:0 + appearance:none) so UA defaults don't leak through when Tailwind preflight loads late. Theme-toggle added to all 3 auth pages with localStorage persistence.
+- **Settings page**: Logout button added in a new "Account" section between Notification Preferences and the action footer. Uses the new `.btn-pill-danger` variant. Wired in `settings.js` to navigate to `../auth/auth.html` on click with loading state + toast.
+- **Settings cross-page hardening**: `.theme-icon-light`/`.theme-icon-dark` specificity bumped to beat Material Symbols' default `display:inline-block` (was causing both icons to render simultaneously in light mode).
+- **P1 #3 (en-IN date format)**: review screen renders `2026-09-15 → "15 Sept 2026"` via `toLocaleDateString('en-IN')`.
+- **`[hidden]` safety net**: `.cc-shell [hidden] { display:none !important }` so any flex/grid child honouring the `hidden` attribute doesn't show through. Fixes Birthday review (no partners row, no itinerary section).
+
+**Open follow-ups for next session:**
+
+1. **P1 #5 — Page-chrome promotion to `.page-shell` family** (deferred). Currently `.auth-shell-*` and `.cc-shell-*` are duplicated across `designs/pages/auth/auth.css` and `designs/pages/create-event/create-event.css` (~80 LOC each). Promote a single `.page-shell-*` family into `shell.css` and update the 8 HTML files (auth.html, verify-otp.html, role-select.html, step-1/2/3/4-*.html, success.html) to use the new class names. Mechanical but careful work — risk is breaking 8 pages at once if a class name slips. Estimated 30-45 min.
+
+2. **Anniversary celebrations** — agent flagged that Indian 25th/50th anniversaries often have a puja + reception arc. Currently anniversary is "Coming Soon"; when it ships, decide whether Step 3 (Celebrations picker) is shown or hidden. Hint: maybe a simpler 2-celebration default (puja + reception).
+
+3. **Step 3 meta buttons** — "Set Time" / "Set Venue" inside each celebration card currently fire stub toasts. Defer to a later session: build the actual time/venue pickers, integrate with the dashboard event-detail page.
+
+4. **Form-validation helper (`data-validate` hook)** — still the highest-value deferred follow-up. Auth + wizard + settings all duplicate small validators. A delegated handler in shell.js that reads `data-validate="required|min:10|pattern:..."` on inputs and flips `aria-invalid` + `.form-error` text would normalise the pattern.
+
+5. **Real-device WhatsApp Webview testing** — auth flow + wizard need a phone pass. Pin-input distribution, dark-mode contrast, +91 prefix readability — all phone-screen-only checks.
+
+6. **`status-badge` primitive** — most-requested deferred P1 from the 5/11 audit. Canonical success / warning / danger / info chips. The new `.role-tag-soon` and `.cc-type-tag` are early variants that should generalise.
+
+7. **Refresh-on-Step-3-mid-selection** is now state-safe (immediate sessionStorage write on toggle), but Step 2 form fields only autosave on `input` events (250ms debounced). If the user refreshes mid-keystroke they may lose <250ms of typing. Acceptable trade-off; flag for future.
+
+8. **Custom ceremony picker** on Step 3 — `[data-cc-add-custom]` fires a `CUSTOM CEREMONY PICKER` toast but does nothing. Likely a modal with a free-text input. Defer.
+
+---
+
+**Next session intent (2026-05-15):** **Design the Auth flow** — Login / Sign Up / Role Selection — as static HTML/CSS/JS prototypes in `designs/pages/auth/`.
+
+Four screens to build (Abhijith provided a Stitch/Figma reference screenshot last session):
+1. **Login** — Phone-number entry + `Send OTP` brand CTA + `OR` divider + `Continue with Google` secondary. Two pill tabs at top (`Sign Up` | `Log In`, active=dark). Card layout, brand wordmark top-left, "Need Help?" link top-right. Subtitle: "Get started with your free event website and AI photo sharing." Footer: terms-of-service + copyright.
+2. **Sign Up** — Same layout, `Sign Up` tab active, title swaps to "Create your Evenzi account."
+3. **Role Selection — variant A ("Brand Left Aligned")** — Two role cards side-by-side (Host / Event Owner · Vendor) with brand-tint icon, description, and `Continue as <role>` brand CTA. "← Back to Login" beneath. Page-foot: Privacy Policy · Terms of Service · Help Center.
+4. **Role Selection — variant B ("Final Layout")** — Same role cards, lighter page chrome (just copyright in foot).
+
+**Ground against:** the live React implementation at https://evenzi.vercel.app/auth — match the visual reality, not invent. The static prototype's goal is to lock visual language for the existing React port to be brought up to.
+
+**Shell primitives already available (no new ones expected):**
+- Pill tabs → use `.radio-pill-group` from FF6 (was originally OTP-section reframed; works as 2-tab segmented control with `role="radiogroup"`).
+- Phone input → `.form-input-group` + `.form-input-prefix` `+91` + `.form-input-field` (now proven on the settings page Profile section).
+- Send OTP CTA → `.btn-pill.btn-pill-primary.btn-pill-lg` with the new `.is-loading` state (also proven on settings page Save button).
+- "Continue with Google" → likely needs a new `.btn-google` primitive (white bg, brand line border, Google G mark, label text) — **add to shell.css**, candidate for promotion if any other social-login surfaces appear.
+- Role cards → reuse `.choice-card` from settings (notification preferences pattern) — promote from settings.css to shell.css since this is the second consumer (per the choice-card rule established in the settings audit-fix plan).
+- "Need Help?" link, "← Back to Login" link → candidate `.btn-text` primitive that was DROPPED from the settings session (agent's call). Re-evaluate: with 2+ consumers now (auth back-link, future "Forgot password?"), **promote `.btn-text` to shell.css** in next session.
+- Form-validation helper (`data-validate` hook) — **build this first** before Phone-number input wiring. Agent flagged as the highest-value deferred follow-up; auth flow is exactly the second consumer that triggers the "build now or fork twice" decision.
+
+**Build order (proposed):**
+1. UI/UX agent gap audit on the 4 screens against current shell.
+2. Promote `.choice-card` to shell.css. Promote `.btn-text` to shell.css. Add `.btn-google` to shell.css.
+3. Build `data-validate` helper in shell.js (handles required, pattern, custom-validator hooks; flips `aria-invalid` + `.form-error` text).
+4. Create `designs/pages/auth/auth.html` + `auth.css` + `auth.js`. Tab swap via JS toggles title + form behavior. Single page handles login + signup + role-selection states via `body[data-step]`.
+5. Test on phone — WhatsApp Android Webview test for the Google button + Phone OTP flow especially.
+
+**What was done last session (2026-05-14 — settings page audit-fix + Profile redesign, no ClickUp tasks):**
+- **All P0/P1/P2/P3 from the settings shell-component audit resolved.** Plan + post-build review: `designs/_plans/settings-audit-fix-plan.md` (verdict: APPROVE WITH NOTES).
+- **P2 root-cause fix:** `.form-input` default border re-based from `var(--brand-tint-2)` (18% red in dark — read as "semi-focused at rest" on every input page-wide) → `var(--line)` (neutral). Same fix applied to `.form-textarea`, `.form-select select`, `.pin-input-cell`. `.form-input-group` / `.form-input-trigger` inherit via composition; not double-updated. Affects every form-input across the app.
+- **P0:** Removed 3 inline IIFEs from `settings.html`. Duplicate password-toggle (was causing double-fire bug — verified fix). `.toggle-switch` keyboard handler hoisted to `shell.js` as delegated listener with `preventDefault()` on Space (stops viewport scroll on Firefox/Safari). `data-toggle-card` (choice-card) handler moved to new `designs/pages/settings/settings.js`.
+- **P1:** Removed 3 inline `style=""` attrs. New shell rules: `.fn-icon-btn[aria-current="page"]` (strict equality), `.bc-copy` base + icon size + hover/focus, `.help-fab` base rule (was Tailwind-only). Stripped the 11-class Tailwind chain from `.help-fab` across all 9 design pages.
+- **P3:** `.floating-nav-inner.is-minimal` modifier added to shell.css; `!important` rule deleted from settings.css.
+- **Profile section redesigned to 50/50 split:** Mirrors Security section's `border-left` divider pattern at ≥640px. Fields take the left column (Full Name, Phone with new `+91` split prefix using `form-input-group`, Email); avatar 96px (kept compact — agent overrode original 120px push) on the right with vertical divider. Mobile (<640px) stacks avatar above fields via `order:-1`.
+- **`<label for="avatar-upload">` + visually-hidden file-input pattern:** Camera badge is now a real file picker. New `.avatar-edit-input` rule in shell.css with `:focus-visible + .avatar-edit-btn` to surface focus ring on the label. shell.js delegated change handler enforces 5MB cap with `#avatar-error` recovery message; fires "PHOTO READY" toast on success.
+- **New shell primitives:** `.btn-pill.is-loading` + `.btn-pill-spinner` with reduced-motion fallback (spin → opacity pulse). Save button on settings demonstrates the pattern; 1.2s simulated roundtrip + success toast `SETTINGS SAVED`.
+- **iOS PWA safe-area:** `.settings-actions` now has `padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px))`.
+- **components.html showcase:** B2 Buttons gained `.btn-pill.is-loading` row (primary + secondary). AV1 Avatar editor gained a 3rd "File-input" variant demonstrating the `<label for>` pattern. S5 Help FAB tile rewritten — was still using the old Tailwind chain even after the build pass; agent caught it in post-build review.
+- **UI/UX agent both pre-build (REVISE → revised) and post-build (APPROVE WITH NOTES). Final findings flagged:**
+  - `.help-fab` hidden ≤768px but mobile tool-rail has no help entry either — design gap, flag for next session.
+  - `.bc-copy` Tailwind chain `hidden md:inline-flex` still raw on settings.html — defer.
+  - Tailwind CDN itself still on settings.html — defer to Next.js migration.
+  - Security section breakpoint 880px (not 768) — keep, document.
+
+**What was done previous session (2026-05-11 — components.html form fields + 10 new shell primitives, no ClickUp tasks):**
 - Extended `designs/components.html` from 9 to 12 sections. New: **06 Form fields** (FF1–FF9), **07 Avatars & people** (AV1–AV2), **10 Dialogs** (DLG1–DLG2 + live demo). Added tiles in existing sections: S8 fn-notif-panel, B8 toggle-switch, B9 segmented-radiogroup, D8 scrollable-list, L4 section-rule. Replaced legacy `clay-pill` "VIEW DETAILS" CTA with canonical `btn-pill` set (B2). Replaced placeholder L3 with `empty-cta-card`.
 - Added **10 new primitives** to `shell.css` (~411 lines): `form-textarea` (clay-sm radius), `form-select` + chevron (native picker, pill-styled), `form-input-group` + prefix/suffix/field (phone +91, currency ₹), `form-input-trigger` (date/time native picker bridge), `pin-input` 6-cell OTP, `radio-pill-group` (RSVP Yes/No/Maybe — `role="radiogroup"`), `form-error` + `form-helper-success` (semantic colors with icon — never color-only), `modal-scrim` + `modal-card` (single component, two presentations: centered ≥768px, bottom-sheet <768px with drag handle), `btn-pill:disabled` rule, `cs-code` + `cs-note` showcase utilities. `@supports not` fallback updated to include `.modal-scrim`.
 - Added **4 new IIFEs** to `shell.js` (~269 lines): password show/hide toggle (delegated, supports both `data-pw-toggle="<id>"` and bare attr), radio-pill click + arrow-key navigation, date/time trigger that opens hidden native `<input>` sibling and formats DD MMM YYYY / 12-hour AM/PM back to label, modal/sheet open-close with **focus-trap (Tab/Shift+Tab cycle within `.modal-card`) + lastFocused restore on close + body.no-scroll lock**.
@@ -236,8 +314,9 @@
 
 ### Immediate Next Steps
 
-1. **Settings page polish** — Abhijith flagged form-input borders rendering overly saturated red against dark background (3 fields all look semi-focused at rest). Investigate `settings.css` overrides vs shell.css default border (`var(--brand-tint-2)` at 18% opacity may be reading too red in dark). His stated next-session intent.
-2. **Form-validation JS helper** — `data-validate` hook + `data-error-required`/`data-error-pattern` attributes that flip `aria-invalid` and toggle `form-error` messages. UI/UX agent's #1 follow-up — without it every consumer page (Auth, Wizard, Guest invite, RSVP) will fork its own wiring against the brand-new primitives shipped this session.
+1. **Auth flow design (Login / Sign Up / Role Selection)** — see "Next session intent" block above. Build static HTML/CSS/JS prototypes in `designs/pages/auth/`. Grounded against live React at https://evenzi.vercel.app/auth. **Abhijith's stated next-session intent.**
+2. **Form-validation JS helper** — `data-validate` hook + `data-error-required`/`data-error-pattern` attributes that flip `aria-invalid` and toggle `form-error` messages. UI/UX agent's #1 follow-up — auth flow is the second consumer; build this BEFORE wiring the auth phone-input or it gets forked again. **Build first** within the auth-design session.
+3. **Settings page polish (DONE 2026-05-14)** — form-input red border bug root-caused in shell.css (`.form-input` default `var(--brand-tint-2)` → `var(--line)`). See `designs/_plans/settings-audit-fix-plan.md`.
 3. **Team discussion on 5 open decisions** (`docs/foundation/open-decisions.md`) — pricing, free tier limits, magazine name, WhatsApp approach, vendor plan name
 2. **Share document suite via Google Drive** — Admin & Ops and Marketing & Branding teams
 3. **Abhijith fills PPT placeholders** — fund ask, bios, pricing limits, timeline, contact

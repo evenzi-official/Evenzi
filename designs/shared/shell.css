@@ -6,6 +6,14 @@
    help-fab. No page-specific (hero / journey / bento / roadmap) styles.
    ════════════════════════════════════════════════════════════════════ */
 
+/* ── Reset — system-wide hygiene ──────────────────────
+   `box-sizing: border-box` so declared widths (`max-width:420px` etc.)
+   include padding + border, not just content. Pages that load Tailwind
+   CDN get this from Preflight; pages that don't (auth, create-event)
+   relied on content-box defaults and overflowed their declared widths.
+   This makes the design system self-sufficient. */
+*, *::before, *::after { box-sizing: border-box }
+
 /* ── LIGHT (final tokens — locked) ─────────────────── */
 :root{
   --bg:            #f9fafb;
@@ -142,9 +150,11 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
 .dot-bg{background-image:radial-gradient(circle at 1px 1px,var(--dot-color) 1px,transparent 0);background-size:20px 20px}
 
 /* Theme toggle icon flip */
-.theme-icon-dark{display:none}
-.dark .theme-icon-light{display:none}
-.dark .theme-icon-dark{display:inline-block}
+/* Bump specificity on theme-icon swap rules so Google's Material Symbols CSS
+   (.material-symbols-outlined { display:inline-block }) doesn't win. */
+.material-symbols-outlined.theme-icon-dark{display:none}
+.dark .material-symbols-outlined.theme-icon-light{display:none}
+.dark .material-symbols-outlined.theme-icon-dark{display:inline-block}
 
 /* ════════════════════════════════════════════════════════════════════
    FLOATING TOP NAV (single glass pill)
@@ -184,6 +194,11 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
   background:var(--lg-spec);mix-blend-mode:screen;
 }
 .floating-nav-inner > *{position:relative;z-index:1}
+/* Minimal nav variant — no centered tabs, no Create-Event CTA. Used on settings, etc. */
+.floating-nav-inner.is-minimal{
+  grid-template-columns:auto 1fr auto;
+  padding:.4rem .55rem .4rem 1.1rem;
+}
 .fn-logo-link{display:inline-flex;align-items:center;gap:.9rem;justify-self:start;text-decoration:none}
 .fn-logo{font-family:'Poppins',sans-serif;font-weight:800;font-size:1.5rem;color:var(--brand);letter-spacing:-.05em;line-height:1}
 .fn-tagline{
@@ -202,6 +217,7 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
   transition:background-color .25s,color .25s,transform .25s;
 }
 @media (hover:hover) and (pointer:fine){.fn-icon-btn:hover{background:var(--brand-tint);color:var(--brand);transform:scale(1.05)}}
+.fn-icon-btn[aria-current="page"]{background:var(--brand-tint);color:var(--brand)}
 .fn-icon-btn .material-symbols-outlined{font-size:20px}
 .fn-dot{
   position:absolute;top:8px;right:9px;
@@ -228,7 +244,7 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
 .floating-nav .nav-tab .material-symbols-outlined{font-size:16px}
 @media (max-width:768px){
   .floating-nav .nav-tab{padding:.5rem .55rem}
-  .nav-tab-label{display:none}
+  .floating-nav .nav-tab-label{display:none}
   .floating-nav-inner{gap:.6rem;padding:.3rem .35rem .3rem .85rem}
   .fn-icon-btn{width:36px;height:36px}
   .fn-avatar{width:36px;height:36px;font-size:13px}
@@ -251,6 +267,9 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
 .nav-tab{
   display:inline-flex;align-items:center;gap:.45rem;
   padding:.55rem 1rem;border-radius:9999px;
+  /* Reset UA defaults so the rule is self-sufficient (don't rely on Tailwind preflight) */
+  background:transparent;border:0;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
   color:var(--muted);text-decoration:none;
   font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;letter-spacing:-.005em;
   transition:color .25s,background-color .25s,box-shadow .25s,transform .25s;
@@ -329,6 +348,15 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
 .bc-system{display:inline-flex;align-items:center;gap:.45rem;font-size:10px;font-weight:700;letter-spacing:.22em;color:var(--muted);position:relative}
 .bc-live{width:6px;height:6px;border-radius:999px;background:var(--brand);box-shadow:0 0 0 0 color-mix(in oklab,var(--brand) 50%,transparent);animation:bc-pulse 2s ease-in-out infinite}
 .bc-mono{font-feature-settings:"tnum","ss01"}
+.bc-copy{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:9999px;
+  background:transparent;color:var(--muted);border:0;cursor:pointer;
+  transition:color .2s,background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){.bc-copy:hover{color:var(--brand);background:var(--brand-tint)}}
+.bc-copy:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.bc-copy .material-symbols-outlined{font-size:15px}
 .bc-ripple{position:absolute;border-radius:999px;transform:translate(-50%,-50%) scale(0);background:color-mix(in oklab,var(--brand) 35%,transparent);pointer-events:none;animation:bc-ripple .55s ease-out forwards}
 @keyframes bc-ripple{to{transform:translate(-50%,-50%) scale(8);opacity:0}}
 .bc-toast{
@@ -432,12 +460,34 @@ html{scroll-behavior:smooth}
   50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}
 }
 
-/* ── Help FAB ─────────────────────────────── */
+/* ════════════════════════════════════════════════════════════════════
+   HELP FAB — fixed bottom-right floating button.
+   Composition: <button class="help-fab" aria-label="Open help center">
+                  <span class="material-symbols-outlined">support_agent</span>
+                </button>
+   Auto-hides on mobile (≤768px). Lifts above bottom tool rail at ≤1399px.
+   ════════════════════════════════════════════════════════════════════ */
+.help-fab{
+  position:fixed;
+  bottom:max(1.5rem, calc(1.5rem + env(safe-area-inset-bottom,0px)));
+  right:max(1.5rem, calc(1.5rem + env(safe-area-inset-right,0px)));
+  width:56px;height:56px;border-radius:9999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--brand);color:#fff;border:0;cursor:pointer;
+  box-shadow:var(--shadow-clay-pill);
+  z-index:30;
+  transition:background-color .2s,transform .2s;
+}
+.help-fab .material-symbols-outlined{font-size:24px;font-variation-settings:'FILL' 1}
+@media (hover:hover) and (pointer:fine){
+  .help-fab:hover{background:var(--brand-hover);transform:translateY(-2px)}
+}
+.help-fab:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 @media (max-width:1399px){
-  .help-fab{bottom:calc(env(safe-area-inset-bottom,0px) + 5.25rem) !important}
+  .help-fab{bottom:calc(env(safe-area-inset-bottom,0px) + 5.25rem)}
 }
 @media (max-width:768px){
-  .help-fab{display:none !important}
+  .help-fab{display:none}
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -471,6 +521,18 @@ html{scroll-behavior:smooth}
 @media (prefers-reduced-motion: reduce){
   .reveal{opacity:1;transform:none;transition:none}
   *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+  /* Spinner reduced-motion override — keep a designed pulse animation
+     instead of the global kill-switch, so loading state still reads as "working". */
+  .btn-pill-spinner,
+  .btn-pill-spinner::before,
+  .btn-pill-spinner::after{
+    animation:btn-loading-pulse 1.4s ease-in-out infinite !important;
+    animation-iteration-count:infinite !important;
+    transform:none !important;
+  }
+  .btn-pill-spinner::before{animation-delay:0s !important}
+  .btn-pill-spinner{animation-delay:.16s !important}
+  .btn-pill-spinner::after{animation-delay:.32s !important}
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -793,6 +855,14 @@ html{scroll-behavior:smooth}
   border:1px solid var(--line);
 }
 @media (hover:hover) and (pointer:fine){.btn-pill-secondary:hover{background:var(--brand-tint);color:var(--brand);border-color:var(--brand-tint-2)}}
+/* Danger variant — for destructive-but-not-primary actions (sign out, etc.).
+   Less visually loud than .btn-pill-primary so it doesn't fight other CTAs,
+   but clearly signals "this is a different category" via the destructive color. */
+.btn-pill-danger{
+  background:transparent;color:var(--brand);
+  border:1px solid var(--brand-tint-2);
+}
+@media (hover:hover) and (pointer:fine){.btn-pill-danger:hover{background:var(--brand-tint);border-color:var(--brand);transform:translateY(-1px)}}
 .btn-pill:disabled,
 .btn-pill[aria-disabled="true"]{
   opacity:.5;cursor:not-allowed;
@@ -807,6 +877,68 @@ html{scroll-behavior:smooth}
 .btn-pill-lg{
   padding:0 1.5rem;height:46px;font-size:12px;
 }
+/* ── Loading state — three-dot bounce indicator ──
+   Hides label/trailing icon, reveals a centered row of three dots that
+   bounce in sequence. Replaces the generic spinning-circle pattern with
+   a friendlier, more on-brand indicator. Dots inherit `currentColor`
+   so they work on any button variant (primary/secondary/danger/google).
+   Add aria-busy="true" + disabled on the button when toggling .is-loading.
+
+   Markup contract — unchanged:
+     <button class="btn-pill is-loading">
+       <span>Label</span>
+       <span class="material-symbols-outlined">arrow_forward</span>
+       <span class="btn-pill-spinner" aria-hidden="true"></span>
+     </button>
+
+   The .btn-pill-spinner element IS the center dot. ::before is the left
+   dot, ::after is the right dot. Three pseudo-elements would conflict,
+   so we use the single element + two pseudos.
+*/
+.btn-pill.is-loading{cursor:progress;pointer-events:none}
+.btn-pill.is-loading > :not(.btn-pill-spinner){visibility:hidden}
+.btn-pill{position:relative}
+
+.btn-pill-spinner{
+  position:absolute;left:50%;top:50%;
+  width:8px;height:8px;
+  margin:-4px 0 0 -4px;
+  border-radius:9999px;
+  background:currentColor;
+  display:none;
+  animation:btn-loading-bounce 1.2s ease-in-out infinite;
+  animation-delay:.16s;
+}
+.btn-pill-spinner::before,
+.btn-pill-spinner::after{
+  content:'';position:absolute;top:0;
+  width:8px;height:8px;border-radius:9999px;
+  background:currentColor;
+  animation:btn-loading-bounce 1.2s ease-in-out infinite;
+}
+.btn-pill-spinner::before{left:-14px;animation-delay:0s}
+.btn-pill-spinner::after{left:14px;animation-delay:.32s}
+
+/* Generic show-rule — any .is-loading ancestor reveals the dots.
+   Used by .btn-pill, .btn-google, and any future button that wears the loading pattern. */
+.is-loading > .btn-pill-spinner{display:block}
+
+@keyframes btn-loading-bounce{
+  0%,80%,100%{opacity:.35;transform:translateY(0)}
+  40%{opacity:1;transform:translateY(-4px)}
+}
+@media (prefers-reduced-motion: reduce){
+  .btn-pill-spinner,
+  .btn-pill-spinner::before,
+  .btn-pill-spinner::after{
+    animation:btn-loading-pulse 1.4s ease-in-out infinite;
+    transform:none;
+  }
+  .btn-pill-spinner::before{animation-delay:0s}
+  .btn-pill-spinner{animation-delay:.16s}
+  .btn-pill-spinner::after{animation-delay:.32s}
+  @keyframes btn-loading-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+}
 
 /* ════════════════════════════════════════════════════════════════════
    FORM PRIMITIVES — pill inputs, labels, password field with eye toggle
@@ -819,7 +951,7 @@ html{scroll-behavior:smooth}
 .form-input{
   width:100%;height:44px;padding:0 1.1rem;
   border-radius:9999px;
-  border:1px solid var(--brand-tint-2);
+  border:1px solid var(--line);
   background:var(--card);color:var(--ink);
   font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
   letter-spacing:-.005em;
@@ -925,6 +1057,17 @@ html{scroll-behavior:smooth}
 }
 @media (hover:hover) and (pointer:fine){.avatar-edit-btn:hover{transform:scale(1.08);background:var(--brand-hover)}}
 .avatar-edit-btn .material-symbols-outlined{font-size:16px}
+/* Visually-hidden file input that pairs with <label class="avatar-edit-btn"
+   for="avatar-upload">. Keeps keyboard focus + screen-reader semantics
+   while letting the camera badge act as the click target. */
+.avatar-edit-input{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);
+  white-space:nowrap;border:0;
+}
+.avatar-edit-input:focus-visible + .avatar-edit-btn{
+  outline:2px solid var(--brand);outline-offset:3px;
+}
 
 /* ════════════════════════════════════════════════════════════════════
    CHECKLIST ROW
@@ -1055,7 +1198,7 @@ html{scroll-behavior:smooth}
   width:100%;min-height:96px;max-height:240px;
   padding:.85rem 1.1rem;
   border-radius:16px;
-  border:1px solid var(--brand-tint-2);
+  border:1px solid var(--line);
   background:var(--card);color:var(--ink);
   font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
   line-height:1.5;letter-spacing:-.005em;
@@ -1086,7 +1229,7 @@ html{scroll-behavior:smooth}
   width:100%;height:44px;
   padding:0 2.75rem 0 1.1rem;
   border-radius:9999px;
-  border:1px solid var(--brand-tint-2);
+  border:1px solid var(--line);
   background:var(--card);color:var(--ink);
   font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
   letter-spacing:-.005em;
@@ -1145,11 +1288,14 @@ html{scroll-behavior:smooth}
   background:transparent;flex-shrink:0;
 }
 .form-input-prefix{
-  border-right:1px solid var(--brand-tint-2);
+  /* Aligned with the form-input default border (var(--line)) after the P2
+     border re-base — was --brand-tint-2 which read as a pink divider on
+     otherwise-neutral inputs. */
+  border-right:1px solid var(--line);
   padding-right:.7rem;padding-left:1.1rem;
 }
 .form-input-suffix{
-  border-left:1px solid var(--brand-tint-2);
+  border-left:1px solid var(--line);
   padding-left:.7rem;padding-right:1.1rem;
 }
 .form-input-field{
@@ -1207,7 +1353,7 @@ html{scroll-behavior:smooth}
   width:44px;height:52px;
   padding:0;text-align:center;
   border-radius:12px;
-  border:1px solid var(--brand-tint-2);
+  border:1px solid var(--line);
   background:var(--card);color:var(--ink);
   font-family:'Poppins',sans-serif;font-weight:700;font-size:22px;
   letter-spacing:-.01em;
@@ -1468,3 +1614,172 @@ body.no-scroll{overflow:hidden}
   .modal-scrim{background:rgba(17,24,39,.65)}
   .dark .modal-scrim{background:rgba(0,0,0,.8)}
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   AUTH-FLOW PRIMITIVES
+   .btn-google · .divider-or · .nav-tabs.auth-tabs · .auth-bg · .role-tag-soon
+   Used on auth.html / verify-otp.html / role-select.html. All four
+   are generic enough to live in shell (OAuth button repeats, "or"
+   divider repeats, the auth-tabs modifier rebases nav-tabs for
+   in-card mode-switching, role-tag-soon for any "coming soon" pill).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Google OAuth button — official 4-color G, no recoloring. */
+.btn-google{
+  position:relative;
+  display:inline-flex;align-items:center;justify-content:center;gap:.6rem;
+  width:100%;min-height:46px;padding:0 1.25rem;
+  border-radius:9999px;
+  background:var(--card);color:var(--ink);
+  border:1px solid var(--line);
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.005em;
+  cursor:pointer;
+  transition:border-color .2s,background-color .2s,box-shadow .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .btn-google:hover{border-color:var(--brand-tint-2);background:color-mix(in oklab,var(--brand-tint) 25%,var(--card))}
+}
+.btn-google:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.btn-google[disabled],
+.btn-google.is-loading{cursor:progress;opacity:.85}
+.btn-google.is-loading{pointer-events:none}
+.btn-google.is-loading > :not(.btn-pill-spinner){visibility:hidden}
+.btn-google .btn-pill-spinner{color:var(--muted)}
+.btn-google .btn-google-icon{width:18px;height:18px;flex-shrink:0}
+
+/* "or" divider — centered text on a horizontal rule.
+   Use var(--brand-tint-2) for the rule to pass AA in dark mode. */
+.divider-or{
+  display:flex;align-items:center;gap:.75rem;
+  margin:.25rem 0;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:var(--muted);
+}
+.divider-or::before,
+.divider-or::after{
+  content:'';flex:1;height:1px;
+  background:var(--brand-tint-2);
+}
+
+/* .auth-tabs — in-card variant of .nav-tabs.
+   Full-width, larger touch targets, no backdrop-blur (parent card is opaque).
+   Inactive hover quieter so it doesn't compete with the active state. */
+.nav-tabs.auth-tabs{
+  display:flex;width:100%;
+  padding:.3rem;
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+  /* Subtle brand-tinted track that works in both modes.
+     (Don't use --peach — it's a transparent red in light but a solid
+     blue-gray surface token in dark, producing a mismatched ring in dark.) */
+  background:color-mix(in oklab, var(--brand) 6%, var(--card));
+  border-color:var(--line);
+  /* Suppress the outer shadow inherited from base .nav-tabs — it reads
+     as a hard ring around the segmented control in dark mode. */
+  box-shadow:none;
+}
+.nav-tabs.auth-tabs .nav-tab{
+  flex:1;justify-content:center;
+  padding:.85rem 1rem;
+  min-height:44px;
+  font-size:14px;
+}
+@media (hover:hover) and (pointer:fine){
+  .nav-tabs.auth-tabs .nav-tab:not(.is-active):hover{
+    background:var(--line-soft);color:var(--ink);
+  }
+}
+
+/* .auth-bg — subtle brand-tinted backdrop for auth screens.
+   Mounted on <body> via class. Low-cost warmth without the marketing-page feel. */
+.auth-bg{
+  background:
+    radial-gradient(circle at 18% 12%, color-mix(in oklab, var(--brand) 14%, transparent) 0%, transparent 38%),
+    radial-gradient(circle at 82% 88%, color-mix(in oklab, var(--brand) 10%, transparent) 0%, transparent 40%),
+    var(--bg);
+  min-height:100dvh;
+}
+.dark .auth-bg{
+  background:
+    radial-gradient(circle at 18% 12%, color-mix(in oklab, var(--brand) 22%, transparent) 0%, transparent 42%),
+    radial-gradient(circle at 82% 88%, color-mix(in oklab, var(--brand) 16%, transparent) 0%, transparent 44%),
+    var(--bg);
+}
+
+/* "Coming soon" pill — small chip used inside radio-pills, cards, etc.
+   to signal roadmap items that aren't live yet. */
+.role-tag-soon{
+  display:inline-flex;align-items:center;
+  padding:.2rem .55rem;border-radius:9999px;
+  background:var(--brand-tint);color:var(--brand);
+  border:1px solid var(--brand-tint-2);
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:9px;
+  letter-spacing:.22em;text-transform:uppercase;
+  flex-shrink:0;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   STEPPER — multi-step wizard progress indicator
+   Composition:
+     <ol class="cw-stepper" aria-label="Wizard progress">
+       <li class="cw-step is-done"><span class="cw-step-num">1</span><span class="cw-step-label">Selection</span></li>
+       <li class="cw-step-connector is-done"></li>
+       <li class="cw-step is-active" aria-current="step">…</li>
+       <li class="cw-step-connector"></li>
+       <li class="cw-step">…</li>
+     </ol>
+   States on .cw-step: is-done · is-active (current) · default (upcoming).
+   States on .cw-step-connector: is-done · default.
+   Mobile (≤640px): labels collapse to icon-circles only.
+   ════════════════════════════════════════════════════════════════════ */
+.cw-stepper{
+  display:flex;align-items:center;justify-content:center;
+  gap:.45rem;
+  list-style:none;padding:0;margin:0;
+  width:100%;
+}
+.cw-step{
+  display:inline-flex;align-items:center;gap:.55rem;
+  flex-shrink:0;
+}
+.cw-step-num{
+  width:30px;height:30px;border-radius:9999px;
+  background:var(--line);color:var(--muted);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;
+  flex-shrink:0;
+  transition:background-color .25s,color .25s,box-shadow .25s;
+}
+.cw-step-num .material-symbols-outlined{font-size:16px}
+.cw-step-label{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+  white-space:nowrap;
+  transition:color .25s;
+}
+.cw-step.is-active .cw-step-num{
+  background:var(--brand);color:#fff;
+  box-shadow:0 0 0 4px var(--brand-tint);
+}
+.cw-step.is-active .cw-step-label{color:var(--brand)}
+.cw-step.is-done .cw-step-num{background:var(--brand);color:#fff}
+.cw-step.is-done .cw-step-label{color:var(--ink)}
+.cw-step-connector{
+  flex:1;height:2px;min-width:1.25rem;max-width:4rem;
+  background:var(--line);border-radius:9999px;
+  transition:background-color .25s;
+}
+.cw-step-connector.is-done{background:var(--brand)}
+/* Mobile: collapse labels, keep numbered circles + connectors */
+@media (max-width:640px){
+  .cw-stepper{gap:.3rem}
+  .cw-step-label{display:none}
+  .cw-step-num{width:26px;height:26px;font-size:12px}
+  .cw-step-connector{min-width:.5rem;max-width:2rem}
+}
+@media (max-width:380px){
+  .cw-stepper{gap:.2rem}
+  .cw-step-num{width:24px;height:24px;font-size:11px}
+  .cw-step-connector{min-width:.35rem;max-width:1.5rem}
+}
+

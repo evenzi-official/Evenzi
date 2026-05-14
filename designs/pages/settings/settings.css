@@ -31,33 +31,46 @@
   .settings-card-inner{padding:2rem 2.25rem}
 }
 
-/* ── Profile section grid: 2-col fields + avatar block on the right ── */
+/* ── Profile section grid ──
+   Mobile: avatar above (centred), fields stacked below.
+   ≥640px: 50/50 split — fields on the left, avatar on the right with
+   a vertical divider between them. Mirrors the Security section's
+   .settings-security-divider pattern for visual symmetry across the page.
+*/
 .settings-profile{
   display:grid;
   grid-template-columns:1fr;
-  gap:1.5rem 2rem;
+  gap:1.5rem;
   align-items:start;
 }
-@media (min-width:768px){
-  .settings-profile{grid-template-columns:1fr 1fr auto}
+@media (min-width:640px){
+  .settings-profile{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:2.5rem;
+    align-items:stretch;
+  }
 }
-.settings-profile .form-group:nth-of-type(1),
-.settings-profile .form-group:nth-of-type(2){grid-column:span 1 / span 1}
-.settings-profile .form-group:nth-of-type(3){grid-column:1 / -2}
-@media (max-width:767px){
-  .settings-profile .form-group:nth-of-type(3){grid-column:1 / -1}
+.settings-profile-fields{
+  display:flex;flex-direction:column;gap:1.25rem;min-width:0;
 }
-.settings-avatar-block{
-  grid-row:1 / 3;grid-column:auto;
-  display:flex;flex-direction:column;align-items:center;gap:.75rem;
-  justify-self:end;
+.settings-profile-avatar{
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  /* mobile: avatar centers above fields; switch via grid order */
+  order:-1;
 }
-@media (max-width:767px){
-  .settings-avatar-block{grid-row:auto;grid-column:1;justify-self:center}
+@media (min-width:640px){
+  .settings-profile-avatar{
+    order:0;
+    align-self:stretch;
+    justify-content:center;
+    /* Vertical divider — matches Security section */
+    border-left:1px solid var(--line);
+    padding-left:2.5rem;
+    margin-left:-1.25rem;
+  }
 }
-.settings-avatar-label{
-  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
-  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+.settings-profile-avatar .form-error{
+  max-width:14rem;text-align:center;margin:0;
 }
 
 /* ── Security section: split layout — passwords on left, 2FA on right ── */
@@ -159,15 +172,37 @@
 .choice-card.is-active .choice-card-dot .material-symbols-outlined{opacity:1}
 .choice-card.is-active .choice-card-state{color:var(--brand)}
 
-/* ── Action footer: save + discard (uses .btn-pill from shell.css) ── */
+/* ── Action footer: save + discard (uses .btn-pill from shell.css) ──
+   Bottom safe-area padding keeps the buttons clear of the iOS home indicator
+   when the page is added to the home screen as a PWA.
+*/
 .settings-actions{
   display:flex;justify-content:flex-end;gap:.75rem;
   margin-top:2.5rem;
+  padding-bottom:max(1rem, env(safe-area-inset-bottom, 0px));
   flex-wrap:wrap;
 }
 
-/* Settings nav variant — minimal, no Create Event CTA, no segmented tabs */
-.settings-nav-inner{
-  grid-template-columns:auto 1fr auto !important;
-  padding:.4rem .55rem .4rem 1.1rem !important;
+/* ── Account / Sign-out section ──
+   Body copy on the left, Sign-out button on the right.
+   Mobile: stacks (body above, button full-width).
+*/
+.settings-account{
+  display:flex;align-items:center;justify-content:space-between;gap:1.5rem;
+  flex-wrap:wrap;
+}
+.settings-account-body{
+  display:flex;flex-direction:column;gap:.35rem;
+  min-width:0;flex:1 1 16rem;
+}
+.settings-account-title{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;
+  color:var(--ink);letter-spacing:-.005em;margin:0;
+}
+.settings-account-desc{
+  font-size:13px;color:var(--muted);line-height:1.55;margin:0;
+}
+@media (max-width:639px){
+  .settings-account{align-items:stretch}
+  .settings-account .btn-pill-danger{width:100%;justify-content:center}
 }

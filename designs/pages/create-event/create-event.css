@@ -1,0 +1,536 @@
+/* ════════════════════════════════════════════════════════════════════
+   Evenzi · Celebratory Curator wizard styles
+   Shared by step-1-type.html · step-2-details.html · step-3-celebrations.html
+   step-4-review.html · success.html
+   Reuses shell.css primitives (.cw-stepper, .clay-card, .btn-pill,
+   .form-input, .auth-shell-header/.auth-shell-footer patterns, .auth-bg).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* [hidden] safety net — the UA default has 0,0,0 specificity and is easily
+   overridden by any class rule that sets display. This guard makes sure
+   the attribute always wins on wizard surfaces. */
+.cc-shell [hidden],
+.cc-shell-header [hidden]{display:none !important}
+
+/* Page chrome reuses the auth shell sticky-footer flex layout */
+.cc-shell{
+  display:flex;flex-direction:column;
+  min-height:100dvh;
+}
+.cc-shell-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 1.25rem;
+  max-width:1200px;width:100%;margin:0 auto;
+  gap:1rem;
+}
+.cc-logo{
+  font-family:'Poppins',sans-serif;font-weight:800;font-size:1.5rem;
+  color:var(--brand);letter-spacing:-.04em;line-height:1;
+  text-decoration:none;
+  padding:.25rem .35rem;border-radius:.5rem;
+}
+.cc-logo:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+@media (min-width:640px){
+  .cc-logo{font-size:1.75rem}
+}
+.cc-eyebrow{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.32em;text-transform:uppercase;color:var(--brand);
+  white-space:nowrap;
+}
+@media (max-width:640px){
+  .cc-eyebrow{font-size:10px;letter-spacing:.22em}
+}
+.cc-shell-actions{
+  display:inline-flex;align-items:center;gap:.5rem;
+}
+.cc-theme-toggle{
+  position:relative;width:44px;height:44px;border-radius:9999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--muted);background:transparent;border:0;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  transition:background-color .2s,color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cc-theme-toggle:hover{background:var(--brand-tint);color:var(--brand)}
+}
+.cc-theme-toggle:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.cc-theme-toggle .material-symbols-outlined{font-size:20px}
+.cc-close{
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.5rem 1rem;min-height:44px;border-radius:9999px;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;
+  color:var(--muted);background:transparent;border:0;cursor:pointer;
+  text-decoration:none;
+  transition:color .2s,background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cc-close:hover{color:var(--brand);background:var(--brand-tint)}
+}
+.cc-close:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.cc-close .material-symbols-outlined{font-size:18px}
+
+.cc-stepper-row{
+  display:flex;justify-content:center;
+  padding:.5rem 1.25rem 1rem;
+  width:100%;max-width:760px;margin:0 auto;
+}
+
+.cc-main{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;
+  padding:1rem 1.25rem 2rem;
+}
+
+.cc-card{
+  width:100%;max-width:720px;
+  padding:2rem 1.5rem;
+  display:flex;flex-direction:column;gap:1.5rem;
+}
+@media (min-width:640px){
+  .cc-card{padding:2.5rem 2.5rem;gap:2rem}
+}
+@media (hover:hover) and (pointer:fine){
+  .cc-card:hover{transform:none;box-shadow:var(--shadow-clay)}
+}
+
+/* Section header inside the card — eyebrow + h1 + lead */
+.cc-card-head{
+  display:flex;flex-direction:column;align-items:center;gap:.55rem;
+  text-align:center;
+}
+.cc-card-eyebrow{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--brand);
+  margin:0;
+}
+.cc-card-eyebrow .material-symbols-outlined{font-size:14px}
+.cc-card-title{
+  font-family:'Poppins',sans-serif;font-weight:700;
+  font-size:1.625rem;line-height:1.15;letter-spacing:-.015em;
+  color:var(--ink);margin:0;
+}
+@media (min-width:640px){
+  .cc-card-title{font-size:2rem;line-height:1.1}
+}
+/* Brand-color secondary word (e.g. "your union", "your Celebrations").
+   `white-space:nowrap` keeps multi-word brand phrases on one line so the
+   visual highlight doesn't fracture across a wrap. */
+.cc-card-title em{font-style:normal;color:var(--brand);white-space:nowrap}
+.cc-card-lead{
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
+  line-height:1.55;color:var(--muted);
+  margin:0;max-width:46ch;
+}
+
+/* ── Step 1 — Event Type cards ──────────────────────── */
+.cc-type-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:.85rem;
+}
+@media (min-width:640px){
+  .cc-type-grid{grid-template-columns:repeat(4, 1fr);gap:1rem}
+}
+.cc-type-card{
+  display:flex;flex-direction:column;align-items:center;gap:.65rem;
+  padding:1.25rem 1rem;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  cursor:pointer;
+  font:inherit;color:inherit;text-align:center;
+  transition:border-color .2s,background-color .2s,transform .2s,box-shadow .2s;
+  appearance:none;-webkit-appearance:none;
+  position:relative;
+}
+@media (hover:hover) and (pointer:fine){
+  .cc-type-card:hover{
+    border-color:var(--brand-tint-2);
+    transform:translateY(-2px);
+    box-shadow:0 12px 28px -16px rgba(17,24,39,.18);
+  }
+}
+.cc-type-card[aria-checked="true"],
+.cc-type-card.is-selected{
+  border-color:var(--brand);
+  background:color-mix(in oklab,var(--brand-tint) 50%,var(--card));
+  box-shadow:0 0 0 1px var(--brand), 0 12px 28px -16px color-mix(in oklab,var(--brand) 40%,transparent);
+}
+.cc-type-card:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.cc-type-card[aria-disabled="true"]{
+  cursor:not-allowed;opacity:.55;
+}
+@media (hover:hover) and (pointer:fine){
+  .cc-type-card[aria-disabled="true"]:hover{
+    border-color:var(--line);transform:none;box-shadow:none;
+  }
+}
+.cc-type-card[aria-disabled="true"] .cc-type-icon{
+  background:var(--line-soft);color:var(--muted);
+}
+.cc-type-icon{
+  width:56px;height:56px;border-radius:18px;
+  background:var(--brand-tint);color:var(--brand);
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:background-color .25s,color .25s,transform .25s;
+}
+.cc-type-icon .material-symbols-outlined{font-size:28px}
+.cc-type-card[aria-checked="true"] .cc-type-icon{
+  background:var(--brand);color:#fff;
+}
+.cc-type-name{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;
+  color:var(--ink);letter-spacing:-.005em;line-height:1.2;
+  margin:0;
+}
+.cc-type-card[aria-checked="true"] .cc-type-name{color:var(--brand)}
+.cc-type-desc{
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:12px;
+  line-height:1.45;color:var(--muted);margin:0;
+}
+.cc-type-tag{
+  position:absolute;top:.55rem;right:.55rem;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:9px;
+  letter-spacing:.22em;text-transform:uppercase;
+  padding:.2rem .5rem;border-radius:9999px;
+  background:var(--brand-tint);color:var(--brand);
+  border:1px solid var(--brand-tint-2);
+}
+
+/* ── Step 2 — Details form ──────────────────────────── */
+.cc-form-grid{
+  display:grid;grid-template-columns:1fr;
+  gap:1.25rem;
+}
+@media (min-width:640px){
+  .cc-form-grid{grid-template-columns:1fr 1fr}
+  .cc-form-grid .form-group.is-full{grid-column:1 / -1}
+}
+.cc-form-helper{
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:12px;
+  line-height:1.55;color:var(--muted);margin:0;
+}
+/* Venue input — icon-prefix variant. Replaces inline style="padding-left;font-size" */
+.cc-venue-prefix{padding-left:1.1rem}
+.cc-venue-prefix .material-symbols-outlined{font-size:18px}
+/* Partners-group: invisible wrapper that lets children participate in the parent grid */
+.cc-partners-group{display:contents}
+.cc-partners-group[hidden]{display:none}
+
+/* ── Step 3 — Celebrations cards ────────────────────── */
+.cc-search-row{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.55rem 1rem;
+  border-radius:9999px;
+  border:1px solid var(--line);
+  background:var(--card);
+}
+.cc-search-row .material-symbols-outlined{font-size:18px;color:var(--muted)}
+.cc-search-row input{
+  flex:1;background:transparent;border:0;outline:0;
+  font:inherit;font-size:14px;color:var(--ink);
+}
+.cc-search-row input::placeholder{color:var(--muted-soft)}
+
+.cc-celebration-grid{
+  display:grid;grid-template-columns:1fr;gap:.85rem;
+}
+@media (min-width:640px){
+  .cc-celebration-grid{grid-template-columns:1fr 1fr;gap:1rem}
+}
+.cc-celebration-card{
+  display:flex;flex-direction:column;gap:.85rem;
+  padding:1rem 1.1rem;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  cursor:pointer;
+  font:inherit;color:inherit;text-align:left;
+  transition:border-color .2s,background-color .2s,box-shadow .2s;
+  appearance:none;-webkit-appearance:none;
+  position:relative;
+}
+@media (hover:hover) and (pointer:fine){
+  .cc-celebration-card:hover{border-color:var(--brand-tint-2)}
+}
+.cc-celebration-card[aria-checked="true"],
+.cc-celebration-card.is-selected{
+  border-color:var(--brand);
+  background:color-mix(in oklab,var(--brand-tint) 50%,var(--card));
+  box-shadow:0 0 0 1px var(--brand);
+}
+.cc-celebration-card:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.cc-celebration-head{
+  display:flex;align-items:flex-start;gap:.75rem;
+}
+.cc-celebration-icon{
+  width:36px;height:36px;border-radius:12px;
+  background:var(--brand-tint);color:var(--brand);
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.cc-celebration-icon .material-symbols-outlined{font-size:20px}
+.cc-celebration-card[aria-checked="true"] .cc-celebration-icon{
+  background:var(--brand);color:#fff;
+}
+.cc-celebration-body{
+  display:flex;flex-direction:column;gap:.2rem;min-width:0;flex:1;
+}
+.cc-celebration-name{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;
+  color:var(--ink);letter-spacing:-.005em;line-height:1.25;
+}
+.cc-celebration-card[aria-checked="true"] .cc-celebration-name{color:var(--brand)}
+.cc-celebration-desc{
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:12px;
+  color:var(--muted);line-height:1.45;margin:0;
+}
+.cc-celebration-check{
+  position:absolute;top:1rem;right:1rem;
+  width:22px;height:22px;border-radius:9999px;
+  border:2px solid var(--line);
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;background:transparent;
+  transition:background-color .2s,border-color .2s;
+}
+.cc-celebration-check .material-symbols-outlined{
+  font-size:13px;color:#fff;opacity:0;font-variation-settings:'FILL' 1,'wght' 700;
+  transition:opacity .15s;
+}
+.cc-celebration-card[aria-checked="true"] .cc-celebration-check{
+  background:var(--brand);border-color:var(--brand);
+}
+.cc-celebration-card[aria-checked="true"] .cc-celebration-check .material-symbols-outlined{opacity:1}
+
+.cc-celebration-meta{
+  display:flex;flex-wrap:wrap;gap:.4rem;
+}
+.cc-meta-btn{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.6rem 1rem;min-height:44px;border-radius:9999px;
+  background:var(--line-soft);color:var(--muted);
+  border:1px solid var(--line);
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  transition:color .2s,background-color .2s,border-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cc-meta-btn:hover{color:var(--brand);background:var(--brand-tint);border-color:var(--brand-tint-2)}
+}
+.cc-meta-btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.cc-meta-btn .material-symbols-outlined{font-size:14px}
+.cc-meta-btn.is-set{color:var(--ink);background:var(--brand-tint);border-color:var(--brand-tint-2)}
+
+.cc-add-custom{
+  display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  padding:1rem;min-height:44px;border-radius:20px;
+  border:1px dashed var(--brand-tint-2);
+  background:transparent;color:var(--brand);
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:.18em;text-transform:uppercase;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  transition:background-color .2s,border-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cc-add-custom:hover{background:var(--brand-tint);border-color:var(--brand)}
+}
+.cc-add-custom:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+
+/* ── Step 4 — Review ─────────────────────────────────── */
+.cc-review-section{
+  display:flex;flex-direction:column;gap:.85rem;
+}
+.cc-review-section-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;
+}
+.cc-review-section-title{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;
+  color:var(--ink);letter-spacing:-.005em;margin:0;
+}
+.cc-review-edit{
+  display:inline-flex;align-items:center;gap:.25rem;
+  min-height:44px;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--brand);text-decoration:none;
+  padding:.5rem .85rem;border-radius:9999px;
+  transition:background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cc-review-edit:hover{background:var(--brand-tint)}
+}
+.cc-review-edit:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.cc-review-edit .material-symbols-outlined{font-size:13px}
+.cc-review-grid{
+  display:grid;grid-template-columns:1fr;gap:.5rem 1.5rem;
+}
+@media (min-width:480px){
+  .cc-review-grid{grid-template-columns:1fr 1fr}
+}
+.cc-review-field{
+  display:flex;flex-direction:column;gap:.15rem;
+  padding:.6rem 0;
+  border-bottom:1px solid var(--line-soft);
+}
+.cc-review-field:last-child{border-bottom:0}
+.cc-review-field-label{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+}
+.cc-review-field-value{
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
+  color:var(--ink);
+}
+.cc-review-itinerary{
+  display:flex;flex-direction:column;gap:.5rem;
+}
+.cc-review-event{
+  display:flex;align-items:center;gap:.85rem;
+  padding:.85rem 1rem;border-radius:14px;
+  background:var(--line-soft);
+}
+.cc-review-event-icon{
+  width:32px;height:32px;border-radius:10px;
+  background:var(--brand-tint);color:var(--brand);
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.cc-review-event-icon .material-symbols-outlined{font-size:18px}
+.cc-review-event-body{
+  display:flex;flex-direction:column;gap:.15rem;min-width:0;flex:1;
+}
+.cc-review-event-name{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;
+  color:var(--ink);letter-spacing:-.005em;line-height:1.25;
+}
+.cc-review-event-meta{
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:11px;
+  color:var(--muted);line-height:1.4;
+}
+
+/* ── Action footer (Back / Continue) ────────────────── */
+.cc-actions{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:.85rem;
+  padding-top:.5rem;
+  flex-wrap:wrap;
+}
+.cc-actions .cc-back-btn{
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.7rem 1.1rem;min-height:44px;border-radius:9999px;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);background:transparent;border:0;cursor:pointer;
+  text-decoration:none;
+  appearance:none;-webkit-appearance:none;
+  transition:color .2s,background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cc-actions .cc-back-btn:hover{color:var(--brand);background:var(--brand-tint)}
+}
+.cc-actions .cc-back-btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.cc-actions .cc-back-btn .material-symbols-outlined{font-size:16px}
+@media (max-width:480px){
+  .cc-actions{justify-content:center;gap:.6rem}
+  .cc-actions .cc-back-btn{order:2}
+  .cc-actions .btn-pill{order:1;width:100%;justify-content:center}
+}
+
+/* Selection status chip — sits above the Back/Proceed action row on Step 3.
+   Auto-disappears when no items selected (count text reflects 0; the chip
+   communicates active-selection state more clearly than a tracked-out label
+   stuck between two buttons). */
+.cc-selection-chip{
+  align-self:center;
+  display:inline-flex;align-items:center;gap:.55rem;
+  padding:.45rem .9rem;border-radius:9999px;
+  background:color-mix(in oklab,var(--brand-tint) 60%,var(--card));
+  border:1px solid var(--brand-tint-2);
+  color:var(--brand);
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;
+  transition:background-color .25s,border-color .25s,color .25s,opacity .25s;
+}
+.cc-selection-chip.is-empty{
+  background:var(--line-soft);
+  border-color:var(--line);
+  color:var(--muted);
+}
+.cc-selection-dot{
+  width:8px;height:8px;border-radius:9999px;
+  background:currentColor;
+  box-shadow:0 0 0 0 currentColor;
+  animation:cc-selection-pulse 2s ease-in-out infinite;
+}
+.cc-selection-chip.is-empty .cc-selection-dot{animation:none;opacity:.7}
+@keyframes cc-selection-pulse{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in oklab,var(--brand) 40%,transparent)}
+  50%{box-shadow:0 0 0 6px color-mix(in oklab,var(--brand) 0%,transparent)}
+}
+@media (prefers-reduced-motion: reduce){
+  .cc-selection-dot{animation:none}
+}
+
+/* ── Success screen ─────────────────────────────────── */
+.cc-success-card{
+  align-items:center;text-align:center;
+}
+.cc-success-burst{
+  position:relative;
+  width:96px;height:96px;border-radius:9999px;
+  background:var(--brand);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 12px color-mix(in oklab,var(--brand) 14%,transparent),
+             0 0 0 24px color-mix(in oklab,var(--brand) 6%,transparent);
+}
+.cc-success-burst .material-symbols-outlined{font-size:44px}
+.cc-success-title{
+  font-family:'Poppins',sans-serif;font-weight:700;
+  font-size:2rem;line-height:1.1;letter-spacing:-.015em;
+  color:var(--ink);margin:0;
+}
+@media (min-width:640px){
+  .cc-success-title{font-size:2.5rem}
+}
+.cc-success-lead{
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
+  line-height:1.55;color:var(--muted);
+  margin:0;max-width:46ch;
+}
+.cc-countdown{
+  display:flex;flex-direction:column;align-items:center;
+  padding:1.5rem 2rem;
+  border-radius:24px;
+  background:color-mix(in oklab,var(--brand-tint) 50%,var(--card));
+  border:1px solid var(--brand-tint-2);
+  gap:.25rem;
+}
+.cc-countdown-eyebrow{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--brand);
+}
+.cc-countdown-num{
+  font-family:'Poppins',sans-serif;font-weight:800;
+  font-size:3.5rem;line-height:1;color:var(--brand);
+  letter-spacing:-.03em;
+  font-feature-settings:"tnum","ss01";
+  text-align:center;
+}
+/* Tighter font when the countdown value is a word ("Today") rather than a number */
+.cc-countdown-num.is-text{font-size:2.25rem;letter-spacing:-.015em}
+.cc-countdown-label{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+}
+
+/* ── Sticky-footer copyright on all wizard pages ────── */
+.cc-shell-footer{
+  padding:1.25rem 1.25rem max(1.25rem, env(safe-area-inset-bottom, 0px));
+  text-align:center;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+}

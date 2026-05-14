@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Curate your celebrations</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="create-event.css" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+</head>
+<body data-page="create-event" data-step="celebrations" class="auth-bg cc-shell">
+
+<header class="cc-shell-header">
+  <a href="../../index.html" class="cc-logo" aria-label="Evenzi home">Evenzi</a>
+  <span class="cc-eyebrow hidden md:inline" aria-hidden="true">Celebratory Curator</span>
+  <div class="cc-shell-actions">
+    <button id="theme-toggle" type="button" class="cc-theme-toggle" aria-label="Toggle dark mode">
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+    </button>
+    <a href="../../index.html" class="cc-close" aria-label="Close wizard and return to dashboard">
+      <span aria-hidden="true" class="material-symbols-outlined">close</span>
+      <span class="hidden md:inline">Exit</span>
+    </a>
+  </div>
+</header>
+
+<div class="cc-stepper-row">
+  <ol class="cw-stepper" aria-label="Wizard progress">
+    <li class="cw-step is-done">
+      <span class="cw-step-num"><span class="material-symbols-outlined" aria-hidden="true">check</span></span>
+      <span class="cw-step-label">Selection</span>
+    </li>
+    <li class="cw-step-connector is-done" aria-hidden="true"></li>
+    <li class="cw-step is-done">
+      <span class="cw-step-num"><span class="material-symbols-outlined" aria-hidden="true">check</span></span>
+      <span class="cw-step-label">Details</span>
+    </li>
+    <li class="cw-step-connector is-done" aria-hidden="true"></li>
+    <li class="cw-step is-active" aria-current="step">
+      <span class="cw-step-num">3</span>
+      <span class="cw-step-label">Celebrations</span>
+    </li>
+    <li class="cw-step-connector" aria-hidden="true"></li>
+    <li class="cw-step">
+      <span class="cw-step-num">4</span>
+      <span class="cw-step-label">Review</span>
+    </li>
+  </ol>
+</div>
+
+<main class="cc-main">
+  <section class="clay-card cc-card" aria-labelledby="cc-step3-title">
+    <header class="cc-card-head">
+      <p class="cc-card-eyebrow">
+        <span class="material-symbols-outlined icon-fill" aria-hidden="true">auto_awesome</span>
+        Shape the rhythm
+      </p>
+      <h1 class="cc-card-title" id="cc-step3-title">Curate your <em>celebrations</em></h1>
+      <p class="cc-card-lead">Pick the ceremonies you'd like to include. Each selection unlocks specific vendor &amp; aesthetic curators on your dashboard.</p>
+    </header>
+
+    <div class="cc-search-row">
+      <span class="material-symbols-outlined" aria-hidden="true">search</span>
+      <input type="search" placeholder="Search ceremonies, rituals, moments..." aria-label="Search celebrations" />
+    </div>
+
+    <div class="cc-celebration-grid" role="group" aria-label="Wedding celebrations">
+      <div role="checkbox" aria-checked="false" tabindex="0" class="cc-celebration-card" data-cc-celebration="haldi">
+        <span class="cc-celebration-check" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">check</span>
+        </span>
+        <div class="cc-celebration-head">
+          <span class="cc-celebration-icon" aria-hidden="true">
+            <span class="material-symbols-outlined icon-fill">spa</span>
+          </span>
+          <div class="cc-celebration-body">
+            <span class="cc-celebration-name">Haldi</span>
+            <p class="cc-celebration-desc">The intimate morning of turmeric and togetherness.</p>
+          </div>
+        </div>
+        <div class="cc-celebration-meta">
+          <button type="button" class="cc-meta-btn" data-cc-meta="time">
+            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> Set time
+          </button>
+          <button type="button" class="cc-meta-btn" data-cc-meta="venue">
+            <span aria-hidden="true" class="material-symbols-outlined">place</span> Set venue
+          </button>
+        </div>
+      </div>
+
+      <div role="checkbox" aria-checked="false" tabindex="0" class="cc-celebration-card" data-cc-celebration="mehendi">
+        <span class="cc-celebration-check" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">check</span>
+        </span>
+        <div class="cc-celebration-head">
+          <span class="cc-celebration-icon" aria-hidden="true">
+            <span class="material-symbols-outlined icon-fill">palette</span>
+          </span>
+          <div class="cc-celebration-body">
+            <span class="cc-celebration-name">Mehendi</span>
+            <p class="cc-celebration-desc">Intricate artistry and melodic celebrations.</p>
+          </div>
+        </div>
+        <div class="cc-celebration-meta">
+          <button type="button" class="cc-meta-btn" data-cc-meta="time">
+            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> Set time
+          </button>
+          <button type="button" class="cc-meta-btn" data-cc-meta="venue">
+            <span aria-hidden="true" class="material-symbols-outlined">place</span> Set venue
+          </button>
+        </div>
+      </div>
+
+      <div role="checkbox" aria-checked="false" tabindex="0" class="cc-celebration-card" data-cc-celebration="sangeet">
+        <span class="cc-celebration-check" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">check</span>
+        </span>
+        <div class="cc-celebration-head">
+          <span class="cc-celebration-icon" aria-hidden="true">
+            <span class="material-symbols-outlined icon-fill">music_note</span>
+          </span>
+          <div class="cc-celebration-body">
+            <span class="cc-celebration-name">Sangeet</span>
+            <p class="cc-celebration-desc">A late-night reverie of dance and music.</p>
+          </div>
+        </div>
+        <div class="cc-celebration-meta">
+          <button type="button" class="cc-meta-btn" data-cc-meta="time">
+            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> Set time
+          </button>
+          <button type="button" class="cc-meta-btn" data-cc-meta="venue">
+            <span aria-hidden="true" class="material-symbols-outlined">place</span> Set venue
+          </button>
+        </div>
+      </div>
+
+      <div role="checkbox" aria-checked="false" tabindex="0" class="cc-celebration-card" data-cc-celebration="ceremony">
+        <span class="cc-celebration-check" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">check</span>
+        </span>
+        <div class="cc-celebration-head">
+          <span class="cc-celebration-icon" aria-hidden="true">
+            <span class="material-symbols-outlined icon-fill">auto_awesome</span>
+          </span>
+          <div class="cc-celebration-body">
+            <span class="cc-celebration-name">Wedding Ceremony</span>
+            <p class="cc-celebration-desc">The sacred vows and the moment your story changes shape.</p>
+          </div>
+        </div>
+        <div class="cc-celebration-meta">
+          <button type="button" class="cc-meta-btn" data-cc-meta="time">
+            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> Set time
+          </button>
+          <button type="button" class="cc-meta-btn" data-cc-meta="venue">
+            <span aria-hidden="true" class="material-symbols-outlined">place</span> Set venue
+          </button>
+        </div>
+      </div>
+
+      <div role="checkbox" aria-checked="false" tabindex="0" class="cc-celebration-card" data-cc-celebration="reception">
+        <span class="cc-celebration-check" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">check</span>
+        </span>
+        <div class="cc-celebration-head">
+          <span class="cc-celebration-icon" aria-hidden="true">
+            <span class="material-symbols-outlined icon-fill">celebration</span>
+          </span>
+          <div class="cc-celebration-body">
+            <span class="cc-celebration-name">Reception</span>
+            <p class="cc-celebration-desc">Where families gather to bless the new beginning.</p>
+          </div>
+        </div>
+        <div class="cc-celebration-meta">
+          <button type="button" class="cc-meta-btn" data-cc-meta="time">
+            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> Set time
+          </button>
+          <button type="button" class="cc-meta-btn" data-cc-meta="venue">
+            <span aria-hidden="true" class="material-symbols-outlined">place</span> Set venue
+          </button>
+        </div>
+      </div>
+
+      <div role="checkbox" aria-checked="false" tabindex="0" class="cc-celebration-card" data-cc-celebration="engagement">
+        <span class="cc-celebration-check" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">check</span>
+        </span>
+        <div class="cc-celebration-head">
+          <span class="cc-celebration-icon" aria-hidden="true">
+            <span class="material-symbols-outlined icon-fill">favorite</span>
+          </span>
+          <div class="cc-celebration-body">
+            <span class="cc-celebration-name">Engagement</span>
+            <p class="cc-celebration-desc">A first announcement, with both families gathered.</p>
+          </div>
+        </div>
+        <div class="cc-celebration-meta">
+          <button type="button" class="cc-meta-btn" data-cc-meta="time">
+            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> Set time
+          </button>
+          <button type="button" class="cc-meta-btn" data-cc-meta="venue">
+            <span aria-hidden="true" class="material-symbols-outlined">place</span> Set venue
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="cc-add-custom" data-cc-add-custom>
+      <span aria-hidden="true" class="material-symbols-outlined">add</span>
+      Add a custom ceremony
+    </button>
+
+    <div class="cc-selection-chip" role="status" aria-live="polite">
+      <span aria-hidden="true" class="cc-selection-dot"></span>
+      <span data-cc-count>0 celebrations selected</span>
+    </div>
+
+    <div class="cc-actions">
+      <a class="cc-back-btn" href="step-2-details.html" data-cc-back>
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+        Back
+      </a>
+      <button type="button" class="btn-pill btn-pill-primary btn-pill-lg" data-cc-continue disabled aria-disabled="true">
+        <span>Proceed to review</span>
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+        <span aria-hidden="true" class="btn-pill-spinner"></span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<footer class="cc-shell-footer">
+  © 2026 Evenzi · Crafted with care
+</footer>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">SAVED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="create-event.js"></script>
+</body>
+</html>
