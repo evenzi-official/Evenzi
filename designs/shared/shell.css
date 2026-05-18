@@ -1389,6 +1389,45 @@ html{scroll-behavior:smooth}
 .cal-title{
   font-weight:600;font-size:14px;color:var(--ink);letter-spacing:-.005em;
 }
+/* Tappable title → month/year quick-nav */
+.cal-title-btn{
+  display:inline-flex;align-items:center;gap:.15rem;
+  border:0;background:transparent;cursor:pointer;
+  padding:.35rem .5rem;border-radius:9999px;
+  transition:background-color .2s,color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cal-title-btn:hover{background:var(--brand-tint)}
+  .cal-title-btn:hover .cal-title{color:var(--brand)}
+}
+.cal-title-btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.cal-title-caret{
+  font-size:18px;color:var(--muted);transition:transform .2s,color .2s;
+}
+.cal-title-btn[aria-expanded="true"] .cal-title-caret{
+  transform:rotate(180deg);color:var(--brand);
+}
+/* Month-grid quick-nav view (Jan–Dec, 3 columns) */
+.cal-grid.cal-grid--months{
+  grid-template-columns:repeat(3,1fr);gap:6px;
+}
+.cal-month{
+  appearance:none;-webkit-appearance:none;border:0;
+  min-height:48px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border-radius:12px;background:transparent;color:var(--ink);
+  font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;
+  transition:background-color .15s,color .15s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cal-month:not(:disabled):hover{background:var(--brand-tint);color:var(--brand)}
+}
+.cal-month:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.cal-month.is-current{color:var(--brand);font-weight:700}
+.cal-month.is-sel,
+.cal-month.is-sel.is-current{background:var(--brand);color:#fff;font-weight:700}
+.cal-month:disabled{color:var(--muted-soft);opacity:.4;cursor:not-allowed}
 .cal-nav{
   display:inline-flex;align-items:center;justify-content:center;
   width:34px;height:34px;border-radius:9999px;border:0;

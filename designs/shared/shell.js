@@ -518,8 +518,8 @@
     return isNaN(dt.getTime()) ? null : { y: y, m: m, d: d };
   }
   var cal = (function () {
-    var scrim, pop, titleEl, gridEl, anchorBtn, input;
-    var viewY, viewM, selISO, minISO, maxISO, lastFocused;
+    var scrim, pop, titleEl, titleBtn, prevBtn, nextBtn, dowRow, gridEl, anchorBtn, input;
+    var viewY, viewM, selISO, minISO, maxISO, lastFocused, mode;
 
     function build() {
       scrim = document.createElement('div');
@@ -532,14 +532,28 @@
 
       var head = document.createElement('div');
       head.className = 'cal-head';
-      var prev = navBtn('chevron_left', 'Previous month', -1);
+      prevBtn = navBtn('chevron_left', 'Previous month', -1);
+      titleBtn = document.createElement('button');
+      titleBtn.type = 'button';
+      titleBtn.className = 'cal-title-btn';
+      titleBtn.setAttribute('aria-label', 'Switch to month and year selection');
+      titleBtn.setAttribute('aria-expanded', 'false');
       titleEl = document.createElement('span');
       titleEl.className = 'cal-title';
       titleEl.setAttribute('aria-live', 'polite');
-      var next = navBtn('chevron_right', 'Next month', 1);
-      head.appendChild(prev); head.appendChild(titleEl); head.appendChild(next);
+      var caret = document.createElement('span');
+      caret.className = 'material-symbols-outlined cal-title-caret';
+      caret.setAttribute('aria-hidden', 'true');
+      caret.textContent = 'expand_more';
+      titleBtn.appendChild(titleEl);
+      titleBtn.appendChild(caret);
+      titleBtn.addEventListener('click', function () {
+        setMode(mode === 'days' ? 'months' : 'days');
+      });
+      nextBtn = navBtn('chevron_right', 'Next month', 1);
+      head.appendChild(prevBtn); head.appendChild(titleBtn); head.appendChild(nextBtn);
 
-      var dowRow = document.createElement('div');
+      dowRow = document.createElement('div');
       dowRow.className = 'cal-dow-row';
       DOW.forEach(function (d) {
         var c = document.createElement('span');
@@ -582,9 +596,53 @@
       if (maxISO && iso > maxISO) return false;
       return true;
     }
+    var MONTHS_FULL = ['January','February','March','April','May','June','July',
+      'August','September','October','November','December'];
+    var MONTHS_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    function setMode(m) {
+      mode = m;
+      if (titleBtn) titleBtn.setAttribute('aria-expanded', m === 'months' ? 'true' : 'false');
+      render();
+      if (pendingFocus) pendingFocus.focus();
+    }
+    function renderMonths() {
+      dowRow.style.display = 'none';
+      gridEl.classList.add('cal-grid--months');
+      titleEl.textContent = String(viewY);
+      if (prevBtn) prevBtn.setAttribute('aria-label', 'Previous year');
+      if (nextBtn) nextBtn.setAttribute('aria-label', 'Next year');
+      while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
+      var t = new Date(), tY = t.getFullYear(), tM = t.getMonth();
+      var selP = selISO ? parseISO(selISO) : null;
+      var focusTarget = null;
+      for (var m = 0; m < 12; m++) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'cal-month';
+        b.textContent = MONTHS_ABBR[m];
+        b.setAttribute('data-m', m);
+        b.setAttribute('aria-label', MONTHS_FULL[m] + ' ' + viewY);
+        if (viewY === tY && m === tM) b.classList.add('is-current');
+        if (selP && selP.y === viewY && selP.m === m) {
+          b.classList.add('is-sel');
+          b.setAttribute('aria-selected', 'true');
+        }
+        (function (mm) {
+          b.addEventListener('click', function () { viewM = mm; setMode('days'); });
+        })(m);
+        gridEl.appendChild(b);
+        if (!focusTarget && b.classList.contains('is-sel')) focusTarget = b;
+        if (!focusTarget && !selP && b.classList.contains('is-current')) focusTarget = b;
+      }
+      if (!focusTarget) focusTarget = gridEl.querySelector('.cal-month');
+      pendingFocus = focusTarget;
+    }
     function render() {
-      var months = ['January','February','March','April','May','June','July',
-        'August','September','October','November','December'];
+      if (mode === 'months') { renderMonths(); return; }
+      var months = MONTHS_FULL;
+      dowRow.style.display = '';
+      gridEl.classList.remove('cal-grid--months');
+      if (prevBtn) prevBtn.setAttribute('aria-label', 'Previous month');
+      if (nextBtn) nextBtn.setAttribute('aria-label', 'Next month');
       titleEl.textContent = months[viewM] + ' ' + viewY;
       while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
       var first = new Date(viewY, viewM, 1);
@@ -631,11 +689,26 @@
     }
     var pendingFocus = null;
     function shift(delta) {
+      if (mode === 'months') {
+        viewY += delta;
+        render();
+        if (pendingFocus) pendingFocus.focus();
+        return;
+      }
       viewM += delta;
       if (viewM < 0) { viewM = 11; viewY--; }
       if (viewM > 11) { viewM = 0; viewY++; }
       render();
       if (pendingFocus) pendingFocus.focus();
+    }
+    function moveMonthFocus(delta) {
+      var cur = document.activeElement;
+      if (!cur || !cur.classList.contains('cal-month')) return;
+      var idx = parseInt(cur.getAttribute('data-m'), 10) + delta;
+      if (idx < 0) idx = 0;
+      if (idx > 11) idx = 11;
+      var tgt = gridEl.querySelector('.cal-month[data-m="' + idx + '"]');
+      if (tgt) tgt.focus();
     }
     function moveFocus(days) {
       var cur = document.activeElement;
@@ -651,6 +724,25 @@
       if (tgt) tgt.focus();
     }
     function onKey(e) {
+      if (mode === 'months') {
+        if (e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); setMode('days'); return; }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopImmediatePropagation(); moveMonthFocus(-1); return; }
+        if (e.key === 'ArrowRight') { e.preventDefault(); e.stopImmediatePropagation(); moveMonthFocus(1); return; }
+        if (e.key === 'ArrowUp') { e.preventDefault(); e.stopImmediatePropagation(); moveMonthFocus(-3); return; }
+        if (e.key === 'ArrowDown') { e.preventDefault(); e.stopImmediatePropagation(); moveMonthFocus(3); return; }
+        if (e.key === 'PageUp') { e.preventDefault(); e.stopImmediatePropagation(); shift(-1); return; }
+        if (e.key === 'PageDown') { e.preventDefault(); e.stopImmediatePropagation(); shift(1); return; }
+        if (e.key === 'Tab') {
+          e.stopImmediatePropagation();
+          var fm = pop.querySelectorAll('button:not(:disabled)');
+          if (!fm.length) return;
+          var fmFirst = fm[0], fmLast = fm[fm.length - 1];
+          if (e.shiftKey && document.activeElement === fmFirst) { e.preventDefault(); fmLast.focus(); }
+          else if (!e.shiftKey && document.activeElement === fmLast) { e.preventDefault(); fmFirst.focus(); }
+          return;
+        }
+        return; /* Enter/Space on a .cal-month → native button click fires */
+      }
       if (e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); close(); return; }
       if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopImmediatePropagation(); moveFocus(-1); }
       else if (e.key === 'ArrowRight') { e.preventDefault(); e.stopImmediatePropagation(); moveFocus(1); }
@@ -709,6 +801,8 @@
         var t = new Date(); return { y: t.getFullYear(), m: t.getMonth() };
       })();
       viewY = base.y; viewM = base.m;
+      mode = 'days';
+      if (titleBtn) titleBtn.setAttribute('aria-expanded', 'false');
       render();
       scrim.classList.add('is-open');
       document.body.classList.add('no-scroll');
