@@ -502,7 +502,445 @@
     return h12 + ':' + m + ' ' + ampm;
   }
 
-  function wire(triggerSel, fmt) {
+  /* ── Custom Evenzi calendar (replaces the native date picker) ──────
+     Singleton popover/sheet. The hidden <input type="date"> stays the
+     value store; we write YYYY-MM-DD + dispatch 'change' so all existing
+     formatting/state logic is untouched. Native picker is the fallback. */
+  var DOW = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function toISO(y, m, d) { return y + '-' + pad2(m + 1) + '-' + pad2(d); }
+  function parseISO(s) {
+    if (!s) return null;
+    var p = s.split('-');
+    if (p.length !== 3) return null;
+    var y = +p[0], m = +p[1] - 1, d = +p[2];
+    var dt = new Date(y, m, d);
+    return isNaN(dt.getTime()) ? null : { y: y, m: m, d: d };
+  }
+  var cal = (function () {
+    var scrim, pop, titleEl, gridEl, anchorBtn, input;
+    var viewY, viewM, selISO, minISO, maxISO, lastFocused;
+
+    function build() {
+      scrim = document.createElement('div');
+      scrim.className = 'cal-scrim';
+      pop = document.createElement('div');
+      pop.className = 'cal-pop';
+      pop.setAttribute('role', 'dialog');
+      pop.setAttribute('aria-modal', 'true');
+      pop.setAttribute('aria-label', 'Choose a date');
+
+      var head = document.createElement('div');
+      head.className = 'cal-head';
+      var prev = navBtn('chevron_left', 'Previous month', -1);
+      titleEl = document.createElement('span');
+      titleEl.className = 'cal-title';
+      titleEl.setAttribute('aria-live', 'polite');
+      var next = navBtn('chevron_right', 'Next month', 1);
+      head.appendChild(prev); head.appendChild(titleEl); head.appendChild(next);
+
+      var dowRow = document.createElement('div');
+      dowRow.className = 'cal-dow-row';
+      DOW.forEach(function (d) {
+        var c = document.createElement('span');
+        c.className = 'cal-dow'; c.textContent = d;
+        c.setAttribute('aria-hidden', 'true');
+        dowRow.appendChild(c);
+      });
+
+      gridEl = document.createElement('div');
+      gridEl.className = 'cal-grid';
+      gridEl.setAttribute('role', 'grid');
+
+      pop.appendChild(head);
+      pop.appendChild(dowRow);
+      pop.appendChild(gridEl);
+      scrim.appendChild(pop);
+      document.body.appendChild(scrim);
+
+      scrim.addEventListener('click', function (e) {
+        if (e.target === scrim) close();
+      });
+      /* Capture keydown so Esc/arrows act on the calendar, not a modal
+         underneath it (modal listeners are bubble-phase on document). */
+      scrim.addEventListener('keydown', onKey, true);
+    }
+    function navBtn(icon, label, delta) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'cal-nav';
+      b.setAttribute('aria-label', label);
+      var i = document.createElement('span');
+      i.className = 'material-symbols-outlined';
+      i.setAttribute('aria-hidden', 'true');
+      i.textContent = icon;
+      b.appendChild(i);
+      b.addEventListener('click', function () { shift(delta); });
+      return b;
+    }
+    function inRange(iso) {
+      if (minISO && iso < minISO) return false;
+      if (maxISO && iso > maxISO) return false;
+      return true;
+    }
+    function render() {
+      var months = ['January','February','March','April','May','June','July',
+        'August','September','October','November','December'];
+      titleEl.textContent = months[viewM] + ' ' + viewY;
+      while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
+      var first = new Date(viewY, viewM, 1);
+      var startCol = (first.getDay() + 6) % 7; /* Monday-first */
+      var daysInMonth = new Date(viewY, viewM + 1, 0).getDate();
+      var prevDays = new Date(viewY, viewM, 0).getDate();
+      var today = new Date();
+      var todayISO = toISO(today.getFullYear(), today.getMonth(), today.getDate());
+      var cells = 42, focusTarget = null;
+      for (var i = 0; i < cells; i++) {
+        var dayNum, oy = viewY, om = viewM, outside = false;
+        if (i < startCol) { dayNum = prevDays - startCol + 1 + i; om = viewM - 1; outside = true; }
+        else if (i >= startCol + daysInMonth) { dayNum = i - startCol - daysInMonth + 1; om = viewM + 1; outside = true; }
+        else { dayNum = i - startCol + 1; }
+        if (om < 0) { om = 11; oy = viewY - 1; }
+        if (om > 11) { om = 0; oy = viewY + 1; }
+        var iso = toISO(oy, om, dayNum);
+        var btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'cal-day';
+        btn.textContent = dayNum;
+        btn.setAttribute('role', 'gridcell');
+        btn.setAttribute('data-iso', iso);
+        if (outside) btn.classList.add('is-outside');
+        if (iso === todayISO) btn.classList.add('is-today');
+        if (iso === selISO) {
+          btn.classList.add('is-selected');
+          btn.setAttribute('aria-selected', 'true');
+        }
+        if (!inRange(iso)) { btn.disabled = true; }
+        btn.setAttribute('aria-label', new Date(oy, om, dayNum)
+          .toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' }));
+        btn.addEventListener('click', function () {
+          if (this.disabled) return;
+          choose(this.getAttribute('data-iso'));
+        });
+        gridEl.appendChild(btn);
+        if (!focusTarget && !btn.disabled && (iso === selISO)) focusTarget = btn;
+        if (!focusTarget && !outside && iso === todayISO && !selISO) focusTarget = btn;
+      }
+      if (!focusTarget) {
+        focusTarget = gridEl.querySelector('.cal-day:not(.is-outside):not(:disabled)');
+      }
+      pendingFocus = focusTarget;
+    }
+    var pendingFocus = null;
+    function shift(delta) {
+      viewM += delta;
+      if (viewM < 0) { viewM = 11; viewY--; }
+      if (viewM > 11) { viewM = 0; viewY++; }
+      render();
+      if (pendingFocus) pendingFocus.focus();
+    }
+    function moveFocus(days) {
+      var cur = document.activeElement;
+      if (!cur || !cur.classList.contains('cal-day')) return;
+      var iso = cur.getAttribute('data-iso');
+      var p = parseISO(iso);
+      var nd = new Date(p.y, p.m, p.d + days);
+      var nISO = toISO(nd.getFullYear(), nd.getMonth(), nd.getDate());
+      if ((nd.getMonth() !== viewM) || (nd.getFullYear() !== viewY)) {
+        viewY = nd.getFullYear(); viewM = nd.getMonth(); render();
+      }
+      var tgt = gridEl.querySelector('.cal-day[data-iso="' + nISO + '"]');
+      if (tgt) tgt.focus();
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); close(); return; }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopImmediatePropagation(); moveFocus(-1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); e.stopImmediatePropagation(); moveFocus(1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); e.stopImmediatePropagation(); moveFocus(-7); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); e.stopImmediatePropagation(); moveFocus(7); }
+      else if (e.key === 'PageUp') { e.preventDefault(); e.stopImmediatePropagation(); shift(-1); }
+      else if (e.key === 'PageDown') { e.preventDefault(); e.stopImmediatePropagation(); shift(1); }
+      else if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+        var a = document.activeElement;
+        if (a && a.classList.contains('cal-day') && !a.disabled) {
+          e.preventDefault(); e.stopImmediatePropagation();
+          choose(a.getAttribute('data-iso'));
+        }
+      } else if (e.key === 'Tab') {
+        /* Keep focus within the popover. */
+        e.stopImmediatePropagation();
+        var f = pop.querySelectorAll('button:not(:disabled)');
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+    function choose(iso) {
+      if (!inRange(iso)) return;
+      input.value = iso;
+      input.dispatchEvent(new Event('change', { bubbles: false }));
+      close();
+    }
+    function position() {
+      if (window.matchMedia('(max-width:767px)').matches) {
+        pop.style.position = ''; pop.style.top = ''; pop.style.left = '';
+        return; /* CSS handles the bottom-sheet */
+      }
+      pop.style.position = 'fixed';
+      var r = anchorBtn.getBoundingClientRect();
+      var pw = 320, ph = pop.offsetHeight || 340;
+      var left = Math.min(r.left, window.innerWidth - pw - 12);
+      left = Math.max(12, left);
+      var top = r.bottom + 8;
+      if (top + ph > window.innerHeight - 12) {
+        top = Math.max(12, r.top - ph - 8);
+      }
+      pop.style.left = left + 'px';
+      pop.style.top = top + 'px';
+    }
+    function open(inp, btn) {
+      if (!scrim) build();
+      input = inp; anchorBtn = btn;
+      lastFocused = document.activeElement;
+      var sel = parseISO(input.value);
+      selISO = sel ? input.value : null;
+      minISO = input.getAttribute('min') || (input.min || '') || null;
+      maxISO = input.getAttribute('max') || (input.max || '') || null;
+      var base = sel || (function () {
+        var t = new Date(); return { y: t.getFullYear(), m: t.getMonth() };
+      })();
+      viewY = base.y; viewM = base.m;
+      render();
+      scrim.classList.add('is-open');
+      document.body.classList.add('no-scroll');
+      position();
+      requestAnimationFrame(function () {
+        if (pendingFocus) pendingFocus.focus();
+      });
+    }
+    function close() {
+      if (!scrim) return;
+      scrim.classList.remove('is-open');
+      if (!document.querySelector('.modal-scrim.is-open')) {
+        document.body.classList.remove('no-scroll');
+      }
+      if (lastFocused && lastFocused.focus) {
+        try { lastFocused.focus(); } catch (_) {}
+      }
+    }
+    window.addEventListener('resize', function () {
+      if (scrim && scrim.classList.contains('is-open')) position();
+    });
+    return { open: open };
+  })();
+
+  function nativeOpen(input) {
+    if (typeof input.showPicker === 'function') {
+      try { input.showPicker(); return; } catch (_) {}
+    }
+    input.focus();
+    input.click();
+  }
+  function openDateCalendar(input, btn) {
+    if (btn.hasAttribute('data-native-date')) { nativeOpen(input); return; }
+    try { cal.open(input, btn); }
+    catch (e) { nativeOpen(input); }
+  }
+
+  /* ── Custom Evenzi time picker (replaces native time input) ────────
+     Hour (1-12) + minute (00-59) scroll columns + AM/PM. The hidden
+     <input type="time"> stays the value store (24h "HH:MM"). */
+  var tp = (function () {
+    var scrim, pop, hCol, mCol, amBtn, pmBtn, anchorBtn, input;
+    var h12, mm, ap, lastFocused;
+
+    function build() {
+      scrim = document.createElement('div');
+      scrim.className = 'tp-scrim';
+      pop = document.createElement('div');
+      pop.className = 'tp-pop';
+      pop.setAttribute('role', 'dialog');
+      pop.setAttribute('aria-modal', 'true');
+      pop.setAttribute('aria-label', 'Choose a time');
+
+      var title = document.createElement('p');
+      title.className = 'tp-title';
+      title.textContent = 'Select time';
+
+      var cols = document.createElement('div');
+      cols.className = 'tp-cols';
+      hCol = mkCol('Hour', 'h');
+      mCol = mkCol('Min', 'm');
+      var amWrap = document.createElement('div');
+      amWrap.className = 'tp-ampm';
+      var cap = document.createElement('div');
+      cap.className = 'tp-ampm-cap'; cap.textContent = 'AM/PM';
+      amBtn = mkAmpm('AM');
+      pmBtn = mkAmpm('PM');
+      amWrap.appendChild(cap); amWrap.appendChild(amBtn); amWrap.appendChild(pmBtn);
+      cols.appendChild(hCol.col); cols.appendChild(mCol.col); cols.appendChild(amWrap);
+
+      var actions = document.createElement('div');
+      actions.className = 'tp-actions';
+      var cancel = document.createElement('button');
+      cancel.type = 'button'; cancel.className = 'btn-pill btn-pill-secondary';
+      cancel.textContent = 'Cancel';
+      cancel.addEventListener('click', close);
+      var setb = document.createElement('button');
+      setb.type = 'button'; setb.className = 'btn-pill btn-pill-primary';
+      setb.textContent = 'Set';
+      setb.addEventListener('click', apply);
+      actions.appendChild(cancel); actions.appendChild(setb);
+
+      pop.appendChild(title);
+      pop.appendChild(cols);
+      pop.appendChild(actions);
+      scrim.appendChild(pop);
+      document.body.appendChild(scrim);
+
+      scrim.addEventListener('click', function (e) { if (e.target === scrim) close(); });
+      scrim.addEventListener('keydown', onKey, true);
+    }
+    function mkCol(capText, kind) {
+      var col = document.createElement('div');
+      col.className = 'tp-col';
+      var cap = document.createElement('div');
+      cap.className = 'tp-col-cap'; cap.textContent = capText;
+      var scroll = document.createElement('div');
+      scroll.className = 'tp-scroll';
+      scroll.setAttribute('role', 'listbox');
+      scroll.setAttribute('aria-label', capText);
+      var max = kind === 'h' ? 12 : 60, start = kind === 'h' ? 1 : 0;
+      for (var v = start; v < start + max; v++) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'tp-opt';
+        b.setAttribute('role', 'option');
+        b.setAttribute('data-val', v);
+        b.textContent = kind === 'h' ? v : pad2(v);
+        (function (val) {
+          b.addEventListener('click', function () {
+            if (kind === 'h') h12 = val; else mm = val;
+            mark();
+          });
+        })(v);
+        scroll.appendChild(b);
+      }
+      col.appendChild(cap); col.appendChild(scroll);
+      return { col: col, scroll: scroll };
+    }
+    function mkAmpm(val) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'tp-ampm-btn';
+      b.textContent = val;
+      b.addEventListener('click', function () { ap = val; mark(); });
+      return b;
+    }
+    function markCol(c, val) {
+      var opts = c.scroll.querySelectorAll('.tp-opt');
+      opts.forEach(function (o) {
+        var on = +o.getAttribute('data-val') === val;
+        o.classList.toggle('is-sel', on);
+        o.setAttribute('aria-selected', on ? 'true' : 'false');
+        if (on) o.scrollIntoView({ block: 'center' });
+      });
+    }
+    function mark() {
+      markCol(hCol, h12);
+      markCol(mCol, mm);
+      amBtn.classList.toggle('is-sel', ap === 'AM');
+      pmBtn.classList.toggle('is-sel', ap === 'PM');
+    }
+    function apply() {
+      var h24 = (h12 % 12) + (ap === 'PM' ? 12 : 0);
+      input.value = pad2(h24) + ':' + pad2(mm);
+      input.dispatchEvent(new Event('change', { bubbles: false }));
+      close();
+    }
+    function moveSel(col, getv, setv, lo, hi) {
+      return function (dir) {
+        var v = getv();
+        v += dir;
+        if (v < lo) v = hi;
+        if (v > hi) v = lo;
+        setv(v); mark();
+      };
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); close(); return; }
+      if (e.key === 'Enter') {
+        if (document.activeElement && document.activeElement.classList.contains('tp-opt')) return;
+        e.stopImmediatePropagation(); e.preventDefault(); apply(); return;
+      }
+      if (e.key === 'Tab') {
+        e.stopImmediatePropagation();
+        var f = pop.querySelectorAll('button');
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+    function position() {
+      if (window.matchMedia('(max-width:767px)').matches) {
+        pop.style.position = ''; pop.style.top = ''; pop.style.left = '';
+        return;
+      }
+      pop.style.position = 'fixed';
+      var r = anchorBtn.getBoundingClientRect();
+      var pw = 320, ph = pop.offsetHeight || 320;
+      var left = Math.max(12, Math.min(r.left, window.innerWidth - pw - 12));
+      var top = r.bottom + 8;
+      if (top + ph > window.innerHeight - 12) top = Math.max(12, r.top - ph - 8);
+      pop.style.left = left + 'px';
+      pop.style.top = top + 'px';
+    }
+    function open(inp, btn) {
+      if (!scrim) build();
+      input = inp; anchorBtn = btn;
+      lastFocused = document.activeElement;
+      var v = (input.value || '').split(':');
+      if (v.length === 2) {
+        var h = parseInt(v[0], 10), m = parseInt(v[1], 10);
+        ap = h >= 12 ? 'PM' : 'AM';
+        h12 = h % 12 || 12;
+        mm = isNaN(m) ? 0 : m;
+      } else {
+        var now = new Date();
+        var hh = now.getHours();
+        ap = hh >= 12 ? 'PM' : 'AM';
+        h12 = hh % 12 || 12;
+        mm = now.getMinutes();
+      }
+      mark();
+      scrim.classList.add('is-open');
+      document.body.classList.add('no-scroll');
+      position();
+      requestAnimationFrame(function () {
+        var sel = hCol.scroll.querySelector('.tp-opt.is-sel');
+        if (sel) sel.focus();
+        mark();
+      });
+    }
+    function close() {
+      if (!scrim) return;
+      scrim.classList.remove('is-open');
+      if (!document.querySelector('.modal-scrim.is-open')) {
+        document.body.classList.remove('no-scroll');
+      }
+      if (lastFocused && lastFocused.focus) { try { lastFocused.focus(); } catch (_) {} }
+    }
+    window.addEventListener('resize', function () {
+      if (scrim && scrim.classList.contains('is-open')) position();
+    });
+    return { open: open };
+  })();
+
+  function openTimePicker(input, btn) {
+    if (btn.hasAttribute('data-native-time')) { nativeOpen(input); return; }
+    try { tp.open(input, btn); }
+    catch (e) { nativeOpen(input); }
+  }
+
+  function wire(triggerSel, fmt, opener) {
     var triggers = document.querySelectorAll(triggerSel);
     triggers.forEach(function (btn) {
       var input = btn.nextElementSibling;
@@ -511,11 +949,8 @@
 
       btn.addEventListener('click', function (e) {
         e.preventDefault();
-        if (typeof input.showPicker === 'function') {
-          try { input.showPicker(); return; } catch (_) {}
-        }
-        input.focus();
-        input.click();
+        if (opener) { opener(input, btn); return; }
+        nativeOpen(input);
       });
       input.addEventListener('change', function () {
         if (label) label.textContent = fmt(input.value);
@@ -526,8 +961,8 @@
     });
   }
 
-  wire('[data-date-trigger]', fmtDate);
-  wire('[data-time-trigger]', fmtTime);
+  wire('[data-date-trigger]', fmtDate, openDateCalendar);
+  wire('[data-time-trigger]', fmtTime, openTimePicker);
 })();
 
 /* ── PIN / OTP input ─────────────────────────────

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "design": "live-server designs --port=4000 --host=0.0.0.0 --no-browser",
+    "design": "npx --yes live-server@^1.2.2 designs --port=4000 --host=0.0.0.0 --no-browser",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

@@ -17,7 +17,7 @@
 
 <header class="page-shell-header">
   <a href="../../index.html" class="page-logo" aria-label="Evenzi home">Evenzi</a>
-  <span class="page-eyebrow hidden md:inline" aria-hidden="true">Celebratory Curator</span>
+  <span class="page-eyebrow" aria-hidden="true">Celebratory Curator</span>
   <div class="page-shell-actions">
     <button id="theme-toggle" type="button" class="page-theme-toggle" aria-label="Toggle dark mode">
       <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
@@ -25,7 +25,7 @@
     </button>
     <a href="../../index.html" class="page-close" aria-label="Close wizard and return to dashboard">
       <span aria-hidden="true" class="material-symbols-outlined">close</span>
-      <span class="hidden md:inline">Exit</span>
+      <span class="page-close-label">Exit</span>
     </a>
   </div>
 </header>
@@ -85,11 +85,11 @@
           </div>
         </div>
         <div class="cc-celebration-meta">
-          <button type="button" class="cc-meta-btn" data-cc-meta="time">
-            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> Set time
+          <button type="button" class="cc-meta-btn" data-cc-meta="time" data-modal-target="#cc-modal-time">
+            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> <span class="cc-meta-label">Set time</span>
           </button>
-          <button type="button" class="cc-meta-btn" data-cc-meta="venue">
-            <span aria-hidden="true" class="material-symbols-outlined">place</span> Set venue
+          <button type="button" class="cc-meta-btn" data-cc-meta="venue" data-modal-target="#cc-modal-venue">
+            <span aria-hidden="true" class="material-symbols-outlined">place</span> <span class="cc-meta-label">Set venue</span>
           </button>
         </div>
       </div>
@@ -108,11 +108,11 @@
           </div>
         </div>
         <div class="cc-celebration-meta">
-          <button type="button" class="cc-meta-btn" data-cc-meta="time">
-            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> Set time
+          <button type="button" class="cc-meta-btn" data-cc-meta="time" data-modal-target="#cc-modal-time">
+            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> <span class="cc-meta-label">Set time</span>
           </button>
-          <button type="button" class="cc-meta-btn" data-cc-meta="venue">
-            <span aria-hidden="true" class="material-symbols-outlined">place</span> Set venue
+          <button type="button" class="cc-meta-btn" data-cc-meta="venue" data-modal-target="#cc-modal-venue">
+            <span aria-hidden="true" class="material-symbols-outlined">place</span> <span class="cc-meta-label">Set venue</span>
           </button>
         </div>
       </div>
@@ -131,11 +131,11 @@
           </div>
         </div>
         <div class="cc-celebration-meta">
-          <button type="button" class="cc-meta-btn" data-cc-meta="time">
-            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> Set time
+          <button type="button" class="cc-meta-btn" data-cc-meta="time" data-modal-target="#cc-modal-time">
+            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> <span class="cc-meta-label">Set time</span>
           </button>
-          <button type="button" class="cc-meta-btn" data-cc-meta="venue">
-            <span aria-hidden="true" class="material-symbols-outlined">place</span> Set venue
+          <button type="button" class="cc-meta-btn" data-cc-meta="venue" data-modal-target="#cc-modal-venue">
+            <span aria-hidden="true" class="material-symbols-outlined">place</span> <span class="cc-meta-label">Set venue</span>
           </button>
         </div>
       </div>
@@ -154,11 +154,11 @@
           </div>
         </div>
         <div class="cc-celebration-meta">
-          <button type="button" class="cc-meta-btn" data-cc-meta="time">
-            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> Set time
+          <button type="button" class="cc-meta-btn" data-cc-meta="time" data-modal-target="#cc-modal-time">
+            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> <span class="cc-meta-label">Set time</span>
           </button>
-          <button type="button" class="cc-meta-btn" data-cc-meta="venue">
-            <span aria-hidden="true" class="material-symbols-outlined">place</span> Set venue
+          <button type="button" class="cc-meta-btn" data-cc-meta="venue" data-modal-target="#cc-modal-venue">
+            <span aria-hidden="true" class="material-symbols-outlined">place</span> <span class="cc-meta-label">Set venue</span>
           </button>
         </div>
       </div>
@@ -177,11 +177,11 @@
           </div>
         </div>
         <div class="cc-celebration-meta">
-          <button type="button" class="cc-meta-btn" data-cc-meta="time">
-            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> Set time
+          <button type="button" class="cc-meta-btn" data-cc-meta="time" data-modal-target="#cc-modal-time">
+            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> <span class="cc-meta-label">Set time</span>
           </button>
-          <button type="button" class="cc-meta-btn" data-cc-meta="venue">
-            <span aria-hidden="true" class="material-symbols-outlined">place</span> Set venue
+          <button type="button" class="cc-meta-btn" data-cc-meta="venue" data-modal-target="#cc-modal-venue">
+            <span aria-hidden="true" class="material-symbols-outlined">place</span> <span class="cc-meta-label">Set venue</span>
           </button>
         </div>
       </div>
@@ -200,17 +200,17 @@
           </div>
         </div>
         <div class="cc-celebration-meta">
-          <button type="button" class="cc-meta-btn" data-cc-meta="time">
-            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> Set time
+          <button type="button" class="cc-meta-btn" data-cc-meta="time" data-modal-target="#cc-modal-time">
+            <span aria-hidden="true" class="material-symbols-outlined">schedule</span> <span class="cc-meta-label">Set time</span>
           </button>
-          <button type="button" class="cc-meta-btn" data-cc-meta="venue">
-            <span aria-hidden="true" class="material-symbols-outlined">place</span> Set venue
+          <button type="button" class="cc-meta-btn" data-cc-meta="venue" data-modal-target="#cc-modal-venue">
+            <span aria-hidden="true" class="material-symbols-outlined">place</span> <span class="cc-meta-label">Set venue</span>
           </button>
         </div>
       </div>
     </div>
 
-    <button type="button" class="cc-add-custom" data-cc-add-custom>
+    <button type="button" class="cc-add-custom" data-cc-add-custom data-modal-target="#cc-modal-custom">
       <span aria-hidden="true" class="material-symbols-outlined">add</span>
       Add a custom ceremony
     </button>
@@ -237,6 +237,89 @@
 <footer class="page-shell-footer">
   © 2026 Evenzi · Crafted with care
 </footer>
+
+<!-- ── Set date & time (shared across all celebrations; active one set via JS) ── -->
+<div id="cc-modal-time" class="modal-scrim" data-modal>
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="cc-modal-time-title">
+    <h2 class="modal-title" id="cc-modal-time-title">Set date &amp; time</h2>
+    <div class="modal-body">
+      <p class="cc-modal-sub" data-cc-modal-for>For this celebration</p>
+      <div class="cc-modal-field">
+        <span class="form-label" id="cc-time-date-label">Date</span>
+        <button type="button" class="form-input form-input-trigger" data-date-trigger aria-labelledby="cc-time-date-label">
+          <span class="form-input-trigger-value">Pick a date</span>
+          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+        </button>
+        <input id="cc-time-date" type="date" class="sr-only" tabindex="-1" aria-hidden="true" />
+      </div>
+      <div class="cc-modal-field">
+        <span class="form-label" id="cc-time-start-label">Start time</span>
+        <button type="button" class="form-input form-input-trigger" data-time-trigger aria-labelledby="cc-time-start-label">
+          <span class="form-input-trigger-value">Pick a time</span>
+          <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+        </button>
+        <input id="cc-time-start" type="time" class="sr-only" tabindex="-1" aria-hidden="true" />
+      </div>
+      <div class="cc-modal-field">
+        <span class="form-label" id="cc-time-end-label">End time <span class="cc-modal-optional">(optional)</span></span>
+        <button type="button" class="form-input form-input-trigger" data-time-trigger aria-labelledby="cc-time-end-label">
+          <span class="form-input-trigger-value">Pick a time</span>
+          <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+        </button>
+        <input id="cc-time-end" type="time" class="sr-only" tabindex="-1" aria-hidden="true" />
+      </div>
+      <p class="form-error" id="cc-time-err" role="alert" hidden></p>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" data-cc-save="time" data-modal-close>Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Set venue ── -->
+<div id="cc-modal-venue" class="modal-scrim" data-modal>
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="cc-modal-venue-title">
+    <h2 class="modal-title" id="cc-modal-venue-title">Set venue</h2>
+    <div class="modal-body">
+      <p class="cc-modal-sub" data-cc-modal-for>For this celebration</p>
+      <div class="cc-modal-field">
+        <label class="form-label" for="cc-venue-name">Venue name</label>
+        <input id="cc-venue-name" class="form-input" type="text" placeholder="e.g. The Grand Pavilion" autocomplete="off" />
+      </div>
+      <div class="cc-modal-field">
+        <label class="form-label" for="cc-venue-address">Address <span class="cc-modal-optional">(optional)</span></label>
+        <textarea id="cc-venue-address" class="form-textarea" rows="3" placeholder="Street, area, city"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" data-cc-save="venue" data-modal-close>Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add a custom ceremony ── -->
+<div id="cc-modal-custom" class="modal-scrim" data-modal>
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="cc-modal-custom-title">
+    <h2 class="modal-title" id="cc-modal-custom-title">Add a custom ceremony</h2>
+    <div class="modal-body">
+      <div class="cc-modal-field">
+        <label class="form-label" for="cc-custom-name">Ceremony name</label>
+        <input id="cc-custom-name" class="form-input" type="text" placeholder="e.g. Tilak, Roka, Vidaai" autocomplete="off" aria-describedby="cc-custom-err" />
+        <p class="form-error" id="cc-custom-err" role="alert" hidden></p>
+      </div>
+      <div class="cc-modal-field">
+        <label class="form-label" for="cc-custom-desc">Short description <span class="cc-modal-optional">(optional)</span></label>
+        <input id="cc-custom-desc" class="form-input" type="text" placeholder="One line about this moment" autocomplete="off" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" data-cc-save="custom" data-modal-close>Add ceremony</button>
+    </div>
+  </div>
+</div>
 
 <div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
   <span class="bc-live" aria-hidden="true"></span>

@@ -145,8 +145,12 @@
           <input id="es-partner-two" type="text" class="form-input" value="Kabir Mehta" autocomplete="off"/>
         </div>
         <div class="form-group">
-          <label class="form-label" for="es-event-date">Event date</label>
-          <input id="es-event-date" type="date" class="form-input" value="2026-12-22"/>
+          <span class="form-label" id="es-event-date-label">Event date</span>
+          <button type="button" class="form-input form-input-trigger" data-date-trigger aria-labelledby="es-event-date-label">
+            <span class="form-input-trigger-value" data-placeholder="Pick a date"></span>
+            <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          </button>
+          <input id="es-event-date" type="date" class="sr-only" tabindex="-1" aria-hidden="true" value="2026-12-22"/>
         </div>
         <div class="form-group">
           <label class="form-label" for="es-event-type">Event type</label>

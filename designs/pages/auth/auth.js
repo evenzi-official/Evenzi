@@ -165,6 +165,9 @@
     /* Resend countdown */
     var seconds = 30;
     function tick() {
+      // Pause the countdown while the tab is backgrounded (battery + the
+      // user can't see it anyway); keep the loop alive to resume on return.
+      if (document.hidden) { setTimeout(tick, 1000); return; }
       seconds--;
       if (resendCountEl) resendCountEl.textContent = String(seconds);
       if (seconds <= 0) {
@@ -239,9 +242,15 @@
       pills.forEach(function (p) {
         p.setAttribute('aria-checked', 'false');
         p.classList.remove('is-checked');
+        // Roving tabindex: a radiogroup exposes ONE tab stop. Disabled
+        // pills keep tabindex=-1; others go to -1 until selected.
+        if (p.getAttribute('aria-disabled') !== 'true') {
+          p.setAttribute('tabindex', '-1');
+        }
       });
       pill.setAttribute('aria-checked', 'true');
       pill.classList.add('is-checked');
+      pill.setAttribute('tabindex', '0');
       selected = pill.getAttribute('data-role');
       if (continueBtn) {
         continueBtn.disabled = false;

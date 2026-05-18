@@ -67,7 +67,23 @@
 
 ---
 
-**What was done this session (2026-05-15 — Celebratory Curator wizard + auth/settings improvements):**
+**What was done this session (2026-05-19 — design-path: auth fixes, Step-3 modals, custom date/time pickers, header fix):**
+
+- **Auth flow tested + reviewed** (was built but never reviewed). 8 P1–P3 fixes landed: pin-input wrap on iPhone-16 (fluid `.pin-input` cells), role-select mobile collapse (line-clamp + ≤480px block), roving tabindex, `href="#"` comments, `.btn-pill-lg` legibility, resend `document.hidden` guard, honest "min-height is a floor" comment.
+- **ACCEPTED RESIDUAL (Abhijith, do not re-litigate):** role-select.html at 360px truncates role descriptions hard (`"Manc… you…"`) and host name wraps 2 lines (~18px taller than vendor). Collapse is fixed and layout is compact/balanced. Full fix needs a mobile column redesign (drop icon or stack) — **deferred, accepted as-is**. (Recorded here because `designs/_plans/auth-flow-plan.md` was deleted this session at Abhijith's request.)
+- **Step-3 Celebrations modals (NEW)** — Set time / Set venue / Add custom ceremony, reusing the shell modal primitive. Auto-select, prefill, refresh-resilience, custom-card injection, Step-4 review display. Fixed a latent shell bug: `.sr-only` was referenced by the date/time-trigger doc-comment but never defined → added it to `shell.css` (also fixed `components.html`).
+- **Custom Evenzi calendar (NEW shell primitive)** — `.cal-*` + `shell.js`; intercepts `[data-date-trigger]`, replaces the native OS picker app-wide. Hidden `<input type=date>` stays the value store; `data-native-date` fallback. Applied to **all** native date inputs: Step-2 EVENT DATE + `event-settings/general` (converted bare inputs to the trigger pattern).
+- **Custom Evenzi time picker (NEW shell primitive)** — `.tp-*` + `shell.js`; intercepts `[data-time-trigger]` (fixed "Pick a time not opening" — native `showPicker()` was unreliable on the now-hidden input). HH:MM + AM/PM, `data-native-time` fallback.
+- **Step-3 End time** — added End time field; both optional, **End must be after Start** when both set (validated, blocks save). State/display/refresh-restore extended (`timeRaw {date,time,endTime}`).
+- **Header-overflow fix** — all 5 create-event pages used dead Tailwind `hidden md:inline` (no Tailwind CDN there) → ~46px header overflow ≤~420px, distorting fixed sheets. Promoted to `shell.css` (`.page-eyebrow` responsive + new `.page-close-label`), stripped raw Tailwind.
+- **`components.html` updated** — FF6 retitled/refreshed to showcase the custom Evenzi calendar + time picker (+ `.sr-only` / native-fallback note).
+- Design-server dependency made resilient (`npm run design` → `npx --yes live-server`); `start-evenzi-session` skill: server-start is now step 1 of the design path.
+
+**Open decisions / state:**
+- Verification for the date/time pickers was done **programmatically** (DOM/values/console) — the preview screenshot tool was glitching; no visual screenshot proof for the time picker.
+- Sample-design parity is partial **by Abhijith's explicit choice**: no Today/Tomorrow chips, no month/year quick-nav caret, no Jan–Dec month-grid, no date ranges; time is HH:MM+AM/PM (no seconds). Revisit only if requested.
+
+**Open follow-ups for next session:**
 
 - **Celebratory Curator wizard (NEW)** — full 5-screen event-creation flow in `designs/pages/create-event/`. Triggered from Dashboard's `+ Create event` nav button and the empty-CTA "Start a new event" card on `designs/index.html`. Per-step routing via sessionStorage state machine (`evz-event` key). All 5 screens: step-1-type, step-2-details, step-3-celebrations, step-4-review, success.
 - **Wedding-only MVP scope** — Step 1 has Wedding clickable; Birthday, Anniversary, Corporate dimmed with brand-tinted "SOON" tag and `aria-disabled="true"`. Click on disabled card fires a toast `BIRTHDAY COMING SOON` etc.

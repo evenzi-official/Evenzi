@@ -877,9 +877,12 @@ html{scroll-behavior:smooth}
   .btn-pill[aria-disabled="true"]:hover{transform:none;background:var(--brand)}
   .btn-pill-secondary:disabled:hover{background:var(--cream-soft);color:var(--ink);border-color:var(--line)}
 }
-/* Larger size used for full-page action footer */
+/* Larger size used for full-page action footer + primary CTAs (auth, etc.).
+   Bumps font 12→13px and loosens the base .16em tracking to .12em — at
+   uppercase 12px the base tracking made long labels ("VERIFY AND CONTINUE")
+   hard to read. Scoped to -lg only; base .btn-pill is unchanged. */
 .btn-pill-lg{
-  padding:0 1.5rem;height:46px;font-size:12px;
+  padding:0 1.5rem;height:46px;font-size:13px;letter-spacing:.12em;
 }
 /* ── Loading state — three-dot bounce indicator ──
    Hides label/trailing icon, reveals a centered row of three dots that
@@ -1340,6 +1343,228 @@ html{scroll-behavior:smooth}
   color:var(--muted-soft);font-weight:500;
 }
 
+/* Generic visually-hidden utility. The date/time trigger doc-comment
+   (above) and the .pin-input pattern reference class="sr-only" to hide
+   the real native <input> while keeping it focusable for showPicker();
+   this is the rule that makes that contract real. */
+.sr-only{
+  position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);
+  white-space:nowrap;border:0;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   CALENDAR — custom Evenzi date picker (replaces the native OS calendar
+   for [data-date-trigger]). Built/opened by shell.js; the hidden
+   <input type="date"> stays the value store (native fallback preserved).
+   Desktop: popover anchored to the trigger (JS sets fixed top/left).
+   Mobile (<768px): bottom-sheet, matching the modal pattern.
+   ════════════════════════════════════════════════════════════════════ */
+.cal-scrim{
+  position:fixed;inset:0;z-index:90;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;
+  opacity:0;pointer-events:none;
+  transition:opacity .18s cubic-bezier(.2,.7,.2,1);
+}
+.cal-scrim.is-open{opacity:1;pointer-events:auto}
+.cal-pop{
+  position:fixed;
+  width:min(320px,calc(100vw - 2rem));
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:var(--shadow-clay);
+  padding:1rem;
+  color:var(--ink);
+  font-family:'Poppins',sans-serif;
+  transform:translateY(6px) scale(.98);
+  transition:transform .18s cubic-bezier(.2,.7,.2,1);
+}
+.cal-scrim.is-open .cal-pop{transform:translateY(0) scale(1)}
+.cal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:.5rem;margin-bottom:.65rem;
+}
+.cal-title{
+  font-weight:600;font-size:14px;color:var(--ink);letter-spacing:-.005em;
+}
+.cal-nav{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:9999px;border:0;
+  background:transparent;color:var(--muted);cursor:pointer;
+  transition:background-color .2s,color .2s;
+}
+.cal-nav .material-symbols-outlined{font-size:20px}
+@media (hover:hover) and (pointer:fine){
+  .cal-nav:hover{background:var(--brand-tint);color:var(--brand)}
+}
+.cal-nav:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.cal-dow-row,.cal-grid{
+  display:grid;grid-template-columns:repeat(7,1fr);
+}
+.cal-dow-row{margin-bottom:.15rem}
+.cal-dow{
+  text-align:center;font-size:11px;font-weight:700;
+  color:var(--muted);padding:.35rem 0;letter-spacing:.02em;
+}
+.cal-grid{gap:2px}
+.cal-day{
+  appearance:none;-webkit-appearance:none;border:0;
+  aspect-ratio:1/1;min-height:36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border-radius:10px;background:transparent;color:var(--ink);
+  font-family:'Poppins',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;
+  transition:background-color .15s,color .15s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cal-day:not(:disabled):hover{background:var(--brand-tint);color:var(--brand)}
+}
+.cal-day:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.cal-day.is-outside{color:var(--muted-soft)}
+.cal-day.is-today{color:var(--brand);font-weight:700}
+.cal-day.is-selected,
+.cal-day.is-selected.is-today{
+  background:var(--brand);color:#fff;font-weight:700;
+}
+.cal-day:disabled{
+  color:var(--muted-soft);opacity:.4;cursor:not-allowed;
+}
+/* Mobile: bottom-sheet (matches .modal-scrim sheet behaviour) */
+@media (max-width:767px){
+  .cal-scrim{
+    align-items:flex-end;
+    background:rgba(17,24,39,.5);backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+  }
+  .dark .cal-scrim{background:rgba(0,0,0,.6)}
+  .cal-pop{
+    position:static;width:100%;
+    border-radius:24px 24px 0 0;
+    padding:1.1rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom,0px));
+    transform:translateY(100%);
+  }
+  .cal-scrim.is-open .cal-pop{transform:translateY(0)}
+  .cal-pop::before{
+    content:'';display:block;width:40px;height:4px;border-radius:9999px;
+    background:var(--muted-soft);opacity:.5;margin:-.2rem auto .7rem;
+  }
+  .cal-day{min-height:42px}
+}
+@media (prefers-reduced-motion:reduce){
+  .cal-scrim,.cal-pop{transition:none}
+  .cal-pop{transform:none !important}
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   TIME PICKER — custom Evenzi time picker (replaces native time input
+   for [data-time-trigger]). Hour + minute scroll columns + AM/PM.
+   Same scrim/sheet model as the calendar. Hidden <input type="time">
+   stays the value store (24h); native fallback preserved.
+   ════════════════════════════════════════════════════════════════════ */
+.tp-scrim{
+  position:fixed;inset:0;z-index:90;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;
+  opacity:0;pointer-events:none;
+  transition:opacity .18s cubic-bezier(.2,.7,.2,1);
+}
+.tp-scrim.is-open{opacity:1;pointer-events:auto}
+.tp-pop{
+  position:fixed;
+  width:min(320px,calc(100vw - 2rem));
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:var(--shadow-clay);
+  padding:1rem;
+  color:var(--ink);
+  font-family:'Poppins',sans-serif;
+  transform:translateY(6px) scale(.98);
+  transition:transform .18s cubic-bezier(.2,.7,.2,1);
+}
+.tp-scrim.is-open .tp-pop{transform:translateY(0) scale(1)}
+.tp-title{
+  font-weight:600;font-size:14px;color:var(--ink);
+  letter-spacing:-.005em;margin:0 0 .75rem;
+}
+.tp-cols{
+  display:flex;gap:.5rem;align-items:stretch;
+}
+.tp-col{
+  flex:1;min-width:0;display:flex;flex-direction:column;
+}
+.tp-col-cap,.tp-ampm-cap{
+  text-align:center;font-size:10px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:.35rem;
+}
+.tp-scroll{
+  overflow-y:auto;max-height:180px;
+  display:flex;flex-direction:column;gap:2px;
+  border:1px solid var(--line);border-radius:12px;padding:4px;
+  scrollbar-width:thin;
+}
+.tp-opt{
+  appearance:none;-webkit-appearance:none;border:0;
+  padding:.5rem 0;border-radius:8px;background:transparent;
+  color:var(--ink);font-family:'Poppins',sans-serif;
+  font-size:14px;font-weight:600;cursor:pointer;
+  transition:background-color .15s,color .15s;
+}
+@media (hover:hover) and (pointer:fine){
+  .tp-opt:hover{background:var(--brand-tint);color:var(--brand)}
+}
+.tp-opt:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
+.tp-opt.is-sel{background:var(--brand);color:#fff}
+.tp-ampm{
+  display:flex;flex-direction:column;justify-content:center;gap:.4rem;
+  flex:0 0 64px;
+}
+.tp-ampm-btn{
+  appearance:none;-webkit-appearance:none;
+  padding:.7rem 0;border-radius:10px;
+  border:1px solid var(--line);background:transparent;color:var(--ink);
+  font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.06em;cursor:pointer;
+  transition:background-color .15s,color .15s,border-color .15s;
+}
+@media (hover:hover) and (pointer:fine){
+  .tp-ampm-btn:hover{background:var(--brand-tint);border-color:var(--brand-tint-2)}
+}
+.tp-ampm-btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.tp-ampm-btn.is-sel{background:var(--brand);color:#fff;border-color:var(--brand)}
+.tp-actions{
+  display:flex;gap:.6rem;justify-content:flex-end;
+  margin-top:1rem;
+}
+@media (max-width:767px){
+  .tp-scrim{
+    align-items:flex-end;
+    background:rgba(17,24,39,.5);backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+  }
+  .dark .tp-scrim{background:rgba(0,0,0,.6)}
+  .tp-pop{
+    position:static;width:100%;
+    border-radius:24px 24px 0 0;
+    padding:1.1rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom,0px));
+    transform:translateY(100%);
+  }
+  .tp-scrim.is-open .tp-pop{transform:translateY(0)}
+  .tp-pop::before{
+    content:'';display:block;width:40px;height:4px;border-radius:9999px;
+    background:var(--muted-soft);opacity:.5;margin:-.2rem auto .7rem;
+  }
+  .tp-scroll{max-height:210px}
+  .tp-actions .btn-pill{flex:1;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){
+  .tp-scrim,.tp-pop{transition:none}
+  .tp-pop{transform:none !important}
+}
+
 /* ════════════════════════════════════════════════════════════════════
    PIN INPUT — 6-cell OTP code field with auto-advance
    Composition: <div class="pin-input" data-len="6" role="group"
@@ -1350,11 +1575,15 @@ html{scroll-behavior:smooth}
    shell.js handles auto-advance, backspace fallback, paste distribution.
    ════════════════════════════════════════════════════════════════════ */
 .pin-input{
-  display:inline-flex;gap:.5rem;
-  flex-wrap:wrap;
+  display:flex;gap:.4rem;
+  flex-wrap:nowrap;width:100%;
 }
+/* Cells are fluid (flex:1) so 6 of them + gaps always fit one row on every
+   phone width (the 381–414px band overflowed a fixed 44px×6 row inside the
+   auth card). Capped at 46px on wide screens, floor ~38px on small phones —
+   WCAG 2.5.8 AA (24px) is comfortably met; never wraps. */
 .pin-input-cell{
-  width:44px;height:52px;
+  flex:1 1 0;min-width:0;max-width:46px;height:52px;
   padding:0;text-align:center;
   border-radius:12px;
   border:1px solid var(--line);
@@ -1384,7 +1613,8 @@ html{scroll-behavior:smooth}
   box-shadow:0 0 0 3px rgba(239,68,68,.12);
 }
 @media (max-width:380px){
-  .pin-input-cell{width:38px;height:46px;font-size:20px}
+  /* Width is fluid (flex:1); only trim height/type on the smallest phones. */
+  .pin-input-cell{height:46px;font-size:20px}
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -1760,13 +1990,17 @@ body.no-scroll{overflow:hidden}
   .page-logo{font-size:1.75rem}
 }
 
+/* Hidden on phones (header has no room — was a dead Tailwind
+   `hidden md:inline` chain; create-event pages don't load Tailwind,
+   which overflowed the header ≤~420px). Shown from the md breakpoint. */
 .page-eyebrow{
+  display:none;
   font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
   letter-spacing:.32em;text-transform:uppercase;color:var(--brand);
   white-space:nowrap;
 }
-@media (max-width:640px){
-  .page-eyebrow{font-size:10px;letter-spacing:.22em}
+@media (min-width:768px){
+  .page-eyebrow{display:inline}
 }
 
 .page-shell-actions{
@@ -1811,6 +2045,12 @@ body.no-scroll{overflow:hidden}
 }
 .page-close:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .page-close .material-symbols-outlined{font-size:18px}
+/* "Exit" text label — icon-only on phones to save header width
+   (replaces a dead `hidden md:inline` Tailwind chain). */
+.page-close-label{display:none}
+@media (min-width:768px){
+  .page-close-label{display:inline}
+}
 
 .page-main{
   flex:1;

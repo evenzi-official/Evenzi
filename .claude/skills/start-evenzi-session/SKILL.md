@@ -123,9 +123,10 @@ After the path is chosen, start the appropriate server in background — but onl
 
 ##### 5a.7.1 Initialize
 
-1. Invoke the `ui-ux-pro-max` skill.
-2. Read in parallel: `designs/shell.css`, `designs/shell.js`, `designs/components.html`, `docs/BRAND-GUIDELINES.md`, and the file listing of `designs/` (titles of every existing `*.html`).
-3. Start the design server in background: `npm run design` (live-server on :4000, host `0.0.0.0` so the LAN URL is reachable from Abhijith's phone).
+1. **Start the design server FIRST — before anything else on this path.** Run `npm run design` in background (live-server on :4000, host `0.0.0.0` so the LAN URL is reachable from Abhijith's phone). Wait until port 4000 is listening, then surface both the local (`http://localhost:4000`) and LAN (`http://<lan-ip>:4000`) URLs to Abhijith.
+   - **Dependency resilience:** the `design` script uses `npx --yes live-server@^1.2.2 …`, so it works even in a fresh worktree where `node_modules` is empty (no full `npm install` needed). `npx` uses the local install if present, otherwise fetches `live-server` on first run. If the server still fails to bind :4000, check the background task output before retrying — do not loop blindly.
+2. Invoke the `ui-ux-pro-max` skill.
+3. Read in parallel: `designs/shell.css`, `designs/shell.js`, `designs/components.html`, `docs/BRAND-GUIDELINES.md`, and the file listing of `designs/` (titles of every existing `*.html`).
 4. Invoke the UI/UX agent (`ai/agents/ui_ux_designer.md`) as the design partner for this session — it participates in plan review, build review, and test review. If the agent file doesn't exist yet, surface that to Abhijith and proceed without it (agent creation is a separate task).
 
 `docs/BRAND-GUIDELINES.md` is the source of truth for brand decisions.

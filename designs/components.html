@@ -1025,26 +1025,27 @@
         </div>
       </article>
 
-      <!-- F6 date / time triggers -->
+      <!-- FF6 date · time · custom Evenzi pickers (replace native OS pickers) -->
       <article class="cs-component">
-        <p class="cs-label"><span class="cs-label-name">FF6</span> · Date · time · native picker, styled trigger</p>
+        <p class="cs-label"><span class="cs-label-name">FF6</span> · Date · time · custom Evenzi pickers (replace native)</p>
         <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
           <div class="form-group">
-            <label class="form-label" for="cs-f6-date-trigger">Event date</label>
-            <button id="cs-f6-date-trigger" type="button" class="form-input form-input-trigger" data-date-trigger>
-              <span class="form-input-trigger-value" data-placeholder="DD / MM / YYYY">Sat · 22 Dec 2025</span>
+            <span class="form-label" id="cs-f6-date-label">Event date</span>
+            <button type="button" class="form-input form-input-trigger" data-date-trigger aria-labelledby="cs-f6-date-label">
+              <span class="form-input-trigger-value" data-placeholder="Pick a date"></span>
               <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
             </button>
-            <input type="date" class="sr-only" tabindex="-1" aria-hidden="true" value="2025-12-22" />
+            <input type="date" class="sr-only" tabindex="-1" aria-hidden="true" value="2026-05-22" />
           </div>
           <div class="form-group">
-            <label class="form-label" for="cs-f6-time-trigger">Ceremony time</label>
-            <button id="cs-f6-time-trigger" type="button" class="form-input form-input-trigger" data-time-trigger>
-              <span class="form-input-trigger-value" data-placeholder="--:-- AM">10:30 AM</span>
+            <span class="form-label" id="cs-f6-time-label">Ceremony time</span>
+            <button type="button" class="form-input form-input-trigger" data-time-trigger aria-labelledby="cs-f6-time-label">
+              <span class="form-input-trigger-value" data-placeholder="Pick a time"></span>
               <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
             </button>
-            <input type="time" class="sr-only" tabindex="-1" aria-hidden="true" value="10:30" />
+            <input type="time" class="sr-only" tabindex="-1" aria-hidden="true" value="14:30" />
           </div>
+          <p class="cs-note">Tapping a trigger opens the custom <strong>Evenzi calendar / time picker</strong> — popover on desktop, bottom-sheet on mobile, full keyboard nav, dark-mode aware. The hidden <code class="cs-code">&lt;input type="date|time"&gt;</code> (concealed via <code class="cs-code">.sr-only</code>) stays the value store, so existing form logic is untouched. <code class="cs-code">data-native-date</code> / <code class="cs-code">data-native-time</code> opt back into the OS picker as a fallback.</p>
         </div>
       </article>
 

@@ -188,6 +188,12 @@
       var el = document.getElementById('cc-' + k);
       if (el && s[k] != null) el.value = s[k];
     });
+    /* Event date is now a custom-calendar trigger (hidden input). Format
+       its label from restored state (shell wire() ran before this). */
+    var edPrefill = document.getElementById('cc-eventDate');
+    if (edPrefill && edPrefill.value) {
+      edPrefill.dispatchEvent(new Event('change', { bubbles: false }));
+    }
 
     var titleErr = document.getElementById('cc-title-err');
     /* Clear error as soon as the user starts typing again */
@@ -211,7 +217,12 @@
     }
     fields.forEach(function (k) {
       var el = document.getElementById('cc-' + k);
-      if (el) el.addEventListener('input', autosave);
+      if (el) {
+        el.addEventListener('input', autosave);
+        /* The custom calendar writes to the hidden date input and fires
+           'change' (not 'input') — bind it so a picked date autosaves. */
+        el.addEventListener('change', autosave);
+      }
     });
 
     var contBtn = document.querySelector('[data-cc-continue]');
@@ -277,6 +288,26 @@
     });
     refreshCount();
 
+    /* Refresh-resilience: built-in cards are restored above, but injected
+       custom ceremonies and the time/venue chip values are not. Rebuild
+       them from persisted state so a reload mid-flow loses nothing. */
+    (function restoreFromState() {
+      var grid = document.querySelector('.cc-celebration-grid');
+      Object.keys(selectedSet).forEach(function (k) {
+        var c = selectedSet[k];
+        if (c && c.custom && grid &&
+            !document.querySelector('.cc-celebration-card[data-cc-celebration="' + c.id + '"]')) {
+          grid.appendChild(buildCustomCard(c.id, c.name, c.desc || ''));
+        }
+      });
+      Object.keys(selectedSet).forEach(function (k) {
+        var c = selectedSet[k];
+        if (!c) return;
+        if (c.time) updateMetaLabel(c.id, 'time', c.time);
+        if (c.venue) updateMetaLabel(c.id, 'venue', (c.venueRaw && c.venueRaw.name) || c.venue);
+      });
+    })();
+
     function toggleCard(card) {
       var id = card.getAttribute('data-cc-celebration');
       var on = card.getAttribute('aria-checked') === 'true';
@@ -298,19 +329,274 @@
       setState({ celebrations: Object.keys(selectedSet).map(function (k) { return selectedSet[k]; }) });
       refreshCount();
     }
-    document.addEventListener('click', function (e) {
-      var meta = e.target.closest && e.target.closest('.cc-meta-btn');
-      if (meta) {
-        e.stopPropagation();
-        var kind = meta.getAttribute('data-cc-meta');
-        toast((kind === 'time' ? 'TIME PICKER' : 'VENUE PICKER') + ' OPENING');
-        meta.classList.add('is-set');
-        return;
+    /* ── Modal helpers (Set time / Set venue / Add custom) ──────────────
+       The shell modal handler (shell.js) opens/closes via [data-modal-target]
+       / [data-modal-close] on a BUBBLE document listener registered before
+       this file. We use a CAPTURE listener so prefill runs before the modal
+       opens and validation runs before it closes. */
+    var activeId = null;
+
+    function fmtDateDisplay(iso) {
+      if (!iso) return '';
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      try { return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
+      catch (e) { return iso; }
+    }
+    function fmtTimeDisplay(hm) {
+      if (!hm) return '';
+      var p = hm.split(':');
+      if (p.length < 2) return hm;
+      var h = parseInt(p[0], 10), ap = h >= 12 ? 'PM' : 'AM', h12 = h % 12 || 12;
+      return h12 + ':' + p[1] + ' ' + ap;
+    }
+    function composeTime(raw) {
+      if (!raw) return null;
+      var d = fmtDateDisplay(raw.date);
+      var s = fmtTimeDisplay(raw.time);
+      var e = fmtTimeDisplay(raw.endTime);
+      var t;
+      if (s && e) t = s + ' – ' + e;
+      else if (s) t = s;
+      else if (e) t = '… – ' + e;
+      else t = '';
+      if (d && t) return d + ' · ' + t;
+      return d || t || null;
+    }
+    function composeVenue(raw) {
+      if (!raw || !raw.name) return null;
+      var a = (raw.address || '').split('\n')[0].trim();
+      return a ? raw.name + ' · ' + a : raw.name;
+    }
+    /* Prefill a date/time trigger. Sets the native input value, then lets
+       shell.js's own change-listener format the label (single source of
+       truth → prefilled and freshly-picked look identical). Restores the
+       placeholder text when cleared. */
+    function setTriggerLabel(inputSel, rawVal, placeholder) {
+      var input = document.querySelector(inputSel);
+      if (!input) return;
+      var label = input.previousElementSibling &&
+        input.previousElementSibling.querySelector('.form-input-trigger-value');
+      input.value = rawVal || '';
+      if (rawVal) {
+        input.dispatchEvent(new Event('change', { bubbles: false }));
+      } else if (label) {
+        label.textContent = placeholder;
       }
+    }
+    function updateMetaLabel(id, kind, display) {
+      var card = document.querySelector('.cc-celebration-card[data-cc-celebration="' + id + '"]');
+      if (!card) return;
+      var btn = card.querySelector('.cc-meta-btn[data-cc-meta="' + kind + '"]');
+      if (!btn) return;
+      var lbl = btn.querySelector('.cc-meta-label');
+      if (display) {
+        if (lbl) lbl.textContent = display;
+        btn.classList.add('is-set');
+        btn.setAttribute('aria-label', (kind === 'time' ? 'Time: ' : 'Venue: ') + display + ' — edit');
+      } else {
+        if (lbl) lbl.textContent = kind === 'time' ? 'Set time' : 'Set venue';
+        btn.classList.remove('is-set');
+        btn.removeAttribute('aria-label');
+      }
+    }
+    function ensureSelected(card) {
+      if (card.getAttribute('aria-checked') === 'true') return;
+      var id = card.getAttribute('data-cc-celebration');
+      card.setAttribute('aria-checked', 'true');
+      card.classList.add('is-selected');
+      if (!selectedSet[id]) {
+        selectedSet[id] = {
+          id: id,
+          name: card.querySelector('.cc-celebration-name').textContent.trim(),
+          time: null, venue: null
+        };
+      }
+      setState({ celebrations: Object.keys(selectedSet).map(function (k) { return selectedSet[k]; }) });
+      refreshCount();
+    }
+    function buildCustomCard(id, name, desc) {
+      var card = document.createElement('div');
+      card.setAttribute('role', 'checkbox');
+      card.setAttribute('aria-checked', 'true');
+      card.setAttribute('tabindex', '0');
+      card.className = 'cc-celebration-card is-selected';
+      card.setAttribute('data-cc-celebration', id);
+
+      var check = document.createElement('span');
+      check.className = 'cc-celebration-check';
+      check.setAttribute('aria-hidden', 'true');
+      var checkIcon = document.createElement('span');
+      checkIcon.className = 'material-symbols-outlined icon-fill';
+      checkIcon.textContent = 'check';
+      check.appendChild(checkIcon);
+      card.appendChild(check);
+
+      var head = document.createElement('div');
+      head.className = 'cc-celebration-head';
+      var iconWrap = document.createElement('span');
+      iconWrap.className = 'cc-celebration-icon';
+      iconWrap.setAttribute('aria-hidden', 'true');
+      var icon = document.createElement('span');
+      icon.className = 'material-symbols-outlined icon-fill';
+      icon.textContent = 'event';
+      iconWrap.appendChild(icon);
+      head.appendChild(iconWrap);
+      var body = document.createElement('div');
+      body.className = 'cc-celebration-body';
+      var nameEl = document.createElement('span');
+      nameEl.className = 'cc-celebration-name';
+      nameEl.textContent = name;
+      body.appendChild(nameEl);
+      if (desc) {
+        var descEl = document.createElement('p');
+        descEl.className = 'cc-celebration-desc';
+        descEl.textContent = desc;
+        body.appendChild(descEl);
+      }
+      head.appendChild(body);
+      card.appendChild(head);
+
+      var metaWrap = document.createElement('div');
+      metaWrap.className = 'cc-celebration-meta';
+      [['time', 'schedule', 'Set time', '#cc-modal-time'],
+       ['venue', 'place', 'Set venue', '#cc-modal-venue']].forEach(function (m) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'cc-meta-btn';
+        b.setAttribute('data-cc-meta', m[0]);
+        b.setAttribute('data-modal-target', m[3]);
+        var mi = document.createElement('span');
+        mi.setAttribute('aria-hidden', 'true');
+        mi.className = 'material-symbols-outlined';
+        mi.textContent = m[1];
+        var ml = document.createElement('span');
+        ml.className = 'cc-meta-label';
+        ml.textContent = m[2];
+        b.appendChild(mi);
+        b.appendChild(document.createTextNode(' '));
+        b.appendChild(ml);
+        metaWrap.appendChild(b);
+      });
+      card.appendChild(metaWrap);
+      return card;
+    }
+
+    /* Card toggle (bubble) — skip when the click is on a meta button or any
+       modal trigger (those open a modal, they don't toggle the card). */
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('.cc-meta-btn')) return;
+      if (e.target.closest('[data-modal-target]')) return;
       var card = e.target.closest && e.target.closest('.cc-celebration-card[data-cc-celebration]');
       if (!card) return;
       toggleCard(card);
     });
+
+    /* Prefill (before open) + persist/validate (before close) — capture phase. */
+    document.addEventListener('click', function (e) {
+      var meta = e.target.closest && e.target.closest('.cc-meta-btn[data-cc-meta]');
+      if (meta) {
+        var card = meta.closest('.cc-celebration-card[data-cc-celebration]');
+        if (!card) return;
+        ensureSelected(card);
+        activeId = card.getAttribute('data-cc-celebration');
+        var entry = selectedSet[activeId] || {};
+        var nm = entry.name || '';
+        var kind = meta.getAttribute('data-cc-meta');
+        var forSel = kind === 'time' ? '#cc-modal-time' : '#cc-modal-venue';
+        var forEl = document.querySelector(forSel + ' [data-cc-modal-for]');
+        if (forEl) forEl.textContent = 'For ' + nm;
+        if (kind === 'time') {
+          var tr = entry.timeRaw || {};
+          setTriggerLabel('#cc-time-date', tr.date, 'Pick a date');
+          setTriggerLabel('#cc-time-start', tr.time, 'Pick a time');
+          setTriggerLabel('#cc-time-end', tr.endTime, 'Pick a time');
+          var teErr = document.getElementById('cc-time-err');
+          if (teErr) { teErr.hidden = true; teErr.textContent = ''; }
+        } else {
+          var vr = entry.venueRaw || {};
+          var vn = document.getElementById('cc-venue-name');
+          var va = document.getElementById('cc-venue-address');
+          if (vn) vn.value = vr.name || '';
+          if (va) va.value = vr.address || '';
+        }
+        return;
+      }
+      var add = e.target.closest && e.target.closest('[data-cc-add-custom]');
+      if (add) {
+        var cn = document.getElementById('cc-custom-name');
+        var cd = document.getElementById('cc-custom-desc');
+        var ce = document.getElementById('cc-custom-err');
+        if (cn) cn.value = '';
+        if (cd) cd.value = '';
+        if (ce) { ce.hidden = true; ce.textContent = ''; }
+        return;
+      }
+      var save = e.target.closest && e.target.closest('[data-cc-save]');
+      if (!save) return;
+      var skind = save.getAttribute('data-cc-save');
+
+      if (skind === 'time') {
+        if (!activeId || !selectedSet[activeId]) return;
+        var dI = document.getElementById('cc-time-date');
+        var sI = document.getElementById('cc-time-start');
+        var eI = document.getElementById('cc-time-end');
+        var raw = {
+          date: dI ? dI.value : '',
+          time: sI ? sI.value : '',
+          endTime: eI ? eI.value : ''
+        };
+        /* End must be after start when both set (24h "HH:MM" compares
+           lexicographically). Block the shell's bubble close on error. */
+        if (raw.time && raw.endTime && raw.endTime <= raw.time) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          var tErr = document.getElementById('cc-time-err');
+          if (tErr) { tErr.hidden = false; tErr.textContent = 'End time must be after start time'; }
+          return;
+        }
+        var disp = composeTime(raw);
+        selectedSet[activeId].timeRaw = raw;
+        selectedSet[activeId].time = disp;
+        updateMetaLabel(activeId, 'time', disp);
+        setState({ celebrations: Object.keys(selectedSet).map(function (k) { return selectedSet[k]; }) });
+        return;
+      }
+      if (skind === 'venue') {
+        if (!activeId || !selectedSet[activeId]) return;
+        var vnEl = document.getElementById('cc-venue-name');
+        var vaEl = document.getElementById('cc-venue-address');
+        var raw2 = { name: vnEl ? vnEl.value.trim() : '', address: vaEl ? vaEl.value.trim() : '' };
+        var disp2 = composeVenue(raw2);
+        selectedSet[activeId].venueRaw = raw2;
+        selectedSet[activeId].venue = disp2;
+        updateMetaLabel(activeId, 'venue', raw2.name || null);
+        setState({ celebrations: Object.keys(selectedSet).map(function (k) { return selectedSet[k]; }) });
+        return;
+      }
+      if (skind === 'custom') {
+        var nameEl = document.getElementById('cc-custom-name');
+        var descEl = document.getElementById('cc-custom-desc');
+        var errEl = document.getElementById('cc-custom-err');
+        var nameV = nameEl ? nameEl.value.trim() : '';
+        if (!nameV) {
+          /* Block the shell's bubble close — keep the modal open on error. */
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (errEl) { errEl.hidden = false; errEl.textContent = 'Enter a ceremony name'; }
+          if (nameEl) nameEl.focus();
+          return;
+        }
+        var descV = descEl ? descEl.value.trim() : '';
+        var cid = 'custom-' + Date.now();
+        selectedSet[cid] = { id: cid, name: nameV, time: null, venue: null, custom: true, desc: descV };
+        var grid = document.querySelector('.cc-celebration-grid');
+        if (grid) grid.appendChild(buildCustomCard(cid, nameV, descV));
+        setState({ celebrations: Object.keys(selectedSet).map(function (k) { return selectedSet[k]; }) });
+        refreshCount();
+        return;
+      }
+    }, true);
     /* Keyboard activation for the role=checkbox cards (Space/Enter).
        Native <div> doesn't get this for free — we need preventDefault on Space
        to stop the viewport from scrolling. */
@@ -323,13 +609,6 @@
       e.preventDefault();
       toggleCard(card);
     });
-
-    var addBtn = document.querySelector('[data-cc-add-custom]');
-    if (addBtn) {
-      addBtn.addEventListener('click', function () {
-        toast('CUSTOM CEREMONY PICKER');
-      });
-    }
 
     var contBtn3 = document.querySelector('[data-cc-continue]');
     if (contBtn3) {
@@ -428,7 +707,11 @@
           name.textContent = c.name;
           var meta = document.createElement('span');
           meta.className = 'cc-review-event-meta';
-          meta.textContent = (c.time || 'Time TBD') + ' · ' + (c.venue || 'Venue TBD');
+          /* Show only what's set; fall back gracefully when partial/empty. */
+          if (c.time && c.venue) meta.textContent = c.time + ' · ' + c.venue;
+          else if (c.time) meta.textContent = c.time;
+          else if (c.venue) meta.textContent = c.venue;
+          else meta.textContent = 'Time & venue to be decided';
           body.appendChild(name);
           body.appendChild(meta);
           row.appendChild(body);
