@@ -1525,8 +1525,13 @@ html{scroll-behavior:smooth}
 }
 .tp-scrim.is-open .tp-pop{transform:translateY(0) scale(1)}
 .tp-title{
+  display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;
   font-weight:600;font-size:14px;color:var(--ink);
   letter-spacing:-.005em;margin:0 0 .75rem;
+}
+.tp-readout{
+  font-weight:700;font-size:15px;color:var(--brand);
+  letter-spacing:-.01em;font-variant-numeric:tabular-nums;
 }
 .tp-cols{
   display:flex;gap:.5rem;align-items:stretch;
@@ -1544,6 +1549,9 @@ html{scroll-behavior:smooth}
   display:flex;flex-direction:column;gap:2px;
   border:1px solid var(--line);border-radius:12px;padding:4px;
   scrollbar-width:thin;
+  /* Edge fade signals the column scrolls (60 options, ~6 visible). */
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 16px),transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 16px),transparent 100%);
 }
 .tp-opt{
   appearance:none;-webkit-appearance:none;border:0;

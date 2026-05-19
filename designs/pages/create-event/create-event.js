@@ -512,7 +512,16 @@
           setTriggerLabel('#cc-time-start', tr.time, 'Pick a time');
           setTriggerLabel('#cc-time-end', tr.endTime, 'Pick a time');
           var teErr = document.getElementById('cc-time-err');
-          if (teErr) { teErr.hidden = true; teErr.textContent = ''; }
+          if (teErr) {
+            teErr.hidden = true;
+            var teTxt = teErr.querySelector('[data-cc-time-err-text]');
+            if (teTxt) teTxt.textContent = '';
+          }
+          var teTrig = document.getElementById('cc-time-end-trigger');
+          if (teTrig) {
+            teTrig.removeAttribute('aria-invalid');
+            teTrig.removeAttribute('aria-describedby');
+          }
         } else {
           var vr = entry.venueRaw || {};
           var vn = document.getElementById('cc-venue-name');
@@ -552,7 +561,16 @@
           e.preventDefault();
           e.stopImmediatePropagation();
           var tErr = document.getElementById('cc-time-err');
-          if (tErr) { tErr.hidden = false; tErr.textContent = 'End time must be after start time'; }
+          if (tErr) {
+            tErr.hidden = false;
+            var tTxt = tErr.querySelector('[data-cc-time-err-text]');
+            if (tTxt) tTxt.textContent = 'End time must be after start time';
+          }
+          var tTrig = document.getElementById('cc-time-end-trigger');
+          if (tTrig) {
+            tTrig.setAttribute('aria-invalid', 'true');
+            tTrig.setAttribute('aria-describedby', 'cc-time-err');
+          }
           return;
         }
         var disp = composeTime(raw);

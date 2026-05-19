@@ -246,7 +246,7 @@
       <p class="cc-modal-sub" data-cc-modal-for>For this celebration</p>
       <div class="cc-modal-field">
         <span class="form-label" id="cc-time-date-label">Date</span>
-        <button type="button" class="form-input form-input-trigger" data-date-trigger aria-labelledby="cc-time-date-label">
+        <button type="button" class="form-input form-input-trigger" data-date-trigger data-min-today aria-labelledby="cc-time-date-label">
           <span class="form-input-trigger-value">Pick a date</span>
           <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
         </button>
@@ -262,13 +262,16 @@
       </div>
       <div class="cc-modal-field">
         <span class="form-label" id="cc-time-end-label">End time <span class="cc-modal-optional">(optional)</span></span>
-        <button type="button" class="form-input form-input-trigger" data-time-trigger aria-labelledby="cc-time-end-label">
+        <button type="button" id="cc-time-end-trigger" class="form-input form-input-trigger" data-time-trigger aria-labelledby="cc-time-end-label">
           <span class="form-input-trigger-value">Pick a time</span>
           <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
         </button>
         <input id="cc-time-end" type="time" class="sr-only" tabindex="-1" aria-hidden="true" />
       </div>
-      <p class="form-error" id="cc-time-err" role="alert" hidden></p>
+      <p class="form-error" id="cc-time-err" role="alert" hidden>
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        <span data-cc-time-err-text></span>
+      </p>
     </div>
     <div class="modal-actions">
       <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>

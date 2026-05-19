@@ -844,7 +844,7 @@
      Hour (1-12) + minute (00-59) scroll columns + AM/PM. The hidden
      <input type="time"> stays the value store (24h "HH:MM"). */
   var tp = (function () {
-    var scrim, pop, hCol, mCol, amBtn, pmBtn, anchorBtn, input;
+    var scrim, pop, hCol, mCol, amBtn, pmBtn, tpReadout, anchorBtn, input;
     var h12, mm, ap, lastFocused;
 
     function build() {
@@ -858,7 +858,13 @@
 
       var title = document.createElement('p');
       title.className = 'tp-title';
-      title.textContent = 'Select time';
+      var titleLabel = document.createElement('span');
+      titleLabel.textContent = 'Select time';
+      tpReadout = document.createElement('span');
+      tpReadout.className = 'tp-readout';
+      tpReadout.setAttribute('aria-live', 'polite');
+      title.appendChild(titleLabel);
+      title.appendChild(tpReadout);
 
       var cols = document.createElement('div');
       cols.className = 'tp-cols';
@@ -934,7 +940,12 @@
         var on = +o.getAttribute('data-val') === val;
         o.classList.toggle('is-sel', on);
         o.setAttribute('aria-selected', on ? 'true' : 'false');
-        if (on) o.scrollIntoView({ block: 'center' });
+        if (on) {
+          /* Centre within the scroll container only — never scroll the
+             page/ancestor (scrollIntoView could on some WebViews). */
+          var or = o.getBoundingClientRect(), sr = c.scroll.getBoundingClientRect();
+          c.scroll.scrollTop += (or.top - sr.top) - (sr.height / 2) + (or.height / 2);
+        }
       });
     }
     function mark() {
@@ -942,6 +953,7 @@
       markCol(mCol, mm);
       amBtn.classList.toggle('is-sel', ap === 'AM');
       pmBtn.classList.toggle('is-sel', ap === 'PM');
+      if (tpReadout) tpReadout.textContent = h12 + ':' + pad2(mm) + ' ' + ap;
     }
     function apply() {
       var h24 = (h12 % 12) + (ap === 'PM' ? 12 : 0);
@@ -1040,6 +1052,13 @@
       var input = btn.nextElementSibling;
       if (!input || (input.type !== 'date' && input.type !== 'time')) return;
       var label = btn.querySelector('.form-input-trigger-value');
+
+      /* Future-only date inputs (event/ceremony dates): floor at today so
+         past days render disabled in the custom calendar. */
+      if (btn.hasAttribute('data-min-today') && input.type === 'date' && !input.getAttribute('min')) {
+        var _t = new Date();
+        input.setAttribute('min', _t.getFullYear() + '-' + pad2(_t.getMonth() + 1) + '-' + pad2(_t.getDate()));
+      }
 
       btn.addEventListener('click', function (e) {
         e.preventDefault();
