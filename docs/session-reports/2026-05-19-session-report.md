@@ -64,3 +64,20 @@ Driver: extensive in-browser verification (many `preview_eval`/screenshot round-
 - Optional: revisit the auth 360px residual (mobile column redesign) if prioritized.
 - Sample-design parity gaps intentionally deferred (Today/Tomorrow chips, date ranges, seconds) — revisit only if requested.
 - No blockers. Verification was programmatic for the pickers (screenshot tooling issue).
+
+---
+
+## Addendum — 2026-05-19 (resumed session)
+
+Resumed via `/start-evenzi-session` (Abhijith, design-only) to clear the deferred items:
+
+- **UI/UX-agent review run** over Step-3 modals + custom calendar + time picker. Verdict: *MERGE AFTER P1 FIXES* — no P0s; architecture sound; strong token/keyboard/reduced-motion discipline noted as "do not regress".
+- **4 P1s fixed + browser-verified** (commit `a6306b7`):
+  - P1-1 — time-picker live pending-value read-out (`.tp-readout`, `aria-live`); selection no longer hidden behind scroll.
+  - P1-2 — `.tp-scroll` edge-fade mask (scroll affordance) + scoped `scrollTop` centring (no page scroll).
+  - P1-3 — Set-time error now icon + text (not colour-only); end-time trigger `aria-invalid`/`aria-describedby` on/off.
+  - P1-4 — `data-min-today` on event/ceremony date triggers (Step-3/Step-2/event-settings); shell `wire()` floors `min` at today → past days disabled.
+  - P2s deferred (AM/PM `radiogroup`; modal-title hierarchy). `.cal-day` 36px **accepted — do not "fix"**.
+- **Screenshot tooling worked this time** — visual proof obtained (read-out "6:30 PM" + scroll fade confirmed). Earlier programmatic-only caveat resolved.
+- **Merged to `Dev-Vibe`** (fast-forward `df34d77..a6306b7`): commits `596c1cb` + `a4acf5b` + `a6306b7`. No held merge remaining.
+- Token cost of the resume: ~one agent review (~86k) + targeted edits/verification — modest vs the main session.
