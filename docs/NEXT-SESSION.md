@@ -4,6 +4,24 @@
 
 ---
 
+## Recently Landed (2026-05-20 — Infra Session)
+
+Pure infra/process. No ClickUp feature work touched.
+
+- **New skill: `/council`** — multi-agent review with debate + Tech Lead arbiter. 4 modes (plan/design/code/bug), 5 phases, auto-invokes at 4 checkpoints. See `.claude/skills/council/SKILL.md`.
+- **New skill: `/agent-evolve`** — agents accumulate inline learnings (cap 8 per agent). Auto-invokes on learning signals + end-session batch. See `.claude/skills/agent-evolve/SKILL.md`.
+- **4 MCPs added (user scope):** playwright, context7, sequential-thinking, memory (KG, parked).
+- **5 parked-runner agents deleted:** intake_agent, task_distributor, task_planner, system_checker, fullstack_engineer. Preserved on `Dev-Runner` branch.
+- **`docs/ORCHESTRATION-MAP.md`** — 6 Mermaid diagrams covering session lifecycle, council internals, evolution loop, wiring.
+- **CLAUDE.md** — Council Gates subsection + Self-evolution paragraph.
+- **3 new memory rules** — tool preferences (auto-use Context7/Playwright/Seq-Thinking), council defaults (4 auto-trigger checkpoints), agent-evolution defaults (quality bar + cap).
+- **Branch base sync** — worktree was on `origin/main` (10 commits behind). Merged Dev-Vibe in; 3 conflicts resolved (qa_engineer→test_engineer rename, start-session→start-evenzi-session rename, task_distributor delete).
+- **Codex plugin** — install pending (login error during `/codex:setup`).
+
+Full report: `docs/session-reports/2026-05-20-session-report.md`.
+
+---
+
 ## Progress Tracker
 
 ### Full Document Suite (DONE — 2026-04-16)
