@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Review &amp; launch</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="create-event.css" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+</head>
+<body data-page="create-event" data-step="review" class="page-bg page-shell">
+
+<header class="page-shell-header">
+  <a href="../../index.html" class="page-logo" aria-label="Evenzi home">Evenzi</a>
+  <span class="page-eyebrow" aria-hidden="true">Celebratory Curator</span>
+  <div class="page-shell-actions">
+    <button id="theme-toggle" type="button" class="page-theme-toggle" aria-label="Toggle dark mode">
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+    </button>
+    <a href="../../index.html" class="page-close" aria-label="Close wizard and return to dashboard">
+      <span aria-hidden="true" class="material-symbols-outlined">close</span>
+      <span class="page-close-label">Exit</span>
+    </a>
+  </div>
+</header>
+
+<div class="cc-stepper-row">
+  <ol class="cw-stepper" aria-label="Wizard progress">
+    <li class="cw-step is-done">
+      <span class="cw-step-num"><span class="material-symbols-outlined" aria-hidden="true">check</span></span>
+      <span class="cw-step-label">Selection</span>
+    </li>
+    <li class="cw-step-connector is-done" aria-hidden="true"></li>
+    <li class="cw-step is-done">
+      <span class="cw-step-num"><span class="material-symbols-outlined" aria-hidden="true">check</span></span>
+      <span class="cw-step-label">Details</span>
+    </li>
+    <li class="cw-step-connector is-done" aria-hidden="true"></li>
+    <li class="cw-step is-done">
+      <span class="cw-step-num"><span class="material-symbols-outlined" aria-hidden="true">check</span></span>
+      <span class="cw-step-label">Celebrations</span>
+    </li>
+    <li class="cw-step-connector is-done" aria-hidden="true"></li>
+    <li class="cw-step is-active" aria-current="step">
+      <span class="cw-step-num">4</span>
+      <span class="cw-step-label">Review</span>
+    </li>
+  </ol>
+</div>
+
+<main class="page-main">
+  <section class="clay-card cc-card" aria-labelledby="cc-step4-title">
+    <header class="cc-card-head">
+      <p class="cc-card-eyebrow">
+        <span class="material-symbols-outlined icon-fill" aria-hidden="true">visibility</span>
+        Almost there
+      </p>
+      <h1 class="cc-card-title" id="cc-step4-title" data-cc-title>Review your <em>event plan</em></h1>
+      <p class="cc-card-lead">Take a final look at your curated celebration details before we launch your dashboard.</p>
+    </header>
+
+    <!-- Basic Details ------------------------------------------------- -->
+    <section class="cc-review-section">
+      <header class="cc-review-section-head">
+        <h2 class="cc-review-section-title">Basic details</h2>
+        <a class="cc-review-edit" href="step-2-details.html">
+          <span aria-hidden="true" class="material-symbols-outlined">edit</span>
+          Edit
+        </a>
+      </header>
+      <div class="cc-review-grid">
+        <div class="cc-review-field">
+          <span class="cc-review-field-label">Event title</span>
+          <span class="cc-review-field-value" id="rv-title">—</span>
+        </div>
+        <div class="cc-review-field" data-rv-partners-row hidden>
+          <span class="cc-review-field-label">Partners</span>
+          <span class="cc-review-field-value" id="rv-partners">—</span>
+        </div>
+        <div class="cc-review-field">
+          <span class="cc-review-field-label">Date</span>
+          <span class="cc-review-field-value" id="rv-date">—</span>
+        </div>
+        <div class="cc-review-field">
+          <span class="cc-review-field-label">Venue</span>
+          <span class="cc-review-field-value" id="rv-venue">—</span>
+        </div>
+        <div class="cc-review-field">
+          <span class="cc-review-field-label">Guests</span>
+          <span class="cc-review-field-value" id="rv-guests">—</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Itinerary ----------------------------------------------------- -->
+    <section class="cc-review-section" data-rv-itinerary>
+      <header class="cc-review-section-head">
+        <h2 class="cc-review-section-title">Event itinerary</h2>
+        <a class="cc-review-edit" href="step-3-celebrations.html">
+          <span aria-hidden="true" class="material-symbols-outlined">tune</span>
+          Modify
+        </a>
+      </header>
+      <div class="cc-review-itinerary" data-rv-itinerary-list></div>
+    </section>
+
+    <div class="cc-actions">
+      <a class="cc-back-btn" href="#" data-cc-back>
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+        Back
+      </a>
+      <button type="button" class="btn-pill btn-pill-primary btn-pill-lg" data-cc-confirm>
+        <span>Confirm &amp; launch</span>
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">check</span>
+        <span aria-hidden="true" class="btn-pill-spinner"></span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<footer class="page-shell-footer">
+  © 2026 Evenzi · Crafted with care
+</footer>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">SAVED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="create-event.js"></script>
+</body>
+</html>

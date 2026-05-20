@@ -1,0 +1,240 @@
+/* ════════════════════════════════════════════════════════════════════
+   Evenzi · Dashboard page styles
+   Page-specific layout for designs/dashboard.html.
+   Shared component primitives live in shell.css — paste markup,
+   it works. This file holds only the dashboard-page composition.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Dashboard nav variant — different layout from event-control nav.
+   No center segmented tabs; logo+tag on left, +Create Event on right. */
+.dash-nav-inner{
+  grid-template-columns:auto 1fr auto !important;
+  padding:.4rem .55rem .4rem 1.1rem !important;
+}
+.dash-create-btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  height:36px;padding:0 .85rem 0 .8rem;
+  border-radius:9999px;background:var(--brand);color:#fff;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:12px;letter-spacing:.04em;
+  text-decoration:none;
+  box-shadow:0 6px 14px -4px color-mix(in oklab,var(--brand) 60%,transparent),inset 0 1px 0 rgba(255,255,255,.18);
+  transition:transform .2s,box-shadow .2s,background .2s;
+  margin-right:.35rem;
+}
+@media (hover:hover) and (pointer:fine){.dash-create-btn:hover{transform:translateY(-1px);background:var(--brand-hover)}}
+.dash-create-btn .material-symbols-outlined{font-size:18px}
+.dash-create-label{display:none}
+@media (min-width:560px){.dash-create-label{display:inline}}
+/* Hide the Create-event CTA on phones — nav gets too crowded with the bell + theme + avatar.
+   Users land on the dashboard with prominent empty-CTA cards and the existing event grid;
+   they can create events from those instead. */
+@media (max-width:768px){.dash-create-btn{display:none}}
+
+/* Welcome header */
+.welcome-eyebrow{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.32em;text-transform:uppercase;color:var(--brand);
+}
+.welcome-h1{
+  font-family:'Poppins',sans-serif;font-weight:700;
+  font-size:clamp(2rem,4vw + 1rem,3.75rem);
+  color:var(--ink);letter-spacing:-.02em;line-height:1.05;
+  margin-top:.5rem;
+}
+
+/* Filter row — two segmented pills using existing .nav-tabs from shell.css */
+.filter-row{
+  display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;
+  margin-top:1.5rem;
+}
+.filter-row .nav-tabs{padding:.25rem;background:color-mix(in oklab,var(--card) 90%,transparent)}
+.filter-row .nav-tab{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+
+/* ── EVENT GRID ───────────────────── */
+.event-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1.25rem}
+@media (min-width:768px){.event-grid{gap:1.5rem}}
+
+/* Featured event card — big card, hero-image cover on top, meta block below */
+.featured-event-card{
+  position:relative;display:flex;flex-direction:column;
+  border-radius:28px;overflow:hidden;
+  background:var(--card);border:1px solid var(--line);
+  box-shadow:var(--shadow-clay);
+  transition:transform .3s,box-shadow .3s;
+  grid-column:span 12 / span 12;
+  text-decoration:none;color:inherit;
+}
+@media (min-width:1024px){.featured-event-card{grid-column:span 7 / span 7}}
+@media (hover:hover) and (pointer:fine){.featured-event-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}}
+
+.fec-cover{
+  position:relative;height:200px;
+  background-image:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.35) 60%,rgba(0,0,0,.6) 100%),url('assets/hero-image.jpg');
+  background-size:cover;background-position:center;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  padding:1.1rem 1.25rem;
+}
+@media (min-width:768px){.fec-cover{height:240px;padding:1.4rem 1.5rem}}
+.fec-cover-tag{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.4rem .75rem;border-radius:9999px;
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.26);
+  backdrop-filter:blur(14px) saturate(140%);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+  color:#fff;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+}
+.fec-cover-featured{
+  background:var(--brand);border-color:var(--brand);box-shadow:var(--shadow-clay-pill);
+}
+.fec-cover-rolepill{
+  background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.18);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+
+.fec-body{padding:1.25rem;display:flex;flex-direction:column;gap:1rem}
+@media (min-width:768px){.fec-body{padding:1.75rem}}
+
+.fec-type-eyebrow{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.32em;text-transform:uppercase;color:var(--brand);
+}
+.fec-title{
+  font-family:'Poppins',sans-serif;font-weight:700;
+  font-size:clamp(1.5rem,2.4vw + .6rem,2.25rem);
+  color:var(--ink);letter-spacing:-.02em;line-height:1.1;
+}
+
+.fec-meta{display:flex;flex-wrap:wrap;gap:.75rem;align-items:stretch}
+
+.fec-bottom{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;
+  padding-top:.75rem;border-top:1px solid var(--line-soft);
+}
+.fec-countdown{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.45rem .85rem;border-radius:9999px;
+  background:var(--brand-tint);color:var(--brand);
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  border:1px solid var(--brand-tint-2);
+}
+.fec-countdown .material-symbols-outlined{font-size:16px}
+
+.fec-actions{display:inline-flex;gap:.5rem;flex-wrap:wrap;position:relative;z-index:2}
+
+/* Stretched-link pattern: the whole card is clickable via the title link,
+   but the action buttons inside remain independently focusable. */
+.fec-link-stretched{color:inherit;text-decoration:none}
+.fec-link-stretched::before{
+  content:'';position:absolute;inset:0;z-index:1;
+  border-radius:inherit;
+}
+.fec-link-stretched:focus-visible{outline:none}
+.featured-event-card:has(.fec-link-stretched:focus-visible){
+  outline:2px solid var(--brand);outline-offset:3px;
+}
+/* Pill buttons use .btn-pill / .btn-pill-primary / .btn-pill-secondary from shell.css */
+
+/* Compact event card — single column, status-driven */
+.compact-event-card{
+  position:relative;display:flex;flex-direction:column;
+  border-radius:24px;overflow:hidden;
+  background:var(--card);border:1px solid var(--line);
+  box-shadow:var(--shadow-clay);
+  transition:transform .25s,box-shadow .25s;
+  text-decoration:none;color:inherit;
+  min-height:180px;
+}
+@media (hover:hover) and (pointer:fine){.compact-event-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}}
+.cec-cover{
+  position:relative;height:80px;
+  display:flex;align-items:center;justify-content:flex-start;padding:.85rem 1rem;
+  overflow:hidden;
+}
+.cec-cover::before{
+  content:'';position:absolute;inset:0;background:var(--featured-grad);
+}
+.cec-cover.cec-cover-image{
+  background-image:linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(0,0,0,.5) 100%),url('assets/hero-image.jpg');
+  background-size:cover;background-position:center;
+}
+.cec-cover.cec-cover-image::before{display:none}
+.cec-status{
+  position:relative;z-index:1;
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.35rem .7rem;border-radius:9999px;
+  background:var(--card);
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--brand);
+  border:1px solid var(--brand-tint-2);
+}
+.cec-status.cec-status-archived{color:var(--muted);border-color:var(--line)}
+.cec-status.cec-status-active{color:var(--brand);border-color:var(--brand-tint-2)}
+.cec-status .dot{width:6px;height:6px;border-radius:9999px;background:currentColor}
+.cec-status.cec-status-active .dot{animation:bc-pulse 2s ease-in-out infinite}
+
+.cec-body{padding:1rem;display:flex;flex-direction:column;gap:.65rem;flex:1}
+.cec-type{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:9px;
+  letter-spacing:.28em;text-transform:uppercase;color:var(--muted);
+}
+.cec-title{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;
+  color:var(--ink);letter-spacing:-.005em;line-height:1.2;
+}
+.cec-meta-line{
+  display:flex;align-items:center;gap:.4rem;
+  font-size:12px;color:var(--muted);font-weight:500;
+}
+.cec-meta-line .material-symbols-outlined{font-size:14px;color:var(--brand)}
+.cec-bottom{
+  margin-top:auto;
+  display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+  padding-top:.6rem;border-top:1px solid var(--line-soft);
+}
+.cec-action{
+  display:inline-flex;align-items:center;gap:.3rem;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--brand);text-decoration:none;
+  transition:gap .2s;
+}
+@media (hover:hover) and (pointer:fine){.cec-action:hover{gap:.5rem}}
+.cec-action .material-symbols-outlined{font-size:14px}
+
+/* Compact card sizing in the grid */
+.compact-event-card{grid-column:span 12 / span 12}
+@media (min-width:640px){.compact-event-card{grid-column:span 6 / span 6}}
+@media (min-width:1024px){
+  .compact-event-card{grid-column:span 5 / span 5}
+  .compact-event-card.cec-narrow{grid-column:span 4 / span 4}
+  .compact-event-card.cec-wide{grid-column:span 7 / span 7}
+}
+
+/* Empty state CTA card sizing in the grid */
+.empty-cta-card{grid-column:span 12 / span 12;min-height:180px}
+@media (min-width:640px){.empty-cta-card{grid-column:span 6 / span 6}}
+@media (min-width:1024px){.empty-cta-card{grid-column:span 4 / span 4}}
+
+/* View sections — only one visible at a time */
+.event-section{display:none}
+body[data-ownership="my"][data-time="active"] .event-section[data-section="my-active"]{display:grid}
+body[data-ownership="my"][data-time="past"]   .event-section[data-section="my-past"]{display:grid}
+body[data-ownership="collab"][data-time="active"] .event-section[data-section="collab-active"]{display:grid}
+body[data-ownership="collab"][data-time="past"]   .event-section[data-section="collab-past"]{display:grid}
+
+/* Empty section message */
+.nothing-yet{
+  grid-column:span 12 / span 12;
+  border-radius:24px;border:1px dashed var(--line);
+  padding:3rem 1.5rem;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:.85rem;
+}
+.nothing-yet-icon{
+  width:64px;height:64px;border-radius:9999px;
+  background:var(--brand-tint);color:var(--brand);
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.nothing-yet-icon .material-symbols-outlined{font-size:32px}
+.nothing-yet-title{font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;color:var(--ink)}
+.nothing-yet-sub{font-size:13px;color:var(--muted);max-width:24rem}

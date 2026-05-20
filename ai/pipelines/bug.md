@@ -38,6 +38,6 @@ input: step.fix
 description: Review the fix for correctness and regressions
 
 ### 7. qa
-agent: qa_engineer
+agent: test_engineer
 input: step.fix + step.review
 description: Generate regression tests

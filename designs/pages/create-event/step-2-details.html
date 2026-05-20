@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Event details</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="create-event.css" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+</head>
+<body data-page="create-event" data-step="details" class="page-bg page-shell">
+
+<header class="page-shell-header">
+  <a href="../../index.html" class="page-logo" aria-label="Evenzi home">Evenzi</a>
+  <span class="page-eyebrow" aria-hidden="true">Celebratory Curator</span>
+  <div class="page-shell-actions">
+    <button id="theme-toggle" type="button" class="page-theme-toggle" aria-label="Toggle dark mode">
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+    </button>
+    <a href="../../index.html" class="page-close" aria-label="Close wizard and return to dashboard">
+      <span aria-hidden="true" class="material-symbols-outlined">close</span>
+      <span class="page-close-label">Exit</span>
+    </a>
+  </div>
+</header>
+
+<div class="cc-stepper-row">
+  <ol class="cw-stepper" aria-label="Wizard progress">
+    <li class="cw-step is-done">
+      <span class="cw-step-num"><span class="material-symbols-outlined" aria-hidden="true">check</span></span>
+      <span class="cw-step-label">Selection</span>
+    </li>
+    <li class="cw-step-connector is-done" aria-hidden="true"></li>
+    <li class="cw-step is-active" aria-current="step">
+      <span class="cw-step-num">2</span>
+      <span class="cw-step-label">Details</span>
+    </li>
+    <li class="cw-step-connector" aria-hidden="true"></li>
+    <li class="cw-step">
+      <span class="cw-step-num">3</span>
+      <span class="cw-step-label">Celebrations</span>
+    </li>
+    <li class="cw-step-connector" aria-hidden="true"></li>
+    <li class="cw-step">
+      <span class="cw-step-num">4</span>
+      <span class="cw-step-label">Review</span>
+    </li>
+  </ol>
+</div>
+
+<main class="page-main">
+  <section class="clay-card cc-card" aria-labelledby="cc-step2-title">
+    <header class="cc-card-head">
+      <p class="cc-card-eyebrow">
+        <span class="material-symbols-outlined icon-fill" aria-hidden="true">edit_note</span>
+        The essentials
+      </p>
+      <h1 class="cc-card-title" id="cc-step2-title" data-cc-title>Tell us about <em>your event</em></h1>
+      <p class="cc-card-lead" data-cc-lead>Start with the basics — we'll adapt the planning surface to match.</p>
+    </header>
+
+    <div class="cc-form-grid">
+      <div class="form-group is-full">
+        <label class="form-label" for="cc-title">Event title</label>
+        <input id="cc-title" type="text" class="form-input" maxlength="80" autocomplete="off" aria-describedby="cc-title-err"/>
+        <p class="form-error" id="cc-title-err" role="alert" hidden></p>
+      </div>
+
+      <div data-cc-partners-group class="cc-partners-group" hidden>
+        <div class="form-group">
+          <label class="form-label" for="cc-partnerOne">Partner one's name</label>
+          <input id="cc-partnerOne" type="text" class="form-input" maxlength="60" autocomplete="off" placeholder="e.g. Aaisha"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cc-partnerTwo">Partner two's name</label>
+          <input id="cc-partnerTwo" type="text" class="form-input" maxlength="60" autocomplete="off" placeholder="e.g. Taylan"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <span class="form-label" id="cc-eventDate-label">Event date</span>
+        <button type="button" class="form-input form-input-trigger" data-date-trigger data-min-today aria-labelledby="cc-eventDate-label">
+          <span class="form-input-trigger-value">Pick a date</span>
+          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+        </button>
+        <input id="cc-eventDate" type="date" class="sr-only" tabindex="-1" aria-hidden="true" autocomplete="off"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="cc-guestCount">Guest count</label>
+        <input id="cc-guestCount" type="number" min="1" max="10000" inputmode="numeric" class="form-input" placeholder="Estimated guests" autocomplete="off"/>
+      </div>
+
+      <div class="form-group is-full">
+        <label class="form-label" for="cc-venue">Venue location</label>
+        <div class="form-input form-input-group">
+          <span class="form-input-prefix cc-venue-prefix" aria-hidden="true">
+            <span class="material-symbols-outlined">place</span>
+          </span>
+          <input id="cc-venue" type="text" class="form-input-field" placeholder="Search for a city or venue" autocomplete="off"/>
+        </div>
+        <p class="cc-form-helper">Tip — city names work too; pick a specific venue later from your dashboard.</p>
+      </div>
+    </div>
+
+    <div class="cc-actions">
+      <a class="cc-back-btn" href="step-1-type.html" data-cc-back>
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+        Back
+      </a>
+      <button type="button" class="btn-pill btn-pill-primary btn-pill-lg" data-cc-continue>
+        <span>Continue</span>
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+        <span aria-hidden="true" class="btn-pill-spinner"></span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<footer class="page-shell-footer">
+  © 2026 Evenzi · Crafted with care
+</footer>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">SAVED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="create-event.js"></script>
+</body>
+</html>

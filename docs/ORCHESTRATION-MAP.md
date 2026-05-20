@@ -1,6 +1,6 @@
 # Evenzi Session Orchestration Map
 
-How a Claude Code session flows from `/start-session` to `/end-session`, where the council gates fire, and how subagents/skills/MCPs are wired together.
+How a Claude Code session flows from `/start-evenzi-session` to `/end-evenzi-session`, where the council gates fire, and how subagents/skills/MCPs are wired together.
 
 **Viewing:** GitHub renders Mermaid natively. In VS Code, install the *Markdown Preview Mermaid Support* extension. In any other markdown viewer with Mermaid support, just open this file.
 
@@ -10,7 +10,7 @@ How a Claude Code session flows from `/start-session` to `/end-session`, where t
 
 ```mermaid
 flowchart TD
-    Start([USER: /start-session]) --> SS["<b>Skill: start-session</b><br/>• reads CLAUDE.md + MEMORY.md<br/>• mcp__clickup__* pulls tasks<br/>• scans ai/agents/, worktree state<br/>• surfaces work paths"]
+    Start([USER: /start-evenzi-session]) --> SS["<b>Skill: start-evenzi-session</b><br/>• asks who: Abhijith or Dheeraj<br/>• reads CLAUDE.md + MEMORY.md<br/>• mcp__clickup__* (Abhijith path)<br/>• scans ai/agents/, worktree state<br/>• surfaces work paths"]
     SS --> Pick[User picks a task]
 
     Pick --> PathChoice{Path?}
@@ -34,8 +34,8 @@ flowchart TD
     CouncilCode --> Commit[Commit + push]
     Commit --> Loop{More tasks?}
     Loop -->|Yes| Pick
-    Loop -->|No| EndCmd([USER: /end-session])
-    EndCmd --> ES["<b>Skill: end-session</b><br/>• /session-report (work + tokens)<br/>• clickup-pm — update statuses<br/>• update CLAUDE.md if needed<br/>• commit + push Dev-Vibe<br/>• clear worktree"]
+    Loop -->|No| EndCmd([USER: /end-evenzi-session])
+    EndCmd --> ES["<b>Skill: end-evenzi-session</b><br/>• branches on Abhijith vs Dheeraj<br/>• /session-report (Abhijith path)<br/>• clickup-pm — update statuses<br/>• /agent-evolve batch<br/>• commit + push Dev-Vibe<br/>• clear worktree"]
     ES --> Done([Session closed])
 
     classDef council fill:#fff4d6,stroke:#d4a017,stroke-width:2px,color:#000
@@ -94,7 +94,7 @@ flowchart LR
         A4[ui_ux_designer]
         A5[security_expert]
         A6[data_modeller]
-        A7[qa_engineer]
+        A7[test_engineer]
         A8[code_reviewer]
         A9[test_engineer]
         A10[product_manager]
@@ -152,12 +152,13 @@ flowchart TB
     end
 
     subgraph SKILLS[Project skills .claude/skills/]
-        S1[start-session]
-        S2[end-session]
+        S1[start-evenzi-session]
+        S2[end-evenzi-session]
         S3[council]
         S4[plan-review]
         S5[clickup-pm]
         S6[session-report]
+        S7[agent-evolve]
     end
 
     subgraph SUB[Subagents — Agent tool]
@@ -208,7 +209,7 @@ flowchart TB
     classDef state fill:#f0f0f0,stroke:#666,color:#000
     class Brain,Dispatch,ToolCalls me
     class CMD,MEM,AG ctx
-    class S1,S2,S3,S4,S5,S6 skill
+    class S1,S2,S3,S4,S5,S6,S7 skill
     class SA1,SA2,SA3,SA4 sub
     class MC1,MC2,MC3,MC4,MC5,MC6,MC7,MC8 mcp
     class ST1,ST2,ST3,ST4 state
@@ -220,7 +221,7 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    Trigger["Trigger:<br/>• user says 'remember…'<br/>• council finding validated<br/>• debug root-cause found<br/>• /end-session batch"]
+    Trigger["Trigger:<br/>• user says 'remember…'<br/>• council finding validated<br/>• debug root-cause found<br/>• /end-evenzi-session batch"]
     Trigger --> Gate{"<b>Quality bar</b><br/>non-obvious ·<br/>validated · role-specific ·<br/>actionable?"}
     Gate -->|No| Drop["Drop (or route to<br/>CLAUDE.md / MEMORY)"]
     Gate -->|Yes| Dedup{"Anti-dup check<br/>+ wrong-home check"}

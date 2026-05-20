@@ -1,0 +1,813 @@
+/* ════════════════════════════════════════════════════════════════════
+   Evenzi · Celebratory Curator wizard script
+   Shared by step-1-type.html · step-2-details.html · step-3-celebrations.html
+   step-4-review.html · success.html
+
+   State model — keyed in sessionStorage as 'evz-event':
+   {
+     type: 'wedding' | 'birthday' | 'anniversary' | 'corporate' | 'custom',
+     customType: '<free text>',     // only when type === 'custom'
+     title, partnerOne, partnerTwo, eventDate, guestCount, venue,
+     celebrations: [{ id, name, time, venue }],
+     createdAt: '<ISO>'
+   }
+   ════════════════════════════════════════════════════════════════════ */
+
+(function () {
+  var STORAGE_KEY = 'evz-event';
+
+  /* ── Shared helpers ─────────────────────────────── */
+  function getState() {
+    try {
+      var raw = sessionStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) { return {}; }
+  }
+  function setState(patch) {
+    var s = getState();
+    Object.keys(patch).forEach(function (k) { s[k] = patch[k]; });
+    try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch (e) {}
+    return s;
+  }
+  function clearState() {
+    try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  }
+  function toast(msg) {
+    if (window.evenzi && window.evenzi.showToast) window.evenzi.showToast(msg);
+  }
+  function setLoading(btn, loading) {
+    if (!btn) return;
+    if (loading) {
+      btn.classList.add('is-loading');
+      btn.setAttribute('aria-busy', 'true');
+      btn.disabled = true;
+    } else {
+      btn.classList.remove('is-loading');
+      btn.removeAttribute('aria-busy');
+      btn.disabled = false;
+    }
+  }
+  function showError(el, msg) {
+    if (!el) return;
+    el.hidden = false;
+    el.textContent = msg;
+  }
+  function clearError(el) {
+    if (!el) return;
+    el.hidden = true;
+    el.textContent = '';
+  }
+  /* Render a title string that may contain an <em>...</em> brand-color span.
+     Builds DOM nodes (no innerHTML) so user-data never reaches the parser. */
+  function renderEmTitle(el, raw) {
+    if (!el) return;
+    while (el.firstChild) el.removeChild(el.firstChild);
+    var parts = raw.split(/<em>|<\/em>/);
+    parts.forEach(function (p, i) {
+      if (i % 2 === 0) el.appendChild(document.createTextNode(p));
+      else {
+        var em = document.createElement('em');
+        em.textContent = p;
+        el.appendChild(em);
+      }
+    });
+  }
+  /* Convert event type to route — Wedding goes via celebrations step,
+     other types skip step 3 and jump from details → review. */
+  function nextStepAfter(currentStep, type) {
+    if (currentStep === 'type')         return 'step-2-details.html';
+    if (currentStep === 'details')      return type === 'wedding' ? 'step-3-celebrations.html' : 'step-4-review.html';
+    if (currentStep === 'celebrations') return 'step-4-review.html';
+    if (currentStep === 'review')       return 'success.html';
+    return 'step-1-type.html';
+  }
+  function prevStepBefore(currentStep, type) {
+    if (currentStep === 'details')      return 'step-1-type.html';
+    if (currentStep === 'celebrations') return 'step-2-details.html';
+    if (currentStep === 'review')       return type === 'wedding' ? 'step-3-celebrations.html' : 'step-2-details.html';
+    return 'step-1-type.html';
+  }
+
+  window.evenzi = window.evenzi || {};
+  window.evenzi.cc = { getState: getState, setState: setState, clearState: clearState, toast: toast };
+
+  var page = document.body.dataset.step || '';
+
+  /* ════════════════════════════════════════════════════════════════════
+     Step 1 — Event Type
+     ════════════════════════════════════════════════════════════════════ */
+  if (page === 'type') {
+    var continueBtn = document.querySelector('[data-cc-continue]');
+    var typeErr = document.getElementById('cc-type-err');
+    var currentType = null;
+
+    function refreshContinueState() {
+      var valid = !!currentType;
+      if (continueBtn) {
+        continueBtn.disabled = !valid;
+        if (valid) continueBtn.removeAttribute('aria-disabled');
+        else continueBtn.setAttribute('aria-disabled', 'true');
+      }
+    }
+    function selectType(type) {
+      currentType = type;
+      var cards = document.querySelectorAll('.cc-type-card');
+      cards.forEach(function (c) {
+        var match = c.getAttribute('data-cc-type') === type;
+        c.setAttribute('aria-checked', match ? 'true' : 'false');
+        c.classList.toggle('is-selected', match);
+      });
+      clearError(typeErr);
+      refreshContinueState();
+    }
+    /* Hydrate from state on load */
+    var s0 = getState();
+    if (s0.type) selectType(s0.type);
+
+    document.addEventListener('click', function (e) {
+      var card = e.target.closest && e.target.closest('.cc-type-card[data-cc-type]');
+      if (!card) return;
+      if (card.getAttribute('aria-disabled') === 'true') {
+        var typeName = card.getAttribute('data-cc-type') || '';
+        toast(typeName.toUpperCase() + ' COMING SOON');
+        return;
+      }
+      selectType(card.getAttribute('data-cc-type'));
+    });
+
+    if (continueBtn) {
+      continueBtn.addEventListener('click', function () {
+        if (continueBtn.disabled) return;
+        if (!currentType) {
+          showError(typeErr, 'Pick an event type to continue');
+          return;
+        }
+        setState({ type: currentType });
+        setLoading(continueBtn, true);
+        setTimeout(function () {
+          window.location.href = nextStepAfter('type', currentType);
+        }, 600);
+      });
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════════════════
+     Step 2 — Basic Details
+     ════════════════════════════════════════════════════════════════════ */
+  if (page === 'details') {
+    var s = getState();
+    if (!s.type) { window.location.href = 'step-1-type.html'; return; }
+
+    var COPY = {
+      wedding:     { title: 'Tell us about <em>your union</em>',       lead: "We're curating a bespoke experience tailored to your unique journey. Let's start with the foundational details of your big day." },
+      birthday:    { title: 'Tell us about <em>your birthday</em>',    lead: "We're crafting a celebration that feels distinctly yours. Start with the essentials and we'll handle the rest." },
+      anniversary: { title: 'Tell us about <em>your anniversary</em>', lead: "A milestone deserves a thoughtful canvas. Set the basics and we'll help you shape the moment." },
+      corporate:   { title: 'Tell us about <em>your event</em>',       lead: "Set the foundations so we can prepare invites, schedules, and a polished public page." }
+    };
+    var copy = COPY[s.type] || COPY.wedding;
+    renderEmTitle(document.querySelector('[data-cc-title]'), copy.title);
+    var leadEl = document.querySelector('[data-cc-lead]');
+    if (leadEl) leadEl.textContent = copy.lead;
+
+    var partnersGroup = document.querySelector('[data-cc-partners-group]');
+    if (partnersGroup) partnersGroup.hidden = (s.type !== 'wedding' && s.type !== 'anniversary');
+
+    var titleField = document.getElementById('cc-title');
+    if (titleField) {
+      var TITLES = {
+        wedding:     'e.g. Smith-Jones Wedding Gala',
+        birthday:    "e.g. Anya's 30th",
+        anniversary: 'e.g. 25 Years Together',
+        corporate:   'e.g. Annual Summit 2026'
+      };
+      titleField.placeholder = TITLES[s.type] || TITLES.wedding;
+    }
+
+    var fields = ['title','partnerOne','partnerTwo','eventDate','guestCount','venue'];
+    fields.forEach(function (k) {
+      var el = document.getElementById('cc-' + k);
+      if (el && s[k] != null) el.value = s[k];
+    });
+    /* Event date is now a custom-calendar trigger (hidden input). Format
+       its label from restored state (shell wire() ran before this). */
+    var edPrefill = document.getElementById('cc-eventDate');
+    if (edPrefill && edPrefill.value) {
+      edPrefill.dispatchEvent(new Event('change', { bubbles: false }));
+    }
+
+    var titleErr = document.getElementById('cc-title-err');
+    /* Clear error as soon as the user starts typing again */
+    var titleField2 = document.getElementById('cc-title');
+    if (titleField2) {
+      titleField2.addEventListener('input', function () { clearError(titleErr); });
+    }
+    /* Debounced autosave — every input event writes back to sessionStorage
+       after 250ms idle. Survives accidental refresh / nav. */
+    var autosaveTimer = null;
+    function autosave() {
+      if (autosaveTimer) clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(function () {
+        var patch = {};
+        fields.forEach(function (k) {
+          var el = document.getElementById('cc-' + k);
+          if (el) patch[k] = (el.value || '').trim();
+        });
+        setState(patch);
+      }, 250);
+    }
+    fields.forEach(function (k) {
+      var el = document.getElementById('cc-' + k);
+      if (el) {
+        el.addEventListener('input', autosave);
+        /* The custom calendar writes to the hidden date input and fires
+           'change' (not 'input') — bind it so a picked date autosaves. */
+        el.addEventListener('change', autosave);
+      }
+    });
+
+    var contBtn = document.querySelector('[data-cc-continue]');
+    if (contBtn) {
+      contBtn.addEventListener('click', function () {
+        var titleVal = (titleField2.value || '').trim();
+        if (!titleVal) {
+          showError(titleErr, 'Give your event a name to continue');
+          titleField2.focus();
+          return;
+        }
+        clearError(titleErr);
+        var patch = {};
+        fields.forEach(function (k) {
+          var el = document.getElementById('cc-' + k);
+          patch[k] = el ? (el.value || '').trim() : '';
+        });
+        setState(patch);
+        setLoading(contBtn, true);
+        setTimeout(function () {
+          window.location.href = nextStepAfter('details', s.type);
+        }, 600);
+      });
+    }
+    var backBtn = document.querySelector('[data-cc-back]');
+    if (backBtn) {
+      backBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.location.href = prevStepBefore('details', s.type);
+      });
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════════════════
+     Step 3 — Celebrations
+     ════════════════════════════════════════════════════════════════════ */
+  if (page === 'celebrations') {
+    var s3 = getState();
+    if (!s3.type) { window.location.href = 'step-1-type.html'; return; }
+    if (s3.type !== 'wedding') { window.location.href = 'step-4-review.html'; return; }
+
+    var selectedSet = {};
+    (s3.celebrations || []).forEach(function (c) { selectedSet[c.id] = c; });
+
+    var countText = document.querySelector('[data-cc-count]');
+    var selectionChip = document.querySelector('.cc-selection-chip');
+    function refreshCount() {
+      var n = Object.keys(selectedSet).length;
+      if (countText) countText.textContent = n + (n === 1 ? ' celebration selected' : ' celebrations selected');
+      if (selectionChip) selectionChip.classList.toggle('is-empty', n === 0);
+      var contBtn = document.querySelector('[data-cc-continue]');
+      if (contBtn) {
+        contBtn.disabled = n === 0;
+        if (n > 0) contBtn.removeAttribute('aria-disabled');
+        else contBtn.setAttribute('aria-disabled', 'true');
+      }
+    }
+    document.querySelectorAll('.cc-celebration-card[data-cc-celebration]').forEach(function (card) {
+      var id = card.getAttribute('data-cc-celebration');
+      var isOn = !!selectedSet[id];
+      card.setAttribute('aria-checked', isOn ? 'true' : 'false');
+      card.classList.toggle('is-selected', isOn);
+    });
+    refreshCount();
+
+    /* Refresh-resilience: built-in cards are restored above, but injected
+       custom ceremonies and the time/venue chip values are not. Rebuild
+       them from persisted state so a reload mid-flow loses nothing. */
+    (function restoreFromState() {
+      var grid = document.querySelector('.cc-celebration-grid');
+      Object.keys(selectedSet).forEach(function (k) {
+        var c = selectedSet[k];
+        if (c && c.custom && grid &&
+            !document.querySelector('.cc-celebration-card[data-cc-celebration="' + c.id + '"]')) {
+          grid.appendChild(buildCustomCard(c.id, c.name, c.desc || ''));
+        }
+      });
+      Object.keys(selectedSet).forEach(function (k) {
+        var c = selectedSet[k];
+        if (!c) return;
+        if (c.time) updateMetaLabel(c.id, 'time', c.time);
+        if (c.venue) updateMetaLabel(c.id, 'venue', (c.venueRaw && c.venueRaw.name) || c.venue);
+      });
+    })();
+
+    function toggleCard(card) {
+      var id = card.getAttribute('data-cc-celebration');
+      var on = card.getAttribute('aria-checked') === 'true';
+      if (on) {
+        card.setAttribute('aria-checked', 'false');
+        card.classList.remove('is-selected');
+        delete selectedSet[id];
+      } else {
+        card.setAttribute('aria-checked', 'true');
+        card.classList.add('is-selected');
+        selectedSet[id] = {
+          id: id,
+          name: card.querySelector('.cc-celebration-name').textContent.trim(),
+          time: null,
+          venue: null
+        };
+      }
+      /* Persist immediately — refresh-resilient (P1 #1) */
+      setState({ celebrations: Object.keys(selectedSet).map(function (k) { return selectedSet[k]; }) });
+      refreshCount();
+    }
+    /* ── Modal helpers (Set time / Set venue / Add custom) ──────────────
+       The shell modal handler (shell.js) opens/closes via [data-modal-target]
+       / [data-modal-close] on a BUBBLE document listener registered before
+       this file. We use a CAPTURE listener so prefill runs before the modal
+       opens and validation runs before it closes. */
+    var activeId = null;
+
+    function fmtDateDisplay(iso) {
+      if (!iso) return '';
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      try { return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
+      catch (e) { return iso; }
+    }
+    function fmtTimeDisplay(hm) {
+      if (!hm) return '';
+      var p = hm.split(':');
+      if (p.length < 2) return hm;
+      var h = parseInt(p[0], 10), ap = h >= 12 ? 'PM' : 'AM', h12 = h % 12 || 12;
+      return h12 + ':' + p[1] + ' ' + ap;
+    }
+    function composeTime(raw) {
+      if (!raw) return null;
+      var d = fmtDateDisplay(raw.date);
+      var s = fmtTimeDisplay(raw.time);
+      var e = fmtTimeDisplay(raw.endTime);
+      var t;
+      if (s && e) t = s + ' – ' + e;
+      else if (s) t = s;
+      else if (e) t = '… – ' + e;
+      else t = '';
+      if (d && t) return d + ' · ' + t;
+      return d || t || null;
+    }
+    function composeVenue(raw) {
+      if (!raw || !raw.name) return null;
+      var a = (raw.address || '').split('\n')[0].trim();
+      return a ? raw.name + ' · ' + a : raw.name;
+    }
+    /* Prefill a date/time trigger. Sets the native input value, then lets
+       shell.js's own change-listener format the label (single source of
+       truth → prefilled and freshly-picked look identical). Restores the
+       placeholder text when cleared. */
+    function setTriggerLabel(inputSel, rawVal, placeholder) {
+      var input = document.querySelector(inputSel);
+      if (!input) return;
+      var label = input.previousElementSibling &&
+        input.previousElementSibling.querySelector('.form-input-trigger-value');
+      input.value = rawVal || '';
+      if (rawVal) {
+        input.dispatchEvent(new Event('change', { bubbles: false }));
+      } else if (label) {
+        label.textContent = placeholder;
+      }
+    }
+    function updateMetaLabel(id, kind, display) {
+      var card = document.querySelector('.cc-celebration-card[data-cc-celebration="' + id + '"]');
+      if (!card) return;
+      var btn = card.querySelector('.cc-meta-btn[data-cc-meta="' + kind + '"]');
+      if (!btn) return;
+      var lbl = btn.querySelector('.cc-meta-label');
+      if (display) {
+        if (lbl) lbl.textContent = display;
+        btn.classList.add('is-set');
+        btn.setAttribute('aria-label', (kind === 'time' ? 'Time: ' : 'Venue: ') + display + ' — edit');
+      } else {
+        if (lbl) lbl.textContent = kind === 'time' ? 'Set time' : 'Set venue';
+        btn.classList.remove('is-set');
+        btn.removeAttribute('aria-label');
+      }
+    }
+    function ensureSelected(card) {
+      if (card.getAttribute('aria-checked') === 'true') return;
+      var id = card.getAttribute('data-cc-celebration');
+      card.setAttribute('aria-checked', 'true');
+      card.classList.add('is-selected');
+      if (!selectedSet[id]) {
+        selectedSet[id] = {
+          id: id,
+          name: card.querySelector('.cc-celebration-name').textContent.trim(),
+          time: null, venue: null
+        };
+      }
+      setState({ celebrations: Object.keys(selectedSet).map(function (k) { return selectedSet[k]; }) });
+      refreshCount();
+    }
+    function buildCustomCard(id, name, desc) {
+      var card = document.createElement('div');
+      card.setAttribute('role', 'checkbox');
+      card.setAttribute('aria-checked', 'true');
+      card.setAttribute('tabindex', '0');
+      card.className = 'cc-celebration-card is-selected';
+      card.setAttribute('data-cc-celebration', id);
+
+      var check = document.createElement('span');
+      check.className = 'cc-celebration-check';
+      check.setAttribute('aria-hidden', 'true');
+      var checkIcon = document.createElement('span');
+      checkIcon.className = 'material-symbols-outlined icon-fill';
+      checkIcon.textContent = 'check';
+      check.appendChild(checkIcon);
+      card.appendChild(check);
+
+      var head = document.createElement('div');
+      head.className = 'cc-celebration-head';
+      var iconWrap = document.createElement('span');
+      iconWrap.className = 'cc-celebration-icon';
+      iconWrap.setAttribute('aria-hidden', 'true');
+      var icon = document.createElement('span');
+      icon.className = 'material-symbols-outlined icon-fill';
+      icon.textContent = 'event';
+      iconWrap.appendChild(icon);
+      head.appendChild(iconWrap);
+      var body = document.createElement('div');
+      body.className = 'cc-celebration-body';
+      var nameEl = document.createElement('span');
+      nameEl.className = 'cc-celebration-name';
+      nameEl.textContent = name;
+      body.appendChild(nameEl);
+      if (desc) {
+        var descEl = document.createElement('p');
+        descEl.className = 'cc-celebration-desc';
+        descEl.textContent = desc;
+        body.appendChild(descEl);
+      }
+      head.appendChild(body);
+      card.appendChild(head);
+
+      var metaWrap = document.createElement('div');
+      metaWrap.className = 'cc-celebration-meta';
+      [['time', 'schedule', 'Set time', '#cc-modal-time'],
+       ['venue', 'place', 'Set venue', '#cc-modal-venue']].forEach(function (m) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'cc-meta-btn';
+        b.setAttribute('data-cc-meta', m[0]);
+        b.setAttribute('data-modal-target', m[3]);
+        var mi = document.createElement('span');
+        mi.setAttribute('aria-hidden', 'true');
+        mi.className = 'material-symbols-outlined';
+        mi.textContent = m[1];
+        var ml = document.createElement('span');
+        ml.className = 'cc-meta-label';
+        ml.textContent = m[2];
+        b.appendChild(mi);
+        b.appendChild(document.createTextNode(' '));
+        b.appendChild(ml);
+        metaWrap.appendChild(b);
+      });
+      card.appendChild(metaWrap);
+      return card;
+    }
+
+    /* Card toggle (bubble) — skip when the click is on a meta button or any
+       modal trigger (those open a modal, they don't toggle the card). */
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('.cc-meta-btn')) return;
+      if (e.target.closest('[data-modal-target]')) return;
+      var card = e.target.closest && e.target.closest('.cc-celebration-card[data-cc-celebration]');
+      if (!card) return;
+      toggleCard(card);
+    });
+
+    /* Prefill (before open) + persist/validate (before close) — capture phase. */
+    document.addEventListener('click', function (e) {
+      var meta = e.target.closest && e.target.closest('.cc-meta-btn[data-cc-meta]');
+      if (meta) {
+        var card = meta.closest('.cc-celebration-card[data-cc-celebration]');
+        if (!card) return;
+        ensureSelected(card);
+        activeId = card.getAttribute('data-cc-celebration');
+        var entry = selectedSet[activeId] || {};
+        var nm = entry.name || '';
+        var kind = meta.getAttribute('data-cc-meta');
+        var forSel = kind === 'time' ? '#cc-modal-time' : '#cc-modal-venue';
+        var forEl = document.querySelector(forSel + ' [data-cc-modal-for]');
+        if (forEl) forEl.textContent = 'For ' + nm;
+        if (kind === 'time') {
+          var tr = entry.timeRaw || {};
+          setTriggerLabel('#cc-time-date', tr.date, 'Pick a date');
+          setTriggerLabel('#cc-time-start', tr.time, 'Pick a time');
+          setTriggerLabel('#cc-time-end', tr.endTime, 'Pick a time');
+          var teErr = document.getElementById('cc-time-err');
+          if (teErr) {
+            teErr.hidden = true;
+            var teTxt = teErr.querySelector('[data-cc-time-err-text]');
+            if (teTxt) teTxt.textContent = '';
+          }
+          var teTrig = document.getElementById('cc-time-end-trigger');
+          if (teTrig) {
+            teTrig.removeAttribute('aria-invalid');
+            teTrig.removeAttribute('aria-describedby');
+          }
+        } else {
+          var vr = entry.venueRaw || {};
+          var vn = document.getElementById('cc-venue-name');
+          var va = document.getElementById('cc-venue-address');
+          if (vn) vn.value = vr.name || '';
+          if (va) va.value = vr.address || '';
+        }
+        return;
+      }
+      var add = e.target.closest && e.target.closest('[data-cc-add-custom]');
+      if (add) {
+        var cn = document.getElementById('cc-custom-name');
+        var cd = document.getElementById('cc-custom-desc');
+        var ce = document.getElementById('cc-custom-err');
+        if (cn) cn.value = '';
+        if (cd) cd.value = '';
+        if (ce) { ce.hidden = true; ce.textContent = ''; }
+        return;
+      }
+      var save = e.target.closest && e.target.closest('[data-cc-save]');
+      if (!save) return;
+      var skind = save.getAttribute('data-cc-save');
+
+      if (skind === 'time') {
+        if (!activeId || !selectedSet[activeId]) return;
+        var dI = document.getElementById('cc-time-date');
+        var sI = document.getElementById('cc-time-start');
+        var eI = document.getElementById('cc-time-end');
+        var raw = {
+          date: dI ? dI.value : '',
+          time: sI ? sI.value : '',
+          endTime: eI ? eI.value : ''
+        };
+        /* End must be after start when both set (24h "HH:MM" compares
+           lexicographically). Block the shell's bubble close on error. */
+        if (raw.time && raw.endTime && raw.endTime <= raw.time) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          var tErr = document.getElementById('cc-time-err');
+          if (tErr) {
+            tErr.hidden = false;
+            var tTxt = tErr.querySelector('[data-cc-time-err-text]');
+            if (tTxt) tTxt.textContent = 'End time must be after start time';
+          }
+          var tTrig = document.getElementById('cc-time-end-trigger');
+          if (tTrig) {
+            tTrig.setAttribute('aria-invalid', 'true');
+            tTrig.setAttribute('aria-describedby', 'cc-time-err');
+          }
+          return;
+        }
+        var disp = composeTime(raw);
+        selectedSet[activeId].timeRaw = raw;
+        selectedSet[activeId].time = disp;
+        updateMetaLabel(activeId, 'time', disp);
+        setState({ celebrations: Object.keys(selectedSet).map(function (k) { return selectedSet[k]; }) });
+        return;
+      }
+      if (skind === 'venue') {
+        if (!activeId || !selectedSet[activeId]) return;
+        var vnEl = document.getElementById('cc-venue-name');
+        var vaEl = document.getElementById('cc-venue-address');
+        var raw2 = { name: vnEl ? vnEl.value.trim() : '', address: vaEl ? vaEl.value.trim() : '' };
+        var disp2 = composeVenue(raw2);
+        selectedSet[activeId].venueRaw = raw2;
+        selectedSet[activeId].venue = disp2;
+        updateMetaLabel(activeId, 'venue', raw2.name || null);
+        setState({ celebrations: Object.keys(selectedSet).map(function (k) { return selectedSet[k]; }) });
+        return;
+      }
+      if (skind === 'custom') {
+        var nameEl = document.getElementById('cc-custom-name');
+        var descEl = document.getElementById('cc-custom-desc');
+        var errEl = document.getElementById('cc-custom-err');
+        var nameV = nameEl ? nameEl.value.trim() : '';
+        if (!nameV) {
+          /* Block the shell's bubble close — keep the modal open on error. */
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (errEl) { errEl.hidden = false; errEl.textContent = 'Enter a ceremony name'; }
+          if (nameEl) nameEl.focus();
+          return;
+        }
+        var descV = descEl ? descEl.value.trim() : '';
+        var cid = 'custom-' + Date.now();
+        selectedSet[cid] = { id: cid, name: nameV, time: null, venue: null, custom: true, desc: descV };
+        var grid = document.querySelector('.cc-celebration-grid');
+        if (grid) grid.appendChild(buildCustomCard(cid, nameV, descV));
+        setState({ celebrations: Object.keys(selectedSet).map(function (k) { return selectedSet[k]; }) });
+        refreshCount();
+        return;
+      }
+    }, true);
+    /* Keyboard activation for the role=checkbox cards (Space/Enter).
+       Native <div> doesn't get this for free — we need preventDefault on Space
+       to stop the viewport from scrolling. */
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== ' ' && e.key !== 'Spacebar' && e.key !== 'Enter') return;
+      var card = e.target.closest && e.target.closest('.cc-celebration-card[data-cc-celebration]');
+      if (!card) return;
+      /* If focus is on an inner button (meta-btn), let the button handle it. */
+      if (e.target.closest('.cc-meta-btn')) return;
+      e.preventDefault();
+      toggleCard(card);
+    });
+
+    var contBtn3 = document.querySelector('[data-cc-continue]');
+    if (contBtn3) {
+      contBtn3.addEventListener('click', function () {
+        if (contBtn3.disabled) return;
+        var arr = Object.keys(selectedSet).map(function (k) { return selectedSet[k]; });
+        setState({ celebrations: arr });
+        setLoading(contBtn3, true);
+        setTimeout(function () {
+          window.location.href = nextStepAfter('celebrations', s3.type);
+        }, 600);
+      });
+    }
+    var backBtn3 = document.querySelector('[data-cc-back]');
+    if (backBtn3) {
+      backBtn3.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.location.href = prevStepBefore('celebrations', s3.type);
+      });
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════════════════
+     Step 4 — Review
+     ════════════════════════════════════════════════════════════════════ */
+  if (page === 'review') {
+    var s4 = getState();
+    if (!s4.type) { window.location.href = 'step-1-type.html'; return; }
+
+    var TYPE_TITLE = {
+      wedding:     'Review your <em>vibrant union</em>',
+      birthday:    'Review your <em>birthday celebration</em>',
+      anniversary: 'Review your <em>anniversary plan</em>',
+      corporate:   'Review your <em>event plan</em>'
+    };
+    renderEmTitle(document.querySelector('[data-cc-title]'), TYPE_TITLE[s4.type] || TYPE_TITLE.wedding);
+
+    function setText(id, val) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = val || '—';
+    }
+    /* Format ISO date (YYYY-MM-DD from <input type="date">) to DD MMM YYYY (en-IN). */
+    function formatDate(iso) {
+      if (!iso) return '';
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      try {
+        return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      } catch (e) { return iso; }
+    }
+    setText('rv-title', s4.title);
+    setText('rv-date', formatDate(s4.eventDate));
+    setText('rv-venue', s4.venue);
+    /* Guest count: append " guests" unit when value present */
+    var guestEl = document.getElementById('rv-guests');
+    if (guestEl) guestEl.textContent = s4.guestCount ? (s4.guestCount + ' guests') : '—';
+    var partnerLine = (s4.partnerOne || '') + (s4.partnerTwo ? (s4.partnerOne ? ' & ' : '') + s4.partnerTwo : '');
+    setText('rv-partners', partnerLine.trim());
+
+    /* Hide partners row when neither partner is named (regardless of type) */
+    var partnersRow = document.querySelector('[data-rv-partners-row]');
+    var hasPartners = !!(s4.partnerOne || s4.partnerTwo);
+    var typeAllowsPartners = (s4.type === 'wedding' || s4.type === 'anniversary');
+    if (partnersRow) partnersRow.hidden = !(typeAllowsPartners && hasPartners);
+
+    function celebrationIcon(id) {
+      var map = { haldi:'spa', mehendi:'palette', sangeet:'music_note', reception:'celebration', engagement:'favorite', ceremony:'auto_awesome' };
+      return map[id] || 'event';
+    }
+    var itinerarySection = document.querySelector('[data-rv-itinerary]');
+    var itineraryList = document.querySelector('[data-rv-itinerary-list]');
+    if (s4.type === 'wedding' && itineraryList) {
+      while (itineraryList.firstChild) itineraryList.removeChild(itineraryList.firstChild);
+      var list = s4.celebrations || [];
+      if (list.length === 0) {
+        var empty = document.createElement('p');
+        empty.className = 'cc-form-helper';
+        empty.textContent = 'No celebrations selected yet.';
+        itineraryList.appendChild(empty);
+      } else {
+        list.forEach(function (c) {
+          var row = document.createElement('div');
+          row.className = 'cc-review-event';
+          var iconWrap = document.createElement('span');
+          iconWrap.className = 'cc-review-event-icon';
+          iconWrap.setAttribute('aria-hidden', 'true');
+          var icon = document.createElement('span');
+          icon.className = 'material-symbols-outlined icon-fill';
+          icon.textContent = celebrationIcon(c.id);
+          iconWrap.appendChild(icon);
+          row.appendChild(iconWrap);
+          var body = document.createElement('span');
+          body.className = 'cc-review-event-body';
+          var name = document.createElement('span');
+          name.className = 'cc-review-event-name';
+          name.textContent = c.name;
+          var meta = document.createElement('span');
+          meta.className = 'cc-review-event-meta';
+          /* Show only what's set; fall back gracefully when partial/empty. */
+          if (c.time && c.venue) meta.textContent = c.time + ' · ' + c.venue;
+          else if (c.time) meta.textContent = c.time;
+          else if (c.venue) meta.textContent = c.venue;
+          else meta.textContent = 'Time & venue to be decided';
+          body.appendChild(name);
+          body.appendChild(meta);
+          row.appendChild(body);
+          itineraryList.appendChild(row);
+        });
+      }
+    } else if (itinerarySection) {
+      itinerarySection.hidden = true;
+    }
+
+    var confirmBtn = document.querySelector('[data-cc-confirm]');
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', function () {
+        setState({ createdAt: new Date().toISOString() });
+        setLoading(confirmBtn, true);
+        setTimeout(function () { window.location.href = 'success.html'; }, 1000);
+      });
+    }
+    var backBtn4 = document.querySelector('[data-cc-back]');
+    if (backBtn4) {
+      backBtn4.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.location.href = prevStepBefore('review', s4.type);
+      });
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════════════════
+     Success
+     ════════════════════════════════════════════════════════════════════ */
+  if (page === 'success') {
+    var s5 = getState();
+    if (!s5.type) { window.location.href = 'step-1-type.html'; return; }
+    var greeting = document.querySelector('[data-cc-greeting]');
+    if (greeting) {
+      var msg = 'Your event is curated and ready.';
+      if (s5.type === 'wedding')     msg = "Your wedding is curated and ready. We've synced your vision with our orchestration tools.";
+      if (s5.type === 'birthday')    msg = "Your birthday celebration is curated and ready. We've prepped the basics — pick it up from your dashboard.";
+      if (s5.type === 'anniversary') msg = "Your anniversary plan is set. Your dashboard now has everything you need to coordinate.";
+      if (s5.type === 'corporate')   msg = "Your event plan is locked in. Open the dashboard to invite collaborators and manage logistics.";
+      greeting.textContent = msg;
+    }
+    /* Countdown — swaps copy when the event is past/today vs upcoming */
+    var countEl = document.querySelector('[data-cc-countdown]');
+    var countLabel = document.querySelector('[data-cc-countdown-label]');
+    var countEyebrow = document.querySelector('[data-cc-countdown-eyebrow]');
+    if (countEl && s5.eventDate) {
+      var target = new Date(s5.eventDate);
+      var today = new Date(); today.setHours(0,0,0,0);
+      var diff = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+      if (isNaN(diff)) {
+        countEl.textContent = '—';
+      } else if (diff > 0) {
+        countEl.textContent = diff;
+        if (countLabel) countLabel.textContent = diff === 1 ? 'Day left' : 'Days left';
+        if (countEyebrow) countEyebrow.textContent = 'The celebration';
+      } else if (diff === 0) {
+        countEl.textContent = 'Today';
+        countEl.classList.add('is-text');
+        if (countLabel) countLabel.textContent = 'is the day';
+        if (countEyebrow) countEyebrow.textContent = 'It begins';
+      } else {
+        countEl.textContent = Math.abs(diff);
+        if (countLabel) countLabel.textContent = Math.abs(diff) === 1 ? 'Day ago' : 'Days ago';
+        if (countEyebrow) countEyebrow.textContent = 'Looking back on';
+      }
+    } else if (countEl) {
+      countEl.textContent = '—';
+    }
+    var dashBtn = document.querySelector('[data-cc-dashboard]');
+    if (dashBtn) {
+      dashBtn.addEventListener('click', function () {
+        setLoading(dashBtn, true);
+        setTimeout(function () {
+          clearState();
+          window.location.href = '../../index.html';
+        }, 600);
+      });
+    }
+  }
+})();

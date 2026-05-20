@@ -48,6 +48,6 @@ input: step.backend + step.frontend
 description: Review all generated code
 
 ### 9. qa
-agent: qa_engineer
+agent: test_engineer
 input: step.backend + step.frontend + step.review
 description: Generate test cases and validate edge cases

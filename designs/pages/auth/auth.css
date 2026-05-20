@@ -1,0 +1,266 @@
+/* ════════════════════════════════════════════════════════════════════
+   Evenzi · Auth flow page styles
+   Shared by auth.html · verify-otp.html · role-select.html.
+   Reusable primitives (.btn-google, .divider-or, .nav-tabs.auth-tabs,
+   .page-bg, .role-tag-soon, .radio-pill, .form-input, .clay-card,
+   .btn-pill, .pin-input, .bc-toast) live in shell.css.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Page chrome (.page-shell, .page-shell-header, .page-logo, .page-help,
+   .page-theme-toggle, .page-shell-actions, .page-main, .page-main-center,
+   .page-main-wide, .page-shell-footer) lives in shell.css. */
+
+/* ── Auth card (login + signup + verify share this) ── */
+.auth-card{
+  width:100%;max-width:420px;
+  padding:2rem 1.75rem;
+  display:flex;flex-direction:column;gap:1.5rem;
+}
+@media (min-width:480px){
+  .auth-card{padding:2.5rem 2.25rem;gap:1.75rem}
+}
+/* Override clay-card hover lift — settings page does the same */
+@media (hover:hover) and (pointer:fine){
+  .auth-card:hover{transform:none;box-shadow:var(--shadow-clay)}
+}
+
+.auth-card-head{
+  display:flex;flex-direction:column;gap:.55rem;text-align:center;
+}
+.auth-card-title{
+  font-family:'Poppins',sans-serif;font-weight:700;
+  font-size:1.625rem;line-height:1.2;letter-spacing:-.015em;
+  color:var(--ink);margin:0;
+}
+.auth-card-lead{
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:13.5px;
+  line-height:1.5;color:var(--muted);
+  margin:0;max-width:32ch;align-self:center;
+}
+
+/* ── Auth-mode tabs (Sign Up / Log In) ──────────────── */
+/* See .nav-tabs.auth-tabs in shell.css for the modifier. Nothing extra here. */
+
+/* ── Phone field with +91 prefix — focus-forward enhancement ──
+   The prefix is a non-interactive span; clicking it should focus the field.
+   Pointer-events stays default (the JS handler in auth.js intercepts). */
+.auth-card .form-input-prefix{user-select:none;cursor:text}
+
+/* ── Form helpers shown inside the card ─────────────── */
+.auth-card .form-error{
+  margin-top:-.5rem;
+}
+
+/* ── Action buttons — full-width inside the card ────── */
+.auth-card .btn-pill,
+.auth-card .btn-google{width:100%}
+
+.auth-policy{
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:11px;
+  line-height:1.5;color:var(--muted);text-align:center;margin:.25rem 0 0;
+}
+.auth-policy a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+@media (hover:hover) and (pointer:fine){
+  .auth-policy a:hover{color:var(--brand)}
+}
+.auth-policy a:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:2px}
+
+/* ── Verify-OTP screen extras ──────────────────────── */
+.auth-verify-meta{
+  display:flex;flex-direction:column;gap:.35rem;text-align:center;
+}
+.auth-verify-phone{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;
+  color:var(--ink);letter-spacing:-.005em;margin:0;
+}
+.auth-verify-change{
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;
+  color:var(--brand);text-decoration:none;
+  padding:.3rem .5rem;border-radius:9999px;
+  align-self:center;
+  transition:background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .auth-verify-change:hover{background:var(--brand-tint)}
+}
+.auth-verify-change:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+/* Center the pin-input inside the card */
+.auth-card .pin-input{justify-content:center;align-self:center}
+.auth-resend{
+  font-family:'Poppins',sans-serif;font-size:12px;color:var(--muted);
+  text-align:center;margin:0;
+}
+.auth-resend-btn{
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;
+  color:var(--brand);background:transparent;border:0;cursor:pointer;
+  padding:.25rem .4rem;border-radius:9999px;
+}
+.auth-resend-btn[disabled]{
+  color:var(--muted-soft);cursor:not-allowed;
+}
+@media (hover:hover) and (pointer:fine){
+  .auth-resend-btn:not([disabled]):hover{background:var(--brand-tint)}
+}
+.auth-resend-btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* ── Role-select screen ──────────────────────────────
+   Card-based layout mirroring auth.html / verify-otp.html.
+   The card houses the role grid + Continue; the "Back to Login"
+   link sits outside the card as a separate navigation affordance.
+*/
+.role-select-card{
+  width:100%;max-width:540px;
+  padding:2rem 1.75rem;
+  display:flex;flex-direction:column;gap:1.75rem;
+  /* Suppress clay-card hover lift on this surface */
+}
+@media (min-width:640px){
+  .role-select-card{padding:2.5rem 2.25rem;gap:2rem}
+}
+@media (hover:hover) and (pointer:fine){
+  .role-select-card:hover{transform:none;box-shadow:var(--shadow-clay)}
+}
+
+.role-select-head{
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  text-align:center;
+}
+.role-select-eyebrow{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--brand);
+  margin:0;
+}
+.role-select-eyebrow .material-symbols-outlined{font-size:14px}
+.role-select-head .auth-card-title{
+  font-size:1.625rem;line-height:1.15;
+}
+@media (min-width:640px){
+  .role-select-head .auth-card-title{font-size:1.875rem}
+}
+.role-select-head .auth-card-lead{
+  max-width:38ch;
+}
+
+/* Role pills — a radio-pill-group variant with vendor "coming soon" */
+.role-grid{
+  display:flex;flex-direction:column;gap:1rem;
+  width:100%;
+}
+/* Each pill shows icon + name + description (+ vendor "Coming soon" tag).
+   min-height is only a FLOOR — it does not equalise the two pills. The
+   description is line-clamped (see .role-pill-desc below) so copy length
+   can't balloon a pill; host and vendor stay visually balanced (near-equal,
+   not pixel-locked — don't rely on exact equality in the React port). */
+.role-grid .radio-pill{
+  min-height:112px;padding:1.15rem 1.25rem;
+  align-items:center;text-align:left;gap:1rem;
+  flex-direction:row;
+  border-radius:20px;
+}
+.role-grid .radio-pill .role-pill-icon{
+  width:52px;height:52px;border-radius:16px;
+  background:var(--brand-tint);color:var(--brand);
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:background-color .25s,color .25s,transform .25s;
+}
+.role-grid .radio-pill .role-pill-icon .material-symbols-outlined{font-size:26px}
+.role-grid .radio-pill[aria-checked="true"] .role-pill-icon{
+  background:color-mix(in oklab,var(--brand) 18%,var(--card));
+  color:var(--brand);
+}
+.role-grid .radio-pill .role-pill-body{
+  display:flex;flex-direction:column;gap:.3rem;min-width:0;flex:1;
+}
+.role-grid .radio-pill .role-pill-name{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;
+  color:inherit;letter-spacing:-.005em;line-height:1.25;
+}
+.role-grid .radio-pill .role-pill-desc{
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:13px;
+  color:var(--muted);line-height:1.5;
+  /* Bound the copy so a long description can't balloon the pill (was
+     wrapping to ~10 lines at 360px). 3 lines on tablet+, 2 on phones. */
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;
+  overflow:hidden;
+}
+/* Check indicator — empty circle by default, filled brand circle when selected */
+.role-grid .radio-pill .role-pill-check{
+  width:24px;height:24px;border-radius:9999px;
+  border:2px solid var(--line);
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;background:transparent;
+  transition:background-color .2s,border-color .2s;
+}
+.role-grid .radio-pill .role-pill-check .material-symbols-outlined{
+  font-size:14px;color:#fff;opacity:0;font-variation-settings:'FILL' 1,'wght' 700;
+  transition:opacity .15s;
+}
+.role-grid .radio-pill[aria-checked="true"] .role-pill-check{
+  background:var(--brand);border-color:var(--brand);
+}
+.role-grid .radio-pill[aria-checked="true"] .role-pill-check .material-symbols-outlined{
+  opacity:1;
+}
+.role-grid .radio-pill[aria-checked="true"] .role-pill-name{
+  color:var(--brand);
+}
+/* Description stays muted-ink so the body copy stays readable on brand-tint bg */
+/* Disabled state (vendor in MVP) */
+.role-grid .radio-pill[aria-disabled="true"]{
+  cursor:not-allowed;opacity:.85;
+}
+.role-grid .radio-pill[aria-disabled="true"] .role-pill-icon{
+  background:var(--line-soft);color:var(--muted);
+}
+@media (hover:hover) and (pointer:fine){
+  .role-grid .radio-pill[aria-disabled="true"]:hover{
+    border-color:var(--brand-tint-2);transform:none;
+  }
+}
+
+/* Phones (≤480px): the icon + check eat most of a ~290px card-inner row,
+   so trim the chrome and clamp the description harder so the row layout
+   stays compact and host/vendor stay balanced instead of collapsing. */
+@media (max-width:480px){
+  .role-grid .radio-pill{
+    min-height:96px;padding:1rem;gap:.85rem;
+  }
+  .role-grid .radio-pill .role-pill-icon{
+    width:44px;height:44px;border-radius:14px;
+  }
+  .role-grid .radio-pill .role-pill-icon .material-symbols-outlined{
+    font-size:22px;
+  }
+  .role-grid .radio-pill .role-pill-desc{
+    -webkit-line-clamp:2;
+  }
+}
+
+.role-continue{
+  display:flex;justify-content:center;
+}
+.role-continue .btn-pill{
+  width:100%;justify-content:center;
+}
+
+.auth-back-link{
+  display:inline-flex;align-items:center;gap:.4rem;
+  margin:1.25rem auto 0;
+  padding:.7rem 1.1rem;min-height:44px;border-radius:9999px;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;
+  letter-spacing:.04em;color:var(--muted);text-decoration:none;
+  transition:color .2s,background-color .2s;
+  align-self:center;
+}
+.auth-back-link .material-symbols-outlined{font-size:16px}
+@media (hover:hover) and (pointer:fine){
+  .auth-back-link:hover{color:var(--brand);background:var(--brand-tint)}
+}
+.auth-back-link:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* ── Hide noise from auto-injected shell features on auth screens ──
+   Notification panel / theme toggle / scroll-progress are pointless
+   on auth. Theme toggle is in the chrome via JS — we don't render it.
+   Auth pages don't include those buttons at all, so nothing to hide here. */

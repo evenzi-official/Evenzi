@@ -12,7 +12,7 @@ Lets agents evolve their own role files (`ai/agents/<role>.md`) with high-signal
 | Mode | Invocation | When |
 |---|---|---|
 | `capture` | `Skill agent-evolve` mid-session or `/agent-evolve capture` | Anytime a non-obvious insight surfaces during work, council, or debugging |
-| `batch` | Called by `/end-session` | End-of-session sweep — propose any candidate learnings I noticed across the session |
+| `batch` | Called by `/end-evenzi-session` | End-of-session sweep — propose any candidate learnings I noticed across the session |
 | `prune` | `/agent-evolve prune <role>` | When a role's section is at the cap and needs cleanup |
 | `view` | `/agent-evolve view <role>` | Print the current Learnings section for a role |
 
@@ -50,7 +50,7 @@ When a candidate insight surfaces:
 
 ## Batch flow (end of session)
 
-When `/end-session` runs, after the session report but before commit:
+When `/end-evenzi-session` runs, after the session report but before commit:
 
 1. **Review the session** — go back through council critiques, debates, arbiter rulings, user corrections, and validated outcomes.
 2. **Collect candidates** — apply the quality bar to each potential learning.
@@ -115,8 +115,8 @@ Contradictions get logged in the entry: `Supersedes: <old title>` or `Refines: <
 ## Integration with other skills
 
 - `/council` — after a council reaches its verdict, if a finding crossed the quality bar (validated by user approval), the orchestrator marks it as a learning candidate. `agent-evolve capture` runs immediately or queues for batch.
-- `/end-session` — invokes `agent-evolve batch` automatically as part of its sequence (after `/session-report`, before commit).
-- `/start-session` — does NOT invoke this skill; learnings are written at end, not load-tested at start. But each session's dispatched agents pick up the accumulated learnings via their role file as usual.
+- `/end-evenzi-session` — invokes `agent-evolve batch` automatically as part of its sequence (after `/session-report`, before commit).
+- `/start-evenzi-session` — does NOT invoke this skill; learnings are written at end, not load-tested at start. But each session's dispatched agents pick up the accumulated learnings via their role file as usual.
 
 ## When NOT to invoke
 

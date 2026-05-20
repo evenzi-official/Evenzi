@@ -1,0 +1,2193 @@
+/* ════════════════════════════════════════════════════════════════════
+   Evenzi · Shared shell styles
+   Extracted from designs/event-control.html (canonical reference).
+   Contains ONLY layout-shell primitives: tokens, glass, clay-card,
+   floating-nav, breadcrumb, tool-rail, reveal, scroll-progress,
+   help-fab. No page-specific (hero / journey / bento / roadmap) styles.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Reset — system-wide hygiene ──────────────────────
+   `box-sizing: border-box` so declared widths (`max-width:420px` etc.)
+   include padding + border, not just content. Pages that load Tailwind
+   CDN get this from Preflight; pages that don't (auth, create-event)
+   relied on content-box defaults and overflowed their declared widths.
+   This makes the design system self-sufficient. */
+*, *::before, *::after { box-sizing: border-box }
+
+/* ── LIGHT (final tokens — locked) ─────────────────── */
+:root{
+  --bg:            #f9fafb;
+  --card:          #ffffff;
+  --cream-soft:    rgba(187,0,32,0.08);
+  --peach:         rgba(187,0,32,0.05);
+  --peach-deep:    rgba(187,0,32,0.10);
+  --brand:         #BB0020;
+  --brand-hover:   #1f2937;
+  --brand-tint:    rgba(187,0,32,0.05);
+  --brand-tint-2:  rgba(187,0,32,0.10);
+  --ink:           #111827;
+  --ink-soft:      #374151;
+  --muted:         #6b7280;
+  --muted-soft:    #9ca3af;
+  --line:          #e5e7eb;
+  --line-soft:     #f3f4f6;
+  --dark-card:     #111827;
+  --dark-card-soft:#1f2937;
+  --shadow-clay:       0 8px 24px -8px rgba(17,24,39,.08), 0 2px 6px -2px rgba(0,0,0,.04), inset 0 1px 0 rgba(255,255,255,.7);
+  --shadow-clay-hover: 0 18px 38px -10px rgba(17,24,39,.14), 0 4px 12px -3px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.7);
+  --shadow-clay-pill:  0 4px 12px -4px rgba(187,0,32,.20), inset 0 1px 0 rgba(255,255,255,.4);
+  --featured-grad:     linear-gradient(150deg,rgba(187,0,32,0.06) 0%,rgba(187,0,32,0.10) 55%,rgba(187,0,32,0.14) 100%);
+  --avatar-1:          linear-gradient(135deg,rgba(187,0,32,0.18),rgba(187,0,32,0.06));
+  --avatar-2:          linear-gradient(135deg,rgba(187,0,32,0.10),rgba(187,0,32,0.20));
+  --avatar-3:          linear-gradient(135deg,rgba(187,0,32,0.06),rgba(187,0,32,0.14));
+  --dot-color:         rgba(187,0,32,0.16);
+}
+/* ── DARK ─────────────────────────────────────── */
+.dark{
+  --bg:            #0d0d0d;
+  --card:          #18181b;
+  --cream-soft:    rgba(238,63,58,0.08);
+  --peach:         #1f2937;
+  --peach-deep:    #374151;
+  --brand:         #ee3f3a;
+  --brand-hover:   #ff5a55;
+  --brand-tint:    rgba(238,63,58,0.10);
+  --brand-tint-2:  rgba(238,63,58,0.18);
+  --ink:           #f9fafb;
+  --ink-soft:      #e5e7eb;
+  --muted:         #a8a8a8;
+  --muted-soft:    #7a7a7a;
+  --line:          #2a2a2a;
+  --line-soft:     #1f1f1f;
+  --dark-card:     #1f2937;
+  --dark-card-soft:#374151;
+  --shadow-clay:       0 8px 24px -8px rgba(0,0,0,.55), 0 2px 6px -2px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
+  --shadow-clay-hover: 0 18px 38px -10px rgba(0,0,0,.65), 0 4px 12px -3px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+  --shadow-clay-pill:  0 4px 12px -4px rgba(238,63,58,.45), inset 0 1px 0 rgba(255,255,255,.08);
+  --featured-grad:     linear-gradient(150deg,#1a1f2a 0%,#2a1a1f 55%,#3a1316 100%);
+  --avatar-1:          linear-gradient(135deg,#3a1316,#2a1a1f);
+  --avatar-2:          linear-gradient(135deg,#4a181e,#3a1316);
+  --avatar-3:          linear-gradient(135deg,#1f2937,#3a1316);
+  --dot-color:         rgba(238,63,58,0.22);
+}
+
+/* ── Liquid Glass tokens (themed, Apple-style) ───────── */
+:root{
+  --lg-bg-grad:linear-gradient(160deg,rgba(17,24,39,.18) 0%,rgba(17,24,39,.06) 60%,rgba(17,24,39,.10) 100%);
+  --lg-rim:rgba(17,24,39,.16);
+  --lg-inset-top:rgba(255,255,255,.45);
+  --lg-inset-bottom:rgba(0,0,0,.10);
+  --lg-shadow:0 18px 48px -18px rgba(17,24,39,.30),0 4px 14px -6px rgba(17,24,39,.18);
+  --lg-spec:linear-gradient(135deg,rgba(255,255,255,.30) 0%,rgba(255,255,255,.05) 30%,transparent 55%);
+  --lg-blur:blur(30px) saturate(180%);
+}
+.dark{
+  --lg-bg-grad:linear-gradient(160deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,.025) 55%,rgba(255,255,255,.06) 100%);
+  --lg-rim:rgba(255,255,255,.16);
+  --lg-inset-top:rgba(255,255,255,.20);
+  --lg-inset-bottom:rgba(0,0,0,.4);
+  --lg-shadow:0 22px 56px -16px rgba(0,0,0,.65),0 6px 16px -4px rgba(0,0,0,.45);
+  --lg-spec:linear-gradient(135deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,.04) 30%,transparent 55%);
+}
+
+/* Reusable Glass-style card */
+.lg-glass-card{
+  position:relative;border-radius:24px;
+  background:var(--card);
+  border:1px solid var(--line);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.04),
+    0 14px 32px -16px rgba(17,24,39,.18),
+    0 4px 10px -4px rgba(17,24,39,.08);
+  overflow:hidden;
+}
+.dark .lg-glass-card{
+  background:var(--card);
+  border-color:var(--line);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.05),
+    0 18px 40px -16px rgba(0,0,0,.55),
+    0 4px 12px -4px rgba(0,0,0,.35);
+}
+.lg-glass-card > *{position:relative;z-index:1}
+
+/* Scrollable lists inside glass cards */
+.scrollable-list{
+  max-height:340px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  scrollbar-color:var(--brand-tint-2) transparent;
+  mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 16px),transparent 100%);
+}
+.scrollable-list::-webkit-scrollbar{width:6px}
+.scrollable-list::-webkit-scrollbar-track{background:transparent}
+.scrollable-list::-webkit-scrollbar-thumb{background:var(--brand-tint-2);border-radius:9999px}
+@media (hover:hover) and (pointer:fine){.scrollable-list::-webkit-scrollbar-thumb:hover{background:var(--brand)}}
+
+/* ── Body / typography / icons ─────────────── */
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--ink);transition:background-color .3s ease,color .3s ease}
+h1,h2,h3,.font-display{font-family:'Poppins',sans-serif;letter-spacing:-0.02em}
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24}
+.icon-fill{font-variation-settings:'FILL' 1}
+
+/* ── Clay surfaces ───────────────────────── */
+.clay-card{
+  background:var(--card);border-radius:24px;
+  box-shadow:var(--shadow-clay);
+  transition:transform .25s ease-out,box-shadow .25s ease-out,background-color .3s ease;
+}
+@media (hover:hover) and (pointer:fine){.clay-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}}
+.clay-pill{border-radius:9999px;box-shadow:var(--shadow-clay-pill)}
+a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:8px}
+
+/* ── Decorative tokens ───────────────────── */
+.featured-bg{background:var(--featured-grad)}
+.avatar-grad-1{background:var(--avatar-1)}
+.avatar-grad-2{background:var(--avatar-2)}
+.avatar-grad-3{background:var(--avatar-3)}
+.dot-bg{background-image:radial-gradient(circle at 1px 1px,var(--dot-color) 1px,transparent 0);background-size:20px 20px}
+
+/* Theme toggle icon flip */
+/* Bump specificity on theme-icon swap rules so Google's Material Symbols CSS
+   (.material-symbols-outlined { display:inline-block }) doesn't win. */
+.material-symbols-outlined.theme-icon-dark{display:none}
+.dark .material-symbols-outlined.theme-icon-light{display:none}
+.dark .material-symbols-outlined.theme-icon-dark{display:inline-block}
+
+/* ════════════════════════════════════════════════════════════════════
+   FLOATING TOP NAV (single glass pill)
+   Width + horizontal gutter match the main content container
+   (max-w-[1440px] mx-auto px-6 md:px-10), so the pill's outer edges
+   align exactly with the page content below it.
+   ════════════════════════════════════════════════════════════════════ */
+.floating-nav{
+  position:sticky;
+  /* Respect iOS safe-area so the nav clears the status bar in PWA mode */
+  top:calc(.85rem + env(safe-area-inset-top, 0px));
+  margin:calc(.85rem + env(safe-area-inset-top, 0px)) auto 0;
+  z-index:30;
+  max-width:1440px;
+  padding:0 1.5rem;          /* px-6 — matches main on small viewports */
+  display:block;
+}
+@media (min-width:768px){
+  .floating-nav{padding:0 2.5rem}   /* md:px-10 — matches main on tablet+ */
+}
+.floating-nav-inner{
+  position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;
+  padding:.35rem .5rem .35rem 1.1rem;
+  background:var(--lg-bg-grad);
+  backdrop-filter:var(--lg-blur);
+  -webkit-backdrop-filter:var(--lg-blur);
+  border:1px solid var(--lg-rim);
+  border-radius:9999px;
+  box-shadow:
+    inset 0 1px 0 var(--lg-inset-top),
+    inset 0 -1px 1px var(--lg-inset-bottom),
+    var(--lg-shadow);
+  overflow:hidden;
+}
+.floating-nav-inner::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:var(--lg-spec);mix-blend-mode:screen;
+}
+.floating-nav-inner > *{position:relative;z-index:1}
+/* Minimal nav variant — no centered tabs, no Create-Event CTA. Used on settings, etc. */
+.floating-nav-inner.is-minimal{
+  grid-template-columns:auto 1fr auto;
+  padding:.4rem .55rem .4rem 1.1rem;
+}
+.fn-logo-link{display:inline-flex;align-items:center;gap:.9rem;justify-self:start;text-decoration:none}
+.fn-logo{font-family:'Poppins',sans-serif;font-weight:800;font-size:1.5rem;color:var(--brand);letter-spacing:-.05em;line-height:1}
+.fn-tagline{
+  display:none;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:9px;
+  letter-spacing:.32em;color:var(--brand);opacity:.65;
+  text-transform:uppercase;white-space:nowrap;
+  border-left:1px solid var(--brand-tint-2);padding-left:.9rem;
+}
+@media (min-width:1100px){.fn-tagline{display:inline-flex}}
+.fn-actions{display:inline-flex;align-items:center;gap:.2rem;justify-self:end}
+.fn-icon-btn{
+  position:relative;width:40px;height:40px;border-radius:9999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--ink);background:transparent;border:0;cursor:pointer;
+  transition:background-color .25s,color .25s,transform .25s;
+}
+@media (hover:hover) and (pointer:fine){.fn-icon-btn:hover{background:var(--brand-tint);color:var(--brand);transform:scale(1.05)}}
+.fn-icon-btn[aria-current="page"]{background:var(--brand-tint);color:var(--brand)}
+.fn-icon-btn .material-symbols-outlined{font-size:20px}
+.fn-dot{
+  position:absolute;top:8px;right:9px;
+  width:7px;height:7px;border-radius:9999px;background:var(--brand);
+  box-shadow:0 0 0 2px color-mix(in oklab,var(--card) 90%,transparent);
+}
+.fn-divider{width:1px;height:22px;background:var(--brand-tint-2);margin:0 .35rem}
+.fn-avatar{
+  width:40px;height:40px;border-radius:9999px;
+  background:var(--brand);color:#fff;border:0;cursor:pointer;
+  font-family:'Poppins',sans-serif;font-weight:800;font-size:14px;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:transform .25s,box-shadow .25s;
+  box-shadow:0 6px 14px -4px color-mix(in oklab,var(--brand) 60%,transparent);
+}
+@media (hover:hover) and (pointer:fine){.fn-avatar:hover{transform:scale(1.06)}}
+/* Compact tabs inside the floating nav */
+.floating-nav .nav-tabs{
+  background:color-mix(in oklab,var(--bg) 35%,transparent);
+  border-color:transparent;box-shadow:none;
+  padding:.25rem;
+}
+.floating-nav .nav-tab{padding:.45rem .9rem;font-size:12.5px}
+.floating-nav .nav-tab .material-symbols-outlined{font-size:16px}
+@media (max-width:768px){
+  .floating-nav .nav-tab{padding:.5rem .55rem}
+  .floating-nav .nav-tab-label{display:none}
+  .floating-nav-inner{gap:.6rem;padding:.3rem .35rem .3rem .85rem}
+  .fn-icon-btn{width:36px;height:36px}
+  .fn-avatar{width:36px;height:36px;font-size:13px}
+  .fn-divider{display:none}
+}
+@media (max-width:540px){
+  .floating-nav-inner{padding:.35rem .45rem .35rem .9rem;gap:.5rem}
+  .fn-logo{font-size:1.25rem}
+}
+/* Center segmented tabs */
+.nav-tabs{
+  display:inline-flex;align-items:center;gap:.25rem;padding:.3rem;
+  background:color-mix(in oklab,var(--card) 70%,transparent);
+  backdrop-filter:blur(14px) saturate(140%);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+  border:1px solid var(--brand-tint-2);
+  border-radius:9999px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 22px -12px rgba(0,0,0,.35);
+}
+.nav-tab{
+  display:inline-flex;align-items:center;gap:.45rem;
+  padding:.55rem 1rem;border-radius:9999px;
+  /* Reset UA defaults so the rule is self-sufficient (don't rely on Tailwind preflight) */
+  background:transparent;border:0;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  color:var(--muted);text-decoration:none;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;letter-spacing:-.005em;
+  transition:color .25s,background-color .25s,box-shadow .25s,transform .25s;
+}
+@media (hover:hover) and (pointer:fine){.nav-tab:hover{color:var(--brand);background:var(--brand-tint)}}
+.nav-tab.is-active{
+  background:var(--brand);color:#fff;
+  box-shadow:0 6px 14px -4px color-mix(in oklab,var(--brand) 60%,transparent),inset 0 1px 0 rgba(255,255,255,.18);
+}
+.nav-tab .material-symbols-outlined{font-size:18px;transition:transform .25s}
+@media (hover:hover) and (pointer:fine){.nav-tab:hover .material-symbols-outlined{transform:scale(1.06)}}
+
+/* ════════════════════════════════════════════════════════════════════
+   FUTURISTIC BREADCRUMB
+   ════════════════════════════════════════════════════════════════════ */
+.bc-shell{
+  display:inline-flex;align-items:center;gap:.5rem;position:relative;
+  padding:.35rem .9rem .35rem .35rem;
+  background:var(--lg-bg-grad);
+  backdrop-filter:var(--lg-blur);
+  -webkit-backdrop-filter:var(--lg-blur);
+  border:1px solid var(--lg-rim);
+  border-radius:999px;
+  box-shadow:
+    inset 0 1px 0 var(--lg-inset-top),
+    inset 0 -1px 1px var(--lg-inset-bottom),
+    var(--lg-shadow);
+  font-family:'Poppins',sans-serif;
+  overflow:hidden;
+}
+.bc-shell::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:var(--lg-spec);mix-blend-mode:screen;
+}
+.bc-shell > *{position:relative;z-index:1}
+@media (max-width:1023px){
+  .bc-shell{display:flex;width:100%;justify-content:flex-start}
+}
+@media (max-width:540px){
+  .bc-path{font-size:10px;letter-spacing:.14em;gap:.3rem}
+  .bc-shell{padding:.3rem .6rem .3rem .3rem;gap:.35rem}
+}
+.bc-corner{position:absolute;width:9px;height:9px;border:1px solid var(--brand);pointer-events:none}
+.bc-corner-tl{top:-1px;left:-1px;border-right:0;border-bottom:0;border-top-left-radius:999px}
+.bc-corner-tr{top:-1px;right:-1px;border-left:0;border-bottom:0;border-top-right-radius:999px}
+.bc-corner-bl{bottom:-1px;left:-1px;border-right:0;border-top:0;border-bottom-left-radius:999px}
+.bc-corner-br{bottom:-1px;right:-1px;border-left:0;border-top:0;border-bottom-right-radius:999px}
+.bc-back{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:999px;
+  background:var(--brand);color:#fff;flex-shrink:0;position:relative;
+  transition:transform .2s,background .2s;
+}
+@media (hover:hover) and (pointer:fine){.bc-back:hover{transform:translateX(-2px);background:var(--brand-hover)}}
+.bc-back .material-symbols-outlined{font-size:18px}
+.bc-path{display:inline-flex;align-items:center;gap:.45rem;list-style:none;font-size:11px;font-weight:700;letter-spacing:.18em;position:relative;margin:0;padding:0}
+.bc-path a{color:var(--ink);transition:color .2s,text-shadow .2s;position:relative;text-decoration:none}
+@media (hover:hover) and (pointer:fine){.bc-path a:hover{color:var(--brand);text-shadow:0 0 12px color-mix(in oklab,var(--brand) 60%,transparent)}}
+.bc-sep{display:inline-flex;color:var(--muted-soft)}
+.bc-sep svg{width:9px;height:9px;stroke:currentColor;stroke-width:2;fill:none}
+.bc-active{
+  display:inline-flex;align-items:center;gap:.45rem;
+  color:var(--brand);padding:4px 10px 4px 8px;
+  background:var(--brand-tint);
+  border:1px solid var(--brand-tint-2);
+  border-radius:999px;
+  text-shadow:0 0 14px color-mix(in oklab,var(--brand) 50%,transparent);
+}
+.bc-dot{
+  width:6px;height:6px;border-radius:999px;background:var(--brand);
+  box-shadow:0 0 0 0 color-mix(in oklab,var(--brand) 60%,transparent);
+  animation:bc-pulse 2s ease-in-out infinite;
+}
+@keyframes bc-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in oklab,var(--brand) 65%,transparent)}50%{box-shadow:0 0 0 6px color-mix(in oklab,var(--brand) 0%,transparent)}}
+.bc-divider{width:1px;height:16px;background:var(--brand-tint-2);margin:0 .15rem}
+.bc-system{display:inline-flex;align-items:center;gap:.45rem;font-size:10px;font-weight:700;letter-spacing:.22em;color:var(--muted);position:relative}
+.bc-live{width:6px;height:6px;border-radius:999px;background:var(--brand);box-shadow:0 0 0 0 color-mix(in oklab,var(--brand) 50%,transparent);animation:bc-pulse 2s ease-in-out infinite}
+.bc-mono{font-feature-settings:"tnum","ss01"}
+.bc-copy{
+  /* Hidden on mobile (the breadcrumb gets cramped); revealed at ≥768px.
+     Replaces the per-consumer `hidden md:inline-flex` Tailwind chain. */
+  display:none;
+  align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:9999px;
+  background:transparent;color:var(--muted);border:0;cursor:pointer;
+  transition:color .2s,background-color .2s;
+}
+@media (min-width:768px){.bc-copy{display:inline-flex}}
+@media (hover:hover) and (pointer:fine){.bc-copy:hover{color:var(--brand);background:var(--brand-tint)}}
+.bc-copy:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.bc-copy .material-symbols-outlined{font-size:15px}
+.bc-ripple{position:absolute;border-radius:999px;transform:translate(-50%,-50%) scale(0);background:color-mix(in oklab,var(--brand) 35%,transparent);pointer-events:none;animation:bc-ripple .55s ease-out forwards}
+@keyframes bc-ripple{to{transform:translate(-50%,-50%) scale(8);opacity:0}}
+.bc-toast{
+  position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);
+  background:var(--card);color:var(--ink);
+  border:1px solid var(--brand-tint-2);border-radius:999px;
+  padding:.55rem 1rem;font-size:11px;font-weight:700;letter-spacing:.18em;
+  display:inline-flex;align-items:center;gap:.5rem;
+  box-shadow:0 12px 28px -8px rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;
+  transition:opacity .25s ease,transform .25s ease;
+  z-index:60;
+}
+.bc-toast.is-show{opacity:1;transform:translateX(-50%) translateY(0)}
+.bc-toast .bc-live{background:#22c55e}
+.bc-path a[data-bc-link]{cursor:pointer}
+
+/* ════════════════════════════════════════════════════════════════════
+   FLOATING TOOL RAIL — desktop vertical, mobile bottom dock
+   ════════════════════════════════════════════════════════════════════ */
+html{scroll-behavior:smooth}
+.tool-rail{
+  position:fixed;z-index:40;display:flex;
+  background:var(--lg-bg-grad);
+  backdrop-filter:var(--lg-blur);
+  -webkit-backdrop-filter:var(--lg-blur);
+  border:1px solid var(--lg-rim);
+  box-shadow:
+    inset 0 1px 0 var(--lg-inset-top),
+    inset 0 -1px 1px var(--lg-inset-bottom),
+    var(--lg-shadow);
+}
+.tool-rail::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:var(--lg-spec);mix-blend-mode:screen;
+}
+.tool-rail > *{position:relative;z-index:1}
+@media (min-width:1400px){
+  .tool-rail{
+    left:1.25rem;top:50%;transform:translateY(-50%);
+    flex-direction:column;gap:.4rem;padding:.55rem;border-radius:28px;
+  }
+}
+@media (max-width:1399px){
+  .tool-rail{
+    left:50%;
+    bottom:calc(env(safe-area-inset-bottom,0px) + 1rem);
+    transform:translateX(-50%);
+    flex-direction:row;gap:.3rem;padding:.4rem;border-radius:9999px;
+  }
+}
+.tr-divider{background:var(--brand-tint-2)}
+@media (min-width:1400px){.tr-divider{height:1px;margin:.2rem .35rem}}
+@media (max-width:1399px){.tr-divider{width:1px;margin:.35rem .2rem;align-self:stretch}}
+.tr-btn{
+  position:relative;width:46px;height:46px;border-radius:16px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--muted);
+  transition:color .25s,background-color .25s,transform .25s,box-shadow .25s;
+}
+@media (hover:hover) and (pointer:fine){.tr-btn:hover{color:var(--brand);background:var(--brand-tint);transform:scale(1.07)}}
+.tr-btn.is-active{
+  background:var(--brand);color:#fff;
+  box-shadow:0 8px 18px -4px color-mix(in oklab,var(--brand) 65%,transparent),inset 0 1px 0 rgba(255,255,255,.18);
+}
+.tr-btn .material-symbols-outlined{font-size:22px;transition:transform .25s}
+@media (hover:hover) and (pointer:fine){.tr-btn:hover .material-symbols-outlined{transform:scale(1.05)}}
+.tr-btn::after{
+  content:attr(data-label);position:absolute;
+  padding:6px 12px;background:var(--card);color:var(--ink);
+  border:1px solid var(--brand-tint-2);border-radius:999px;
+  font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;white-space:nowrap;
+  opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s;
+  box-shadow:0 10px 24px -10px rgba(0,0,0,.4);
+}
+@media (min-width:1400px){
+  .tr-btn::after{left:calc(100% + 14px);top:50%;transform:translateY(-50%) translateX(-6px)}
+@media (hover:hover) and (pointer:fine){  .tr-btn:hover::after,.tr-btn:focus-visible::after{opacity:1;transform:translateY(-50%) translateX(0)}}
+}
+@media (max-width:1399px){
+  .tr-btn::after{bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px)}
+@media (hover:hover) and (pointer:fine){  .tr-btn:hover::after,.tr-btn:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(0)}}
+}
+.tr-status{
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.2em;
+  padding:0 .35rem;
+}
+@media (min-width:1400px){.tr-status{height:30px;width:46px}}
+@media (max-width:1399px){.tr-status{height:46px;min-width:42px}}
+.tr-status .bc-live{
+  width:6px;height:6px;background:#22c55e;
+  animation:tr-pulse-green 2s ease-in-out infinite;
+}
+.tr-status.is-muted .bc-live{background:var(--brand);animation:bc-pulse 2s ease-in-out infinite}
+.tr-status.is-muted{color:var(--muted-soft)}
+@keyframes tr-pulse-green{
+  0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}
+  50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   HELP FAB — fixed bottom-right floating button.
+   Composition: <button class="help-fab" aria-label="Open help center">
+                  <span class="material-symbols-outlined">support_agent</span>
+                </button>
+   Auto-hides on mobile (≤768px). Lifts above bottom tool rail at ≤1399px.
+   ════════════════════════════════════════════════════════════════════ */
+.help-fab{
+  position:fixed;
+  bottom:max(1.5rem, calc(1.5rem + env(safe-area-inset-bottom,0px)));
+  right:max(1.5rem, calc(1.5rem + env(safe-area-inset-right,0px)));
+  width:56px;height:56px;border-radius:9999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--brand);color:#fff;border:0;cursor:pointer;
+  box-shadow:var(--shadow-clay-pill);
+  z-index:30;
+  transition:background-color .2s,transform .2s;
+}
+.help-fab .material-symbols-outlined{font-size:24px;font-variation-settings:'FILL' 1}
+@media (hover:hover) and (pointer:fine){
+  .help-fab:hover{background:var(--brand-hover);transform:translateY(-2px)}
+}
+.help-fab:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+@media (max-width:1399px){
+  .help-fab{bottom:calc(env(safe-area-inset-bottom,0px) + 5.25rem)}
+}
+@media (max-width:768px){
+  .help-fab{display:none}
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   SCROLL-DRIVEN ANIMATIONS
+   ════════════════════════════════════════════════════════════════════ */
+.reveal{
+  opacity:0;transform:translateY(28px);
+  transition:opacity .7s cubic-bezier(.2,.7,.2,1) var(--reveal-delay,0ms),
+             transform .7s cubic-bezier(.2,.7,.2,1) var(--reveal-delay,0ms);
+  will-change:opacity,transform;
+}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+/* Top scroll-progress bar */
+.scroll-progress{
+  position:fixed;top:0;left:0;right:0;height:2px;z-index:50;
+  background:transparent;pointer-events:none;
+}
+.scroll-progress::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  background:linear-gradient(90deg,transparent,var(--brand) 30%,var(--brand) 100%);
+  width:var(--scroll-pct,0%);
+  box-shadow:0 0 10px var(--brand);
+  transition:width .08s linear;
+}
+
+/* Animated progress bars (data-fill targets) */
+.pf-bar{transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+
+/* Reduce-motion respect */
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+  /* Spinner reduced-motion override — keep a designed pulse animation
+     instead of the global kill-switch, so loading state still reads as "working". */
+  .btn-pill-spinner,
+  .btn-pill-spinner::before,
+  .btn-pill-spinner::after{
+    animation:btn-loading-pulse 1.4s ease-in-out infinite !important;
+    animation-iteration-count:infinite !important;
+    transform:none !important;
+  }
+  .btn-pill-spinner::before{animation-delay:0s !important}
+  .btn-pill-spinner{animation-delay:.16s !important}
+  .btn-pill-spinner::after{animation-delay:.32s !important}
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   COMPONENT PRIMITIVES
+   Surfaces, tiles, pills and chips used across multiple pages.
+   Promoted from designs/components.html so any page that loads
+   shell.css can paste component markup and have it render correctly.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* C3 · Tool card (bento) — brand-tint-2 border, numbered corner, brand-red filled icon plate */
+.tool-card{
+  position:relative;cursor:pointer;
+  border:1px solid var(--brand-tint-2);
+  transition:border-color .3s,box-shadow .3s,transform .25s;
+}
+@media (hover:hover) and (pointer:fine){.tool-card:hover{transform:translateY(-3px);border-color:color-mix(in oklab,var(--brand) 45%,var(--brand-tint-2))}}
+.tool-card.is-active{
+  border-color:var(--brand);
+  box-shadow:
+    0 0 0 1px var(--brand),
+    0 0 36px -4px color-mix(in oklab,var(--brand) 45%,transparent),
+    0 22px 44px -14px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.05);
+}
+.tool-card-num{
+  position:absolute;top:1.6rem;right:1.6rem;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:12px;
+  color:var(--muted-soft);letter-spacing:.05em;pointer-events:none;
+}
+.tool-card-icon{
+  width:64px;height:64px;border-radius:18px;
+  background:var(--brand);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:
+    0 10px 22px -6px color-mix(in oklab,var(--brand) 65%,transparent),
+    inset 0 1px 0 rgba(255,255,255,.20);
+  transition:transform .25s,box-shadow .25s;
+}
+@media (hover:hover) and (pointer:fine){.tool-card:hover .tool-card-icon{transform:scale(1.04)}}
+.tool-card-icon .material-symbols-outlined{font-size:30px}
+
+/* B3 · Quick Action card + tile — Liquid Glass card holding translucent tiles */
+.qa-card{
+  position:relative;overflow:hidden;
+  background:var(--lg-bg-grad);
+  backdrop-filter:var(--lg-blur);
+  -webkit-backdrop-filter:var(--lg-blur);
+  border:1px solid var(--lg-rim);
+  border-radius:24px;padding:1.5rem;
+  box-shadow:
+    inset 0 1px 0 var(--lg-inset-top),
+    inset 0 -1px 1px var(--lg-inset-bottom),
+    var(--lg-shadow);
+}
+.qa-card::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:var(--lg-spec);mix-blend-mode:screen;
+}
+.qa-card > *{position:relative;z-index:1}
+.qa-tile{
+  background:color-mix(in oklab,var(--bg) 22%,transparent);
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  border:1px solid color-mix(in oklab,var(--line) 60%,transparent);
+  border-radius:16px;padding:.85rem;
+  transition:transform .2s,border-color .2s,background-color .2s;
+  cursor:pointer;
+}
+.dark .qa-tile{background:color-mix(in oklab,var(--bg) 55%,transparent)}
+@media (hover:hover) and (pointer:fine){.qa-tile:hover{transform:translateY(-2px);border-color:var(--brand);background:var(--brand-tint)}}
+.qa-tile-icon{
+  width:32px;height:32px;border-radius:10px;
+  background:var(--brand-tint);color:var(--brand);
+  display:inline-flex;align-items:center;justify-content:center;margin-bottom:.5rem;
+}
+@media (hover:hover) and (pointer:fine){.qa-tile:hover .qa-tile-icon{background:var(--brand);color:#fff}}
+
+/* D1 · Stats strip card — heavily translucent surface so hero image bleeds through */
+.stats-strip-card{
+  background:color-mix(in oklab,var(--card) 28%,transparent);
+  backdrop-filter:blur(18px) saturate(150%);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+  border:1px solid color-mix(in oklab,var(--line) 55%,transparent);
+  border-radius:20px;padding:1.1rem 1.25rem;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.35),
+    0 8px 24px -10px rgba(17,24,39,.18);
+}
+.dark .stats-strip-card{
+  background:color-mix(in oklab,var(--card) 60%,transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.05),
+    0 12px 32px -10px rgba(0,0,0,.55);
+}
+.stat-icon{
+  width:48px;height:48px;border-radius:14px;flex-shrink:0;
+  background:var(--brand);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:
+    0 8px 18px -6px color-mix(in oklab,var(--brand) 65%,transparent),
+    inset 0 1px 0 rgba(255,255,255,.2);
+}
+.stat-icon .material-symbols-outlined{font-size:22px}
+
+/* P2 · Hero pill — Liquid Glass status chip (neutral) + brand-filled variant */
+.hero-pill{
+  position:relative;overflow:hidden;
+  display:inline-flex;align-items:center;gap:.45rem;
+  padding:.4rem .85rem;border-radius:9999px;
+  background:var(--lg-bg-grad);
+  backdrop-filter:var(--lg-blur);
+  -webkit-backdrop-filter:var(--lg-blur);
+  border:1px solid var(--lg-rim);
+  box-shadow:
+    inset 0 1px 0 var(--lg-inset-top),
+    inset 0 -1px 1px var(--lg-inset-bottom),
+    var(--lg-shadow);
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;letter-spacing:.05em;
+  color:var(--ink);
+}
+.hero-pill::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:var(--lg-spec);mix-blend-mode:screen;
+}
+.hero-pill > *{position:relative;z-index:1}
+.hero-pill-brand{
+  background:var(--brand);color:#fff;border-color:transparent;
+  box-shadow:var(--shadow-clay-pill);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+.hero-pill-brand::before{display:none}
+
+/* P3 · Hero meta chip — Liquid Glass pill with brand-red filled icon */
+.hero-meta-chip{
+  position:relative;overflow:hidden;
+  display:inline-flex;align-items:center;gap:.7rem;
+  padding:.55rem .9rem .55rem .55rem;
+  background:var(--lg-bg-grad);
+  backdrop-filter:var(--lg-blur);
+  -webkit-backdrop-filter:var(--lg-blur);
+  border:1px solid var(--lg-rim);
+  border-radius:9999px;
+  box-shadow:
+    inset 0 1px 0 var(--lg-inset-top),
+    inset 0 -1px 1px var(--lg-inset-bottom),
+    var(--lg-shadow);
+  transition:transform .25s,border-color .25s;
+}
+.hero-meta-chip::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:var(--lg-spec);mix-blend-mode:screen;
+}
+.hero-meta-chip > *{position:relative;z-index:1}
+@media (hover:hover) and (pointer:fine){.hero-meta-chip:hover{transform:translateY(-1px);border-color:var(--brand)}}
+.hero-meta-icon{
+  width:34px;height:34px;border-radius:9999px;flex-shrink:0;
+  background:var(--brand);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-clay-pill);
+}
+.hero-meta-text{display:inline-flex;flex-direction:column;line-height:1.1;min-width:0}
+.hero-meta-label{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;letter-spacing:.28em;
+  color:var(--brand);text-transform:uppercase;
+}
+.dark .hero-meta-label{color:#ff5a55}
+.hero-meta-value{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;
+  color:var(--ink);margin-top:3px;white-space:nowrap;letter-spacing:-.005em;
+}
+:root .hero-meta-value{text-shadow:0 1px 2px rgba(255,255,255,.45)}
+.dark .hero-meta-value{color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.55)}
+@media (max-width:640px){
+  .hero-meta-value{white-space:normal;font-size:12px}
+}
+
+/* Avatar Stack — overlapping circles + optional "+N" overflow chip */
+.avatar-stack{display:inline-flex;align-items:center}
+.avatar-stack-item{
+  width:32px;height:32px;border-radius:9999px;
+  border:2px solid var(--card);
+  background:var(--brand-tint);color:var(--brand);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  margin-right:-10px;flex-shrink:0;
+  background-size:cover;background-position:center;
+}
+.avatar-stack-item:last-child{margin-right:0}
+.avatar-stack-overflow{
+  width:32px;height:32px;border-radius:9999px;
+  border:2px solid var(--card);
+  background:var(--card);color:var(--muted);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;letter-spacing:.04em;
+  margin-left:.4rem;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   NOTIFICATION DROPDOWN PANEL
+   Auto-injected by shell.js on every page that has a bell button
+   (.fn-icon-btn[aria-label^="Notifications"]). Positioned via JS
+   relative to the bell's bounding rect — works on any nav layout.
+   ════════════════════════════════════════════════════════════════════ */
+.fn-notif-panel{
+  position:fixed;z-index:60;
+  width:360px;max-width:calc(100vw - 1.5rem);
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:24px;
+  box-shadow:
+    0 24px 60px -16px rgba(0,0,0,.45),
+    0 8px 18px -4px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.04);
+  opacity:0;
+  transform:translateY(-10px) scale(.98);
+  transform-origin:top right;
+  pointer-events:none;
+  transition:opacity .22s cubic-bezier(.2,.7,.2,1),transform .22s cubic-bezier(.2,.7,.2,1);
+  overflow:hidden;
+}
+.fn-notif-panel.is-open{
+  opacity:1;
+  transform:translateY(0) scale(1);
+  pointer-events:auto;
+}
+.fn-notif-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 1.1rem .85rem;
+  border-bottom:1px solid var(--line-soft);
+}
+.fn-notif-title{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;color:var(--ink);
+  letter-spacing:-.005em;
+}
+.fn-notif-mark-all{
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--brand);background:transparent;border:0;cursor:pointer;
+  padding:.35rem .55rem;border-radius:9999px;
+  transition:background .2s,color .2s;
+}
+@media (hover:hover) and (pointer:fine){.fn-notif-mark-all:hover{background:var(--brand-tint)}}
+.fn-notif-list{
+  list-style:none;margin:0;padding:.35rem 0;
+  max-height:380px;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:var(--brand-tint-2) transparent;
+}
+.fn-notif-list::-webkit-scrollbar{width:6px}
+.fn-notif-list::-webkit-scrollbar-thumb{background:var(--brand-tint-2);border-radius:9999px}
+.fn-notif-item{
+  display:grid;grid-template-columns:auto 1fr auto;gap:.75rem;
+  padding:.75rem 1.1rem;
+  border-bottom:1px solid var(--line-soft);
+  transition:background .2s;
+  cursor:pointer;
+  align-items:flex-start;
+}
+.fn-notif-item:last-child{border-bottom:0}
+@media (hover:hover) and (pointer:fine){.fn-notif-item:hover{background:var(--brand-tint)}}
+.fn-notif-icon{
+  width:34px;height:34px;border-radius:12px;
+  background:var(--brand-tint);color:var(--brand);
+  display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.fn-notif-icon .material-symbols-outlined{font-size:18px}
+.fn-notif-text{
+  font-family:'Poppins',sans-serif;font-size:13px;color:var(--ink);line-height:1.35;
+  font-weight:500;
+}
+.fn-notif-text strong{font-weight:700;color:var(--ink)}
+.fn-notif-time{
+  font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--muted-soft);
+  margin-top:.3rem;
+}
+.fn-notif-unread{
+  width:8px;height:8px;border-radius:9999px;background:var(--brand);
+  align-self:center;flex-shrink:0;
+  box-shadow:0 0 0 3px color-mix(in oklab,var(--brand) 18%,transparent);
+}
+.fn-notif-item:not(.is-unread) .fn-notif-unread{display:none}
+.fn-notif-footer{
+  padding:.75rem 1.1rem;
+  border-top:1px solid var(--line-soft);
+  text-align:center;
+}
+.fn-notif-view-all{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--brand);
+  text-decoration:none;
+  transition:gap .2s;
+}
+@media (hover:hover) and (pointer:fine){.fn-notif-view-all:hover{gap:.6rem}}
+.fn-notif-view-all .material-symbols-outlined{font-size:14px}
+@media (max-width:480px){
+  .fn-notif-panel{width:calc(100vw - 1.5rem)}
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   PILL BUTTON — primary/secondary CTA pill, used for "Manage event",
+   "Update password", "Save settings", anywhere a clear call-to-action is needed.
+   Composition: <button class="btn-pill btn-pill-primary">label <icon/></button>
+   ════════════════════════════════════════════════════════════════════ */
+.btn-pill{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.55rem 1rem;border-radius:9999px;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;
+  text-decoration:none;cursor:pointer;border:0;
+  transition:transform .2s,background-color .2s,box-shadow .2s,color .2s,border-color .2s;
+}
+.btn-pill .material-symbols-outlined{font-size:14px}
+.btn-pill-primary{
+  background:var(--brand);color:#fff;
+  box-shadow:var(--shadow-clay-pill);
+}
+@media (hover:hover) and (pointer:fine){.btn-pill-primary:hover{background:var(--brand-hover);transform:translateY(-1px)}}
+.btn-pill-secondary{
+  background:var(--cream-soft);color:var(--ink);
+  border:1px solid var(--line);
+}
+@media (hover:hover) and (pointer:fine){.btn-pill-secondary:hover{background:var(--brand-tint);color:var(--brand);border-color:var(--brand-tint-2)}}
+/* Danger variant — for destructive-but-not-primary actions (sign out, etc.).
+   Less visually loud than .btn-pill-primary so it doesn't fight other CTAs,
+   but clearly signals "this is a different category" via the destructive color. */
+.btn-pill-danger{
+  background:transparent;color:var(--brand);
+  border:1px solid var(--brand-tint-2);
+}
+@media (hover:hover) and (pointer:fine){.btn-pill-danger:hover{background:var(--brand-tint);border-color:var(--brand);transform:translateY(-1px)}}
+.btn-pill:disabled,
+.btn-pill[aria-disabled="true"]{
+  opacity:.5;cursor:not-allowed;
+  transform:none;
+}
+@media (hover:hover) and (pointer:fine){
+  .btn-pill:disabled:hover,
+  .btn-pill[aria-disabled="true"]:hover{transform:none;background:var(--brand)}
+  .btn-pill-secondary:disabled:hover{background:var(--cream-soft);color:var(--ink);border-color:var(--line)}
+}
+/* Larger size used for full-page action footer + primary CTAs (auth, etc.).
+   Bumps font 12→13px and loosens the base .16em tracking to .12em — at
+   uppercase 12px the base tracking made long labels ("VERIFY AND CONTINUE")
+   hard to read. Scoped to -lg only; base .btn-pill is unchanged. */
+.btn-pill-lg{
+  padding:0 1.5rem;height:46px;font-size:13px;letter-spacing:.12em;
+}
+/* ── Loading state — three-dot bounce indicator ──
+   Hides label/trailing icon, reveals a centered row of three dots that
+   bounce in sequence. Replaces the generic spinning-circle pattern with
+   a friendlier, more on-brand indicator. Dots inherit `currentColor`
+   so they work on any button variant (primary/secondary/danger/google).
+   Add aria-busy="true" + disabled on the button when toggling .is-loading.
+
+   Markup contract — unchanged:
+     <button class="btn-pill is-loading">
+       <span>Label</span>
+       <span class="material-symbols-outlined">arrow_forward</span>
+       <span class="btn-pill-spinner" aria-hidden="true"></span>
+     </button>
+
+   The .btn-pill-spinner element IS the center dot. ::before is the left
+   dot, ::after is the right dot. Three pseudo-elements would conflict,
+   so we use the single element + two pseudos.
+*/
+.btn-pill.is-loading{cursor:progress;pointer-events:none}
+.btn-pill.is-loading > :not(.btn-pill-spinner){visibility:hidden}
+.btn-pill{position:relative}
+
+.btn-pill-spinner{
+  position:absolute;left:50%;top:50%;
+  width:8px;height:8px;
+  margin:-4px 0 0 -4px;
+  border-radius:9999px;
+  background:currentColor;
+  display:none;
+  animation:btn-loading-bounce 1.2s ease-in-out infinite;
+  animation-delay:.16s;
+}
+.btn-pill-spinner::before,
+.btn-pill-spinner::after{
+  content:'';position:absolute;top:0;
+  width:8px;height:8px;border-radius:9999px;
+  background:currentColor;
+  animation:btn-loading-bounce 1.2s ease-in-out infinite;
+}
+.btn-pill-spinner::before{left:-14px;animation-delay:0s}
+.btn-pill-spinner::after{left:14px;animation-delay:.32s}
+
+/* Generic show-rule — any .is-loading ancestor reveals the dots.
+   Used by .btn-pill, .btn-google, and any future button that wears the loading pattern. */
+.is-loading > .btn-pill-spinner{display:block}
+
+@keyframes btn-loading-bounce{
+  0%,80%,100%{opacity:.35;transform:translateY(0)}
+  40%{opacity:1;transform:translateY(-4px)}
+}
+@media (prefers-reduced-motion: reduce){
+  .btn-pill-spinner,
+  .btn-pill-spinner::before,
+  .btn-pill-spinner::after{
+    animation:btn-loading-pulse 1.4s ease-in-out infinite;
+    transform:none;
+  }
+  .btn-pill-spinner::before{animation-delay:0s}
+  .btn-pill-spinner{animation-delay:.16s}
+  .btn-pill-spinner::after{animation-delay:.32s}
+  @keyframes btn-loading-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FORM PRIMITIVES — pill inputs, labels, password field with eye toggle
+   ════════════════════════════════════════════════════════════════════ */
+.form-group{display:flex;flex-direction:column;gap:.5rem;min-width:0}
+.form-label{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+}
+.form-input{
+  width:100%;height:44px;padding:0 1.1rem;
+  border-radius:9999px;
+  border:1px solid var(--line);
+  background:var(--card);color:var(--ink);
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
+  letter-spacing:-.005em;
+  transition:border-color .2s,box-shadow .2s,background-color .2s;
+  outline:none;
+}
+.form-input::placeholder{color:var(--muted-soft);font-weight:500}
+@media (hover:hover) and (pointer:fine){.form-input:hover{border-color:color-mix(in oklab,var(--brand) 35%,var(--brand-tint-2))}}
+.form-input:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px var(--brand-tint);
+}
+.form-input:disabled{opacity:.55;cursor:not-allowed}
+.form-input[aria-invalid="true"]{
+  border-color:#ef4444;
+  box-shadow:0 0 0 4px rgba(239,68,68,.12);
+}
+/* Password field with eye toggle */
+.form-password{position:relative}
+.form-password .form-input{padding-right:3rem}
+.form-password-toggle{
+  position:absolute;top:50%;right:.5rem;transform:translateY(-50%);
+  width:36px;height:36px;border-radius:9999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--muted);background:transparent;border:0;cursor:pointer;
+  transition:color .2s,background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){.form-password-toggle:hover{color:var(--brand);background:var(--brand-tint)}}
+.form-password-toggle .material-symbols-outlined{font-size:18px}
+.form-helper{
+  font-family:'Poppins',sans-serif;font-size:12px;color:var(--muted);
+  margin-top:.15rem;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   TOGGLE SWITCH — for 2FA, alerts, etc.
+   Composition: <button class="toggle-switch" role="switch" aria-checked="..."><span class="toggle-switch-thumb"></span></button>
+   ════════════════════════════════════════════════════════════════════ */
+.toggle-switch{
+  position:relative;display:inline-flex;align-items:center;
+  width:52px;height:30px;border-radius:9999px;
+  background:color-mix(in oklab,var(--line) 80%,transparent);
+  border:1px solid var(--line);
+  cursor:pointer;flex-shrink:0;
+  transition:background-color .25s,border-color .25s;
+}
+.toggle-switch-thumb{
+  position:absolute;top:2px;left:2px;
+  width:24px;height:24px;border-radius:9999px;
+  background:#fff;
+  box-shadow:0 2px 6px rgba(17,24,39,.22),inset 0 1px 0 rgba(255,255,255,.4);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1);
+}
+.toggle-switch[aria-checked="true"]{
+  background:var(--brand);border-color:var(--brand);
+}
+.toggle-switch[aria-checked="true"] .toggle-switch-thumb{transform:translateX(22px)}
+.toggle-switch:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+
+/* ════════════════════════════════════════════════════════════════════
+   SECTION RULE — eyebrow heading with brand dash prefix
+   <h2 class="section-rule"><span class="section-rule-bar"></span>Profile information</h2>
+   ════════════════════════════════════════════════════════════════════ */
+.section-rule{
+  display:inline-flex;align-items:center;gap:.85rem;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:.28em;text-transform:uppercase;color:var(--brand);
+  margin:0;
+}
+.section-rule-bar{
+  display:block;width:1.75rem;height:2px;
+  background:var(--brand);border-radius:9999px;
+  flex-shrink:0;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   AVATAR EDITOR — circular avatar with brand-red camera badge
+   ════════════════════════════════════════════════════════════════════ */
+.avatar-edit{
+  position:relative;width:96px;height:96px;
+  display:inline-block;
+}
+.avatar-edit-img{
+  width:100%;height:100%;border-radius:9999px;
+  background:var(--brand-tint);
+  background-size:cover;background-position:center;
+  border:1px solid var(--brand-tint-2);
+  box-shadow:0 8px 22px -10px rgba(17,24,39,.18);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Poppins',sans-serif;font-weight:800;font-size:36px;
+  color:var(--brand);letter-spacing:-.02em;
+  overflow:hidden;
+}
+.avatar-edit-btn{
+  position:absolute;bottom:0;right:0;
+  width:32px;height:32px;border-radius:9999px;
+  background:var(--brand);color:#fff;
+  border:2px solid var(--card);
+  cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-clay-pill);
+  transition:transform .2s,background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){.avatar-edit-btn:hover{transform:scale(1.08);background:var(--brand-hover)}}
+.avatar-edit-btn .material-symbols-outlined{font-size:16px}
+/* Visually-hidden file input that pairs with <label class="avatar-edit-btn"
+   for="avatar-upload">. Keeps keyboard focus + screen-reader semantics
+   while letting the camera badge act as the click target. */
+.avatar-edit-input{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);
+  white-space:nowrap;border:0;
+}
+.avatar-edit-input:focus-visible + .avatar-edit-btn{
+  outline:2px solid var(--brand);outline-offset:3px;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   CHECKLIST ROW
+   Mark-complete task row — used on Up Next, Planning checklist, anywhere
+   with task lists. CSS Grid: [check] [body (title + optional sub)] [due].
+   States: default · hover (brand-tint bg + brand ring on check) · checked
+   (filled brand check, line-through title, muted due).
+   ════════════════════════════════════════════════════════════════════ */
+.checklist-row{
+  position:relative;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;gap:.85rem;
+  padding:.7rem .85rem;
+  border-radius:14px;
+  cursor:pointer;
+  transition:background-color .2s;
+  min-height:44px;
+}
+@media (hover:hover) and (pointer:fine){.checklist-row:hover{background:color-mix(in oklab,var(--brand-tint) 55%,transparent)}}
+.checklist-row > input[type="checkbox"]{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+.checklist-check{
+  width:22px;height:22px;border-radius:9999px;
+  border:2px solid var(--muted-soft);
+  background:transparent;
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:border-color .2s,background-color .2s,transform .15s,box-shadow .2s;
+}
+.checklist-check .material-symbols-outlined{
+  font-size:14px;color:#fff;opacity:0;
+  font-variation-settings:'FILL' 1,'wght' 700;
+  transition:opacity .15s;
+}
+@media (hover:hover) and (pointer:fine){
+  .checklist-row:hover .checklist-check{
+    border-color:var(--brand);
+    box-shadow:0 0 0 4px var(--brand-tint-2);
+  }
+}
+.checklist-row:has(> input[type="checkbox"]:checked) .checklist-check{
+  background:var(--brand);border-color:var(--brand);
+  box-shadow:0 0 0 4px var(--brand-tint-2);
+}
+.checklist-row:has(> input[type="checkbox"]:checked) .checklist-check .material-symbols-outlined{opacity:1}
+.checklist-body{
+  min-width:0;
+  display:flex;flex-direction:column;gap:.15rem;
+}
+.checklist-title{
+  font-family:'Poppins',sans-serif;font-weight:500;
+  font-size:14px;color:var(--ink);line-height:1.4;letter-spacing:-.005em;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  transition:color .2s,text-decoration-color .2s;
+}
+.checklist-sub{
+  font-size:11px;color:var(--muted);font-weight:500;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;
+}
+.checklist-row:has(> input[type="checkbox"]:checked) .checklist-title{
+  text-decoration:line-through;
+  text-decoration-color:var(--muted-soft);
+  color:var(--muted);
+}
+.checklist-due{
+  font-family:'Poppins',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);white-space:nowrap;flex-shrink:0;
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.3rem .6rem;
+  border-radius:9999px;
+  background:transparent;
+  transition:background-color .2s,color .2s;
+}
+.checklist-due .material-symbols-outlined{font-size:13px}
+.checklist-due.is-urgent{color:var(--brand);background:var(--brand-tint);border:1px solid var(--brand-tint-2)}
+.checklist-due.is-done{color:var(--muted-soft)}
+.checklist-row:has(> input[type="checkbox"]:checked) .checklist-due{
+  color:var(--muted-soft);background:transparent;border-color:transparent;
+}
+@media (max-width:540px){
+  .checklist-row{
+    grid-template-columns:auto 1fr;
+    grid-template-rows:auto auto;
+    column-gap:.7rem;row-gap:.25rem;
+    padding:.65rem .5rem;
+  }
+  .checklist-due{grid-column:2;justify-self:start;padding-left:0}
+}
+
+/* Empty-state CTA card — dashed-border invitation surface (e.g. "+ New project") */
+.empty-cta-card{
+  position:relative;
+  border:2px dashed var(--line);
+  border-radius:24px;
+  padding:2rem 1.5rem;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.85rem;text-align:center;
+  background:transparent;
+  transition:border-color .3s,background .3s,transform .25s;
+  cursor:pointer;color:inherit;text-decoration:none;
+}
+@media (hover:hover) and (pointer:fine){
+  .empty-cta-card:hover{
+    border-color:var(--brand);
+    background:var(--brand-tint);
+    transform:translateY(-2px);
+  }
+}
+.empty-cta-icon{
+  width:56px;height:56px;border-radius:9999px;
+  background:var(--brand);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-clay-pill);
+}
+.empty-cta-icon .material-symbols-outlined{font-size:28px}
+.empty-cta-title{font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;color:var(--ink);letter-spacing:-.005em}
+.empty-cta-sub{font-size:12px;color:var(--muted);max-width:18rem;line-height:1.4}
+
+/* ════════════════════════════════════════════════════════════════════
+   FORM TEXTAREA — multi-line input, clay-sm radius (16px)
+   form-input is fully-pill (9999px) and can't host multi-line content.
+   ════════════════════════════════════════════════════════════════════ */
+.form-textarea{
+  width:100%;min-height:96px;max-height:240px;
+  padding:.85rem 1.1rem;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:var(--card);color:var(--ink);
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
+  line-height:1.5;letter-spacing:-.005em;
+  resize:vertical;outline:none;
+  transition:border-color .2s,box-shadow .2s,background-color .2s;
+}
+.form-textarea::placeholder{color:var(--muted-soft);font-weight:500}
+@media (hover:hover) and (pointer:fine){
+  .form-textarea:hover{border-color:color-mix(in oklab,var(--brand) 35%,var(--brand-tint-2))}
+}
+.form-textarea:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px var(--brand-tint);
+}
+.form-textarea:disabled{opacity:.55;cursor:not-allowed}
+.form-textarea[aria-invalid="true"]{
+  border-color:#ef4444;
+  box-shadow:0 0 0 4px rgba(239,68,68,.12);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FORM SELECT — native <select> wrapped in form-pill style
+   Pairs with .form-group/.form-label/.form-helper. Native picker on
+   mobile (better UX on Indian Android than custom popovers).
+   ════════════════════════════════════════════════════════════════════ */
+.form-select{position:relative;display:block;width:100%}
+.form-select select{
+  width:100%;height:44px;
+  padding:0 2.75rem 0 1.1rem;
+  border-radius:9999px;
+  border:1px solid var(--line);
+  background:var(--card);color:var(--ink);
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
+  letter-spacing:-.005em;
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  cursor:pointer;outline:none;
+  transition:border-color .2s,box-shadow .2s,background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .form-select select:hover{border-color:color-mix(in oklab,var(--brand) 35%,var(--brand-tint-2))}
+}
+.form-select select:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px var(--brand-tint);
+}
+.form-select select:disabled{opacity:.55;cursor:not-allowed}
+.form-select select[aria-invalid="true"]{
+  border-color:#ef4444;
+  box-shadow:0 0 0 4px rgba(239,68,68,.12);
+}
+.form-select-chevron{
+  position:absolute;top:50%;right:1rem;
+  transform:translateY(-50%);
+  color:var(--muted);pointer-events:none;
+  transition:color .2s,transform .2s;
+  font-size:20px;
+}
+.form-select select:focus + .form-select-chevron{color:var(--brand)}
+
+/* ════════════════════════════════════════════════════════════════════
+   FORM INPUT GROUP — phone (+91 prefix), currency (₹), units, etc.
+   Composition: <div class="form-input form-input-group">
+                  <span class="form-input-prefix">+91</span>
+                  <input class="form-input-field" type="tel" inputmode="numeric">
+                </div>
+   The outer .form-input-group inherits border/radius/focus from form-input
+   via :focus-within. Inner field has no border, transparent background.
+   ════════════════════════════════════════════════════════════════════ */
+.form-input-group{
+  display:flex;align-items:stretch;
+  padding:0;overflow:hidden;
+}
+.form-input-group:focus-within{
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px var(--brand-tint);
+}
+.form-input-group[aria-invalid="true"]{
+  border-color:#ef4444;
+  box-shadow:0 0 0 4px rgba(239,68,68,.12);
+}
+.form-input-prefix,
+.form-input-suffix{
+  display:inline-flex;align-items:center;
+  padding:0 .85rem;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;
+  color:var(--muted);
+  background:transparent;flex-shrink:0;
+}
+.form-input-prefix{
+  /* Aligned with the form-input default border (var(--line)) after the P2
+     border re-base — was --brand-tint-2 which read as a pink divider on
+     otherwise-neutral inputs. */
+  border-right:1px solid var(--line);
+  padding-right:.7rem;padding-left:1.1rem;
+}
+.form-input-suffix{
+  border-left:1px solid var(--line);
+  padding-left:.7rem;padding-right:1.1rem;
+}
+.form-input-field{
+  flex:1;min-width:0;height:100%;
+  padding:0 1.1rem;
+  border:0;background:transparent;color:var(--ink);
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;
+  letter-spacing:-.005em;outline:none;
+}
+.form-input-field::placeholder{color:var(--muted-soft);font-weight:500}
+.form-input-field:disabled{cursor:not-allowed}
+.form-input-group:has(.form-input-field:disabled){opacity:.55}
+
+/* ════════════════════════════════════════════════════════════════════
+   FORM INPUT TRIGGER — pill button that opens the native date/time picker
+   Composition:
+     <button class="form-input form-input-trigger" data-date-trigger>
+       <span class="form-input-trigger-value">Sat · 22 Dec 2025</span>
+       <span class="material-symbols-outlined">calendar_month</span>
+     </button>
+     <input type="date" class="sr-only" tabindex="-1" aria-hidden="true">
+   shell.js wires the click → focus the hidden native input → format the
+   change event back to DD/MM/YYYY (or 12-hour AM/PM for time).
+   ════════════════════════════════════════════════════════════════════ */
+.form-input-trigger{
+  display:inline-flex;align-items:center;justify-content:space-between;
+  gap:.75rem;
+  text-align:left;cursor:pointer;
+}
+.form-input-trigger .material-symbols-outlined{
+  color:var(--brand);font-size:20px;flex-shrink:0;
+}
+.form-input-trigger-value{
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.form-input-trigger-value:empty::before{
+  content:attr(data-placeholder);
+  color:var(--muted-soft);font-weight:500;
+}
+
+/* Generic visually-hidden utility. The date/time trigger doc-comment
+   (above) and the .pin-input pattern reference class="sr-only" to hide
+   the real native <input> while keeping it focusable for showPicker();
+   this is the rule that makes that contract real. */
+.sr-only{
+  position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);
+  white-space:nowrap;border:0;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   CALENDAR — custom Evenzi date picker (replaces the native OS calendar
+   for [data-date-trigger]). Built/opened by shell.js; the hidden
+   <input type="date"> stays the value store (native fallback preserved).
+   Desktop: popover anchored to the trigger (JS sets fixed top/left).
+   Mobile (<768px): bottom-sheet, matching the modal pattern.
+   ════════════════════════════════════════════════════════════════════ */
+.cal-scrim{
+  position:fixed;inset:0;z-index:90;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;
+  opacity:0;pointer-events:none;
+  transition:opacity .18s cubic-bezier(.2,.7,.2,1);
+}
+.cal-scrim.is-open{opacity:1;pointer-events:auto}
+.cal-pop{
+  position:fixed;
+  width:min(320px,calc(100vw - 2rem));
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:var(--shadow-clay);
+  padding:1rem;
+  color:var(--ink);
+  font-family:'Poppins',sans-serif;
+  transform:translateY(6px) scale(.98);
+  transition:transform .18s cubic-bezier(.2,.7,.2,1);
+}
+.cal-scrim.is-open .cal-pop{transform:translateY(0) scale(1)}
+.cal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:.5rem;margin-bottom:.65rem;
+}
+.cal-title{
+  font-weight:600;font-size:14px;color:var(--ink);letter-spacing:-.005em;
+}
+/* Tappable title → month/year quick-nav */
+.cal-title-btn{
+  display:inline-flex;align-items:center;gap:.15rem;
+  border:0;background:transparent;cursor:pointer;
+  padding:.35rem .5rem;border-radius:9999px;
+  transition:background-color .2s,color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cal-title-btn:hover{background:var(--brand-tint)}
+  .cal-title-btn:hover .cal-title{color:var(--brand)}
+}
+.cal-title-btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.cal-title-caret{
+  font-size:18px;color:var(--muted);transition:transform .2s,color .2s;
+}
+.cal-title-btn[aria-expanded="true"] .cal-title-caret{
+  transform:rotate(180deg);color:var(--brand);
+}
+/* Month-grid quick-nav view (Jan–Dec, 3 columns) */
+.cal-grid.cal-grid--months{
+  grid-template-columns:repeat(3,1fr);gap:6px;
+}
+.cal-month{
+  appearance:none;-webkit-appearance:none;border:0;
+  min-height:48px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border-radius:12px;background:transparent;color:var(--ink);
+  font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;
+  transition:background-color .15s,color .15s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cal-month:not(:disabled):hover{background:var(--brand-tint);color:var(--brand)}
+}
+.cal-month:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.cal-month.is-current{color:var(--brand);font-weight:700}
+.cal-month.is-sel,
+.cal-month.is-sel.is-current{background:var(--brand);color:#fff;font-weight:700}
+.cal-month:disabled{color:var(--muted-soft);opacity:.4;cursor:not-allowed}
+.cal-nav{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:9999px;border:0;
+  background:transparent;color:var(--muted);cursor:pointer;
+  transition:background-color .2s,color .2s;
+}
+.cal-nav .material-symbols-outlined{font-size:20px}
+@media (hover:hover) and (pointer:fine){
+  .cal-nav:hover{background:var(--brand-tint);color:var(--brand)}
+}
+.cal-nav:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.cal-dow-row,.cal-grid{
+  display:grid;grid-template-columns:repeat(7,1fr);
+}
+.cal-dow-row{margin-bottom:.15rem}
+.cal-dow{
+  text-align:center;font-size:11px;font-weight:700;
+  color:var(--muted);padding:.35rem 0;letter-spacing:.02em;
+}
+.cal-grid{gap:2px}
+.cal-day{
+  appearance:none;-webkit-appearance:none;border:0;
+  aspect-ratio:1/1;min-height:36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border-radius:10px;background:transparent;color:var(--ink);
+  font-family:'Poppins',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;
+  transition:background-color .15s,color .15s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cal-day:not(:disabled):hover{background:var(--brand-tint);color:var(--brand)}
+}
+.cal-day:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.cal-day.is-outside{color:var(--muted-soft)}
+.cal-day.is-today{color:var(--brand);font-weight:700}
+.cal-day.is-selected,
+.cal-day.is-selected.is-today{
+  background:var(--brand);color:#fff;font-weight:700;
+}
+.cal-day:disabled{
+  color:var(--muted-soft);opacity:.4;cursor:not-allowed;
+}
+/* Mobile: bottom-sheet (matches .modal-scrim sheet behaviour) */
+@media (max-width:767px){
+  .cal-scrim{
+    align-items:flex-end;
+    background:rgba(17,24,39,.5);backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+  }
+  .dark .cal-scrim{background:rgba(0,0,0,.6)}
+  .cal-pop{
+    position:static;width:100%;
+    border-radius:24px 24px 0 0;
+    padding:1.1rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom,0px));
+    transform:translateY(100%);
+  }
+  .cal-scrim.is-open .cal-pop{transform:translateY(0)}
+  .cal-pop::before{
+    content:'';display:block;width:40px;height:4px;border-radius:9999px;
+    background:var(--muted-soft);opacity:.5;margin:-.2rem auto .7rem;
+  }
+  .cal-day{min-height:42px}
+}
+@media (prefers-reduced-motion:reduce){
+  .cal-scrim,.cal-pop{transition:none}
+  .cal-pop{transform:none !important}
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   TIME PICKER — custom Evenzi time picker (replaces native time input
+   for [data-time-trigger]). Hour + minute scroll columns + AM/PM.
+   Same scrim/sheet model as the calendar. Hidden <input type="time">
+   stays the value store (24h); native fallback preserved.
+   ════════════════════════════════════════════════════════════════════ */
+.tp-scrim{
+  position:fixed;inset:0;z-index:90;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;
+  opacity:0;pointer-events:none;
+  transition:opacity .18s cubic-bezier(.2,.7,.2,1);
+}
+.tp-scrim.is-open{opacity:1;pointer-events:auto}
+.tp-pop{
+  position:fixed;
+  width:min(320px,calc(100vw - 2rem));
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:var(--shadow-clay);
+  padding:1rem;
+  color:var(--ink);
+  font-family:'Poppins',sans-serif;
+  transform:translateY(6px) scale(.98);
+  transition:transform .18s cubic-bezier(.2,.7,.2,1);
+}
+.tp-scrim.is-open .tp-pop{transform:translateY(0) scale(1)}
+.tp-title{
+  display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;
+  font-weight:600;font-size:14px;color:var(--ink);
+  letter-spacing:-.005em;margin:0 0 .75rem;
+}
+.tp-readout{
+  font-weight:700;font-size:15px;color:var(--brand);
+  letter-spacing:-.01em;font-variant-numeric:tabular-nums;
+}
+.tp-cols{
+  display:flex;gap:.5rem;align-items:stretch;
+}
+.tp-col{
+  flex:1;min-width:0;display:flex;flex-direction:column;
+}
+.tp-col-cap,.tp-ampm-cap{
+  text-align:center;font-size:10px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:.35rem;
+}
+.tp-scroll{
+  overflow-y:auto;max-height:180px;
+  display:flex;flex-direction:column;gap:2px;
+  border:1px solid var(--line);border-radius:12px;padding:4px;
+  scrollbar-width:thin;
+  /* Edge fade signals the column scrolls (60 options, ~6 visible). */
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 16px),transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 16px),transparent 100%);
+}
+.tp-opt{
+  appearance:none;-webkit-appearance:none;border:0;
+  padding:.5rem 0;border-radius:8px;background:transparent;
+  color:var(--ink);font-family:'Poppins',sans-serif;
+  font-size:14px;font-weight:600;cursor:pointer;
+  transition:background-color .15s,color .15s;
+}
+@media (hover:hover) and (pointer:fine){
+  .tp-opt:hover{background:var(--brand-tint);color:var(--brand)}
+}
+.tp-opt:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
+.tp-opt.is-sel{background:var(--brand);color:#fff}
+.tp-ampm{
+  display:flex;flex-direction:column;justify-content:center;gap:.4rem;
+  flex:0 0 64px;
+}
+.tp-ampm-btn{
+  appearance:none;-webkit-appearance:none;
+  padding:.7rem 0;border-radius:10px;
+  border:1px solid var(--line);background:transparent;color:var(--ink);
+  font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.06em;cursor:pointer;
+  transition:background-color .15s,color .15s,border-color .15s;
+}
+@media (hover:hover) and (pointer:fine){
+  .tp-ampm-btn:hover{background:var(--brand-tint);border-color:var(--brand-tint-2)}
+}
+.tp-ampm-btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.tp-ampm-btn.is-sel{background:var(--brand);color:#fff;border-color:var(--brand)}
+.tp-actions{
+  display:flex;gap:.6rem;justify-content:flex-end;
+  margin-top:1rem;
+}
+@media (max-width:767px){
+  .tp-scrim{
+    align-items:flex-end;
+    background:rgba(17,24,39,.5);backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+  }
+  .dark .tp-scrim{background:rgba(0,0,0,.6)}
+  .tp-pop{
+    position:static;width:100%;
+    border-radius:24px 24px 0 0;
+    padding:1.1rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom,0px));
+    transform:translateY(100%);
+  }
+  .tp-scrim.is-open .tp-pop{transform:translateY(0)}
+  .tp-pop::before{
+    content:'';display:block;width:40px;height:4px;border-radius:9999px;
+    background:var(--muted-soft);opacity:.5;margin:-.2rem auto .7rem;
+  }
+  .tp-scroll{max-height:210px}
+  .tp-actions .btn-pill{flex:1;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){
+  .tp-scrim,.tp-pop{transition:none}
+  .tp-pop{transform:none !important}
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   PIN INPUT — 6-cell OTP code field with auto-advance
+   Composition: <div class="pin-input" data-len="6" role="group"
+                  aria-label="6-digit code">
+                  <input class="pin-input-cell" maxlength="1"
+                         inputmode="numeric" autocomplete="one-time-code"> ×6
+                </div>
+   shell.js handles auto-advance, backspace fallback, paste distribution.
+   ════════════════════════════════════════════════════════════════════ */
+.pin-input{
+  display:flex;gap:.4rem;
+  flex-wrap:nowrap;width:100%;
+}
+/* Cells are fluid (flex:1) so 6 of them + gaps always fit one row on every
+   phone width (the 381–414px band overflowed a fixed 44px×6 row inside the
+   auth card). Capped at 46px on wide screens, floor ~38px on small phones —
+   WCAG 2.5.8 AA (24px) is comfortably met; never wraps. */
+.pin-input-cell{
+  flex:1 1 0;min-width:0;max-width:46px;height:52px;
+  padding:0;text-align:center;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:var(--card);color:var(--ink);
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:22px;
+  letter-spacing:-.01em;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s,background-color .2s,transform .15s;
+  -moz-appearance:textfield;appearance:textfield;
+}
+.pin-input-cell::-webkit-outer-spin-button,
+.pin-input-cell::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+@media (hover:hover) and (pointer:fine){
+  .pin-input-cell:hover{border-color:color-mix(in oklab,var(--brand) 35%,var(--brand-tint-2))}
+}
+.pin-input-cell:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px var(--brand-tint);
+  transform:translateY(-1px);
+}
+.pin-input-cell:not(:placeholder-shown){
+  background:var(--brand-tint);border-color:var(--brand);
+  color:var(--brand);
+}
+.pin-input[aria-invalid="true"] .pin-input-cell{
+  border-color:#ef4444;
+  box-shadow:0 0 0 3px rgba(239,68,68,.12);
+}
+@media (max-width:380px){
+  /* Width is fluid (flex:1); only trim height/type on the smallest phones. */
+  .pin-input-cell{height:46px;font-size:20px}
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   RADIO PILL GROUP — RSVP Yes/No/Maybe, settings toggles
+   Composition:
+     <div class="radio-pill-group" role="radiogroup" aria-labelledby="…">
+       <button type="button" role="radio" aria-checked="true"
+               class="radio-pill is-checked">
+         <span class="material-symbols-outlined icon-fill">check_circle</span>
+         Yes, I'll be there
+       </button>
+       …
+     </div>
+   Stacked column on mobile, horizontal row ≥480px.
+   ════════════════════════════════════════════════════════════════════ */
+.radio-pill-group{
+  display:flex;flex-direction:column;gap:.6rem;
+  width:100%;
+}
+@media (min-width:480px){
+  .radio-pill-group{flex-direction:row;flex-wrap:wrap}
+  .radio-pill-group .radio-pill{flex:1;min-width:0}
+}
+.radio-pill{
+  position:relative;display:inline-flex;align-items:center;gap:.6rem;
+  padding:.85rem 1.25rem;
+  min-height:48px;
+  border-radius:9999px;
+  border:1px solid var(--brand-tint-2);
+  background:var(--card);color:var(--ink);
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;
+  letter-spacing:-.005em;
+  cursor:pointer;text-align:left;
+  transition:border-color .2s,background-color .2s,color .2s,transform .15s,box-shadow .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .radio-pill:hover{
+    border-color:var(--brand);
+    background:color-mix(in oklab,var(--brand-tint) 40%,transparent);
+  }
+}
+.radio-pill:focus-visible{
+  outline:2px solid var(--brand);outline-offset:3px;
+}
+.radio-pill .material-symbols-outlined{
+  font-size:20px;color:var(--muted-soft);
+  transition:color .2s;
+  flex-shrink:0;
+}
+.radio-pill[aria-checked="true"],
+.radio-pill.is-checked{
+  background:var(--brand-tint);
+  border-color:var(--brand);
+  color:var(--brand);
+  box-shadow:0 0 0 1px var(--brand);
+}
+.radio-pill[aria-checked="true"] .material-symbols-outlined,
+.radio-pill.is-checked .material-symbols-outlined{
+  color:var(--brand);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FORM ERROR / SUCCESS MESSAGE — inline below a field
+   Composition:
+     <p class="form-error" role="alert">
+       <span class="material-symbols-outlined">error</span>
+       Mobile number must be 10 digits
+     </p>
+     <p class="form-helper form-helper-success">
+       <span class="material-symbols-outlined">check_circle</span>
+       OTP verified
+     </p>
+   Color is never the only signal — every state pairs with an icon.
+   ════════════════════════════════════════════════════════════════════ */
+.form-error{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;
+  color:#ef4444;
+  margin:0;
+}
+.form-error .material-symbols-outlined{
+  font-size:14px;
+  font-variation-settings:'FILL' 1;
+}
+.form-helper-success{
+  display:inline-flex;align-items:center;gap:.4rem;
+  color:#22c55e;
+}
+.form-helper-success .material-symbols-outlined{
+  font-size:14px;
+  font-variation-settings:'FILL' 1;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   MODAL + BOTTOM SHEET — single component, two presentations
+   Composition:
+     <div class="modal-scrim is-open" data-modal>
+       <div class="modal-card lg-glass-card">
+         <h2 class="modal-title">Send WhatsApp invitation?</h2>
+         <p class="modal-body">142 guests will receive a message…</p>
+         <div class="modal-actions">
+           <button class="btn-pill btn-pill-secondary">CANCEL</button>
+           <button class="btn-pill btn-pill-primary">SEND</button>
+         </div>
+       </div>
+     </div>
+   ≥768px → centered modal. <768px → bottom sheet with drag handle bar.
+   .modal-static disables fixed positioning for inline showcase tiles.
+   ════════════════════════════════════════════════════════════════════ */
+.modal-scrim{
+  position:fixed;inset:0;z-index:80;
+  background:rgba(17,24,39,.5);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  padding:1rem;
+  opacity:0;pointer-events:none;
+  transition:opacity .22s cubic-bezier(.2,.7,.2,1);
+}
+.dark .modal-scrim{background:rgba(0,0,0,.65)}
+.modal-scrim.is-open{opacity:1;pointer-events:auto}
+.modal-card{
+  position:relative;
+  width:100%;max-width:520px;
+  padding:1.5rem 1.5rem 1.25rem;
+  transform:translateY(12px) scale(.98);
+  transition:transform .22s cubic-bezier(.2,.7,.2,1);
+}
+.modal-scrim.is-open .modal-card{transform:translateY(0) scale(1)}
+.modal-card .modal-title{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:20px;
+  color:var(--ink);letter-spacing:-.01em;line-height:1.25;
+  margin:0;
+}
+.modal-card .modal-body{
+  font-family:'Poppins',sans-serif;font-size:14px;
+  color:var(--muted);line-height:1.5;
+  margin:.5rem 0 0;
+}
+.modal-actions{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;
+  gap:.6rem;
+  margin-top:1.25rem;
+}
+/* Bottom-sheet variant: <768px (excludes .modal-static showcase tiles
+   so the desktop-modal demo can render its forced variant on mobile too) */
+@media (max-width:767px){
+  .modal-scrim:not(.modal-static){align-items:flex-end;padding:0}
+  .modal-scrim:not(.modal-static) .modal-card{
+    max-width:100%;
+    border-radius:24px 24px 0 0;
+    padding-bottom:calc(1.25rem + env(safe-area-inset-bottom,0px));
+    transform:translateY(100%);
+  }
+  .modal-scrim:not(.modal-static).is-open .modal-card{transform:translateY(0)}
+  .modal-scrim:not(.modal-static) .modal-card::before{
+    content:'';position:absolute;top:10px;left:50%;
+    transform:translateX(-50%);
+    width:40px;height:4px;border-radius:9999px;
+    background:var(--muted-soft);opacity:.5;
+  }
+  .modal-scrim:not(.modal-static) .modal-card .modal-title{margin-top:.85rem}
+  .modal-scrim:not(.modal-static) .modal-actions{flex-direction:column-reverse;align-items:stretch}
+  .modal-scrim:not(.modal-static) .modal-actions .btn-pill{justify-content:center;width:100%;height:44px;padding:0 1rem}
+}
+/* Static showcase variant — disable fixed positioning so it can sit inline */
+.modal-static{
+  position:relative;inset:auto;width:100%;
+  opacity:1;pointer-events:auto;
+  background:transparent;
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+  padding:1.25rem;
+  border-radius:18px;
+  border:1px dashed var(--line);
+}
+.modal-static .modal-card{transform:none}
+.modal-static.modal-static-sheet{
+  align-items:flex-end;padding:0;
+  background:rgba(17,24,39,.18);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.dark .modal-static.modal-static-sheet{background:rgba(0,0,0,.4)}
+.modal-static.modal-static-sheet .modal-card{
+  border-radius:24px 24px 0 0;
+  padding-bottom:1.5rem;
+}
+.modal-static.modal-static-sheet .modal-card::before{
+  content:'';position:absolute;top:10px;left:50%;
+  transform:translateX(-50%);
+  width:40px;height:4px;border-radius:9999px;
+  background:var(--muted-soft);opacity:.5;
+}
+.modal-static.modal-static-sheet .modal-card .modal-title{margin-top:.85rem}
+.modal-static.modal-static-sheet .modal-actions{
+  flex-direction:column-reverse;align-items:stretch;
+}
+.modal-static.modal-static-sheet .modal-actions .btn-pill{
+  justify-content:center;width:100%;height:44px;padding:0 1rem;
+}
+/* prevent body scroll when modal open (set by shell.js) */
+body.no-scroll{overflow:hidden}
+
+/* Reduce-motion respect */
+@media (prefers-reduced-motion: reduce){
+  .modal-scrim,.modal-card{transition:none}
+  .modal-card{transform:none}
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Backdrop-filter fallback
+   On older WebView (Android 8 stock browser, some Samsung Internet
+   versions, WhatsApp's in-app browser on aging devices) backdrop-filter
+   is unsupported — without a fallback, glass surfaces become transparent
+   and overlaid text becomes unreadable on imagery. Force solid surfaces
+   on those engines.
+   ════════════════════════════════════════════════════════════════════ */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .floating-nav-inner,
+  .nav-tabs,
+  .bc-shell,
+  .tool-rail,
+  .qa-card,
+  .qa-tile,
+  .stats-strip-card,
+  .hero-pill,
+  .hero-meta-chip,
+  .modal-scrim{
+    background:var(--card);
+    border-color:var(--line);
+  }
+  .modal-scrim{background:rgba(17,24,39,.65)}
+  .dark .modal-scrim{background:rgba(0,0,0,.8)}
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   AUTH-FLOW PRIMITIVES
+   .btn-google · .divider-or · .nav-tabs.auth-tabs · .auth-bg · .role-tag-soon
+   Used on auth.html / verify-otp.html / role-select.html. All four
+   are generic enough to live in shell (OAuth button repeats, "or"
+   divider repeats, the auth-tabs modifier rebases nav-tabs for
+   in-card mode-switching, role-tag-soon for any "coming soon" pill).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Google OAuth button — official 4-color G, no recoloring. */
+.btn-google{
+  position:relative;
+  display:inline-flex;align-items:center;justify-content:center;gap:.6rem;
+  width:100%;min-height:46px;padding:0 1.25rem;
+  border-radius:9999px;
+  background:var(--card);color:var(--ink);
+  border:1px solid var(--line);
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.005em;
+  cursor:pointer;
+  transition:border-color .2s,background-color .2s,box-shadow .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .btn-google:hover{border-color:var(--brand-tint-2);background:color-mix(in oklab,var(--brand-tint) 25%,var(--card))}
+}
+.btn-google:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.btn-google[disabled],
+.btn-google.is-loading{cursor:progress;opacity:.85}
+.btn-google.is-loading{pointer-events:none}
+.btn-google.is-loading > :not(.btn-pill-spinner){visibility:hidden}
+.btn-google .btn-pill-spinner{color:var(--muted)}
+.btn-google .btn-google-icon{width:18px;height:18px;flex-shrink:0}
+
+/* "or" divider — centered text on a horizontal rule.
+   Use var(--brand-tint-2) for the rule to pass AA in dark mode. */
+.divider-or{
+  display:flex;align-items:center;gap:.75rem;
+  margin:.25rem 0;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:var(--muted);
+}
+.divider-or::before,
+.divider-or::after{
+  content:'';flex:1;height:1px;
+  background:var(--brand-tint-2);
+}
+
+/* .auth-tabs — in-card variant of .nav-tabs.
+   Full-width, larger touch targets, no backdrop-blur (parent card is opaque).
+   Inactive hover quieter so it doesn't compete with the active state. */
+.nav-tabs.auth-tabs{
+  display:flex;width:100%;
+  padding:.3rem;
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+  /* Subtle brand-tinted track that works in both modes.
+     (Don't use --peach — it's a transparent red in light but a solid
+     blue-gray surface token in dark, producing a mismatched ring in dark.) */
+  background:color-mix(in oklab, var(--brand) 6%, var(--card));
+  border-color:var(--line);
+  /* Suppress the outer shadow inherited from base .nav-tabs — it reads
+     as a hard ring around the segmented control in dark mode. */
+  box-shadow:none;
+}
+.nav-tabs.auth-tabs .nav-tab{
+  flex:1;justify-content:center;
+  padding:.85rem 1rem;
+  min-height:44px;
+  font-size:14px;
+}
+@media (hover:hover) and (pointer:fine){
+  .nav-tabs.auth-tabs .nav-tab:not(.is-active):hover{
+    background:var(--line-soft);color:var(--ink);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   PAGE SHELL — sticky-footer flex layout for standalone surfaces
+   (auth, create-event wizard, etc.) that don't use the floating-nav +
+   tool-rail shell. Unifies the prior .auth-shell-* and .cc-shell-* families.
+
+   Composition:
+     <body class="page-bg page-shell" data-step|page="...">
+       <header class="page-shell-header">
+         <a class="page-logo" href="…">Evenzi</a>
+         <span class="page-eyebrow">Celebratory Curator</span>   <!-- optional -->
+         <div class="page-shell-actions">
+           <button id="theme-toggle" class="page-theme-toggle">…</button>
+           <a class="page-help" href="…">Need help?</a>           <!-- or .page-close -->
+         </div>
+       </header>
+       <main class="page-main">                                 <!-- top-aligned -->
+       <main class="page-main page-main-center">                <!-- vertical-center -->
+       <main class="page-main page-main-center page-main-wide"> <!-- wide variant -->
+         …
+       </main>
+       <footer class="page-shell-footer">© 2026 …</footer>
+     </body>
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Subtle brand-tinted backdrop, mounted on <body> via class. */
+.page-bg{
+  background:
+    radial-gradient(circle at 18% 12%, color-mix(in oklab, var(--brand) 14%, transparent) 0%, transparent 38%),
+    radial-gradient(circle at 82% 88%, color-mix(in oklab, var(--brand) 10%, transparent) 0%, transparent 40%),
+    var(--bg);
+  min-height:100dvh;
+}
+.dark .page-bg{
+  background:
+    radial-gradient(circle at 18% 12%, color-mix(in oklab, var(--brand) 22%, transparent) 0%, transparent 42%),
+    radial-gradient(circle at 82% 88%, color-mix(in oklab, var(--brand) 16%, transparent) 0%, transparent 44%),
+    var(--bg);
+}
+
+.page-shell{
+  display:flex;flex-direction:column;
+  min-height:100dvh;
+}
+/* Safety net so [hidden] always wins on shell surfaces (flex/grid
+   children with display rules would otherwise override the UA default). */
+.page-shell [hidden],
+.page-shell-header [hidden]{display:none !important}
+
+.page-shell-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 1.25rem;
+  max-width:1200px;width:100%;margin:0 auto;
+  gap:1rem;
+}
+
+.page-logo{
+  font-family:'Poppins',sans-serif;font-weight:800;font-size:1.5rem;
+  color:var(--brand);letter-spacing:-.04em;line-height:1;
+  text-decoration:none;
+  padding:.25rem .35rem;border-radius:.5rem;
+}
+.page-logo:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+@media (min-width:640px){
+  .page-logo{font-size:1.75rem}
+}
+
+/* Hidden on phones (header has no room — was a dead Tailwind
+   `hidden md:inline` chain; create-event pages don't load Tailwind,
+   which overflowed the header ≤~420px). Shown from the md breakpoint. */
+.page-eyebrow{
+  display:none;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.32em;text-transform:uppercase;color:var(--brand);
+  white-space:nowrap;
+}
+@media (min-width:768px){
+  .page-eyebrow{display:inline}
+}
+
+.page-shell-actions{
+  display:inline-flex;align-items:center;gap:.5rem;
+}
+
+.page-theme-toggle{
+  position:relative;width:44px;height:44px;border-radius:9999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--muted);background:transparent;border:0;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  transition:background-color .25s,color .25s;
+}
+@media (hover:hover) and (pointer:fine){
+  .page-theme-toggle:hover{background:var(--brand-tint);color:var(--brand)}
+}
+.page-theme-toggle:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.page-theme-toggle .material-symbols-outlined{font-size:20px}
+
+.page-help{
+  display:inline-flex;align-items:center;min-height:44px;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;
+  color:var(--muted);text-decoration:none;
+  padding:.55rem .85rem;border-radius:9999px;
+  transition:color .2s,background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .page-help:hover{color:var(--brand);background:var(--brand-tint)}
+}
+.page-help:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+.page-close{
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.5rem 1rem;min-height:44px;border-radius:9999px;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;
+  color:var(--muted);background:transparent;border:0;cursor:pointer;
+  text-decoration:none;
+  transition:color .2s,background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .page-close:hover{color:var(--brand);background:var(--brand-tint)}
+}
+.page-close:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.page-close .material-symbols-outlined{font-size:18px}
+/* "Exit" text label — icon-only on phones to save header width
+   (replaces a dead `hidden md:inline` Tailwind chain). */
+.page-close-label{display:none}
+@media (min-width:768px){
+  .page-close-label{display:inline}
+}
+
+.page-main{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;
+  padding:1rem 1.25rem 2rem;
+}
+.page-main-center{justify-content:center}
+.page-main-wide{max-width:560px;width:100%;margin:0 auto}
+
+.page-shell-footer{
+  padding:1.25rem 1.25rem max(1.25rem, env(safe-area-inset-bottom, 0px));
+  text-align:center;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+}
+
+/* "Coming soon" pill — small chip used inside radio-pills, cards, etc.
+   to signal roadmap items that aren't live yet. */
+.role-tag-soon{
+  display:inline-flex;align-items:center;
+  padding:.2rem .55rem;border-radius:9999px;
+  background:var(--brand-tint);color:var(--brand);
+  border:1px solid var(--brand-tint-2);
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:9px;
+  letter-spacing:.22em;text-transform:uppercase;
+  flex-shrink:0;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   STEPPER — multi-step wizard progress indicator
+   Composition:
+     <ol class="cw-stepper" aria-label="Wizard progress">
+       <li class="cw-step is-done"><span class="cw-step-num">1</span><span class="cw-step-label">Selection</span></li>
+       <li class="cw-step-connector is-done"></li>
+       <li class="cw-step is-active" aria-current="step">…</li>
+       <li class="cw-step-connector"></li>
+       <li class="cw-step">…</li>
+     </ol>
+   States on .cw-step: is-done · is-active (current) · default (upcoming).
+   States on .cw-step-connector: is-done · default.
+   Mobile (≤640px): labels collapse to icon-circles only.
+   ════════════════════════════════════════════════════════════════════ */
+.cw-stepper{
+  display:flex;align-items:center;justify-content:center;
+  gap:.45rem;
+  list-style:none;padding:0;margin:0;
+  width:100%;
+}
+.cw-step{
+  display:inline-flex;align-items:center;gap:.55rem;
+  flex-shrink:0;
+}
+.cw-step-num{
+  width:30px;height:30px;border-radius:9999px;
+  background:var(--line);color:var(--muted);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;
+  flex-shrink:0;
+  transition:background-color .25s,color .25s,box-shadow .25s;
+}
+.cw-step-num .material-symbols-outlined{font-size:16px}
+.cw-step-label{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+  white-space:nowrap;
+  transition:color .25s;
+}
+.cw-step.is-active .cw-step-num{
+  background:var(--brand);color:#fff;
+  box-shadow:0 0 0 4px var(--brand-tint);
+}
+.cw-step.is-active .cw-step-label{color:var(--brand)}
+.cw-step.is-done .cw-step-num{background:var(--brand);color:#fff}
+.cw-step.is-done .cw-step-label{color:var(--ink)}
+.cw-step-connector{
+  flex:1;height:2px;min-width:1.25rem;max-width:4rem;
+  background:var(--line);border-radius:9999px;
+  transition:background-color .25s;
+}
+.cw-step-connector.is-done{background:var(--brand)}
+/* Mobile: collapse labels, keep numbered circles + connectors */
+@media (max-width:640px){
+  .cw-stepper{gap:.3rem}
+  .cw-step-label{display:none}
+  .cw-step-num{width:26px;height:26px;font-size:12px}
+  .cw-step-connector{min-width:.5rem;max-width:2rem}
+}
+@media (max-width:380px){
+  .cw-stepper{gap:.2rem}
+  .cw-step-num{width:24px;height:24px;font-size:11px}
+  .cw-step-connector{min-width:.35rem;max-width:1.5rem}
+}
+

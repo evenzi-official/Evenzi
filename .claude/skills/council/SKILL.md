@@ -13,10 +13,10 @@ The skill auto-detects mode from input. Explicit syntax: `/council plan <path>`,
 
 | Mode | Target artifact | Default roster (from `ai/agents/`) |
 |---|---|---|
-| **plan** | A plan file in `docs/superpowers/plans/*` | `tech_lead` (always) + contextual: `frontend_engineer` (UI work), `ui_ux_designer` (UI work, design-system touches), `backend_engineer` (API/service work), `security_expert` (auth/user-data), `data_modeller` (schema), `qa_engineer` (test strategy) |
+| **plan** | A plan file in `docs/superpowers/plans/*` | `tech_lead` (always) + contextual: `frontend_engineer` (UI work), `ui_ux_designer` (UI work, design-system touches), `backend_engineer` (API/service work), `security_expert` (auth/user-data), `data_modeller` (schema), `test_engineer` (test strategy) |
 | **design** | A design spec, wireframe description, Stitch/Figma screen export, or design-system change. May be a markdown spec under `docs/superpowers/specs/` or a description provided inline. | `ui_ux_designer` (always) + `frontend_engineer` + `tech_lead` + `product_manager` (always — design must serve product intent) + contextual: `security_expert` (only if the design surfaces sensitive flows: auth, payment, profile/PII) |
-| **code** | Current branch diff vs `Dev-Vibe` (or staged diff if specified) | `code_reviewer` + `security_expert` + domain (`frontend_engineer` and/or `backend_engineer` by file paths touched) + `qa_engineer` |
-| **bug** | Bug description, ClickUp ticket excerpt, stack trace, or repro steps | `tech_lead` + `qa_engineer` + domain (by component implicated) + `security_expert` (only if the bug touches auth, data exposure, or input handling) |
+| **code** | Current branch diff vs `Dev-Vibe` (or staged diff if specified) | `code_reviewer` + `security_expert` + domain (`frontend_engineer` and/or `backend_engineer` by file paths touched) + `test_engineer` |
+| **bug** | Bug description, ClickUp ticket excerpt, stack trace, or repro steps | `tech_lead` + `test_engineer` + domain (by component implicated) + `security_expert` (only if the bug touches auth, data exposure, or input handling) |
 
 **Roster sizing:** keep to 3–5 agents. More than 5 dilutes the debate and burns budget without proportional value.
 
