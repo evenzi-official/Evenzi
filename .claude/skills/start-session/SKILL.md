@@ -77,24 +77,30 @@ Then use `AskUserQuestion` to ask what they want to do this session:
 2. Present a structured list grouped by category
 3. Use `AskUserQuestion` with the tasks as options
 4. Once selected, invoke `/clickup-pm` with mode `task-activate`
-5. Start the superpowers feature workflow:
+5. Start the superpowers feature workflow with council gates:
    ```
    superpowers:brainstorming → spec doc
    superpowers:writing-plans → implementation plan
-   /plan-review → multi-agent review + approval gate
+   /council plan → multi-agent council + debate + arbiter (AUTO)
+     ↳ /plan-review is the lightweight fallback if council skips (trivial change)
    superpowers:executing-plans → implementation
-   superpowers:requesting-code-review → code review
+   /council code → multi-agent council before commit (AUTO)
+   superpowers:requesting-code-review → code review (if council leaves open items)
    superpowers:verification-before-completion → verify
    ```
+   If a design spec is produced along the way, `/council design` fires before frontend dev.
 6. During implementation, `/clickup-pm` updates task statuses + comments throughout
 
 **Fix a bug:**
 1. Ask user to describe the bug
 2. Invoke `/clickup-pm` to create bug in QA & Bugs list, link to affected feature
-3. Invoke `superpowers:systematic-debugging` to diagnose
-4. Fix the bug
-5. Invoke `superpowers:verification-before-completion` to verify
-6. `/clickup-pm` updates bug task status
+3. Invoke `/council bug` to dispatch a debug council (AUTO unless typo/trivial)
+   ↳ The council's consolidated hypotheses become the starting point for diagnosis
+4. Invoke `superpowers:systematic-debugging` to work through the leading hypothesis
+5. Fix the bug
+6. `/council code` before commit (AUTO unless trivial)
+7. Invoke `superpowers:verification-before-completion` to verify
+8. `/clickup-pm` updates bug task status
 
 **ClickUp task management:**
 - Invoke `/clickup-pm` — it handles all task CRUD, status updates, dependencies, assignments, sprint management

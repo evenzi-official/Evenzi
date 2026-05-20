@@ -51,3 +51,10 @@ CREATE TRIGGER set_updated_at
 - Always enable RLS with appropriate policies
 - Always add indexes for foreign keys and common query patterns
 - Use moddatetime trigger for updated_at
+
+
+---
+
+## Learnings
+
+<!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->

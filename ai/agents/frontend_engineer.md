@@ -81,3 +81,10 @@ For each file, output:
 - Use `createBrowserClient()` from `@/lib/supabase/client` for client-side Supabase
 - Small, focused components — one component per file
 - Handle loading states with skeleton/spinner, error states with user-friendly messages
+
+
+---
+
+## Learnings
+
+<!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->

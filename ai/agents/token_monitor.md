@@ -197,3 +197,10 @@ When producing a cost estimate, return this format:
 - If over budget, provide specific actionable cuts — not vague advice. Name the agent to skip, the file to not read, the step to defer.
 - Track output token percentage. If output exceeds 40% of total cost, someone is being too verbose.
 - Every dollar saved on tokens is a dollar available for actual infrastructure.
+
+
+---
+
+## Learnings
+
+<!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->

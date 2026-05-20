@@ -128,6 +128,23 @@ RUNNER_EMAIL_ON_ALERT=true              # Send email on budget alerts + approval
 4. **Agent knowledge** — At each stage, Claude Code references `ai/agents/` for role-specific checklists and patterns
 5. **Approval gates** — After each dev phase, user validates output before next phase starts
 
+### Council Gates (Multi-Agent Cross-Validation)
+
+For non-trivial work, the `council` skill (`.claude/skills/council/SKILL.md`) auto-invokes at three checkpoints. It dispatches a contextual roster of domain experts (Tech Lead, Frontend, Backend, Security, Data Modeller, QA, etc.) drawn from `ai/agents/`, runs a debate round where they cross-validate each other's findings, and resolves disagreements via a Tech Lead arbiter ruling.
+
+| Checkpoint | Mode | Roster size | Skip if trivial? |
+|---|---|---|---|
+| After plan written, before implementation | `/council plan <path>` | 3–5 agents | <3 tasks, no schema/auth/API |
+| After design spec written, before frontend dev | `/council design <path-or-desc>` | 3–5 agents | Cosmetic tweak on existing component only |
+| After implementation, before commit | `/council code` | 3–5 agents | <50 LOC + no auth/schema/API/middleware touched |
+| When debugging starts (non-trivial bug) | `/council bug <description>` | 3–5 agents | Typo, known-trivial revert |
+
+**Design mode caveat:** subagents can't see Figma/Stitch images. Pass a written spec or description — the council reviews intent, structure, states, and design-system fit, not pixels.
+
+Council supersedes the lighter `plan-review` skill for non-trivial plans — `plan-review` stays available for quick single-round passes. The triviality skip is automatic (Phase 0 of the skill); critical findings block the next phase until addressed.
+
+**Cost:** a 5-agent council ≈ 11 subagent dispatches per checkpoint (5 critique + 5 debate + 1 arbiter). Use the skip and roster cap (5) — don't expand both.
+
 ### Parallel Subagents (Standard Practice)
 
 **Always prefer parallel execution.** When 2+ tasks are independent (no shared state or sequential dependency), dispatch them as parallel subagents using the `superpowers:dispatching-parallel-agents` skill.
@@ -202,6 +219,8 @@ The `ai/pipelines/` files define the ideal step order for different work types. 
 ### Modifying Agent Knowledge
 
 Agent definitions live in `ai/agents/<role>.md` with YAML frontmatter. To improve an agent's knowledge, edit the prompt body below the frontmatter. Changes are picked up when Claude Code reads the file.
+
+**Self-evolution via `agent-evolve`:** Each agent file has a `## Learnings` section (starts empty). The `agent-evolve` skill (`.claude/skills/agent-evolve/SKILL.md`) auto-captures non-obvious, validated, role-specific, actionable learnings from sessions and appends them — with user approval — to the relevant agent's section. Hard cap of 8 entries per agent; oldest/weakest demoted to `ai/agents/_archived_learnings.md` on overflow. The skill fires on learning signals during work and as a batch step inside `/end-session`. Generic best-practices and cross-cutting rules are routed to `CLAUDE.md` or memory instead — agent files only get insights that change THAT agent's future critiques.
 
 Key enriched agents:
 - `frontend_engineer.md` — design thinking, typography, color, motion, anti-patterns (from frontend-design plugin)

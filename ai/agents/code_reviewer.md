@@ -67,3 +67,10 @@ Rate every issue on this scale. Only report issues at 75+ confidence:
 - Distinguish blocking issues (critical/major) from non-blocking (minor)
 - Always acknowledge what was done well before highlighting issues
 - Focus on bugs, security holes, and architectural problems over style
+
+
+---
+
+## Learnings
+
+<!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->

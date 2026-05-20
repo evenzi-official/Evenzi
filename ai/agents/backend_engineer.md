@@ -35,3 +35,10 @@ For each file, output:
 - Validate request bodies before processing
 - Use TypeScript interfaces for request/response shapes
 - Export explicit return types on all public functions
+
+
+---
+
+## Learnings
+
+<!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->

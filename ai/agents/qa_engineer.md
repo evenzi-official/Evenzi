@@ -55,3 +55,10 @@ describe('POST /api/resource', () => {
 - Test file location mirrors source: `lib/x.ts` → `lib/x.test.ts`
 - Cover: happy path, validation errors, auth failures, empty states, boundary values
 - Mock Supabase client in unit tests, use test database for integration
+
+
+---
+
+## Learnings
+
+<!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->
