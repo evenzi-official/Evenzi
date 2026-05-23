@@ -4,6 +4,57 @@
 
 ---
 
+## Recently Landed (2026-05-22 — Digital Presence Foundation)
+
+**Design path session — Website module.** First module designed under the new "UI/UX agent at PLAN phase" memory rule (paid for itself — caught 3 structural issues that would have caused major rework).
+
+- **`designs/_plans/digital-presence-plan.md`** — comprehensive 402-line plan (5 tabs, 2-tier guest site, identity model, 12 section primitives, modal layer, locked Q1–Q8 defaults).
+- **Website Overview tab** built end-to-end at `designs/pages/website/overview.html` (+ `website.css`, `website.js`) — rich breadcrumb with SYNCED clock, flat `.section-head`, URL/RSVP/lock card, get-started checklist (with all-done state), live preview, pages list, card-templates teaser, tip card.
+- **12 new shell primitives promoted to `shell.css`:** `.section-head` family, `.status-badge` family, `.dp-page-tier`, `.dp-preview-frame` (3-mode: static/controls-driven/page-scoped), `.device-toggle`, `.dp-tile-grid` family (2/3/4 col + dense), plus 4 modal shells (`.modal-picker-grid`, `.modal-image-crop`, `.modal-image-lightbox`, `.modal-confirm-affirmative`) + `.modal-head` + `.dp-filter-chips` + `.modal-radio-row`. Plus `--success` token family.
+- **Stacking-safe shell modal controller** rebuilt — `focusReturnMap[]`, `topModal()`, dynamic z-index, delay-trick visibility transition, sync reflow before focus. Exposed as `window.evenzi.openModal/closeModal`. Page-level duplicates deleted.
+- **4 modal instances** wired in Overview: Share, Publish settings, Publish-confirm (stacks on top), Discard/template-reset.
+- **Width alignment fix** — all content bands now 1440px (matching the floating nav); padding breakpoint moved to 768px.
+- **New memory rule** `feedback_uiux_agent_in_planning.md` — dispatch UI/UX agent at PLAN phase on every non-trivial design task.
+
+### Locked decisions worth keeping in front of you next session
+- **Template bundles** Layout + Hero + Palette + Font; change resets via Discard confirm.
+- **Cards palette-independent** (designer-made static PDFs/PNGs).
+- **Photos tab deferred** until Media & Memories module ships.
+- **Body font locked to Poppins**; only heading font is host-swappable.
+- **OG image auto-derived** from cover; host can override.
+- **12 section primitives** (added Map embed, Countdown, Video embed; folded two-column into heading+paragraph; dropped standalone CTA-button section).
+- **Publish-confirm modal required** before Draft→Published.
+- **Autosave model** — per-field blur, 600ms debounce, SYNCED chip in breadcrumb (no autosave toasts).
+- **Per-page editor mobile** — Edit | Preview tab-toggle at <1024px; 55/45 split desktop.
+
+Full report: `docs/session-reports/2026-05-22-session-report.md`.
+
+---
+
+## Top of queue (next session)
+
+**Design tab** (`designs/pages/website/design.html`) — first to exercise `.dp-preview-frame .is-controls-driven`. Will need Cover-crop + OG-crop modal instances (shell primitives ready). Per the memory rule, dispatch UI/UX agent at PLAN phase first.
+
+Then in order:
+1. Edit Pages list view → Add-page picker + Delete-page confirm
+2. Edit Pages per-page editor → Add-section picker + 12 section primitive editors + Edit|Preview mobile toggle
+3. Card Templates tab → Lightbox + filter chips + `designs/assets/card-templates/` scaffold
+4. (Photos tab deferred until Media ships)
+
+### Pending polish carryover
+- **`designs/components.html` not yet updated** with the 12 new shell primitives — do this before the Design tab so future consumers can browse them.
+- Real QR generation via `qrcode-svg` lib (placeholder icon for now).
+- `data-state="saving"` affordance hook on async save buttons.
+- Glyph decision: `celebration` vs `rocket_launch` for Publish-confirm (currently rocket).
+- Lock `.modal-actions` button order convention in `docs/BRAND-GUIDELINES.md`.
+- Add a width-contract note to BRAND-GUIDELINES: any shell primitive sitting in the page-shell band must inherit `.floating-nav`'s 1440px max-width + 768px padding switch.
+
+### Out-of-scope follow-ups
+- `designs/pages/event-control/event-control.html:83-90` still uses legacy `role="tablist"` on cross-page nav — propagate the website-page fix when event-control is next touched.
+- `.dp-icon-btn` / `.dp-icon-btn-sm` — PROMOTE to shell after second consumer.
+
+---
+
 ## Recently Landed (2026-05-20 — Infra Session)
 
 Pure infra/process. No ClickUp feature work touched.

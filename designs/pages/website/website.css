@@ -1,0 +1,834 @@
+/* ════════════════════════════════════════════════════════════════════
+   Evenzi · Website (Digital Presence) — page-specific styles
+   Owner: designs/pages/website/
+   Lives under the Website tab in event-control's nav. Reuses shell
+   chrome (floating-nav with Dashboard|Website tabs, tool-rail, clay-card,
+   btn-pill, toggle-switch, modal-scrim, bc-toast, help-fab) and adds
+   page-specific patterns: wb-context band, wb-tabs sub-nav,
+   page-list-row, gs-tile, status-badge, device-toggle, preview-frame,
+   teaser/tip cards, empty + all-done states.
+
+   Tokens: success colors live in shell.css as --success / --success-tint /
+   --success-rim. No hardcoded greens here.
+
+   Promotion candidates noted inline (PROMOTE: ...).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Breadcrumb wrap (width + padding aligned to .floating-nav: 1440px,
+   px switches at 768px — keeps content edges flush with the nav) ────── */
+.bc-wrap{
+  max-width:1440px;
+  margin:7.25rem auto 0;     /* clears the floating nav */
+  padding:0 1.5rem;
+}
+@media (min-width:768px){
+  .bc-wrap{padding:0 2.5rem}
+}
+/* section-head (shell primitive) sits below bc-wrap on this page */
+.section-head{margin-top:1rem}
+
+/* Card-head variant with wrapping action row (URL & Status hosts Share/Preview) */
+.dp-card-head-wrap{
+  flex-wrap:wrap;
+  gap:.85rem;
+  align-items:center;
+}
+.dp-card-head-lead{
+  display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;min-width:0;
+}
+.dp-card-head-lead .dp-card-title{margin:0}
+.dp-card-head-actions{
+  display:flex;gap:.5rem;flex-shrink:0;margin-left:auto;
+}
+.btn-pill-sm{
+  padding:.4rem .85rem;
+  font-size:.78rem;
+}
+.btn-pill-sm .material-symbols-outlined{font-size:16px}
+
+/* ── Website module sub-nav (P1-5: align active to shell nav-tab) ───── */
+.wb-tabs-wrap{
+  position:relative;
+  max-width:1440px;
+  margin:1.25rem auto 0;
+  padding:0 1.5rem;
+}
+@media (min-width:768px){
+  .wb-tabs-wrap{padding:0 2.5rem}
+}
+.wb-tabs{
+  display:flex;
+  gap:.5rem;
+  overflow-x:auto;
+  scrollbar-width:none;
+  padding:.3rem;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:9999px;
+  box-shadow:var(--shadow-clay-pill);
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x mandatory;        /* P1-9 */
+  scroll-padding-inline:.3rem;
+}
+.wb-tabs::-webkit-scrollbar{display:none}
+.wb-tab{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  padding:.55rem 1rem;
+  border-radius:9999px;
+  font-size:.85rem;
+  font-weight:500;
+  color:var(--muted);
+  background:transparent;
+  white-space:nowrap;
+  transition:background .15s ease, color .15s ease;
+  text-decoration:none;
+  scroll-snap-align:start;             /* P1-9 */
+}
+.wb-tab .material-symbols-outlined{font-size:18px}
+@media (hover:hover) and (pointer:fine){
+  .wb-tab:hover{color:var(--ink);background:var(--brand-tint)}
+}
+.wb-tab:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+/* P1-5: brand-tint active, matches shell nav-tab convention */
+.wb-tab.is-active{
+  background:var(--brand-tint);
+  color:var(--brand);
+  font-weight:600;
+}
+.wb-tab.is-active .material-symbols-outlined{color:var(--brand)}
+
+/* P1-9: right-edge fade overlay to hint at overflow */
+.wb-tabs-wrap::after{
+  content:"";
+  position:absolute;
+  top:0;bottom:0;
+  right:1.5rem;
+  width:24px;
+  pointer-events:none;
+  background:linear-gradient(90deg, transparent 0%, var(--bg) 90%);
+  border-top-right-radius:9999px;
+  border-bottom-right-radius:9999px;
+}
+@media (min-width:768px){
+  .wb-tabs-wrap::after{right:2.5rem}
+}
+
+/* ── Page shell ─────────────────────────────────────────────────────── */
+.dp-shell{
+  max-width:1440px;
+  margin:1.25rem auto 4rem;
+  padding:0 1.5rem;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1.25rem;
+}
+/* Padding switches at 768px to stay flush with .floating-nav */
+@media (min-width:768px){
+  .dp-shell{padding:0 2.5rem}
+}
+/* Two-column split engages at 1024px */
+@media (min-width:1024px){
+  .dp-shell{
+    grid-template-columns:minmax(0,1.55fr) minmax(320px,1fr);
+    gap:1.5rem;
+    align-items:start;
+  }
+}
+/* Tool-rail clearance:
+   - ≤1399px: rail is bottom-pill, reserve ~5rem at the page bottom
+   - ≥1400px: rail moves to the left edge, natural content centering clears it */
+@media (max-width:1399px){
+  .dp-shell{margin-bottom:6rem}
+}
+
+.dp-col-left,
+.dp-col-right{
+  display:flex;
+  flex-direction:column;
+  gap:1.25rem;
+  min-width:0;
+}
+@media (min-width:1024px){
+  .dp-col-right{
+    position:sticky;
+    top:6rem;
+    max-height:calc(100vh - 7rem);
+    overflow:auto;
+    padding-right:.25rem;
+  }
+  .dp-col-right::-webkit-scrollbar{width:6px}
+  .dp-col-right::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+}
+/* P1-16: mobile bottom padding so the Add-page CTA isn't grazed by tool-rail */
+@media (max-width:1399px){
+  .dp-col-right{padding-bottom:1.5rem}
+}
+
+/* ── DP cards (extension of clay-card with consistent padding & header) ── */
+.dp-card{padding:1.25rem}
+@media (min-width:768px){.dp-card{padding:1.5rem}}
+
+.dp-card-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:1rem;
+  margin-bottom:1rem;
+}
+.dp-card-title{
+  font-size:1.05rem;
+  font-weight:600;
+  letter-spacing:-.005em;
+  color:var(--ink);
+  margin:0 0 .15rem;
+}
+.dp-card-sub{
+  font-size:.82rem;
+  color:var(--muted);
+  margin:0;
+}
+
+/* .status-badge + variants — moved to shell.css (Step 0 promotion 2026-05-22) */
+
+/* ── URL row ────────────────────────────────────────────────────────── */
+.dp-url-row{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  padding:.85rem 1rem;
+  background:var(--brand-tint);
+  border:1px solid color-mix(in oklab, var(--brand) 18%, transparent);
+  border-radius:14px;
+  margin-bottom:1rem;
+  min-width:0;
+}
+.dp-url-display{
+  flex:1 1 auto;
+  display:inline-flex;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:0;
+  min-width:0;
+}
+.dp-url-prefix{
+  font-size:.85rem;
+  color:var(--muted);
+  font-weight:500;
+}
+.dp-url-slug{
+  font-size:.95rem;
+  color:var(--ink);
+  font-weight:600;
+  word-break:break-all;
+}
+.dp-url-actions{
+  display:inline-flex;
+  gap:.25rem;
+  flex-shrink:0;
+}
+
+/* ── Icon buttons (PROMOTE: shell.css after second consumer) ────────── */
+.dp-icon-btn,
+.dp-icon-btn-sm{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--muted);
+  cursor:pointer;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.dp-icon-btn{width:36px;height:36px}
+.dp-icon-btn-sm{width:32px;height:32px}                /* visual */
+.dp-icon-btn .material-symbols-outlined,
+.dp-icon-btn-sm .material-symbols-outlined{font-size:18px}
+
+/* P0-2: extend hit area to ≥44×44 without growing the visual box */
+.dp-icon-btn-sm::before,
+.dp-icon-btn::before{
+  content:"";
+  position:absolute;
+  inset:-6px;
+  border-radius:inherit;
+}
+.dp-icon-btn-sm::before{inset:-7px}                    /* yields 46×46 */
+
+@media (hover:hover) and (pointer:fine){
+  .dp-icon-btn:hover,
+  .dp-icon-btn-sm:hover{
+    background:var(--card);
+    color:var(--ink);
+    border-color:var(--line);
+  }
+}
+.dp-icon-btn:focus-visible,
+.dp-icon-btn-sm:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+.dp-add-btn{
+  background:var(--ink);
+  color:var(--card);
+  border-color:var(--ink);
+}
+@media (hover:hover) and (pointer:fine){
+  .dp-add-btn:hover{
+    background:var(--brand);
+    color:#fff;
+    border-color:var(--brand);
+  }
+}
+.dark .dp-add-btn{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+/* ── Status rows (visibility / RSVP / password toggles) ─────────────── */
+.dp-status-list{
+  list-style:none;
+  padding:0;margin:0;
+  display:flex;
+  flex-direction:column;
+}
+.dp-status-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+  padding:.85rem 0;
+  border-top:1px solid var(--line-soft);
+}
+.dp-status-row:first-child{border-top:0;padding-top:.25rem}
+.dp-status-meta{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.dp-status-label{
+  font-size:.92rem;
+  font-weight:500;
+  color:var(--ink);
+}
+.dp-status-help{
+  font-size:.78rem;
+  color:var(--muted);
+  line-height:1.45;
+}
+
+/* ── Get-started meter + tiles ──────────────────────────────────────── */
+.dp-gs-meter{
+  position:relative;
+  width:88px;height:8px;
+  border-radius:9999px;
+  background:var(--line-soft);
+  overflow:hidden;
+  flex-shrink:0;
+  align-self:center;
+}
+.dp-gs-bar{
+  position:absolute;inset:0 auto 0 0;
+  width:var(--p,0%);
+  background:linear-gradient(90deg, var(--brand) 0%, color-mix(in oklab, var(--brand) 70%, transparent) 100%);
+  border-radius:inherit;
+  transition:width .3s ease;
+}
+@media (prefers-reduced-motion: reduce){
+  .dp-gs-bar{transition:none}
+}
+
+.dp-gs-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:.6rem;
+}
+@media (min-width:560px){
+  .dp-gs-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+.gs-tile{
+  display:flex;
+  align-items:center;
+  gap:.85rem;
+  padding:.85rem 1rem;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  text-decoration:none;
+  color:var(--ink);
+  transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+  min-width:0;
+}
+@media (hover:hover) and (pointer:fine){
+  .gs-tile:hover{
+    border-color:color-mix(in oklab, var(--brand) 30%, var(--line));
+    transform:translateY(-1px);
+    box-shadow:var(--shadow-clay);
+  }
+}
+.gs-tile:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+.gs-tile-icon{
+  flex-shrink:0;
+  width:36px;height:36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border-radius:10px;
+  background:var(--brand-tint);
+  color:var(--brand);
+}
+.gs-tile-icon .material-symbols-outlined{font-size:20px}
+
+.gs-tile-body{
+  flex:1 1 auto;display:flex;flex-direction:column;gap:.1rem;min-width:0;
+}
+.gs-tile-label{
+  font-size:.9rem;font-weight:500;
+  color:var(--ink);
+  line-height:1.25;
+  overflow:hidden;text-overflow:ellipsis;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;
+}
+.gs-tile-help{
+  font-size:.74rem;
+  color:var(--muted);
+  line-height:1.35;
+  overflow:hidden;text-overflow:ellipsis;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;
+}
+
+.gs-tile-state{
+  flex-shrink:0;
+  width:24px;height:24px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--muted-soft);
+}
+.gs-tile-state .material-symbols-outlined{font-size:20px}
+
+/* P1-11: use --success tokens for done-state */
+.gs-tile.is-done{
+  background:var(--success-tint);
+  border-color:var(--success-rim);
+}
+.gs-tile.is-done .gs-tile-icon{
+  background:var(--success-tint);
+  color:var(--success);
+}
+.gs-tile.is-done .gs-tile-state{color:var(--success)}
+.gs-tile.is-done .gs-tile-label{color:var(--ink-soft)}
+
+/* All-done banner — shown when getstarted card has data-gs-state="all-done" */
+.dp-gs-done-banner{
+  display:none;
+  align-items:center;
+  gap:1rem;
+  padding:1.1rem 1.25rem;
+  background:var(--success-tint);
+  border:1px solid var(--success-rim);
+  border-radius:16px;
+}
+.dp-gs-done-banner .material-symbols-outlined{
+  font-size:28px;
+  color:var(--success);
+  flex-shrink:0;
+}
+.dp-gs-done-title{
+  margin:0 0 .15rem;
+  font-size:1rem;
+  font-weight:600;
+  color:var(--ink);
+}
+.dp-gs-done-sub{
+  margin:0;
+  font-size:.82rem;
+  color:var(--muted);
+}
+.dp-gs-done-banner .btn-pill{flex-shrink:0}
+
+[data-gs-state="all-done"] .dp-gs-done-banner{display:flex}
+[data-gs-state="all-done"] .dp-gs-grid{display:none}
+[data-gs-state="all-done"] .dp-gs-meter{background:var(--success-tint)}
+[data-gs-state="all-done"] .dp-gs-bar{background:var(--success)}
+
+/* .dp-preview-stage / .dp-preview-frame / .dp-preview-screen — moved to shell.css
+   (Step 0 promotion 2026-05-22). The preview CONTENT styles below
+   (.dp-preview-content, .dpp-* heroes) stay here as Overview-specific. */
+
+.dp-preview-content{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:2rem 1.25rem;
+  color:#3b2329;
+}
+
+.dpp-eyebrow{
+  font-size:.65rem;
+  text-transform:uppercase;
+  letter-spacing:.2em;
+  color:#9c6b73;
+  margin:0 0 .35rem;
+}
+/* P0-3: Poppins-only, tight letter-spacing — no clich&eacute; serif */
+.dpp-couple{
+  font-family:'Poppins','Helvetica Neue',sans-serif;
+  font-weight:700;
+  font-size:1.6rem;
+  letter-spacing:-.03em;
+  line-height:1.05;
+  margin:0 0 .8rem;
+  color:#5b1820;
+}
+@media (min-width:480px){
+  .dpp-couple{font-size:1.9rem}
+}
+.dpp-date{
+  font-size:.85rem;font-weight:500;
+  margin:0 0 .25rem;color:#5b1820;
+}
+.dpp-countdown{
+  font-size:.72rem;color:#9c6b73;
+  margin:0 0 1.25rem;
+}
+/* P1-13: static label (not a button) — not focusable, not announced */
+.dpp-unlock{
+  display:inline-block;
+  background:transparent;
+  color:#5b1820;
+  border:1px solid #5b1820;
+  border-radius:9999px;
+  padding:.55rem 1.1rem;
+  font-size:.78rem;
+  font-weight:500;
+}
+.dpp-foot{
+  margin-top:auto;
+  font-size:.62rem;
+  color:#9c6b73;
+  letter-spacing:.04em;
+}
+
+/* .dp-preview-caption + .device-toggle — moved to shell.css (Step 0 promotion 2026-05-22) */
+
+/* ── Teaser card (Card Templates) ───────────────────────────────────── */
+.dp-card-teaser{
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  align-items:flex-start;
+  background:
+    linear-gradient(135deg, color-mix(in oklab, var(--brand) 6%, var(--card)) 0%, var(--card) 70%),
+    var(--card);
+}
+@media (min-width:640px){
+  .dp-card-teaser{
+    flex-direction:row;
+    align-items:center;
+    gap:1.25rem;
+  }
+}
+.dp-teaser-icon{
+  flex-shrink:0;
+  width:56px;height:56px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border-radius:16px;
+  background:var(--brand);
+  color:#fff;
+  box-shadow:var(--shadow-clay-pill);
+}
+.dp-teaser-icon .material-symbols-outlined{font-size:26px}
+.dp-teaser-body{flex:1 1 auto;min-width:0}
+.dp-teaser-body .dp-card-sub{margin-top:.25rem;max-width:54ch}
+.dp-teaser-cta{flex-shrink:0;align-self:stretch;justify-content:center}
+@media (min-width:640px){
+  .dp-teaser-cta{align-self:center}
+}
+
+/* ── Pages card + page-list-row ─────────────────────────────────────── */
+.dp-pages-card{padding-bottom:.75rem}
+
+/* Empty state — shown when .dp-pages-card has data-pages-state="empty" */
+.dp-pages-empty{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:.4rem;
+  padding:2rem 1rem .5rem;
+}
+.dp-pages-empty-icon{
+  font-size:48px !important;
+  color:var(--brand);
+  background:var(--brand-tint);
+  border-radius:16px;
+  padding:.75rem;
+  margin-bottom:.5rem;
+}
+.dp-pages-empty-title{
+  margin:0;
+  font-size:1rem;
+  font-weight:600;
+  color:var(--ink);
+}
+.dp-pages-empty-help{
+  margin:0 0 1rem;
+  font-size:.85rem;
+  color:var(--muted);
+  max-width:30ch;
+}
+[data-pages-state="empty"] .dp-pages-empty{display:flex}
+[data-pages-state="empty"] .dp-page-list,
+[data-pages-state="empty"] .dp-add-page-cta{display:none}
+
+.dp-page-list{
+  list-style:none;
+  padding:0;margin:0;
+  display:flex;
+  flex-direction:column;
+}
+.page-list-row{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  padding:.7rem .25rem;
+  border-top:1px solid var(--line-soft);
+  min-width:0;
+}
+.page-list-row:first-child{border-top:0}
+
+/* P0-2: drag handle — 28×40 visual, 44×44 tap via overlay; aria-disabled keyboard
+   skip until reorder is implemented (see HTML aria-disabled="true" + title). */
+.dp-drag{
+  position:relative;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:40px;
+  background:transparent;border:0;
+  color:var(--muted-soft);
+  cursor:grab;
+  flex-shrink:0;
+  border-radius:6px;
+}
+.dp-drag::before{
+  content:"";
+  position:absolute;inset:-2px -8px;       /* yields 44×44 hit area */
+  border-radius:inherit;
+}
+.dp-drag .material-symbols-outlined{font-size:18px}
+@media (hover:hover) and (pointer:fine){
+  .dp-drag:hover{color:var(--ink-soft);background:var(--line-soft)}
+}
+.dp-drag:active{cursor:grabbing}
+.dp-drag:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.dp-drag[aria-disabled="true"]{cursor:not-allowed;opacity:.6}
+.dp-drag[aria-disabled="true"]:hover{background:transparent;color:var(--muted-soft)}
+
+.dp-page-meta{
+  flex:1 1 auto;
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  min-width:0;
+}
+.dp-page-icon{
+  font-size:18px;
+  color:var(--muted);
+  flex-shrink:0;
+}
+/* P0-5: allow page name to wrap to 2 lines instead of nowrap-ellipsis */
+.dp-page-name{
+  flex:1 1 auto;
+  font-size:.92rem;
+  font-weight:500;
+  color:var(--ink);
+  line-height:1.25;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  min-width:0;
+  word-break:break-word;
+}
+
+/* .dp-page-tier + .dp-tier-public/.dp-tier-private — moved to shell.css
+   (Step 0 promotion 2026-05-22) */
+
+.dp-page-actions{
+  display:inline-flex;
+  gap:.2rem;
+  flex-shrink:0;
+}
+
+.page-list-row.is-hidden{opacity:.55}
+.page-list-row.is-hidden .dp-page-name{
+  text-decoration:line-through;
+  text-decoration-color:var(--muted-soft);
+  text-decoration-thickness:1px;
+}
+
+.dp-add-page-cta{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.4rem;
+  width:100%;
+  margin-top:.75rem;
+  padding:.85rem 1rem;
+  background:transparent;
+  border:1px dashed var(--line);
+  border-radius:12px;
+  color:var(--muted);
+  font-size:.85rem;
+  font-weight:500;
+  cursor:pointer;
+  min-height:44px;                 /* P0-2 */
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.dp-add-page-cta .material-symbols-outlined{font-size:18px}
+@media (hover:hover) and (pointer:fine){
+  .dp-add-page-cta:hover{
+    border-color:var(--brand);
+    color:var(--brand);
+    background:var(--brand-tint);
+  }
+}
+.dp-add-page-cta:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* ── Tip card ───────────────────────────────────────────────────────── */
+.dp-tip-card{
+  display:flex;
+  gap:.75rem;
+  padding:1rem 1.1rem;
+  background:color-mix(in oklab, var(--brand) 5%, var(--card));
+  border:1px solid color-mix(in oklab, var(--brand) 18%, var(--line));
+  border-radius:14px;
+}
+.dp-tip-icon{
+  color:var(--brand);
+  font-size:22px !important;
+  flex-shrink:0;
+  margin-top:1px;
+}
+.dp-tip-title{
+  font-size:.78rem;
+  font-weight:600;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:var(--brand);
+  margin:0 0 .25rem;
+}
+.dp-tip-body{
+  font-size:.85rem;
+  color:var(--ink-soft);
+  line-height:1.5;
+  margin:0;
+}
+.dp-tip-body a{
+  color:var(--brand);
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+
+/* ── Edit-slug modal overrides (uses shell .modal-scrim / .modal-card) ── */
+#dp-slug-modal .modal-card{
+  max-width:480px;
+  width:calc(100% - 2rem);
+  padding:1.25rem 1.5rem;
+}
+#dp-slug-modal .modal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;margin-bottom:.5rem;
+}
+#dp-slug-modal .modal-head h2{
+  font-size:1.05rem;font-weight:600;margin:0;
+}
+#dp-slug-modal .modal-close{
+  width:32px;height:32px;
+  position:relative;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:transparent;border:0;border-radius:8px;
+  color:var(--muted);cursor:pointer;
+}
+#dp-slug-modal .modal-close::before{
+  content:"";position:absolute;inset:-6px;border-radius:inherit;
+}
+#dp-slug-modal .modal-sub{
+  font-size:.85rem;color:var(--muted);margin:0 0 .85rem;line-height:1.45;
+}
+#dp-slug-modal .modal-body{padding:.25rem 0 .5rem}
+#dp-slug-modal .modal-actions{
+  display:flex;justify-content:flex-end;gap:.6rem;margin-top:1rem;
+}
+#dp-slug-modal .form-label{
+  display:block;font-size:.78rem;font-weight:500;
+  color:var(--ink-soft);margin-bottom:.35rem;
+  text-transform:uppercase;letter-spacing:.04em;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────── */
+.dp-foot{
+  max-width:1440px;
+  margin:2rem auto 0;
+  padding:2rem 1.5rem max(2rem, env(safe-area-inset-bottom, 0));
+  text-align:center;
+  font-size:.75rem;
+  color:var(--muted);
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce){
+  .gs-tile, .dp-icon-btn, .dp-icon-btn-sm, .dp-add-page-cta,
+  .device-toggle-btn, .dp-preview-frame{
+    transition:none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Modal-instance content (Share / Publish / Publish-confirm / Discard)
+   Shells live in shell.css; these are the Website-specific bits.
+   ════════════════════════════════════════════════════════════════════ */
+.wb-share-url-actions{
+  display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem;
+}
+.wb-wa-textarea{
+  width:100%;
+  resize:vertical;
+  min-height:120px;
+  font-size:.85rem;
+  line-height:1.5;
+  font-family:'Poppins',sans-serif;
+}
+.wb-share-send-row{
+  display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem;
+}
+.wb-share-send-row .btn-pill{flex:1 1 auto;justify-content:center}
+
+.wb-qr-panel{
+  margin-top:.85rem;
+  padding:1rem;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.6rem;
+  text-align:center;
+  background:var(--line-soft);
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+.wb-qr-code{
+  width:140px;height:140px;
+  display:flex;align-items:center;justify-content:center;
+  background:#fff;
+  border-radius:12px;
+  color:#111;
+}
+.wb-qr-code .material-symbols-outlined{font-size:96px}
+.wb-qr-hint{
+  font-size:.78rem;color:var(--muted);line-height:1.45;max-width:32ch;margin:0;
+}
+
+/* Password field disclosure — hidden when the lock toggle is off */
+.wb-password-field{
+  margin-top:.85rem;
+  overflow:hidden;
+}
+[data-wb-pub-lock][aria-checked="false"] ~ .wb-password-field,
+.wb-password-field.is-hidden{
+  display:none;
+}

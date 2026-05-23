@@ -1146,9 +1146,30 @@
    card while open and restored to the trigger on close.
    Static showcase modals (.modal-static) are excluded — they're inline demos.
 */
+/*
+  STACKING-SAFE modal controller.
+  - openStack[]      tracks open modals in open order (last = top-most).
+  - focusReturnMap[] pairs each open modal with the element to refocus on close,
+    so out-of-order closes still restore focus correctly.
+  - z-index is assigned dynamically per open depth (base 80, +10 each level).
+  - Esc / Tab-trap always operate on the TOP modal only.
+  - openModal/closeModal accept an element OR an id string ("#id" or "id"),
+    and are exposed on window.evenzi for page scripts (no per-page re-impl).
+*/
 (function () {
   var FOCUSABLE = 'button, a[href], [tabindex]:not([tabindex="-1"]), input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])';
-  var lastFocused = null;
+  var MODAL_Z_BASE = 80;
+  var openStack = [];        /* modal elements, open order */
+  var focusReturnMap = [];   /* [{modal, target}] */
+
+  function resolve(modalOrId) {
+    if (!modalOrId) return null;
+    if (typeof modalOrId === 'string') {
+      return document.getElementById(modalOrId.replace(/^#/, '')) ||
+             document.querySelector(modalOrId);
+    }
+    return modalOrId;
+  }
 
   function getFocusable(card) {
     return Array.prototype.slice.call(card.querySelectorAll(FOCUSABLE))
@@ -1176,28 +1197,69 @@
     }
   }
 
-  function openModal(modal) {
+  function topModal() {
+    return openStack.length ? openStack[openStack.length - 1] : null;
+  }
+
+  function openModal(modalOrId) {
+    var modal = resolve(modalOrId);
     if (!modal || modal.classList.contains('modal-static')) return;
-    lastFocused = document.activeElement;
+    if (modal.classList.contains('is-open')) return;          /* already open */
+    focusReturnMap.push({ modal: modal, target: document.activeElement });
+    openStack.push(modal);
+    modal.style.zIndex = String(MODAL_Z_BASE + openStack.length * 10);
     modal.classList.add('is-open');
+    modal.removeAttribute('aria-hidden');
     document.body.classList.add('no-scroll');
     var card = modal.querySelector('.modal-card');
     if (card) {
       if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '-1');
+      /* Force a synchronous style+layout flush so the just-applied
+         `.is-open` visibility:visible is committed before .focus()
+         (a .focus() on a still-`visibility:hidden` element is a silent
+         no-op). Reading offsetHeight triggers the reflow. */
+      void modal.offsetHeight;
       var focusables = getFocusable(card);
       (focusables[0] || card).focus();
+      /* Belt-and-suspenders: if the sync focus didn't take (rare timing
+         on some engines), retry once after the next frame. */
+      if (!modal.contains(document.activeElement)) {
+        requestAnimationFrame(function () {
+          if (!modal.classList.contains('is-open')) return;
+          var f = getFocusable(card);
+          (f[0] || card).focus();
+        });
+      }
     }
   }
 
-  function closeModal(modal) {
+  function closeModal(modalOrId) {
+    var modal = resolve(modalOrId);
     if (!modal || modal.classList.contains('modal-static')) return;
-    modal.classList.remove('is-open');
-    if (!document.querySelector('.modal-scrim.is-open')) {
-      document.body.classList.remove('no-scroll');
+    if (!modal.classList.contains('is-open')) return;
+    /* Blur any focused element still inside the modal before it hides,
+       so focus doesn't get stranded on an invisible control. */
+    if (modal.contains(document.activeElement) &&
+        typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
     }
-    if (lastFocused && typeof lastFocused.focus === 'function') {
-      try { lastFocused.focus(); } catch (_) {}
-      lastFocused = null;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    modal.style.zIndex = '';
+    var si = openStack.indexOf(modal);
+    if (si !== -1) openStack.splice(si, 1);
+    if (!openStack.length) document.body.classList.remove('no-scroll');
+    /* Restore focus to whatever was focused when THIS modal opened */
+    for (var i = focusReturnMap.length - 1; i >= 0; i--) {
+      if (focusReturnMap[i].modal === modal) {
+        var target = focusReturnMap[i].target;
+        focusReturnMap.splice(i, 1);
+        if (target && typeof target.focus === 'function' &&
+            document.contains(target)) {
+          try { target.focus(); } catch (_) {}
+        }
+        break;
+      }
     }
   }
 
@@ -1205,25 +1267,22 @@
     var trigger = e.target.closest('[data-modal-target]');
     if (trigger) {
       e.preventDefault();
-      var sel = trigger.getAttribute('data-modal-target');
-      var modal = sel && document.querySelector(sel);
-      openModal(modal);
+      openModal(trigger.getAttribute('data-modal-target'));
       return;
     }
     var closer = e.target.closest('[data-modal-close]');
     if (closer) {
-      var m = closer.closest('.modal-scrim');
-      closeModal(m);
+      closeModal(closer.closest('.modal-scrim'));
       return;
     }
-    /* scrim click (only on the scrim itself, not its children) */
+    /* scrim click (only on the scrim itself, not its children) — top modal only */
     if (e.target.classList && e.target.classList.contains('modal-scrim') && !e.target.classList.contains('modal-static')) {
-      closeModal(e.target);
+      if (e.target === topModal()) closeModal(e.target);
     }
   });
 
   document.addEventListener('keydown', function (e) {
-    var open = document.querySelector('.modal-scrim.is-open:not(.modal-static)');
+    var open = topModal();
     if (!open) return;
     if (e.key === 'Escape') {
       closeModal(open);
@@ -1231,6 +1290,11 @@
       trapTab(e, open);
     }
   });
+
+  /* Expose for page scripts — no per-page re-implementation. */
+  window.evenzi = window.evenzi || {};
+  window.evenzi.openModal = openModal;
+  window.evenzi.closeModal = closeModal;
 })();
 
 /* ── Avatar file-input change handler ──────────────
