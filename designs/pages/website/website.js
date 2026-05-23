@@ -1,6 +1,14 @@
 /* ════════════════════════════════════════════════════════════════════
-   Evenzi · Website (Digital Presence) — page-specific JS
+   Evenzi · Website (Digital Presence) — shared module JS
    Owner: designs/pages/website/
+
+   Loaded by every Website-module page (overview.html, design.html, …).
+   Self-guards via [data-page="website"].
+
+   Cross-cutting modals (Share, Publish settings, Publish-confirm,
+   Discard) used to live as duplicate HTML in every tab. Now injected
+   from SHARED_MODALS_HTML below — single source. Re-injection is
+   idempotent (guarded by getElementById).
 
    Toast: routes through window.evenzi.showToast() (defined in shell.js,
    writes to #bc-toast). Falls back to a no-op if shell.js isn't loaded.
@@ -11,6 +19,10 @@
    Page scripts only do content prep before opening (pre-fill inputs,
    reset errors, populate dynamic content).
 
+   Page-specific handlers (Get-started counter, Pages-list state) are
+   null-safe — they look for elements that only exist on Overview and
+   return early elsewhere. No data-wb-page gating needed.
+
    Reuses shell.js for theme, breadcrumb, scroll-progress, reveal,
    toggle-switch keyboard a11y.
    ════════════════════════════════════════════════════════════════════ */
@@ -19,6 +31,196 @@
   'use strict';
 
   if (document.body.dataset.page !== 'website') return;
+
+  /* ── Cross-cutting modals — injected on first load of any wb-page ────
+     Idempotent: re-injection is a no-op if the modals already exist
+     (e.g. if a page kept duplicates for some reason).
+     The shell modal controller (window.evenzi.openModal) discovers
+     these as standard .modal-scrim nodes — no extra wiring needed. */
+  var SHARED_MODALS_HTML = [
+    /* ── Share modal — URL editor · RSVP toggle · WhatsApp share ── */
+    '<div class="modal-scrim" id="wb-share-modal" data-modal aria-hidden="true">',
+    '  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="wb-share-h">',
+    '    <header class="modal-head">',
+    '      <div class="modal-head-lead">',
+    '        <h2 id="wb-share-h">Share your website</h2>',
+    '        <p class="modal-sub">Send guests the link — they\'ll RSVP from there.</p>',
+    '      </div>',
+    '      <button class="modal-close" type="button" data-modal-close aria-label="Close">',
+    '        <span class="material-symbols-outlined" aria-hidden="true">close</span>',
+    '      </button>',
+    '    </header>',
+    '    <section class="modal-section">',
+    '      <p class="modal-section-label">Site URL</p>',
+    '      <label class="form-label" for="dp-slug-input">Your link</label>',
+    '      <div class="form-input-group">',
+    '        <span class="form-input-prefix">evenzi.com/e/</span>',
+    '        <input id="dp-slug-input" class="form-input-field" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url" pattern="[a-z0-9-]+" />',
+    '      </div>',
+    '      <p class="form-helper" id="dp-slug-helper" aria-live="polite">Letters, numbers and hyphens only.</p>',
+    '      <p class="form-error" id="dp-slug-error" hidden></p>',
+    '      <div class="wb-share-url-actions">',
+    '        <button type="button" class="btn-pill btn-pill-secondary btn-pill-sm" data-dp-slug-save>Update URL</button>',
+    '        <button type="button" class="btn-pill btn-pill-secondary btn-pill-sm" data-dp-copy="https://evenzi.com/e/vibrant-union">',
+    '          <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>',
+    '          Copy link',
+    '        </button>',
+    '      </div>',
+    '    </section>',
+    '    <section class="modal-section">',
+    '      <div class="dp-status-row">',
+    '        <div class="dp-status-meta">',
+    '          <span class="dp-status-label" id="wb-share-rsvp-label">RSVP collection</span>',
+    '          <span class="dp-status-help" id="wb-share-rsvp-help" aria-live="polite">Guests can submit responses</span>',
+    '        </div>',
+    '        <button type="button" class="toggle-switch" role="switch" aria-checked="true" data-dp-toggle="rsvp" aria-labelledby="wb-share-rsvp-label" aria-describedby="wb-share-rsvp-help">',
+    '          <span class="toggle-switch-thumb" aria-hidden="true"></span>',
+    '        </button>',
+    '      </div>',
+    '    </section>',
+    '    <section class="modal-section">',
+    '      <p class="modal-section-label">WhatsApp message</p>',
+    '      <label class="form-label" for="wb-wa-message">What your guests receive</label>',
+    '      <textarea id="wb-wa-message" class="form-input wb-wa-textarea" rows="6">You\'re invited! 💛\n\nVidya &amp; Anshuman — Sat, 14 Feb 2026\n\nView details &amp; RSVP:\nhttps://evenzi.com/e/vibrant-union</textarea>',
+    '      <p class="form-helper">Edit freely — your link is added automatically.</p>',
+    '      <div class="wb-share-send-row">',
+    '        <button type="button" class="btn-pill btn-pill-primary" data-dp-wa-send>',
+    '          <span class="material-symbols-outlined" aria-hidden="true">chat</span>',
+    '          Send via WhatsApp',
+    '        </button>',
+    '        <button type="button" class="btn-pill btn-pill-secondary" data-dp-show-qr aria-expanded="false" aria-controls="wb-qr-panel">',
+    '          <span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>',
+    '          Show QR',
+    '        </button>',
+    '      </div>',
+    '      <div class="wb-qr-panel" id="wb-qr-panel" hidden>',
+    '        <div class="wb-qr-code" aria-hidden="true">',
+    '          <span class="material-symbols-outlined">qr_code_2</span>',
+    '        </div>',
+    '        <p class="wb-qr-hint">Guests can scan this to open your site. Download to print on cards.</p>',
+    '        <button type="button" class="btn-pill btn-pill-secondary btn-pill-sm" data-dp-download-qr>',
+    '          <span class="material-symbols-outlined" aria-hidden="true">download</span>',
+    '          Download QR',
+    '        </button>',
+    '      </div>',
+    '    </section>',
+    '    <footer class="modal-actions">',
+    '      <button type="button" class="btn-pill btn-pill-primary" data-modal-close>Done</button>',
+    '    </footer>',
+    '  </div>',
+    '</div>',
+
+    /* ── Publish settings modal — Visibility · Private lock ── */
+    '<div class="modal-scrim" id="wb-publish-modal" data-modal aria-hidden="true">',
+    '  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="wb-publish-h">',
+    '    <header class="modal-head">',
+    '      <div class="modal-head-lead">',
+    '        <h2 id="wb-publish-h">Publish settings</h2>',
+    '        <p class="modal-sub">Control who can see your website.</p>',
+    '      </div>',
+    '      <button class="modal-close" type="button" data-modal-close aria-label="Close">',
+    '        <span class="material-symbols-outlined" aria-hidden="true">close</span>',
+    '      </button>',
+    '    </header>',
+    '    <section class="modal-section">',
+    '      <p class="modal-section-label">Visibility</p>',
+    '      <div role="radiogroup" aria-label="Site visibility">',
+    '        <label class="modal-radio-row is-active">',
+    '          <input type="radio" name="wb-visibility" value="draft" checked />',
+    '          <span class="modal-radio-meta">',
+    '            <span class="modal-radio-title">Draft</span>',
+    '            <span class="modal-radio-desc">Only you can see it. Nothing is live yet.</span>',
+    '          </span>',
+    '        </label>',
+    '        <label class="modal-radio-row">',
+    '          <input type="radio" name="wb-visibility" value="published" />',
+    '          <span class="modal-radio-meta">',
+    '            <span class="modal-radio-title">Published</span>',
+    '            <span class="modal-radio-desc">Anyone with the link can view your site.</span>',
+    '          </span>',
+    '        </label>',
+    '        <label class="modal-radio-row">',
+    '          <input type="radio" name="wb-visibility" value="offline" />',
+    '          <span class="modal-radio-meta">',
+    '            <span class="modal-radio-title">Offline</span>',
+    '            <span class="modal-radio-desc">Link shows a "temporarily unavailable" message.</span>',
+    '          </span>',
+    '        </label>',
+    '      </div>',
+    '    </section>',
+    '    <section class="modal-section">',
+    '      <div class="dp-status-row">',
+    '        <div class="dp-status-meta">',
+    '          <span class="dp-status-label" id="wb-pub-lock-label">Private content lock</span>',
+    '          <span class="dp-status-help" id="wb-pub-lock-help">Guests need a phone match or password to unlock details</span>',
+    '        </div>',
+    '        <button type="button" class="toggle-switch" role="switch" aria-checked="true" data-dp-toggle="password" data-wb-pub-lock aria-labelledby="wb-pub-lock-label" aria-describedby="wb-pub-lock-help">',
+    '          <span class="toggle-switch-thumb" aria-hidden="true"></span>',
+    '        </button>',
+    '      </div>',
+    '      <div class="wb-password-field" id="wb-password-field">',
+    '        <label class="form-label" for="wb-password-input">Site password</label>',
+    '        <input id="wb-password-input" class="form-input" type="text" autocomplete="off" value="3pzh6z" />',
+    '        <p class="form-helper">Share this with guests in your WhatsApp message.</p>',
+    '      </div>',
+    '    </section>',
+    '    <footer class="modal-actions">',
+    '      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>',
+    '      <button type="button" class="btn-pill btn-pill-primary" data-dp-publish-save>Save changes</button>',
+    '    </footer>',
+    '  </div>',
+    '</div>',
+
+    /* ── Publish confirm modal — celebratory affirmative ── */
+    '<div class="modal-scrim" id="wb-publish-confirm" data-modal aria-hidden="true">',
+    '  <div class="modal-card lg-glass-card modal-confirm-affirmative" role="dialog" aria-modal="true" aria-labelledby="wb-pubconf-h" aria-describedby="wb-pubconf-list">',
+    '    <button class="modal-close" type="button" data-modal-close aria-label="Close" style="position:absolute;top:1rem;right:1rem">',
+    '      <span class="material-symbols-outlined" aria-hidden="true">close</span>',
+    '    </button>',
+    '    <span class="modal-confirm-icon" aria-hidden="true">',
+    '      <span class="material-symbols-outlined">rocket_launch</span>',
+    '    </span>',
+    '    <h2 class="modal-confirm-title" id="wb-pubconf-h">Make your site live?</h2>',
+    '    <p class="modal-confirm-text">Your invitation website will be reachable at this link:</p>',
+    '    <span class="modal-confirm-url" id="wb-pubconf-url">evenzi.com/e/vibrant-union</span>',
+    '    <ul class="modal-confirm-list" id="wb-pubconf-list" aria-label="What guests will see">',
+    '      <li><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>The hero with your names &amp; date</li>',
+    '      <li><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>3 sub-events on the schedule</li>',
+    '      <li><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>The RSVP form</li>',
+    '    </ul>',
+    '    <p class="modal-confirm-text">You can switch back to Draft anytime from Publish settings.</p>',
+    '    <footer class="modal-actions">',
+    '      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>',
+    '      <button type="button" class="btn-pill btn-pill-primary" data-dp-publish-confirm>',
+    '        <span class="material-symbols-outlined" aria-hidden="true">rocket_launch</span>',
+    '        Make it live',
+    '      </button>',
+    '    </footer>',
+    '  </div>',
+    '</div>',
+
+    /* ── Discard / template-reset confirm — now uses .modal-confirm-cautionary ── */
+    '<div class="modal-scrim" id="wb-discard-confirm" data-modal aria-hidden="true">',
+    '  <div class="modal-card lg-glass-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="wb-discard-h">',
+    '    <button class="modal-close" type="button" data-modal-close aria-label="Close" style="position:absolute;top:1rem;right:1rem">',
+    '      <span class="material-symbols-outlined" aria-hidden="true">close</span>',
+    '    </button>',
+    '    <span class="modal-confirm-icon is-cautionary" aria-hidden="true">',
+    '      <span class="material-symbols-outlined">restart_alt</span>',
+    '    </span>',
+    '    <h2 class="modal-confirm-title" id="wb-discard-h">Change template?</h2>',
+    '    <p class="modal-confirm-text">Your custom palette, heading font, and any reordered sections will reset to the new template\'s defaults.</p>',
+    '    <footer class="modal-actions">',
+    '      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>',
+    '      <button type="button" class="btn-pill btn-pill-primary" data-dp-discard-confirm>Change template anyway</button>',
+    '    </footer>',
+    '  </div>',
+    '</div>'
+  ].join('\n');
+
+  if (!document.getElementById('wb-share-modal')) {
+    document.body.insertAdjacentHTML('beforeend', SHARED_MODALS_HTML);
+  }
 
   /* ── Toast (delegated to shell) ─────────────────────────────────── */
   function toast(msg) {

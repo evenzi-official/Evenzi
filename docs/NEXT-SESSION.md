@@ -4,6 +4,30 @@
 
 ---
 
+## Recently Landed (2026-05-23 — Design tab Phase 0)
+
+**Design path session — Website module, Design tab.** Plan written end-to-end + UI/UX agent plan-phase review + Phase 0 foundation built and verified. The actual `design.html` page is NOT yet built — Phase 1+ is queued for next session.
+
+- **`designs/_plans/website-design-tab-plan.md`** (~510 lines) — plan v2 with full agent-review block. 1 P0, 8 P1s, 9 P2s all resolved or documented.
+- **3 new shell primitives promoted to `shell.css`:**
+  - `.modal-confirm-cautionary` — sibling of `.modal-confirm-affirmative` for "you'll lose X" flows (Reset overrides, Delete page, Remove guest, template-discard). Neutral icon tint, outline glyph, no spring pop, brand-red primary CTA stays visible.
+  - `.dp-reset-chip` — per-axis override reset chip (Design tab + future Edit Pages per-page overrides). Hidden by default, reveals via `.is-visible`; hover rotates icon -90° + brand-tint fill.
+  - `.dp-crop-stage[data-crop-aspect]` — 6 CSS-only aspect-ratio overrides (16:9, 1.91:1, 1:1, 4:3, 3:4, 9:16). Cover crop and OG crop are the immediate consumers.
+- **Cross-cutting modals extracted** — Share / Publish settings / Publish-confirm / Discard moved from `overview.html` into `website.js` `SHARED_MODALS_HTML` constant (~180 lines, idempotent injection). Single source for every wb-page going forward. Discard rewritten on `.modal-confirm-cautionary`.
+- **Overview re-verified end-to-end** post-extraction. Stacked modals (z:90/90+10), Esc cascades top-first, focus return to trigger, zero console errors. Screenshot in session report.
+
+### Key plan decisions worth keeping in front next session
+- **Cross-cutting modals are now JS-injected from website.js** — DO NOT paste modal markup back into any wb-page HTML.
+- **Cover & OG live in a single card** with a toggle ("Use a custom social-share image"). Default state: OG auto-derived from cover. CLS-safe: `min-height` reserved on `.dp-og-block`.
+- **Override pill = interactive Reset chip per axis** (not passive label). Per-axis reset only; no global "Reset all overrides" CTA.
+- **Mobile "Jump to preview" anchor** is a Design-tab-specific feature for now (page-level, not shell-level). IntersectionObserver-driven floating bottom-right pill.
+- **Desktop preview stickiness** must use `position:sticky + align-self:start` inside a height-matched grid (prevents orphan floating preview past controls).
+- **Templates: 5 bundles.** Palettes: 8. Heading fonts: 5 (Poppins default + Cormorant + Playfair Display + Lora + Inter). Body font Poppins locked.
+
+Full report: `docs/session-reports/2026-05-23-session-report.md`.
+
+---
+
 ## Recently Landed (2026-05-22 — Digital Presence Foundation)
 
 **Design path session — Website module.** First module designed under the new "UI/UX agent at PLAN phase" memory rule (paid for itself — caught 3 structural issues that would have caused major rework).
@@ -33,7 +57,7 @@ Full report: `docs/session-reports/2026-05-22-session-report.md`.
 
 ## Top of queue (next session)
 
-**Design tab** (`designs/pages/website/design.html`) — first to exercise `.dp-preview-frame .is-controls-driven`. Will need Cover-crop + OG-crop modal instances (shell primitives ready). Per the memory rule, dispatch UI/UX agent at PLAN phase first.
+**Design tab Phase 1+** (`designs/pages/website/design.html`) — page itself NOT yet built. Plan + agent review + Phase 0 foundation all done; pick up at Phase 1 of the build order in `designs/_plans/website-design-tab-plan.md` §15. Steps 1–13: CSS variants → scaffold → 4 control sections → live preview → 3 new modal instances → state store → mobile jump-anchor → wb-tab href update → UI/UX agent post-build review → full test matrix → close.
 
 Then in order:
 1. Edit Pages list view → Add-page picker + Delete-page confirm
@@ -42,7 +66,7 @@ Then in order:
 4. (Photos tab deferred until Media ships)
 
 ### Pending polish carryover
-- **`designs/components.html` not yet updated** with the 12 new shell primitives — do this before the Design tab so future consumers can browse them.
+- **`designs/components.html` backfill** — STILL pending. 12 primitives from 2026-05-22 (`.section-head` family, `.status-badge`, `.dp-page-tier`, `.dp-preview-frame` 3-mode, `.device-toggle`, `.dp-tile-grid`, 4 modal shells, `.dp-filter-chips`, `.modal-radio-row`, `--success` tokens) PLUS 3 new from 2026-05-23 (`.modal-confirm-cautionary`, `.dp-reset-chip`, `.dp-crop-stage[data-crop-aspect]`). Do this as part of the Design tab close (Phase 13).
 - Real QR generation via `qrcode-svg` lib (placeholder icon for now).
 - `data-state="saving"` affordance hook on async save buttons.
 - Glyph decision: `celebration` vs `rocket_launch` for Publish-confirm (currently rocket).

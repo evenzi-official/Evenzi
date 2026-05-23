@@ -2365,6 +2365,50 @@ body.no-scroll{overflow:hidden}
 }
 
 /* ════════════════════════════════════════════════════════════════════
+   RESET CHIP — per-axis override reset (Design tab + future Edit Pages
+   per-page overrides). Sits inside a card header or body when the host
+   has overridden a template default (palette, font, cover, etc.) and
+   offers one-click revert to the template default for that axis only.
+   Composition:
+     <button class="dp-reset-chip" type="button" data-dp-reset="palette">
+       <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+       <span>Reset to template default</span>
+     </button>
+   Hidden by default; reveal by adding .is-visible (toggled in page JS
+   when host's value differs from the template default for that axis).
+   ════════════════════════════════════════════════════════════════════ */
+.dp-reset-chip{
+  display:none;
+  align-items:center;gap:.35rem;
+  padding:.3rem .65rem;
+  border-radius:9999px;
+  font-size:.72rem;font-weight:600;
+  letter-spacing:.01em;
+  color:var(--muted);
+  background:var(--line-soft);
+  border:1px solid transparent;
+  cursor:pointer;
+  transition:color .15s ease,background .15s ease,border-color .15s ease;
+}
+.dp-reset-chip.is-visible{display:inline-flex}
+.dp-reset-chip .material-symbols-outlined{
+  font-size:14px;
+  transition:transform .25s ease;
+}
+@media (prefers-reduced-motion: reduce){
+  .dp-reset-chip .material-symbols-outlined{transition:none}
+}
+@media (hover:hover) and (pointer:fine){
+  .dp-reset-chip:hover{
+    color:var(--brand);
+    background:var(--brand-tint);
+    border-color:color-mix(in oklab,var(--brand) 22%,transparent);
+  }
+  .dp-reset-chip:hover .material-symbols-outlined{transform:rotate(-90deg)}
+}
+.dp-reset-chip:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* ════════════════════════════════════════════════════════════════════
    PREVIEW FRAME — 3 modes (static / controls-driven / page-scoped)
    Composition:
      <div class="dp-preview-stage" data-device-stage="mobile">
@@ -2776,8 +2820,18 @@ body.no-scroll{overflow:hidden}
   background:#111;
   border-radius:14px;
   overflow:hidden;
-  aspect-ratio:16/9;            /* overridden by [data-crop-aspect] in JS */
+  aspect-ratio:16/9;            /* default; overridden by [data-crop-aspect] below */
 }
+/* Aspect-ratio overrides — set via data-crop-aspect on .dp-crop-stage.
+   Cover crop = 16/9 (default), OG / social-share = 1.91/1, square = 1/1,
+   portrait = 3/4 or 9/16. Add a new selector here if a future consumer
+   needs a ratio not in this list. */
+.dp-crop-stage[data-crop-aspect="16:9"]   { aspect-ratio:16/9 }
+.dp-crop-stage[data-crop-aspect="1.91:1"] { aspect-ratio:1.91/1 }
+.dp-crop-stage[data-crop-aspect="1:1"]    { aspect-ratio:1/1 }
+.dp-crop-stage[data-crop-aspect="4:3"]    { aspect-ratio:4/3 }
+.dp-crop-stage[data-crop-aspect="3:4"]    { aspect-ratio:3/4 }
+.dp-crop-stage[data-crop-aspect="9:16"]   { aspect-ratio:9/16 }
 .dp-crop-stage img{
   position:absolute;top:50%;left:50%;
   transform:translate(-50%,-50%);
@@ -2886,6 +2940,50 @@ body.no-scroll{overflow:hidden}
   font-size:18px;color:var(--success);flex-shrink:0;margin-top:1px;
 }
 .modal-confirm-affirmative .modal-actions{justify-content:center}
+
+/* ── A5 · .modal-confirm-cautionary — restrained "you'll lose X" confirm
+     Companion of .modal-confirm-affirmative; SAME sub-elements
+     (.modal-confirm-icon, .modal-confirm-title, .modal-confirm-text,
+     .modal-actions). Difference: neutral icon tint (no brand celebration),
+     no spring pop, outline icon glyph. Markup pattern:
+       <div class="modal-confirm-cautionary modal-card" role="alertdialog"
+            aria-modal="true">
+         <div class="modal-confirm-icon is-cautionary">
+           <span class="material-symbols-outlined">restart_alt</span>
+         </div>
+         <h3 class="modal-confirm-title">Change template?</h3>
+         <p class="modal-confirm-text">Your custom palette and font will
+           reset to the new template's defaults.</p>
+         <div class="modal-actions">
+           <button class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+           <button class="btn-pill btn-pill-primary" data-dp-confirm>Change template anyway</button>
+         </div>
+       </div>
+     The action button stays brand-coloured (btn-pill-primary) — the
+     cautionary signal is the icon tint + the body copy + the lack of
+     celebratory pop, NOT a muted CTA. Otherwise the host can't tell what
+     the forward action is. Use for: discard overrides, delete page,
+     remove guest, reset-all-overrides. ─────────────────────────────── */
+.modal-confirm-cautionary.modal-card{max-width:460px;text-align:center}
+.modal-confirm-cautionary .modal-confirm-icon,
+.modal-confirm-icon.is-cautionary{
+  background:color-mix(in oklab, var(--muted) 14%, var(--card));
+  color:var(--ink-soft);
+  animation:none;
+}
+.modal-confirm-cautionary .modal-confirm-icon .material-symbols-outlined,
+.modal-confirm-icon.is-cautionary .material-symbols-outlined{
+  font-variation-settings:'FILL' 0;
+}
+.modal-confirm-cautionary .modal-confirm-title{
+  font-size:1.2rem;font-weight:700;color:var(--ink);
+  letter-spacing:-.01em;margin:0 0 .4rem;
+}
+.modal-confirm-cautionary .modal-confirm-text{
+  font-size:.9rem;color:var(--muted);line-height:1.55;margin:0 auto .85rem;
+  max-width:36ch;
+}
+.modal-confirm-cautionary .modal-actions{justify-content:center;gap:.6rem}
 
 /* ── Filter chips (shared — picker grid, card templates) ────────────── */
 .dp-filter-chips{
