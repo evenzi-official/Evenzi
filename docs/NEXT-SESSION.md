@@ -4,6 +4,49 @@
 
 ---
 
+## Recently Landed (2026-05-26 — Design tab shipped + cross-cutting bc-wrap fix + template route pivot)
+
+Large design-path session. Design tab Phases 1–12 all shipped. UI/UX agent post-build review passed (APPROVE WITH NOTES); 2 P1s fixed in-session. Cross-cutting `.bc-wrap` bug fixed across 13 pages. Template picker redesigned then pivoted to a dedicated route (gallery + detail pages queued for next session).
+
+### Design tab (`designs/pages/website/design.html` + `design.js`) — shipped
+
+- 4 control cards: Template / Palette / Heading font / Cover & OG image
+- 8 palettes (brand-red default + blush, ivory, sage, midnight, sunset, ocean, marigold) — driven by `[data-palette]` attribute selectors on `.dp-preview-frame` (now generalized to work on any element)
+- 5 heading fonts (Poppins default + Cormorant, Playfair, Lora, Inter) — body locked to Poppins
+- Live preview right column (sticky desktop, in-flow mobile) with `.is-controls-driven` cross-fade
+- Cover & OG single card with toggle; CLS-safe `min-height` reserved
+- Mobile "Jump to preview" anchor (IntersectionObserver-driven, only when preview is below viewport)
+- Reset chips per axis — interactive (focusable button, hover rotates icon -90°)
+- 2 inline modal instances: cover crop (`data-crop-aspect="16:9"`) + OG crop (`data-crop-aspect="1.91:1"`)
+
+### `.bc-wrap` page-template fix (cross-cutting bug)
+
+The Website module had a 144px void between floating-nav and breadcrumb; every other page had 52px. Root cause: leftover `margin:7.25rem` override from when `.floating-nav` was `position:fixed` (it's `sticky` now and occupies layout space).
+
+- **Promoted `.bc-wrap` (+ `.bc-wrap-narrow`) to `shell.css`** as the canonical page-template wrapper (1.5rem top, 1440px max, 1.5rem/2.5rem padding switches at 768px).
+- Removed website.css override + the 1rem section-head override.
+- Converted 13 pages: invitations, guests, planning, media, settings + 6 event-settings (with `bc-wrap-narrow`) + overview/design. All now have an identical 52px nav→breadcrumb gap.
+- Outliers kept distinct: event-control (sticky hub breadcrumb — intentional), auth/create-event (page-chrome, no `bc-shell`).
+
+### Template route pivot (architecture committed; pages not yet built)
+
+- Designed a redesigned mini-hero template picker modal (`.dp-template-card` with palette + heading font rendered in each tile, CURRENT pill decoupled from SELECTED rim).
+- Pivoted: templates deserve a dedicated route. Modal markup deleted from design.html; "Change template" CTA is now `<a href="templates/index.html">` (404 until built — intentional URL contract).
+- Modal-specific JS handlers stripped; `TEMPLATES` + `commitTemplate()` retained.
+- Added `sessionStorage` round-trip hook in design.js: on load, reads `dpTemplateApplied`, commits if set, clears.
+
+### Key locked decisions worth keeping in front next session
+
+- **Templates are pages, not a modal** — gallery at `templates/index.html`, detail per template at `templates/<id>.html`.
+- **`.dp-template-card` + `[data-palette]`/`[data-font]` selectors are reusable** — gallery/detail pages just compose them.
+- **`.bc-wrap` is the canonical page-template wrapper** — DO NOT override at the module level; any new page just adds `class="bc-wrap reveal"`.
+- **Discard-overrides confirm fires on the detail page** when host clicks "Apply this template" with non-default palette/font. Uses the existing `.modal-confirm-cautionary` shell.
+- **Apply flow**: detail page → `sessionStorage.setItem('dpTemplateApplied', id)` → navigate to `../design.html` → `applyFromSession` IIFE commits.
+
+Full report: `docs/session-reports/2026-05-26-session-report.md`.
+
+---
+
 ## Recently Landed (2026-05-23 — Design tab Phase 0)
 
 **Design path session — Website module, Design tab.** Plan written end-to-end + UI/UX agent plan-phase review + Phase 0 foundation built and verified. The actual `design.html` page is NOT yet built — Phase 1+ is queued for next session.
@@ -57,7 +100,10 @@ Full report: `docs/session-reports/2026-05-22-session-report.md`.
 
 ## Top of queue (next session)
 
-**Design tab Phase 1+** (`designs/pages/website/design.html`) — page itself NOT yet built. Plan + agent review + Phase 0 foundation all done; pick up at Phase 1 of the build order in `designs/_plans/website-design-tab-plan.md` §15. Steps 1–13: CSS variants → scaffold → 4 control sections → live preview → 3 new modal instances → state store → mobile jump-anchor → wb-tab href update → UI/UX agent post-build review → full test matrix → close.
+**Templates gallery + detail pages** — Design tab "Change template" CTA already links to `templates/index.html` (404 until built). Build:
+
+1. `designs/pages/website/templates/index.html` — Gallery: 5 large `.dp-template-card`s in 3-col grid, "Current" pill on Bold Festive, click → detail page.
+2. `designs/pages/website/templates/<id>.html` × 5 — Detail per template. Hero (full-bleed mock) + 3 page mini-previews (Schedule / RSVP / Wedding Party) + sticky sidebar with palette/font meta + "Apply this template" CTA. Apply CTA: if overrides exist, fire `.modal-confirm-cautionary` first → on confirm, `sessionStorage.setItem('dpTemplateApplied', id)` → navigate to `../design.html` → `applyFromSession` IIFE commits + clears.
 
 Then in order:
 1. Edit Pages list view → Add-page picker + Delete-page confirm
@@ -66,7 +112,10 @@ Then in order:
 4. (Photos tab deferred until Media ships)
 
 ### Pending polish carryover
-- **`designs/components.html` backfill** — STILL pending. 12 primitives from 2026-05-22 (`.section-head` family, `.status-badge`, `.dp-page-tier`, `.dp-preview-frame` 3-mode, `.device-toggle`, `.dp-tile-grid`, 4 modal shells, `.dp-filter-chips`, `.modal-radio-row`, `--success` tokens) PLUS 3 new from 2026-05-23 (`.modal-confirm-cautionary`, `.dp-reset-chip`, `.dp-crop-stage[data-crop-aspect]`). Do this as part of the Design tab close (Phase 13).
+- **`designs/components.html` backfill** — STILL pending, growing. 12 primitives from 2026-05-22 + 3 from 2026-05-23 (`.modal-confirm-cautionary`, `.dp-reset-chip`, `.dp-crop-stage[data-crop-aspect]`) + new from 2026-05-26 (`.bc-wrap`+`.bc-wrap-narrow`, `--dpp-*` preview token family + 8 palette + 5 font variants, `.dp-template-card` family, `.dp-jump-preview`, all Design-tab cards). Do this when templates pages land.
+- **Mobile real-device test of design.html** — Abhijith on phone via LAN URL. Browser/desktop covered.
+- **Designer template thumbnails** — currently `.dp-thumb-fallback` (brand-red icon + name in small caps). Replace when assets land.
+- **P2 polish from agent post-build:** toast-with-override-count, dark-mode Midnight palette visual check, reset-chip touch target ≥36px, roving tabindex idiom in radiogroups, `.dp-font-row`/`.dp-palette-tile` shell promotion (Edit Pages = 2nd consumer).
 - Real QR generation via `qrcode-svg` lib (placeholder icon for now).
 - `data-state="saving"` affordance hook on async save buttons.
 - Glyph decision: `celebration` vs `rocket_launch` for Publish-confirm (currently rocket).

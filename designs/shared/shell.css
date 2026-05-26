@@ -293,6 +293,34 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
 @media (hover:hover) and (pointer:fine){.nav-tab:hover .material-symbols-outlined{transform:scale(1.06)}}
 
 /* ════════════════════════════════════════════════════════════════════
+   PAGE-TEMPLATE WRAPPER for the breadcrumb — canonical spacing.
+   Composition:
+     <body>
+       <nav class="floating-nav">…</nav>
+       <div class="bc-wrap reveal">
+         <nav class="bc-shell" aria-label="Breadcrumb">…</nav>
+       </div>
+       <main>…</main>
+     </body>
+   Because .floating-nav is position:sticky (not fixed), it occupies its
+   own layout space — the breadcrumb only needs natural top spacing.
+   Width + gutters mirror .floating-nav so edges stay flush at every
+   breakpoint. This is the SHARED template used by every page going
+   forward; do not override at the module level. ─────────────────────── */
+.bc-wrap{
+  max-width:1440px;
+  margin:0 auto;
+  padding:1.5rem 1.5rem 0;     /* pt-6 px-6 — matches Tailwind chain
+                                  used historically on most pages */
+}
+@media (min-width:768px){
+  .bc-wrap{padding:1.5rem 2.5rem 0}    /* md:px-10 */
+}
+/* Module pages with a 1280px-capped grid (e.g. event-settings) can
+   override the max-width with .bc-wrap-narrow, but the spacing stays. */
+.bc-wrap-narrow{max-width:1280px}
+
+/* ════════════════════════════════════════════════════════════════════
    FUTURISTIC BREADCRUMB
    ════════════════════════════════════════════════════════════════════ */
 .bc-shell{
@@ -2442,6 +2470,17 @@ body.no-scroll{overflow:hidden}
     0 24px 60px -20px rgba(0,0,0,.40),
     inset 0 1px 0 rgba(255,255,255,.08);
   transition:max-width .3s ease, aspect-ratio .3s ease, border-radius .3s ease;
+  /* Preview palette + font tokens — defaults reproduce the current
+     "brand-red" hero look so Overview's .is-static preview is byte-identical.
+     The Design tab's .is-controls-driven mode overrides these via
+     [data-palette="…"] / [data-font="…"] selectors below + in website.css. */
+  --dpp-primary:       var(--brand);
+  --dpp-primary-soft:  color-mix(in oklab, var(--brand) 8%, #fdf7f4);
+  --dpp-surface:       #fdf7f4;
+  --dpp-ink:           #5b1820;
+  --dpp-muted:         #9c6b73;
+  --dpp-eyebrow:       #9c6b73;
+  --dpp-heading-font:  'Poppins','Helvetica Neue',sans-serif;
 }
 @media (prefers-reduced-motion: reduce){
   .dp-preview-frame{transition:none}
@@ -2479,8 +2518,8 @@ body.no-scroll{overflow:hidden}
   border-radius:28px;
   overflow:hidden;
   background:
-    radial-gradient(120% 80% at 50% 0%, color-mix(in oklab, var(--brand) 8%, #fdf7f4) 0%, #fdf7f4 60%),
-    #fdf7f4;
+    radial-gradient(120% 80% at 50% 0%, var(--dpp-primary-soft) 0%, var(--dpp-surface) 60%),
+    var(--dpp-surface);
 }
 [data-device-stage="desktop"] .dp-preview-screen{border-radius:10px}
 

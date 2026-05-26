@@ -618,11 +618,14 @@
   });
 
   /* ── Discard / template-reset confirm ───────────────────────────── */
+  /* Just closes the modal. The TEMPLATE APPLIED toast is emitted by the
+     page-specific commit handler (e.g. design.js commitTemplate()) so
+     this shared handler stays generic. Prevents double-toast on the
+     Design tab template-change flow. (P1-A · 2026-05-23 agent post-build) */
   document.addEventListener('click', (e) => {
     if (!e.target.closest('[data-dp-discard-confirm]')) return;
     e.preventDefault();
     wbCloseModal('wb-discard-confirm');
-    toast('TEMPLATE CHANGED');
   });
 
   /* ── Recompute Get-started counter + state on load ──────────────── */

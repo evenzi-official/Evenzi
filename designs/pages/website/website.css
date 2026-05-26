@@ -14,18 +14,11 @@
    Promotion candidates noted inline (PROMOTE: ...).
    ════════════════════════════════════════════════════════════════════ */
 
-/* ── Breadcrumb wrap (width + padding aligned to .floating-nav: 1440px,
-   px switches at 768px — keeps content edges flush with the nav) ────── */
-.bc-wrap{
-  max-width:1440px;
-  margin:7.25rem auto 0;     /* clears the floating nav */
-  padding:0 1.5rem;
-}
-@media (min-width:768px){
-  .bc-wrap{padding:0 2.5rem}
-}
-/* section-head (shell primitive) sits below bc-wrap on this page */
-.section-head{margin-top:1rem}
+/* .bc-wrap — moved to shell.css as the shared page-template wrapper
+   (2026-05-26). The old website-module override used margin:7.25rem
+   (leftover from when .floating-nav was position:fixed). It's now
+   sticky, so the canonical 1.5rem top in shell.css is correct.
+   .section-head spacing also moved to shell.css for consistency. */
 
 /* Card-head variant with wrapping action row (URL & Status hosts Share/Preview) */
 .dp-card-head-wrap{
@@ -456,43 +449,45 @@
   justify-content:center;
   text-align:center;
   padding:2rem 1.25rem;
-  color:#3b2329;
+  color:var(--dpp-ink);
 }
 
 .dpp-eyebrow{
   font-size:.65rem;
   text-transform:uppercase;
   letter-spacing:.2em;
-  color:#9c6b73;
+  color:var(--dpp-eyebrow);
   margin:0 0 .35rem;
 }
-/* P0-3: Poppins-only, tight letter-spacing — no clich&eacute; serif */
+/* Heading font + ink swap on font-variant attribute, defaults to Poppins.
+   .is-controls-driven preview animates the font swap via the screen-level
+   transition declared in shell.css. */
 .dpp-couple{
-  font-family:'Poppins','Helvetica Neue',sans-serif;
+  font-family:var(--dpp-heading-font);
   font-weight:700;
   font-size:1.6rem;
   letter-spacing:-.03em;
   line-height:1.05;
   margin:0 0 .8rem;
-  color:#5b1820;
+  color:var(--dpp-ink);
 }
 @media (min-width:480px){
   .dpp-couple{font-size:1.9rem}
 }
 .dpp-date{
   font-size:.85rem;font-weight:500;
-  margin:0 0 .25rem;color:#5b1820;
+  margin:0 0 .25rem;color:var(--dpp-ink);
 }
 .dpp-countdown{
-  font-size:.72rem;color:#9c6b73;
+  font-size:.72rem;color:var(--dpp-muted);
   margin:0 0 1.25rem;
 }
-/* P1-13: static label (not a button) — not focusable, not announced */
+/* Static label (not a button) — not focusable, not announced */
 .dpp-unlock{
   display:inline-block;
   background:transparent;
-  color:#5b1820;
-  border:1px solid #5b1820;
+  color:var(--dpp-ink);
+  border:1px solid var(--dpp-ink);
   border-radius:9999px;
   padding:.55rem 1.1rem;
   font-size:.78rem;
@@ -501,9 +496,107 @@
 .dpp-foot{
   margin-top:auto;
   font-size:.62rem;
-  color:#9c6b73;
+  color:var(--dpp-muted);
   letter-spacing:.04em;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   PREVIEW PALETTE VARIANTS — 8 sets driven by [data-palette="…"] on
+   .dp-preview-frame. Defaults at the shell scope reproduce "brand-red".
+   Naming preserved from website-design-tab-plan.md §6.2. Palette names
+   cap at 12 chars per plan §P2-8 to keep tile labels resilient.
+   --dpp-primary       = headline brand colour (used in radial-gradient
+                          tint at top of the hero + the Unlock button bg
+                          on darker palettes)
+   --dpp-primary-soft  = ~8% mix of primary into surface (top wash)
+   --dpp-surface       = page background (warm pastel for light themes;
+                          we keep the screen background in the same hue
+                          so the radial bleeds naturally)
+   --dpp-ink           = primary text (couple name, date, unlock label)
+   --dpp-muted         = countdown + foot label
+   --dpp-eyebrow       = "Wedding of" small caps line above the name
+   ════════════════════════════════════════════════════════════════════ */
+[data-palette="brand-red"]{
+  --dpp-primary:#BB0020;
+  --dpp-primary-soft:color-mix(in oklab,#BB0020 8%,#fdf7f4);
+  --dpp-surface:#fdf7f4;
+  --dpp-ink:#5b1820;
+  --dpp-muted:#9c6b73;
+  --dpp-eyebrow:#9c6b73;
+}
+[data-palette="blush"]{
+  --dpp-primary:#C97B7B;
+  --dpp-primary-soft:color-mix(in oklab,#C97B7B 9%,#FBF4F2);
+  --dpp-surface:#FBF4F2;
+  --dpp-ink:#4A2C2C;
+  --dpp-muted:#9B6F6F;
+  --dpp-eyebrow:#B58A8A;
+}
+[data-palette="ivory"]{
+  --dpp-primary:#6B4A2B;
+  --dpp-primary-soft:color-mix(in oklab,#6B4A2B 7%,#FAF6EE);
+  --dpp-surface:#FAF6EE;
+  --dpp-ink:#2C1F12;
+  --dpp-muted:#8C7657;
+  --dpp-eyebrow:#A89674;
+}
+[data-palette="sage"]{
+  --dpp-primary:#5A7A5A;
+  --dpp-primary-soft:color-mix(in oklab,#5A7A5A 8%,#F2F6EF);
+  --dpp-surface:#F2F6EF;
+  --dpp-ink:#2D3D2D;
+  --dpp-muted:#7B907B;
+  --dpp-eyebrow:#94A894;
+}
+[data-palette="midnight"]{
+  --dpp-primary:#6B5BA9;
+  --dpp-primary-soft:color-mix(in oklab,#6B5BA9 9%,#F4F4F8);
+  --dpp-surface:#F4F4F8;
+  --dpp-ink:#1A1F2E;
+  --dpp-muted:#6F758A;
+  --dpp-eyebrow:#8E94AB;
+}
+[data-palette="sunset"]{
+  --dpp-primary:#D97755;
+  --dpp-primary-soft:color-mix(in oklab,#D97755 9%,#FFF4EC);
+  --dpp-surface:#FFF4EC;
+  --dpp-ink:#4A2818;
+  --dpp-muted:#A47159;
+  --dpp-eyebrow:#C28D72;
+}
+[data-palette="ocean"]{
+  --dpp-primary:#2A6F8E;
+  --dpp-primary-soft:color-mix(in oklab,#2A6F8E 8%,#EFF6F9);
+  --dpp-surface:#EFF6F9;
+  --dpp-ink:#133545;
+  --dpp-muted:#5C8398;
+  --dpp-eyebrow:#7CA0B3;
+}
+[data-palette="marigold"]{
+  --dpp-primary:#D9892E;
+  --dpp-primary-soft:color-mix(in oklab,#D9892E 9%,#FFF8EC);
+  --dpp-surface:#FFF8EC;
+  --dpp-ink:#4A3015;
+  --dpp-muted:#A2784A;
+  --dpp-eyebrow:#C29A6B;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   PREVIEW FONT VARIANTS — 5 heading fonts driven by [data-font="…"].
+   Body stays in Poppins per plan Q5. Cross-fade animation when the
+   frame has .is-controls-driven is inherited from shell.css.
+   Note: the 4 non-Poppins families must be loaded by design.html (and
+   only by design.html, not by overview.html, to avoid the bloat).
+   ════════════════════════════════════════════════════════════════════ */
+[data-font="poppins"]   { --dpp-heading-font:'Poppins','Helvetica Neue',sans-serif }
+[data-font="cormorant"] { --dpp-heading-font:'Cormorant Garamond','Cormorant',serif }
+[data-font="playfair"]  { --dpp-heading-font:'Playfair Display',serif }
+[data-font="lora"]      { --dpp-heading-font:'Lora','Georgia',serif }
+[data-font="inter"]     { --dpp-heading-font:'Inter','Helvetica Neue',sans-serif }
+
+/* When .is-controls-driven, also cross-fade the heading font swap (font
+   change is instant in browser, but the surrounding screen background
+   cross-fades — already handled in shell.css). */
 
 /* .dp-preview-caption + .device-toggle — moved to shell.css (Step 0 promotion 2026-05-22) */
 
@@ -831,4 +924,564 @@
 [data-wb-pub-lock][aria-checked="false"] ~ .wb-password-field,
 .wb-password-field.is-hidden{
   display:none;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   DESIGN TAB — page-specific (Template / Palette / Heading font /
+   Cover & OG / new modal instances). Lives on design.html only.
+   Reuses: .dp-shell .dp-col-left/right, .dp-card .dp-card-head*,
+   .dp-tile-grid-sm, .device-toggle, .dp-preview-frame.is-controls-driven,
+   .dp-reset-chip (shell), .modal-picker-grid, .modal-image-crop,
+   .modal-confirm-cautionary (shell).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Aux header slot — used to host the .dp-reset-chip per axis card,
+   plus the "Change" CTA on the Template card. Stays right-aligned. */
+.dp-card-head-aux{
+  display:flex;align-items:center;gap:.55rem;flex-shrink:0;
+  flex-wrap:wrap;justify-content:flex-end;
+}
+
+/* Foot-note inside cards — small italic muted line under content,
+   e.g. "Changing your template will reset your palette and font picks." */
+.dp-card-foot-note{
+  margin:.85rem 0 0;
+  font-size:.78rem;color:var(--muted);line-height:1.5;
+  font-style:italic;
+}
+
+/* ── Current-template tile (Template card body) ────────────────────── */
+.dp-current-template{
+  display:flex;
+  gap:1rem;
+  align-items:flex-start;
+  padding:.85rem;
+  background:var(--line-soft);
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+@media (max-width:480px){
+  .dp-current-template{flex-direction:column;align-items:stretch;gap:.85rem}
+}
+.dp-current-template-thumb{
+  flex-shrink:0;
+  width:120px;aspect-ratio:4/5;
+  border-radius:10px;
+  overflow:hidden;
+  background:var(--card);
+  display:flex;align-items:center;justify-content:center;
+}
+@media (max-width:480px){
+  .dp-current-template-thumb{width:100%;aspect-ratio:16/9}
+}
+.dp-current-template-thumb img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+/* Fallback when no thumb image: brand-glyph + label */
+.dp-current-template-thumb .dp-thumb-fallback{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.35rem;color:var(--muted);text-align:center;padding:.5rem;
+}
+.dp-current-template-thumb .dp-thumb-fallback .material-symbols-outlined{
+  font-size:32px;color:var(--brand);
+}
+.dp-thumb-fallback-label{
+  font-size:.7rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.1em;
+}
+.dp-current-template-meta{
+  flex:1 1 auto;display:flex;flex-direction:column;gap:.35rem;min-width:0;
+}
+.dp-current-template-name{
+  font-size:1rem;font-weight:700;color:var(--ink);
+  letter-spacing:-.01em;margin:0;
+}
+.dp-current-template-blurb{
+  font-size:.82rem;color:var(--muted);line-height:1.45;margin:0;
+}
+.dp-current-template-meta .btn-pill{align-self:flex-start;margin-top:.4rem}
+@media (max-width:480px){
+  .dp-current-template-meta .btn-pill{align-self:stretch;justify-content:center}
+}
+
+/* ── Palette tiles (3-5 swatch chips, flex-wrap for future expansion) ─ */
+.dp-palette-tile{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:.55rem;
+  padding:.65rem .65rem .55rem;
+  background:var(--card);
+  border:2px solid var(--line);
+  border-radius:14px;
+  cursor:pointer;
+  transition:border-color .15s ease,transform .15s ease,box-shadow .15s ease;
+  text-align:left;
+  min-width:0;
+}
+@media (hover:hover) and (pointer:fine){
+  .dp-palette-tile:hover{
+    border-color:color-mix(in oklab,var(--brand) 28%,var(--line));
+    transform:translateY(-1px);
+  }
+}
+.dp-palette-tile:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.dp-palette-tile.is-selected{
+  border-color:var(--brand);
+  background:color-mix(in oklab,var(--brand) 4%,var(--card));
+}
+.dp-palette-swatches{
+  display:flex;flex-wrap:wrap;gap:.25rem;
+  align-items:stretch;
+}
+.dp-palette-swatches > span{
+  flex:1 1 18px;min-width:18px;height:24px;
+  border-radius:6px;
+  border:1px solid rgba(0,0,0,.06);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);
+}
+.dp-palette-name{
+  font-size:.78rem;font-weight:600;color:var(--ink);
+  min-height:1.1em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+/* Selected check — sits on white/neutral plate so it never blends into
+   the swatches (P1-8). Three signals: rim + plate + filled check icon. */
+.dp-palette-check{
+  position:absolute;top:.45rem;right:.45rem;
+  width:22px;height:22px;
+  display:none;
+  align-items:center;justify-content:center;
+  border-radius:9999px;
+  background:var(--card);
+  box-shadow:0 1px 3px rgba(17,24,39,.18);
+  color:var(--brand);
+}
+.dp-palette-check .material-symbols-outlined{
+  font-size:18px;font-variation-settings:'FILL' 1;
+}
+.dp-palette-tile.is-selected .dp-palette-check{display:inline-flex}
+
+/* ── Font preview rows (full-width) ─────────────────────────────────── */
+.dp-font-list{
+  display:flex;flex-direction:column;gap:.5rem;
+}
+.dp-font-row{
+  display:flex;align-items:center;justify-content:space-between;gap:.85rem;
+  padding:.85rem 1rem;
+  min-height:56px;
+  background:var(--card);
+  border:1.5px solid var(--line);
+  border-radius:12px;
+  cursor:pointer;
+  transition:border-color .15s ease,background .15s ease;
+  text-align:left;
+}
+@media (hover:hover) and (pointer:fine){
+  .dp-font-row:hover{border-color:color-mix(in oklab,var(--brand) 28%,var(--line))}
+}
+.dp-font-row:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.dp-font-row.is-selected{
+  border-color:var(--brand);
+  background:color-mix(in oklab,var(--brand) 4%,var(--card));
+}
+.dp-font-preview{
+  font-size:1.5rem;
+  line-height:1.05;
+  color:var(--ink);
+  letter-spacing:-.01em;
+  font-weight:700;
+  /* Truncate long couple names; allow word wrap on tablets+ */
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  flex:1 1 auto;min-width:0;
+}
+@media (min-width:640px){
+  .dp-font-preview{font-size:1.7rem;white-space:normal}
+}
+/* The font row also renders its OWN NAME in its own font, on the right.
+   P2-2: hosts pick by feel, not by name-as-text. CSS-only — no JS. */
+.dp-font-name{
+  font-size:.78rem;color:var(--muted);font-weight:500;
+  white-space:nowrap;flex-shrink:0;
+  letter-spacing:0;
+}
+.dp-font-row[data-font="poppins"]   .dp-font-name,
+.dp-font-row[data-font="poppins"]   .dp-font-preview { font-family:'Poppins','Helvetica Neue',sans-serif }
+.dp-font-row[data-font="cormorant"] .dp-font-name,
+.dp-font-row[data-font="cormorant"] .dp-font-preview { font-family:'Cormorant Garamond','Cormorant',serif }
+.dp-font-row[data-font="playfair"]  .dp-font-name,
+.dp-font-row[data-font="playfair"]  .dp-font-preview { font-family:'Playfair Display',serif }
+.dp-font-row[data-font="lora"]      .dp-font-name,
+.dp-font-row[data-font="lora"]      .dp-font-preview { font-family:'Lora','Georgia',serif }
+.dp-font-row[data-font="inter"]     .dp-font-name,
+.dp-font-row[data-font="inter"]     .dp-font-preview { font-family:'Inter','Helvetica Neue',sans-serif }
+/* Selected check on the far right of each row */
+.dp-font-row .dp-font-check{
+  width:22px;height:22px;flex-shrink:0;
+  display:none;
+  align-items:center;justify-content:center;
+  border-radius:9999px;
+  background:var(--card);
+  box-shadow:0 1px 3px rgba(17,24,39,.18);
+  color:var(--brand);
+}
+.dp-font-row .dp-font-check .material-symbols-outlined{
+  font-size:16px;font-variation-settings:'FILL' 1;
+}
+.dp-font-row.is-selected .dp-font-check{display:inline-flex}
+
+/* ── Cover preview block — 4 states (empty / pending / failed / loaded) */
+.dp-cover-block{
+  display:flex;flex-direction:column;gap:.65rem;
+}
+.dp-cover-preview{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  background:var(--line-soft);
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+}
+.dp-cover-preview img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+/* Per-state body visibility — all 3 state bodies (empty / pending / failed)
+   live as siblings inside .dp-cover-preview alongside the <img>. The state
+   attribute toggles which one renders. Default = loaded, image visible. */
+.dp-cover-empty,
+.dp-cover-failed{display:none}
+.dp-cover-preview[data-cover-state="loaded"] > img{display:block}
+.dp-cover-preview[data-cover-state="empty"]   > img,
+.dp-cover-preview[data-cover-state="pending"] > img,
+.dp-cover-preview[data-cover-state="failed"]  > img{display:none}
+.dp-cover-preview[data-cover-state="empty"]   .dp-cover-empty,
+.dp-cover-preview[data-cover-state="failed"]  .dp-cover-failed{display:flex}
+
+/* State: empty (first-touch) — dashed drop-zone */
+.dp-cover-preview[data-cover-state="empty"]{
+  border:1.5px dashed var(--line);
+  background:var(--line-soft);
+  display:flex;align-items:center;justify-content:center;
+}
+.dp-cover-empty{
+  flex-direction:column;align-items:center;gap:.4rem;
+  color:var(--muted);text-align:center;padding:1rem;
+}
+.dp-cover-empty .material-symbols-outlined{
+  font-size:32px;color:var(--brand);
+}
+.dp-cover-empty-title{
+  font-size:.95rem;font-weight:600;color:var(--ink);
+}
+.dp-cover-empty-hint{
+  font-size:.78rem;color:var(--muted);
+}
+/* State: pending — skeleton shimmer */
+.dp-cover-preview[data-cover-state="pending"]{
+  background:linear-gradient(90deg,
+    var(--line-soft) 0%,
+    color-mix(in oklab,var(--brand) 4%,var(--line-soft)) 50%,
+    var(--line-soft) 100%);
+  background-size:200% 100%;
+  animation:dp-cover-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes dp-cover-shimmer{
+  0%   { background-position:200% 0 }
+  100% { background-position:-200% 0 }
+}
+@media (prefers-reduced-motion: reduce){
+  .dp-cover-preview[data-cover-state="pending"]{animation:none}
+}
+/* State: failed — error chip + retry CTA overlay */
+.dp-cover-preview[data-cover-state="failed"]{
+  background:color-mix(in oklab,var(--brand) 6%,var(--line-soft));
+  display:flex;align-items:center;justify-content:center;
+}
+.dp-cover-failed{
+  flex-direction:column;align-items:center;gap:.5rem;
+  color:var(--brand);text-align:center;padding:1rem;
+}
+.dp-cover-failed .material-symbols-outlined{
+  font-size:28px;
+}
+.dp-cover-failed-title{font-size:.85rem;font-weight:600;margin:0}
+/* "Replace" button — overlay bottom-right when state=loaded */
+.dp-cover-replace{
+  position:absolute;
+  bottom:.6rem;right:.6rem;
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.4rem .75rem;
+  border-radius:9999px;
+  background:rgba(0,0,0,.6);
+  color:#fff;
+  border:0;
+  font-size:.75rem;font-weight:600;
+  cursor:pointer;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  transition:background .15s ease;
+}
+.dp-cover-replace .material-symbols-outlined{font-size:16px}
+@media (hover:hover) and (pointer:fine){
+  .dp-cover-replace:hover{background:rgba(0,0,0,.8)}
+}
+.dp-cover-replace:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.dp-cover-replace:disabled{opacity:.5;cursor:not-allowed}
+.dp-cover-preview[data-cover-state="empty"]   .dp-cover-replace,
+.dp-cover-preview[data-cover-state="pending"] .dp-cover-replace,
+.dp-cover-preview[data-cover-state="failed"]  .dp-cover-replace{display:none}
+
+/* Meta line under the cover */
+.dp-cover-meta{
+  font-size:.78rem;color:var(--muted);
+  display:flex;align-items:center;gap:.4rem;
+  margin:0;
+}
+.dp-cover-meta-icon{font-size:14px}
+
+/* Section divider inside the Cover & OG card */
+.section-rule{
+  border:0;
+  height:1px;
+  background:var(--line);
+  margin:1.25rem 0 1rem;
+}
+
+/* ── OG block — toggle + auto/custom state (CLS-safe min-height) ──── */
+.dp-og-block{
+  position:relative;
+  display:flex;flex-direction:column;gap:.85rem;
+  /* P1-4: reserve the height of the larger ("custom") state so toggling
+     the checkbox doesn't push content below.
+     Calc: toggle label row (~70px) + preview (1.91:1 of ~280-480px wide).
+     We pin at 320px which fits the typical mobile flow. */
+  min-height:320px;
+}
+@media (min-width:640px){
+  .dp-og-block{min-height:300px}
+}
+/* OG toggle row — uses shell .toggle-switch (button shape) sitting at
+   right; label + hint on the left. */
+.dp-og-toggle-row{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:.85rem;
+}
+.dp-og-toggle-meta{flex:1 1 auto;min-width:0}
+.dp-og-toggle-label{
+  font-size:.9rem;font-weight:600;color:var(--ink);
+  display:block;line-height:1.35;
+}
+.dp-og-toggle-hint{
+  font-size:.75rem;color:var(--muted);
+  display:block;margin-top:.15rem;
+}
+.dp-og-preview{
+  position:relative;
+  width:100%;
+  aspect-ratio:1.91/1;
+  background:var(--line-soft);
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+}
+.dp-og-preview img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+.dp-og-caption{
+  margin:.5rem 0 0;
+  font-size:.75rem;color:var(--muted);
+  display:flex;align-items:flex-start;gap:.35rem;
+}
+.dp-og-caption .material-symbols-outlined{
+  font-size:16px;color:var(--brand);
+}
+
+/* ── Template picker cards (replaces .modal-picker-tile shell for the
+       template modal — needs a mini-hero preview which the generic shell
+       primitive can't express). Each card renders the actual template
+       palette + heading font in context.
+       Two distinct states:
+         .is-current  → green "Current" pill, top-right of preview
+         .is-selected → brand-red rim + check, top-left of preview
+       A card can be BOTH (host opens picker, current = pre-selected). ── */
+.dp-template-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:.75rem;
+}
+@media (min-width:640px){
+  .dp-template-grid{grid-template-columns:repeat(3, 1fr);gap:1rem}
+}
+@media (min-width:980px){
+  .dp-template-grid{grid-template-columns:repeat(5, 1fr);gap:.85rem}
+}
+
+.dp-template-card{
+  position:relative;
+  display:flex;flex-direction:column;
+  background:var(--card);
+  border:2px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:border-color .15s ease,transform .15s ease,box-shadow .15s ease;
+  text-align:left;
+  min-width:0;
+}
+.dp-template-card:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+@media (hover:hover) and (pointer:fine){
+  .dp-template-card:hover{
+    border-color:color-mix(in oklab,var(--brand) 30%,var(--line));
+    transform:translateY(-1px);
+    box-shadow:var(--shadow-clay);
+  }
+}
+.dp-template-card.is-selected{
+  border-color:var(--brand);
+  box-shadow:0 0 0 1px var(--brand);   /* doubles the rim subtly */
+}
+/* When a card carries the "Current" pill, push the preview content
+   down a touch so the wrapped name doesn't slip under the pill on
+   shorter tile widths (small 2-col mobile). */
+.dp-template-card.is-current .dp-template-preview{
+  padding-top:1.6rem;
+}
+
+/* Mini-hero preview region — renders the template look in place.
+   Tokens come from inherited data-palette + data-font on the card.
+   The eyebrow is intentionally omitted on tiles (too small to need
+   "WEDDING OF" alongside the name + corner badges) — just the couple
+   name in the template's heading font does the talking. */
+.dp-template-preview{
+  position:relative;
+  aspect-ratio:5/4;
+  padding:1rem .85rem;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;
+  background:
+    radial-gradient(120% 80% at 50% 0%, var(--dpp-primary-soft) 0%, var(--dpp-surface) 70%),
+    var(--dpp-surface);
+  color:var(--dpp-ink);
+  overflow:hidden;
+}
+.dp-template-eyebrow{
+  /* Reserved for future use; currently not rendered in the picker tile.
+     If a future template needs an eyebrow signature (e.g. monogram
+     placeholder), add it here. */
+  display:none;
+}
+.dp-template-name{
+  font-family:var(--dpp-heading-font);
+  font-weight:700;
+  font-size:1.05rem;
+  line-height:1.05;
+  letter-spacing:-.02em;
+  color:var(--dpp-ink);
+  max-width:100%;
+}
+@media (min-width:640px){
+  .dp-template-name{font-size:1.15rem}
+}
+/* Tiny divider — sells the "this is a hero" framing */
+.dp-template-rule{
+  width:32px;height:1.5px;
+  background:currentColor;opacity:.35;
+  margin-top:.55rem;
+}
+
+/* Meta strip below preview */
+.dp-template-meta{
+  padding:.65rem .8rem .75rem;
+  display:flex;flex-direction:column;gap:.2rem;
+  background:var(--card);
+  border-top:1px solid var(--line);
+}
+.dp-template-title{
+  font-size:.85rem;
+  font-weight:700;
+  color:var(--ink);
+  margin:0;
+  letter-spacing:-.005em;
+  line-height:1.25;
+}
+.dp-template-tag{
+  font-size:.66rem;color:var(--muted);margin:0;
+  display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;
+  line-height:1.2;
+}
+.dp-template-swatches{
+  display:inline-flex;gap:.15rem;flex-shrink:0;
+}
+.dp-template-swatches span{
+  width:9px;height:9px;border-radius:9999px;
+  border:1px solid rgba(0,0,0,.10);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);
+}
+
+/* "Current" affordance — green pill in the preview region top-right.
+   Indicates "this is what your site uses right now" — separate from
+   the brand-red SELECTED state which only fires on click within the
+   picker. A card can carry both classes simultaneously without conflict. */
+.dp-template-current{
+  position:absolute;top:.55rem;right:.55rem;
+  font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:.22rem .55rem;
+  border-radius:9999px;
+  background:var(--success-tint);
+  color:var(--success);
+  border:1px solid var(--success-rim);
+  z-index:1;
+}
+
+/* "Selected" check — only shows for is-selected (host clicked in
+   the picker but hasn't pressed Apply yet). Lives top-left so it
+   doesn't collide with the Current pill on the same card. */
+.dp-template-check{
+  position:absolute;top:.5rem;left:.5rem;
+  width:24px;height:24px;
+  display:none;
+  align-items:center;justify-content:center;
+  border-radius:9999px;
+  background:var(--card);
+  box-shadow:0 1px 3px rgba(17,24,39,.25);
+  color:var(--brand);
+  z-index:1;
+}
+.dp-template-check .material-symbols-outlined{
+  font-size:18px;font-variation-settings:'FILL' 1;
+}
+.dp-template-card.is-selected .dp-template-check{display:inline-flex}
+
+/* ── Mobile "Jump to preview" anchor (Design tab P1-2 fix) ─────────────
+   Floating pill, bottom-right in safe area, visible only when the
+   preview is OUT of viewport (toggled in design.js via IntersectionObserver).
+   Reuses .fn-icon-btn idiom but lives in page CSS — not a shell promotion
+   (per Abhijith decision, kept page-local for now). */
+.dp-jump-preview{
+  display:none;                /* JS adds .is-visible to surface */
+  position:fixed;
+  z-index:60;                  /* below modals (80+), above tool-rail */
+  right:1rem;
+  bottom:calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  align-items:center;gap:.35rem;
+  padding:.55rem .95rem;
+  border-radius:9999px;
+  background:var(--brand);
+  color:#fff;
+  border:0;
+  font-size:.78rem;font-weight:600;
+  cursor:pointer;
+  box-shadow:0 6px 20px -6px rgba(187,0,32,.55), 0 2px 6px rgba(0,0,0,.2);
+  transition:opacity .2s ease,transform .2s ease;
+}
+.dp-jump-preview.is-visible{display:inline-flex}
+.dp-jump-preview .material-symbols-outlined{font-size:16px}
+.dp-jump-preview:focus-visible{outline:2px solid #fff;outline-offset:3px}
+@media (min-width:1024px){
+  /* Preview is sticky-visible on desktop — anchor never surfaces */
+  .dp-jump-preview{display:none !important}
+}
+@media (prefers-reduced-motion: reduce){
+  .dp-jump-preview{transition:none}
 }

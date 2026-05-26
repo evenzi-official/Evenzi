@@ -514,6 +514,62 @@ No Edit|Preview tab-toggle on the Design tab — the live preview is small enoug
 
 Phases 1–13 of the build order (control sections, palette/font CSS variants, design.html scaffold, 3 new modal instances, state store, mobile jump-anchor, agent post-build review, full test matrix) remain for the next session.
 
+### Phase 1–12 — landed 2026-05-26
+
+**design.html, design.js, expanded website.css/shell.css all shipped.** UI/UX agent post-build review: APPROVE WITH NOTES. 2 P1s fixed in-session.
+
+Landed:
+
+- **Preview palette tokens promoted to CSS vars** (`shell.css`). `.dp-preview-frame` declares `--dpp-primary` / `--dpp-primary-soft` / `--dpp-surface` / `--dpp-ink` / `--dpp-muted` / `--dpp-eyebrow` / `--dpp-heading-font` with defaults that exactly reproduce the existing brand-red Overview look (Overview is byte-identical post-refactor). `.dp-preview-screen` background now reads the vars. `.dpp-*` in `website.css` refactored to consume them.
+- **8 palette variants** on `.dp-preview-frame[data-palette="…"]` — brand-red (default) · blush · ivory · sage · midnight · sunset · ocean · marigold. Each sets 6 dpp tokens.
+- **5 font variants** on `.dp-preview-frame[data-font="…"]` — poppins · cormorant · playfair · lora · inter. Each sets `--dpp-heading-font`.
+- **`design.html`** (~540 lines) — full page. Top chrome cloned from overview (nav, tool-rail, breadcrumb with `WEBSITE · DESIGN` pill, section-head, wb-tabs with Design active). 4 control cards: Template / Palette / Heading font / Cover & OG. Right column live preview with `.is-controls-driven` mode. 3 inline modal instances (template picker, cover crop, OG crop). Floating jump-preview anchor.
+- **`design.js`** (~270 lines) — DesignState store, palette/font radio handlers, arrow-key roving in radiogroups, reset-chip diff vs template defaults, reset-chip click → axis revert, template picker selection + apply with cautionary-discard gate when overrides exist, OG toggle reveal, crop-apply stubs, cover-retry stub, IntersectionObserver jump-anchor.
+- **CSS** (`website.css`): `.dp-card-head-aux`, `.dp-card-foot-note`, `.dp-current-template` (+thumb/meta/name/blurb), `.dp-palette-tile` (3-signal selected: rim + plate + filled check, flex-wrap swatches), `.dp-font-list` + `.dp-font-row` (large preview + font-name-in-its-own-font on right), `.dp-cover-block` + `.dp-cover-preview` (4 states: loaded / empty / pending / failed via attribute selectors, shimmer animation for pending, replace overlay), `.dp-og-block` (CLS-safe `min-height:320px` / 300px tablet+), `.dp-og-toggle-row` / `.dp-og-toggle-label`, `.dp-og-preview` (1.91:1), `.dp-jump-preview` (fixed bottom-right, brand-red, hides on ≥1024px).
+- **Overview wb-tab Design href** changed from `#design` to `design.html`.
+
+Functional verification (via preview tools at 360/768/1440):
+
+- Palette tile click → preview palette CSS-var swap with 120ms cross-fade, reset chip appears
+- Font row click → preview font swap, reset chip appears
+- Reset chip click → reverts axis, chip hides
+- Template picker → pick non-current template → if overrides exist, cautionary modal stacks on top (z:90 picker / z:100 confirm), both close cleanly via Cancel or Confirm
+- Template change applies palette+font from bundle; chips correctly recompute (hidden when new state matches new template default)
+- OG toggle: auto ↔ custom, no CLS, min-height reserved at 300/320px
+- Cross-cutting modals (Share, Publish settings, Publish-confirm, Discard) injected from website.js — Overview re-verified end-to-end in prior session
+- Mobile 360px: 3-col palette grid, no horizontal scroll, "Brand R…" truncation, jump-preview anchor (visual confirmed; IntersectionObserver doesn't fire in preview tool but works on real browsers per code read)
+- Tablet 768px: 6-col palette grid, all 8 palettes in 2 rows, Heading-font card renders each name in its own font
+- Desktop 1440px: 55/45 split, sticky right preview
+
+### UI/UX agent post-build review — verdict APPROVE WITH NOTES
+
+All P0/P1/P2 plan-phase resolutions landed in code (verified file-by-file). 2 P1s + 4 P2s + a11y notes.
+
+**P1s — fixed in-session:**
+- **P1-A** Double toast on template-change-with-overrides. `website.js` discard-confirm handler had a `toast('TEMPLATE CHANGED')` left over from when it was Overview-only; this collided with `design.js commitTemplate()`'s `TEMPLATE APPLIED` to fire two toasts on the same click. Fix: dropped the website.js toast; the page-specific handler now owns the commit toast. Verified: spy on `window.evenzi.showToast` confirms exactly 1 toast (`TEMPLATE APPLIED`) on the discard flow. *(2026-05-23 agent post-build, comment in website.js)*
+- **P1-B** Mobile jump-anchor `arrow_downward` icon was misleading when host scrolled PAST the preview (preview above viewport, button pointing down). Fix: IntersectionObserver callback now also checks `entry.boundingClientRect.top > 0` — anchor only shows when preview is BELOW current scroll position. Verified by code reading. *(2026-05-23 agent post-build, comment in design.js)*
+
+**P2s — deferred to next session or accepted:**
+- P2-A Toast on template apply could include override-reset count (`TEMPLATE APPLIED · 2 overrides reset`). Polish. Deferred.
+- P2-B Dark-mode visual sanity check on Midnight palette selected tile. Read-only confirmed acceptable; flag for real-device pass.
+- P2-C `.dp-font-row` + `.dp-palette-tile` shell promotion (Edit Pages per-page overrides is the named 2nd consumer). Promote in the Edit Pages session.
+- P2-D Card order — confirmed correct, don't change.
+- P2-F design.js delegation count (9 listeners) — acceptable for static prototype, would consolidate in React port.
+
+**A11y notes (P2):**
+- Roving `tabindex` in palette + font radiogroups — currently each radio is Tab-focusable (works, but not strictly idiomatic).
+- `.dp-reset-chip` is ~28px tall on touch — borderline WCAG 2.2 AA (44px target). Bump to ~36-40px in next polish pass.
+
+**P2-6 from plan-review (info tooltip on Heading font card)** — not implemented; current sub-line "Body text stays in Poppins. Headings define your style." covers the intent inline. Accepted.
+
+### NOT yet shipped (carryover to next session)
+
+- **`components.html` backfill** (Task #4) — 12 primitives from 2026-05-22 + 3 from this session's Phase 0 + the new shell primitives that landed in Phase 1 refactor (`--dpp-*` token family on `.dp-preview-frame`). Plan §15 step 13.
+- **Mobile real-device test** (Abhijith on his phone via LAN URL). Browser/desktop verification is complete; phone walkthrough still owed.
+- **Designer template thumbnails** — currently `.dp-thumb-fallback` (brand-red icon + template name in small caps). Designer screenshots land in a later asset pass.
+- **P2 polish backlog** above.
+
+
 
 ---
 
