@@ -17,7 +17,7 @@ body[data-page="event-control"]{scroll-snap-type:y proximity}
      content in the full-height hero and left a large void up top on desktop —
      mobile was already flex-start). */
   display:flex;flex-direction:column;justify-content:flex-start;
-  padding:3.25rem 0 2.5rem;   /* tuned so the nav→breadcrumb gap matches the shared 52px */
+  padding:3.25rem 0 6rem;   /* bottom clears the floating tool-rail; top matches the shared 52px nav gap */
 }
 @media (max-width:768px){
   .hero-screen{min-height:auto;padding:5.5rem 0 7rem;justify-content:flex-start}
@@ -71,7 +71,22 @@ body[data-page="event-control"]{scroll-snap-type:y proximity}
   50%{transform:translate(var(--p-x,15px),var(--p-y,-25px)) scale(1.2);opacity:.7}
 }
 
-.hero-content{position:relative;z-index:2;width:100%}
+.hero-content{position:relative;z-index:2;width:100%;display:flex;flex-direction:column}
+/* Desktop: fill the hero height so the dock pins to the bottom and the
+   middle becomes breathing room (title up top, stats + cue docked). */
+@media (min-width:769px){
+  .hero-content{min-height:calc(100dvh - 3.25rem - 6rem)}
+}
+.hero-dock{
+  margin-top:auto;                       /* push stats + cue to the hero bottom */
+  display:flex;flex-direction:column;
+  gap:clamp(1.25rem,2.5vh,2rem);
+  padding-bottom:max(0px,env(safe-area-inset-bottom));
+}
+@media (prefers-reduced-motion:no-preference){
+  .hero-scroll-cue .material-symbols-outlined{animation:cue-nudge 2s ease-in-out infinite}
+}
+@keyframes cue-nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
 .hero-title-1{
   font-family:'Poppins',sans-serif;font-weight:800;letter-spacing:-.04em;line-height:.92;
   font-size:clamp(2.25rem,7vw,5.5rem);color:var(--ink);
@@ -93,3 +108,18 @@ body[data-page="event-control"]{scroll-snap-type:y proximity}
   .roadmap-strip > ol > li button{white-space:normal}
   .roadmap-strip-track{display:none}
 }
+
+/* ── MANAGE-YOUR-EVENT BENTO — uniform cards (3-up / 2-up / 1-up) ──
+   Replaces the old 12-col span dance (5/4/3/7/5) that made cards
+   unequal. Every card is now the same size; equal-height rows. */
+.bento-grid{
+  display:grid;
+  grid-template-columns:1fr;            /* mobile: 1-up */
+  gap:1.25rem;
+  align-items:stretch;
+}
+@media (min-width:768px){.bento-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5rem}}
+@media (min-width:1024px){.bento-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* card fills its cell; the pill row pins to the bottom for an even rhythm */
+.bento-grid > .tool-card{height:100%;display:flex;flex-direction:column}
+.bento-grid > .tool-card > *:last-child{margin-top:auto}

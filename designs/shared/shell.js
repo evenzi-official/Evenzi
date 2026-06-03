@@ -36,9 +36,11 @@
     var h12 = h % 12; if (h12 === 0) h12 = 12;
     clock.textContent = h12 + ':' + pad(ist.getMinutes()) + ':' + pad(ist.getSeconds()) + ' ' + ampm + ' IST';
   }
-  tickClock();
-  setInterval(tickClock, 1000);
-  document.addEventListener('visibilitychange', tickClock);
+  if (clock) {
+    tickClock();
+    setInterval(tickClock, 1000);
+    document.addEventListener('visibilitychange', tickClock);
+  }
 
   function spawnRipple(host, e) {
     var rect = host.getBoundingClientRect();

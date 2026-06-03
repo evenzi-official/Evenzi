@@ -4,6 +4,22 @@
 
 ---
 
+## Recently Landed (2026-06-03b — Design review sweep + Photos/Card Templates tabs)
+
+Second design-path session today. Page-by-page review/build + a permanent width fix. Full report: `docs/session-reports/2026-06-03-design-review-session-report.md`.
+
+**Shipped:**
+- **Dashboard** (`index.html`) — card consolidation (1 primary + flat secondary), full-width hero + 3-up grid, hero redesign (progress bar + up-next, conditional collab avatars/role tag), mobile button fixes.
+- **Event-control** + **Our Journey** (`pages/event-control/our-journey.*` — new) — full-screen hero w/ bottom stats strip + scroll cue; uniform bento w/ links; dedicated sub-events/functions manager (add/edit/delete modals) feeding the public website roadmap.
+- **Website tabs: Photos + Card Templates** (`pages/website/{photos,card-templates}.*` — new) — Card Templates (7-style filter, 18 SVG-placeholder tiles, lightbox); Photos (standalone Gallery manager w/ Media & Memories dependency banner, select/cover/remove + bulk). Removed redundant Edit Pages tab.
+- **`.page-band`** canonical width wrapper added to `shell.css` + documented in `BRAND-GUIDELINES.md` (stops new pages "coming broken"). Breadcrumb sweep: "VIBRANT UNION" → "ANYA & KABIR" across 16 files.
+
+**Genuine next-up:** the **public guest-facing website** (`evenzi.com/e/anya-kabir`) — Photos + Card Templates + Our Journey all feed it. Also carries: `components.html` backfill debt (2 sessions of new primitives), `/council` on the Photos→Media bucket lifecycle, real card PDF/PNG assets, and lingering "Vibrant Union" copy in some `<title>`/hero text.
+
+> ⚠️ The "Immediate Next Steps" list further down is stale (predates the design-path work) — treat the bullet above as the live next step.
+
+---
+
 ## Recently Landed (2026-06-03 — Website editor flow end-to-end + polish + per-page tier)
 
 Very large design-path session. Built the whole **Website / Digital Presence editor flow** (Templates → list → per-page editor) and ran a multi-step polish + founder-review pass. Every build went plan → UI/UX agent plan review → sign-off → build → test → agent post-build review. Full report: `docs/session-reports/2026-06-03-session-report.md`. Per-feature `## Built` in `designs/_plans/website-*.md`.

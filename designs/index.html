@@ -122,16 +122,18 @@
 
     <!-- Featured: Anya & Kabir's Wedding -->
     <article class="featured-event-card">
-      <div class="fec-cover">
-        <span class="fec-cover-tag fec-cover-featured">★ Featured</span>
-        <span class="fec-cover-tag fec-cover-rolepill">
-          <span aria-hidden="true" class="material-symbols-outlined" style="font-size:12px">verified</span>
-          Owner
-        </span>
-      </div>
+      <div class="fec-cover" aria-hidden="true"></div>
       <div class="fec-body">
-        <p class="fec-type-eyebrow">Wedding · Final preparations</p>
-        <h2 class="fec-title"><a href="pages/event-control/event-control.html" class="fec-link-stretched">Anya &amp; Kabir's Wedding</a></h2>
+        <div class="fec-head">
+          <div class="fec-head-text">
+            <p class="fec-type-eyebrow">Wedding · Final preparations</p>
+            <h2 class="fec-title"><a href="pages/event-control/event-control.html" class="fec-link-stretched">Anya &amp; Kabir's Wedding</a></h2>
+          </div>
+          <span class="fec-countdown">
+            <span aria-hidden="true" class="material-symbols-outlined icon-fill">timer</span>
+            45 days to go
+          </span>
+        </div>
 
         <div class="fec-meta">
           <span class="hero-meta-chip">
@@ -157,19 +159,19 @@
           </span>
         </div>
 
-        <div class="fec-bottom">
-          <div class="flex items-center gap-3">
-            <div class="avatar-stack" aria-label="Collaborators">
-              <span class="avatar-stack-item">A</span>
-              <span class="avatar-stack-item">K</span>
-              <span class="avatar-stack-item">R</span>
-            </div>
-            <span class="avatar-stack-overflow">+5</span>
+        <div class="fec-progress">
+          <div class="fec-progress-head">
+            <span class="fec-progress-label">Planning progress</span>
+            <span class="fec-progress-val">68% · 12 of 18 tasks done</span>
           </div>
-          <span class="fec-countdown">
-            <span aria-hidden="true" class="material-symbols-outlined icon-fill">timer</span>
-            45 days to go
-          </span>
+          <div class="fec-progress-track"><span class="fec-progress-fill" style="width:68%"></span></div>
+        </div>
+
+        <div class="fec-bottom">
+          <a href="pages/event-control/event-control.html" class="fec-upnext">
+            <span aria-hidden="true" class="material-symbols-outlined">bolt</span>
+            <span class="fec-upnext-text"><strong>Up next</strong> · Confirm caterer headcount · due in 3 days</span>
+          </a>
           <div class="fec-actions">
             <a href="pages/website/overview.html" class="btn-pill btn-pill-secondary">
               <span aria-hidden="true" class="material-symbols-outlined">language</span>
@@ -184,15 +186,14 @@
       </div>
     </article>
 
+    <div class="event-side">
     <!-- Compact: Sarah's 30th -->
     <a href="#" class="compact-event-card">
-      <div class="cec-cover">
+      <div class="cec-body">
         <span class="cec-status">
           <span class="dot" aria-hidden="true"></span>
           Upcoming
         </span>
-      </div>
-      <div class="cec-body">
         <p class="cec-type">Birthday celebration</p>
         <p class="cec-title">Sarah's 30th</p>
         <p class="cec-meta-line">
@@ -213,14 +214,12 @@
     </a>
 
     <!-- Compact: Tech Summit 2024 -->
-    <a href="#" class="compact-event-card cec-narrow">
-      <div class="cec-cover">
+    <a href="#" class="compact-event-card">
+      <div class="cec-body">
         <span class="cec-status cec-status-active">
           <span class="dot" aria-hidden="true"></span>
           Active planning
         </span>
-      </div>
-      <div class="cec-body">
         <p class="cec-type">Corporate · Conference</p>
         <p class="cec-title">Tech Summit 2024</p>
         <p class="cec-meta-line">
@@ -248,6 +247,7 @@
       <span class="empty-cta-title">Start a new event</span>
       <span class="empty-cta-sub">Wedding, birthday, conference, or anything you're hosting.</span>
     </a>
+    </div>
   </section>
 
   <!-- ─────── MY EVENTS · PAST ─────── -->
@@ -255,19 +255,23 @@
 
     <!-- Featured: The Kapoor Wedding -->
     <article class="featured-event-card">
-      <div class="fec-cover">
-        <span class="fec-cover-tag" style="background:rgba(0,0,0,.55);border-color:rgba(255,255,255,.16)">
-          <span aria-hidden="true" class="material-symbols-outlined" style="font-size:12px">check_circle</span>
+      <div class="fec-cover" aria-hidden="true">
+        <span class="fec-cover-tag fec-status-done">
+          <span aria-hidden="true" class="material-symbols-outlined" style="font-size:13px">check_circle</span>
           Completed
-        </span>
-        <span class="fec-cover-tag fec-cover-rolepill">
-          <span aria-hidden="true" class="material-symbols-outlined" style="font-size:12px">verified</span>
-          Owner
         </span>
       </div>
       <div class="fec-body">
-        <p class="fec-type-eyebrow">Wedding · Held Feb 14, 2024</p>
-        <h2 class="fec-title"><a href="#" class="fec-link-stretched">The Kapoor Wedding</a></h2>
+        <div class="fec-head">
+          <div class="fec-head-text">
+            <p class="fec-type-eyebrow">Wedding · Held Feb 14, 2024</p>
+            <h2 class="fec-title"><a href="#" class="fec-link-stretched">The Kapoor Wedding</a></h2>
+          </div>
+          <span class="fec-countdown fec-countdown-muted">
+            <span aria-hidden="true" class="material-symbols-outlined">history</span>
+            Held 21 months ago
+          </span>
+        </div>
 
         <div class="fec-meta">
           <span class="hero-meta-chip">
@@ -294,17 +298,6 @@
         </div>
 
         <div class="fec-bottom">
-          <div class="flex items-center gap-3">
-            <div class="avatar-stack" aria-label="Collaborators">
-              <span class="avatar-stack-item">K</span>
-              <span class="avatar-stack-item">P</span>
-              <span class="avatar-stack-item">M</span>
-            </div>
-          </div>
-          <span class="fec-countdown" style="background:var(--line-soft);color:var(--muted);border-color:var(--line)">
-            <span aria-hidden="true" class="material-symbols-outlined">history</span>
-            Held 21 months ago
-          </span>
           <div class="fec-actions">
             <a href="#" class="btn-pill btn-pill-secondary">
               <span aria-hidden="true" class="material-symbols-outlined">photo_library</span>
@@ -319,15 +312,14 @@
       </div>
     </article>
 
+    <div class="event-side">
     <!-- Compact: Annual Tech Summit 2025 -->
     <a href="#" class="compact-event-card">
-      <div class="cec-cover">
+      <div class="cec-body">
         <span class="cec-status cec-status-archived">
           <span class="dot" aria-hidden="true"></span>
           Archived · Jan 2025
         </span>
-      </div>
-      <div class="cec-body">
         <p class="cec-type">Corporate · Final budget ₹16.5L</p>
         <p class="cec-title">Annual Tech Summit 2025</p>
         <p class="cec-meta-line">
@@ -344,14 +336,12 @@
     </a>
 
     <!-- Compact: Summer Gala 2024 -->
-    <a href="#" class="compact-event-card cec-narrow">
-      <div class="cec-cover">
+    <a href="#" class="compact-event-card">
+      <div class="cec-body">
         <span class="cec-status cec-status-archived">
           <span class="dot" aria-hidden="true"></span>
           Archived · Aug 2024
         </span>
-      </div>
-      <div class="cec-body">
         <p class="cec-type">Charity fundraiser</p>
         <p class="cec-title">Summer Gala 2024</p>
         <p class="cec-meta-line">
@@ -366,23 +356,41 @@
         </div>
       </div>
     </a>
+    </div>
   </section>
 
   <!-- ─────── COLLABORATIONS · ACTIVE ─────── -->
   <section class="event-grid event-section reveal mt-10 md:mt-12" data-section="collab-active" aria-label="Active collaborations">
 
     <!-- Featured: Mehta & Shah Sangeet -->
-    <article class="featured-event-card">
-      <div class="fec-cover">
-        <span class="fec-cover-tag fec-cover-featured">★ Featured</span>
-        <span class="fec-cover-tag fec-cover-rolepill">
-          <span aria-hidden="true" class="material-symbols-outlined" style="font-size:12px">handshake</span>
-          Collaborator · Budget Manager
-        </span>
-      </div>
+    <article class="featured-event-card fec-collab">
+      <div class="fec-cover" aria-hidden="true"></div>
       <div class="fec-body">
-        <p class="fec-type-eyebrow">Wedding sangeet · Planning</p>
-        <h2 class="fec-title"><a href="#" class="fec-link-stretched">Mehta &amp; Shah Sangeet</a></h2>
+        <div class="fec-head">
+          <div class="fec-head-text">
+            <p class="fec-type-eyebrow">Wedding sangeet · Planning</p>
+            <h2 class="fec-title"><a href="#" class="fec-link-stretched">Mehta &amp; Shah Sangeet</a></h2>
+          </div>
+          <span class="fec-countdown">
+            <span aria-hidden="true" class="material-symbols-outlined icon-fill">timer</span>
+            12 days to go
+          </span>
+        </div>
+
+        <div class="fec-collab-sub fec-collab-only">
+          <p class="fec-role-tag">
+            <span aria-hidden="true" class="material-symbols-outlined">handshake</span>
+            Collaborator · Budget Manager
+          </p>
+          <div class="fec-people">
+            <div class="avatar-stack" aria-label="Other collaborators">
+              <span class="avatar-stack-item">M</span>
+              <span class="avatar-stack-item">S</span>
+              <span class="avatar-stack-item">A</span>
+            </div>
+            <span class="avatar-stack-overflow">+2</span>
+          </div>
+        </div>
 
         <div class="fec-meta">
           <span class="hero-meta-chip">
@@ -400,27 +408,27 @@
             </span>
           </span>
           <span class="hero-meta-chip">
-            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">badge</span></span>
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">groups</span></span>
             <span class="hero-meta-text">
-              <span class="hero-meta-label">Your role</span>
-              <span class="hero-meta-value">Budget Manager</span>
+              <span class="hero-meta-label">Guests</span>
+              <span class="hero-meta-value">280 invited</span>
             </span>
           </span>
         </div>
 
-        <div class="fec-bottom">
-          <div class="flex items-center gap-3">
-            <div class="avatar-stack" aria-label="Other collaborators">
-              <span class="avatar-stack-item">M</span>
-              <span class="avatar-stack-item">S</span>
-              <span class="avatar-stack-item">A</span>
-            </div>
-            <span class="avatar-stack-overflow">+2</span>
+        <div class="fec-progress">
+          <div class="fec-progress-head">
+            <span class="fec-progress-label">Budget used</span>
+            <span class="fec-progress-val">62% · ₹3.1L of ₹5L</span>
           </div>
-          <span class="fec-countdown">
-            <span aria-hidden="true" class="material-symbols-outlined icon-fill">timer</span>
-            12 days to go
-          </span>
+          <div class="fec-progress-track"><span class="fec-progress-fill" style="width:62%"></span></div>
+        </div>
+
+        <div class="fec-bottom">
+          <a href="#" class="fec-upnext">
+            <span aria-hidden="true" class="material-symbols-outlined">bolt</span>
+            <span class="fec-upnext-text"><strong>Up next</strong> · Approve florist quote · due in 2 days</span>
+          </a>
           <div class="fec-actions">
             <a href="#" class="btn-pill btn-pill-secondary">
               <span aria-hidden="true" class="material-symbols-outlined">checklist_rtl</span>
@@ -435,15 +443,14 @@
       </div>
     </article>
 
+    <div class="event-side">
     <!-- Compact: Corporate Gala 2026 -->
     <a href="#" class="compact-event-card">
-      <div class="cec-cover">
+      <div class="cec-body">
         <span class="cec-status cec-status-active">
           <span class="dot" aria-hidden="true"></span>
           Active · Logistics
         </span>
-      </div>
-      <div class="cec-body">
         <p class="cec-type">Corporate · Annual summit</p>
         <p class="cec-title">Corporate Gala 2026</p>
         <p class="cec-meta-line">
@@ -477,6 +484,7 @@
       <span class="empty-cta-title">Join with code</span>
       <span class="empty-cta-sub">Got an invite from a friend or organiser? Paste the code to start collaborating.</span>
     </a>
+    </div>
   </section>
 
   <!-- ─────── COLLABORATIONS · PAST ─────── -->

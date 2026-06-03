@@ -1533,3 +1533,91 @@ body[data-wb-page="edit-pages"] .page-list-row{cursor:pointer}
 }
 /* Full-width list card: a touch more row height than the Overview aside. */
 .ep-list-card .page-list-row{padding-top:.7rem;padding-bottom:.7rem}
+
+/* ════════════════════════════════════════════════════════════════════
+   Card Templates tab (card-templates.html) + Photos tab (photos.html)
+   Page-CSS only — grids/lightbox/chips are shell primitives.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Tile becomes a button that fills the cell and opens the lightbox */
+.dp-tile-trigger{
+  display:flex;flex-direction:column;gap:0;width:100%;
+  background:none;border:0;padding:0;margin:0;text-align:left;cursor:pointer;color:inherit;
+}
+.dp-tile-trigger:focus-visible{outline:none}
+.dp-tile:has(.dp-tile-trigger:focus-visible){outline:2px solid var(--brand);outline-offset:2px}
+
+/* Generalized placeholder thumb (de-scoped from .dp-current-template-thumb) */
+.dp-tile-thumb .dp-thumb-fallback{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.4rem;color:var(--muted);text-align:center;padding:.5rem;width:100%;height:100%;
+  background:var(--brand-tint);
+}
+.dp-tile-thumb .dp-thumb-fallback .material-symbols-outlined{font-size:30px;color:var(--brand)}
+/* Per-style tints so the placeholder library reads as intentional, not broken */
+.dp-tile[data-style="classic"] .dp-thumb-fallback{background:color-mix(in oklab,#8a6d3b 14%,var(--card))}
+.dp-tile[data-style="floral"]  .dp-thumb-fallback{background:color-mix(in oklab,#d6336c 12%,var(--card))}
+.dp-tile[data-style="modern"]  .dp-thumb-fallback{background:color-mix(in oklab,#3b5bdb 12%,var(--card))}
+.dp-tile[data-style="festive"] .dp-thumb-fallback{background:color-mix(in oklab,#f08c00 16%,var(--card))}
+.dp-tile[data-style="minimal"] .dp-thumb-fallback{background:color-mix(in oklab,#495057 12%,var(--card))}
+.dp-tile[data-style="royal"]   .dp-thumb-fallback{background:color-mix(in oklab,#7048e8 14%,var(--card))}
+
+.dp-card-style-tag{
+  display:inline-flex;align-items:center;padding:.15rem .5rem;border-radius:9999px;
+  background:var(--line-soft);color:var(--muted);
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+}
+.dp-result-count{font-size:12px;color:var(--muted);font-weight:600;margin:.6rem 0 1rem}
+
+/* No-results / empty grid message (both tabs) */
+.dp-grid-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:.75rem;border:1px dashed var(--line);border-radius:20px;padding:3rem 1.5rem}
+.dp-grid-empty-icon{width:60px;height:60px;border-radius:9999px;background:var(--brand-tint);color:var(--brand);display:inline-flex;align-items:center;justify-content:center}
+.dp-grid-empty-icon .material-symbols-outlined{font-size:30px}
+.dp-grid-empty-title{font-family:'Poppins',sans-serif;font-weight:700;font-size:17px;color:var(--ink)}
+.dp-grid-empty-help{font-size:13px;color:var(--muted);max-width:24rem}
+
+/* Lightbox: WhatsApp hand-off (parked) reads as a quiet secondary on the dark bar */
+.modal-lightbox-actions .btn-pill-secondary{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
+
+/* ── Photos + Card Templates list pages ──
+   These use .page-band (width only, no vertical margin), so the content card
+   sat flush against the wb-tabs strip. Restore the canonical .dp-shell top
+   rhythm (1.25rem) so the content separates cleanly from the tabs. */
+#wb-main.page-band{margin-top:1.25rem}
+
+/* ── Photos tab ── */
+.dp-card-head-aux{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.dp-tip-banner{display:flex;align-items:flex-start;gap:.7rem;background:var(--brand-tint);border:1px solid var(--brand-tint-2);border-radius:16px;padding:.85rem 1rem;margin-bottom:1.25rem;font-size:13px;color:var(--ink-soft)}
+.dp-tip-banner .material-symbols-outlined{color:var(--brand);font-size:20px;flex:0 0 auto}
+.dp-tip-banner strong{color:var(--ink);font-weight:700}
+
+.dp-tile-photo{position:relative}
+.dp-tile-photo .dp-tile-thumb{aspect-ratio:1/1}
+.dp-photo-select{position:absolute;top:.5rem;left:.5rem;z-index:3;cursor:pointer}
+.dp-photo-select input{position:absolute;opacity:0;width:0;height:0}
+.dp-photo-check{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:9999px;background:rgba(0,0,0,.45);border:1.5px solid rgba(255,255,255,.7);color:transparent;backdrop-filter:blur(4px);transition:background .15s,color .15s}
+.dp-photo-check .material-symbols-outlined{font-size:16px}
+.dp-photo-select input:checked + .dp-photo-check{background:var(--brand);border-color:var(--brand);color:#fff}
+.dp-photo-select input:focus-visible + .dp-photo-check{outline:2px solid var(--brand);outline-offset:2px}
+.dp-photo-cover-badge{position:absolute;top:.5rem;right:.5rem;z-index:3;display:inline-flex;align-items:center;gap:.25rem;padding:.2rem .5rem;border-radius:9999px;background:var(--brand);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+.dp-photo-cover-badge[hidden]{display:none}
+.dp-photo-cover-badge .material-symbols-outlined{font-size:13px}
+.dp-photo-actions{position:absolute;bottom:.5rem;right:.5rem;z-index:3;display:flex;gap:.35rem;opacity:0;transition:opacity .15s}
+.dp-tile-photo:hover .dp-photo-actions,.dp-tile-photo:focus-within .dp-photo-actions{opacity:1}
+@media (hover:none){.dp-photo-actions{opacity:1}}
+.dp-photo-actions .dp-icon-btn-sm{background:rgba(0,0,0,.5);color:#fff;backdrop-filter:blur(4px)}
+@media (hover:hover){.dp-photo-actions .dp-icon-btn-sm[data-ph-remove]:hover{background:#e5484d}}
+
+.dp-photos-empty{display:none;flex-direction:column;align-items:center;text-align:center;gap:.85rem;padding:3.5rem 1.5rem}
+.dp-photos-card[data-photos-state="empty"] .dp-tile-grid,
+.dp-photos-card[data-photos-state="empty"] .dp-card-head-aux{display:none}
+.dp-photos-card[data-photos-state="empty"] .dp-photos-empty{display:flex}
+.dp-photos-empty-icon{width:64px;height:64px;border-radius:9999px;background:var(--brand-tint);color:var(--brand);display:inline-flex;align-items:center;justify-content:center}
+.dp-photos-empty-icon .material-symbols-outlined{font-size:32px}
+.dp-photos-empty-title{font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;color:var(--ink)}
+.dp-photos-empty-help{font-size:13px;color:var(--muted);max-width:26rem}
+
+.dp-bulk-bar{position:sticky;bottom:1rem;z-index:5;margin-top:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;background:var(--card);border:1px solid var(--line);border-radius:9999px;padding:.6rem .6rem .6rem 1.1rem;box-shadow:var(--shadow-clay)}
+.dp-bulk-bar[hidden]{display:none}
+.dp-bulk-count{font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;color:var(--ink)}
+.dp-bulk-actions{display:flex;gap:.5rem}

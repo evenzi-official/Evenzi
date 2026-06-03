@@ -184,24 +184,13 @@
           <li class="bc-sep" aria-hidden="true">
             <svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg>
           </li>
-          <li><a href="event-control.html" data-bc-link>ANYA &amp; KABIR</a></li>
-          <li class="bc-sep" aria-hidden="true">
-            <svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg>
-          </li>
           <li class="bc-active" aria-current="page">
             <span class="bc-dot" aria-hidden="true"></span>
-            EVENT CONTROL
+            ANYA &amp; KABIR
           </li>
         </ol>
 
         <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
-
-        <div class="bc-system hidden md:inline-flex" aria-live="polite">
-          <span class="bc-live" aria-hidden="true"></span>
-          <span>SYNCED</span>
-          <span class="bc-mono" id="bc-clock" aria-label="Current time">--:--:--</span>
-        </div>
-
         <button type="button" class="bc-copy" aria-label="Copy breadcrumb path" data-bc-copy>
           <span aria-hidden="true" class="material-symbols-outlined" style="font-size:15px">content_copy</span>
         </button>
@@ -285,8 +274,9 @@
       </aside>
     </div>
 
-    <!-- BOTTOM ROW: stats strip -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mt-auto">
+    <!-- BOTTOM DOCK: full-width stats strip + scroll cue, pinned to hero bottom -->
+    <div class="hero-dock">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
       <!-- Guests -->
       <div class="stats-strip-card tool-card flex items-center gap-4">
         <span aria-hidden="true" class="stat-icon">
@@ -323,11 +313,12 @@
     </div>
 
     <!-- Scroll cue -->
-    <div class="text-center mt-8 md:mt-10">
+    <div class="text-center hero-scroll-cue">
       <a href="#journey" class="inline-flex flex-col items-center gap-1 text-muted hover:text-brand transition-colors group">
         <span class="text-[10px] font-display font-bold tracking-[0.3em] uppercase">Scroll · Our journey</span>
-        <span aria-hidden="true" class="material-symbols-outlined" style="font-size:18px;animation:hm-spin 0s">expand_more</span>
+        <span aria-hidden="true" class="material-symbols-outlined" style="font-size:18px">expand_more</span>
       </a>
+    </div>
     </div>
 
   </div>
@@ -340,25 +331,25 @@
 
     <!-- HEADER: title + circular progress meter -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 relative">
-      <div>
+      <a href="our-journey.html" class="group block">
         <p class="text-xs font-display font-bold tracking-[0.35em] text-brand mb-2">OUR JOURNEY</p>
-        <h2 class="font-display font-bold text-3xl md:text-4xl text-ink tracking-[-0.02em]">Where you are</h2>
+        <h2 class="font-display font-bold text-3xl md:text-4xl text-ink tracking-[-0.02em] group-hover:text-brand transition-colors">Where you are</h2>
         <p class="text-sm text-muted mt-2">Wedding day · Dec 22, 2025 · 63 days to go</p>
-      </div>
+      </a>
       <div class="flex items-center gap-5">
         <div class="relative w-24 h-24 shrink-0">
           <svg class="w-24 h-24 -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
             <circle cx="50" cy="50" r="44" stroke="var(--line)" stroke-width="8" fill="none"/>
             <circle cx="50" cy="50" r="44" stroke="var(--brand)" stroke-width="8" fill="none"
-                    stroke-dasharray="276.46" stroke-dashoffset="158" stroke-linecap="round"/>
+                    stroke-dasharray="276.46" stroke-dashoffset="6" stroke-linecap="round"/>
           </svg>
           <div class="absolute inset-0 flex items-center justify-center">
-            <span class="font-display font-bold text-xl text-ink leading-none">43%</span>
+            <span class="font-display font-bold text-2xl text-ink leading-none">6</span>
           </div>
         </div>
         <div>
-          <p class="font-display font-bold text-lg text-ink leading-tight">3 of 7</p>
-          <p class="text-xs text-muted font-semibold tracking-wide">key milestones</p>
+          <p class="font-display font-bold text-lg text-ink leading-tight">6 functions</p>
+          <p class="text-xs text-muted font-semibold tracking-wide">1 held · 5 to come</p>
         </div>
       </div>
     </div>
@@ -372,7 +363,7 @@
         <div class="relative w-20 h-20 md:w-24 md:h-24 shrink-0">
           <span aria-hidden="true" class="absolute inset-0 rounded-2xl bg-brand animate-pulse opacity-30"></span>
           <div class="relative w-full h-full rounded-2xl bg-brand text-white flex items-center justify-center" style="box-shadow:var(--shadow-clay-pill)">
-            <span aria-hidden="true" class="material-symbols-outlined text-4xl icon-fill">restaurant</span>
+            <span aria-hidden="true" class="material-symbols-outlined text-4xl icon-fill">back_hand</span>
           </div>
         </div>
 
@@ -381,25 +372,25 @@
           <div class="inline-flex items-center gap-2 mb-3">
             <span class="inline-flex items-center px-3 h-7 rounded-full bg-brand text-white font-display font-bold text-[10px] tracking-[0.25em]">
               <span aria-hidden="true" class="w-1.5 h-1.5 rounded-full bg-white mr-2 animate-pulse"></span>
-              IN PROGRESS
+              NEXT UP
             </span>
-            <span class="text-xs font-bold tracking-widest text-muted uppercase">Oct 05, 2025</span>
+            <span class="text-xs font-bold tracking-widest text-muted uppercase">Dec 19, 2025</span>
           </div>
-          <h3 class="font-display font-bold text-2xl md:text-3xl text-ink tracking-[-0.02em] mb-1">Catering menu finalisation</h3>
-          <p class="text-sm font-semibold text-ink-soft mb-3">Chef Malhotra's Tasting · Heritage Palace Kitchens</p>
-          <p class="text-sm text-muted leading-relaxed max-w-2xl">Tasting menu locked. Dietary preferences collected from 218 of 248 guests. Awaiting final sign-off from Anya &amp; Kabir before vendor confirmation.</p>
+          <h3 class="font-display font-bold text-2xl md:text-3xl text-ink tracking-[-0.02em] mb-1">Mehendi</h3>
+          <p class="text-sm font-semibold text-ink-soft mb-3">Heritage Palace · Courtyard Lawn · 4:00 PM</p>
+          <p class="text-sm text-muted leading-relaxed max-w-2xl">Henna artists confirmed. 92 of 120 invited guests have RSVP'd. Décor &amp; playlist brief shared with the events team — awaiting your final sign-off.</p>
 
           <!-- Mini sub-progress -->
           <div class="flex items-center gap-3 mt-5">
             <div class="flex-1 h-1.5 rounded-full overflow-hidden max-w-[280px]" style="background:var(--line)">
-              <div class="h-full bg-brand pf-bar rounded-full" data-fill="78" style="width:0%"></div>
+              <div class="h-full bg-brand pf-bar rounded-full" data-fill="70" style="width:0%"></div>
             </div>
-            <span class="text-xs font-display font-bold text-ink">78%</span>
+            <span class="text-xs font-display font-bold text-ink">70% ready</span>
           </div>
         </div>
 
         <!-- CTA -->
-        <a href="#" class="clay-pill bg-brand text-white font-display font-semibold text-sm tracking-wide px-5 h-11 inline-flex items-center gap-2 hover:bg-brand-hover transition-colors shrink-0 self-start md:self-center">
+        <a href="our-journey.html" class="clay-pill bg-brand text-white font-display font-semibold text-sm tracking-wide px-5 h-11 inline-flex items-center gap-2 hover:bg-brand-hover transition-colors shrink-0 self-start md:self-center">
           VIEW DETAILS
           <span aria-hidden="true" class="material-symbols-outlined text-base">arrow_forward</span>
         </a>
@@ -410,80 +401,71 @@
     <div class="relative">
       <div class="flex items-center justify-between mb-5 gap-4">
         <p class="text-[11px] font-display font-bold tracking-[0.3em] text-muted uppercase">Full roadmap</p>
-        <a href="#" class="font-display font-semibold text-xs text-brand hover:underline whitespace-nowrap">Open planner →</a>
+        <a href="our-journey.html" class="font-display font-semibold text-xs text-brand hover:underline whitespace-nowrap">Manage sub-events →</a>
       </div>
 
       <div class="roadmap-strip relative pt-3 pb-2">
         <!-- bg track -->
         <div aria-hidden="true" class="roadmap-strip-track absolute left-3 right-3 top-[22px] h-[3px] rounded-full" style="background:var(--line)"></div>
-        <!-- progress fill (covers completed → in-progress center) -->
-        <div aria-hidden="true" class="roadmap-strip-track absolute left-3 top-[22px] h-[3px] rounded-full" style="background:var(--brand);width:calc((3.5/7) * (100% - 24px))"></div>
+        <!-- progress fill (covers the held function → the next one's centre) -->
+        <div aria-hidden="true" class="roadmap-strip-track absolute left-3 top-[22px] h-[3px] rounded-full" style="background:var(--brand);width:calc((1.5/6) * (100% - 24px))"></div>
 
-        <!-- 7 milestone dots -->
-        <ol class="relative grid grid-cols-7 gap-1 md:gap-2">
+        <!-- 6 sub-event dots — the wedding's functions (add/remove via Manage sub-events) -->
+        <ol class="relative grid grid-cols-6 gap-1 md:gap-2">
 
-          <!-- 1: completed -->
+          <!-- 1: held -->
           <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full bg-brand text-white flex items-center justify-center transition-transform hover:scale-105" style="box-shadow:var(--shadow-clay-pill)" aria-label="Pre-wedding shoot, completed">
+            <button class="relative w-11 h-11 rounded-full bg-brand text-white flex items-center justify-center transition-transform hover:scale-105" style="box-shadow:var(--shadow-clay-pill)" aria-label="Pre-wedding shoot, held">
               <span aria-hidden="true" class="material-symbols-outlined text-base icon-fill">check</span>
             </button>
             <p class="mt-3 text-[11px] font-display font-bold text-ink leading-tight">Pre-wedding<br/>shoot</p>
             <p class="text-[10px] text-muted-soft tracking-wide mt-0.5">Aug 15</p>
           </li>
 
-          <!-- 2: completed -->
+          <!-- 2: next up (current focus) -->
           <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full bg-brand text-white flex items-center justify-center transition-transform hover:scale-105" style="box-shadow:var(--shadow-clay-pill)" aria-label="Save the date, completed">
-              <span aria-hidden="true" class="material-symbols-outlined text-base icon-fill">check</span>
-            </button>
-            <p class="mt-3 text-[11px] font-display font-bold text-ink leading-tight">Save<br/>the date</p>
-            <p class="text-[10px] text-muted-soft tracking-wide mt-0.5">Aug 28</p>
-          </li>
-
-          <!-- 3: completed -->
-          <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full bg-brand text-white flex items-center justify-center transition-transform hover:scale-105" style="box-shadow:var(--shadow-clay-pill)" aria-label="Invitations sent, completed">
-              <span aria-hidden="true" class="material-symbols-outlined text-base icon-fill">check</span>
-            </button>
-            <p class="mt-3 text-[11px] font-display font-bold text-ink leading-tight">Invites<br/>sent</p>
-            <p class="text-[10px] text-muted-soft tracking-wide mt-0.5">Sep 10</p>
-          </li>
-
-          <!-- 4: in progress (current) -->
-          <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full bg-brand text-white flex items-center justify-center transition-transform hover:scale-105 ring-4 ring-offset-2" style="--tw-ring-color:var(--brand-tint-2);--tw-ring-offset-color:var(--card);box-shadow:var(--shadow-clay-pill)" aria-label="Catering menu, in progress">
+            <button class="relative w-11 h-11 rounded-full bg-brand text-white flex items-center justify-center transition-transform hover:scale-105 ring-4 ring-offset-2" style="--tw-ring-color:var(--brand-tint-2);--tw-ring-offset-color:var(--card);box-shadow:var(--shadow-clay-pill)" aria-label="Mehendi, next up">
               <span aria-hidden="true" class="absolute inset-0 rounded-full bg-brand animate-pulse opacity-50"></span>
-              <span aria-hidden="true" class="material-symbols-outlined text-base icon-fill relative">restaurant</span>
+              <span aria-hidden="true" class="material-symbols-outlined text-base icon-fill relative">back_hand</span>
             </button>
-            <p class="mt-3 text-[11px] font-display font-bold text-brand leading-tight">Catering<br/>menu</p>
-            <p class="text-[10px] text-brand font-bold tracking-wide mt-0.5">Now</p>
+            <p class="mt-3 text-[11px] font-display font-bold text-brand leading-tight">Mehendi</p>
+            <p class="text-[10px] text-brand font-bold tracking-wide mt-0.5">Next · Dec 19</p>
           </li>
 
-          <!-- 5: upcoming -->
+          <!-- 3: upcoming -->
           <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full flex items-center justify-center transition-transform hover:scale-105 border-2" style="background:var(--card);border-color:var(--line)" aria-label="Outfit fittings, scheduled">
-              <span aria-hidden="true" class="material-symbols-outlined text-base text-muted-soft">checkroom</span>
+            <button class="relative w-11 h-11 rounded-full flex items-center justify-center transition-transform hover:scale-105 border-2" style="background:var(--card);border-color:var(--line)" aria-label="Haldi, scheduled">
+              <span aria-hidden="true" class="material-symbols-outlined text-base text-muted-soft">spa</span>
             </button>
-            <p class="mt-3 text-[11px] font-display font-bold text-muted leading-tight">Outfit<br/>fittings</p>
-            <p class="text-[10px] text-muted-soft tracking-wide mt-0.5">Nov 02</p>
+            <p class="mt-3 text-[11px] font-display font-bold text-muted leading-tight">Haldi</p>
+            <p class="text-[10px] text-muted-soft tracking-wide mt-0.5">Dec 20</p>
+          </li>
+
+          <!-- 4: upcoming -->
+          <li class="flex flex-col items-center text-center">
+            <button class="relative w-11 h-11 rounded-full flex items-center justify-center transition-transform hover:scale-105 border-2" style="background:var(--card);border-color:var(--line)" aria-label="Sangeet, scheduled">
+              <span aria-hidden="true" class="material-symbols-outlined text-base text-muted-soft">music_note</span>
+            </button>
+            <p class="mt-3 text-[11px] font-display font-bold text-muted leading-tight">Sangeet</p>
+            <p class="text-[10px] text-muted-soft tracking-wide mt-0.5">Dec 20</p>
+          </li>
+
+          <!-- 5: upcoming (the big day) -->
+          <li class="flex flex-col items-center text-center">
+            <button class="relative w-11 h-11 rounded-full flex items-center justify-center transition-transform hover:scale-105 border-2" style="background:var(--card);border-color:var(--brand)" aria-label="Wedding ceremony, scheduled">
+              <span aria-hidden="true" class="material-symbols-outlined text-base text-brand icon-fill">favorite</span>
+            </button>
+            <p class="mt-3 text-[11px] font-display font-bold text-brand leading-tight">Wedding<br/>ceremony</p>
+            <p class="text-[10px] text-brand tracking-wide mt-0.5 font-bold">Dec 22</p>
           </li>
 
           <!-- 6: upcoming -->
           <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full flex items-center justify-center transition-transform hover:scale-105 border-2" style="background:var(--card);border-color:var(--line)" aria-label="Mehendi and Sangeet, scheduled">
-              <span aria-hidden="true" class="material-symbols-outlined text-base text-muted-soft">music_note</span>
+            <button class="relative w-11 h-11 rounded-full flex items-center justify-center transition-transform hover:scale-105 border-2" style="background:var(--card);border-color:var(--line)" aria-label="Reception, scheduled">
+              <span aria-hidden="true" class="material-symbols-outlined text-base text-muted-soft">celebration</span>
             </button>
-            <p class="mt-3 text-[11px] font-display font-bold text-muted leading-tight">Mehendi<br/>&amp; Sangeet</p>
-            <p class="text-[10px] text-muted-soft tracking-wide mt-0.5">Dec 19</p>
-          </li>
-
-          <!-- 7: upcoming (the big day) -->
-          <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full flex items-center justify-center transition-transform hover:scale-105 border-2" style="background:var(--card);border-color:var(--brand)" aria-label="Wedding day, scheduled">
-              <span aria-hidden="true" class="material-symbols-outlined text-base text-brand icon-fill">favorite</span>
-            </button>
-            <p class="mt-3 text-[11px] font-display font-bold text-brand leading-tight">Wedding<br/>day</p>
-            <p class="text-[10px] text-brand tracking-wide mt-0.5 font-bold">Dec 22</p>
+            <p class="mt-3 text-[11px] font-display font-bold text-muted leading-tight">Reception</p>
+            <p class="text-[10px] text-muted-soft tracking-wide mt-0.5">Dec 22</p>
           </li>
 
         </ol>
@@ -501,10 +483,10 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-12 gap-5 lg:gap-6">
+  <div class="bento-grid">
 
     <!-- 1. Guest management — RECOMMENDED, active -->
-    <a href="../guests/guests.html" id="guests" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-5 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="../guests/guests.html" id="guests" class="clay-card tool-card p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">01</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">groups</span>
@@ -518,7 +500,7 @@
     </a>
 
     <!-- 2. Digital invitations -->
-    <a href="../invitations/invitations.html" id="invitations" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-4 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="../invitations/invitations.html" id="invitations" class="clay-card tool-card p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">02</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">forward_to_inbox</span>
@@ -532,12 +514,12 @@
     </a>
 
     <!-- 3. Planning tools — small -->
-    <a href="../planning/planning.html" id="planning" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-3 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="../planning/planning.html" id="planning" class="clay-card tool-card p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">03</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">checklist_rtl</span>
       </div>
-      <h3 class="font-display font-bold text-xl text-ink mb-2 tracking-[-0.01em]">Planning</h3>
+      <h3 class="font-display font-bold text-2xl text-ink mb-2 tracking-[-0.01em]">Planning</h3>
       <p class="text-muted text-sm leading-relaxed mb-6">Checklist + budget tracker.</p>
       <div class="flex items-center gap-2">
         <span class="clay-pill bg-cream-soft text-ink-soft px-3 h-8 inline-flex items-center font-display font-bold text-xs tracking-wide">8 / 24 DONE</span>
@@ -545,7 +527,7 @@
     </a>
 
     <!-- 4. Media & memories -->
-    <a href="../media/media.html" id="media" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-7 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="../media/media.html" id="media" class="clay-card tool-card p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">04</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">photo_library</span>
@@ -559,7 +541,7 @@
     </a>
 
     <!-- 5. Event website -->
-    <a href="../website/website.html" id="website" class="clay-card tool-card col-span-12 md:col-span-6 lg:col-span-5 p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
+    <a href="../website/overview.html" id="website" class="clay-card tool-card p-7 md:p-8 group cursor-pointer relative overflow-hidden scroll-mt-28">
       <span class="tool-card-num">05</span>
       <div aria-hidden="true" class="tool-card-icon mb-6">
         <span class="material-symbols-outlined icon-fill">language</span>
@@ -712,7 +694,7 @@
           <p class="text-xs font-display font-bold tracking-[0.35em] text-brand mb-2">THIS WEEK</p>
           <h3 class="font-display font-bold text-2xl text-ink tracking-[-0.01em]">Recent activity</h3>
         </div>
-        <a href="#" class="font-display font-semibold text-sm text-brand hover:underline whitespace-nowrap">All →</a>
+        <a href="../planning/planning.html" class="font-display font-semibold text-sm text-brand hover:underline whitespace-nowrap">All →</a>
       </div>
       <ol class="relative pl-7 space-y-6 scrollable-list pr-2 before:content-[''] before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-line">
         <li class="relative">

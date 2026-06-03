@@ -137,6 +137,15 @@ The shell uses Tailwind utility classes for spacing rather than custom CSS spaci
 - Floating nav width: `max-width: 1440px` (matches main content container)
 - Touch targets: ≥36px in chrome, ≥44px in primary actions
 
+#### Page width contract (canonical — do not hand-roll)
+
+Every top-level page block — the breadcrumb wrap, `<main>`, and `<footer>` — must sit in the **1440px band** so content lines up with the floating nav. Use the shell class, never ad-hoc widths:
+
+- **`.page-band`** (shell.css) — the single source of truth: `max-width:1440px` + `padding-inline` 1.5rem→2.5rem at 768px. Horizontal only; set vertical padding per element.
+- **`.bc-wrap`** — the breadcrumb-specific variant of the same band (adds `padding-top`). `.bc-wrap-narrow` caps at 1280px for 1280-grid module pages only.
+
+> New page? Apply `.page-band` to `<main>`/`<footer>` and `.bc-wrap` to the breadcrumb. **Do not** type `max-w-[…] mx-auto px-… ` on page blocks — that hand-rolling is what kept drifting narrower than the nav and leaving empty side gutters.
+
 ---
 
 ## Shadows & Elevation

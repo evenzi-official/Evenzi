@@ -320,6 +320,23 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
    override the max-width with .bc-wrap-narrow, but the spacing stays. */
 .bc-wrap-narrow{max-width:1280px}
 
+/* ── CANONICAL PAGE BAND ──────────────────────────────────────────────
+   THE single source of truth for page-content width. Every top-level
+   page block — the breadcrumb wrap (.bc-wrap), <main>, and <footer> —
+   must sit in this 1440px band so content always lines up with the
+   floating nav. Horizontal only: set vertical padding per element.
+   New page? Wrap each band in `.page-band` (or `.bc-wrap` for the
+   breadcrumb). Do NOT hand-roll max-w-[…] / px-… on page blocks —
+   that's what keeps drifting. */
+.page-band{
+  max-width:1440px;
+  margin-inline:auto;
+  padding-inline:1.5rem;     /* px-6 */
+}
+@media (min-width:768px){
+  .page-band{padding-inline:2.5rem}   /* md:px-10 */
+}
+
 /* ════════════════════════════════════════════════════════════════════
    FUTURISTIC BREADCRUMB
    ════════════════════════════════════════════════════════════════════ */
@@ -351,7 +368,7 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
   .bc-shell{padding:.3rem .6rem .3rem .3rem;gap:.35rem}
 }
 /* ── Mobile breadcrumb collapse (≤767 — reuses the md breakpoint used by
-   bc-copy/bc-system). Drop the redundant DASHBOARD crumb + its separator,
+   bc-copy). Drop the redundant DASHBOARD crumb + its separator,
    keep the event-name → active trail. Two crumbs preserves real breadcrumb
    semantics AND the "which event am I in" anchor (the founder's question);
    DASHBOARD stays reachable via the floating-nav logo. This is the SINGLE
@@ -398,7 +415,6 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
 }
 @keyframes bc-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in oklab,var(--brand) 65%,transparent)}50%{box-shadow:0 0 0 6px color-mix(in oklab,var(--brand) 0%,transparent)}}
 .bc-divider{width:1px;height:16px;background:var(--brand-tint-2);margin:0 .15rem}
-.bc-system{display:inline-flex;align-items:center;gap:.45rem;font-size:10px;font-weight:700;letter-spacing:.22em;color:var(--muted);position:relative}
 .bc-live{width:6px;height:6px;border-radius:999px;background:var(--brand);box-shadow:0 0 0 0 color-mix(in oklab,var(--brand) 50%,transparent);animation:bc-pulse 2s ease-in-out infinite}
 .bc-mono{font-feature-settings:"tnum","ss01"}
 .bc-copy{
@@ -2291,7 +2307,7 @@ body.no-scroll{overflow:hidden}
    Used by sub-page tops across event modules (Website, Media, Guests,
    Planning, Settings). Replaces ad-hoc page-eyebrow / settings-h1
    patterns in older pages. Pairs with the rich .bc-shell breadcrumb
-   above (with bc-active pill + bc-system SYNCED + bc-copy).
+   above (with bc-active pill + bc-copy).
    ════════════════════════════════════════════════════════════════════ */
 .section-head{
   max-width:1440px;          /* aligned to .floating-nav width */

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Our Journey</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Anya & Kabir's Wedding · Sub-events & functions on Evenzi." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<link rel="manifest" href="manifest.webmanifest" />
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          bg:'var(--bg)', card:'var(--card)',
+          cream:'var(--bg)','cream-soft':'var(--cream-soft)',
+          peach:'var(--peach)','peach-deep':'var(--peach-deep)',
+          'dark-card':'var(--dark-card)','dark-card-soft':'var(--dark-card-soft)',
+          brand:'var(--brand)','brand-hover':'var(--brand-hover)',
+          'brand-tint':'var(--brand-tint)','brand-tint-2':'var(--brand-tint-2)',
+          ink:'var(--ink)','ink-soft':'var(--ink-soft)',
+          muted:'var(--muted)','muted-soft':'var(--muted-soft)',
+          line:'var(--line)','line-soft':'var(--line-soft)',
+        },
+        fontFamily: { display:['Poppins','sans-serif'], body:['Poppins','sans-serif'] },
+        borderRadius: { 'clay':'24px','clay-sm':'16px','clay-lg':'32px' },
+      }
+    }
+  }
+</script>
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="our-journey.css" />
+</head>
+<body data-page="our-journey" data-section="dashboard">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+    <div class="nav-tabs inline-flex" role="tablist" aria-label="Primary view">
+      <a href="event-control.html" role="tab" data-section="dashboard" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="../website/overview.html" role="tab" data-section="website" class="nav-tab" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<aside class="tool-rail" aria-label="Event tools">
+  <a href="../guests/guests.html" class="tr-btn" data-label="Guest management" data-page="guests">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+  </a>
+  <a href="../invitations/invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
+  </a>
+  <a href="../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
+  </a>
+  <a href="../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
+  </a>
+  <a href="../event-settings/general.html" class="tr-btn" data-label="Event settings" data-page="event-settings">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+  </a>
+  <span class="tr-divider" aria-hidden="true"></span>
+  <span class="tr-status" aria-hidden="true">
+    <span class="bc-live"></span>
+    LIVE
+  </span>
+</aside>
+
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="event-control.html" class="bc-back" aria-label="Back to event control" data-bc-back data-bc-back-label="EVENT CONTROL">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="event-control.html" data-bc-link>ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        OUR JOURNEY
+      </li>
+    </ol>
+    <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
+    <button type="button" class="bc-copy" aria-label="Copy breadcrumb path" data-bc-copy data-bc-copy-path="evenzi://dashboard / anya-kabir / our-journey">
+      <span aria-hidden="true" class="material-symbols-outlined" style="font-size:15px">content_copy</span>
+    </button>
+  </nav>
+</div>
+
+<main class="page-band oj-main reveal">
+
+  <!-- Header -->
+  <header class="oj-header">
+    <p class="text-[11px] font-bold tracking-[0.22em] text-brand uppercase mb-2">Our Journey</p>
+    <h1 class="text-4xl md:text-5xl font-display font-bold text-ink leading-[1.05]">Sub-events &amp; functions</h1>
+    <p class="mt-4 text-base md:text-lg text-muted max-w-2xl">Add the ceremonies and functions that make up your celebration. These build the roadmap on Event Control and the schedule shown on your public event website.</p>
+  </header>
+
+  <!-- Summary + Add -->
+  <div class="oj-bar">
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="clay-pill bg-brand-tint text-brand px-3 h-8 inline-flex items-center font-display font-bold text-xs tracking-wide" id="oj-count">6 FUNCTIONS</span>
+      <span class="clay-pill bg-cream-soft text-ink-soft px-3 h-8 inline-flex items-center font-display font-bold text-xs tracking-wide">1 HELD · 5 TO COME</span>
+    </div>
+    <button type="button" class="btn-pill btn-pill-primary" id="oj-add" data-oj-add>
+      <span aria-hidden="true" class="material-symbols-outlined">add</span>
+      Add sub-event
+    </button>
+  </div>
+
+  <!-- Sub-events list -->
+  <ul class="oj-list" id="oj-list">
+
+    <!-- 1: held -->
+    <li class="oj-row clay-card">
+      <span class="oj-row-icon" aria-hidden="true"><span class="material-symbols-outlined icon-fill">photo_camera</span></span>
+      <div class="oj-row-main">
+        <div class="oj-row-head">
+          <h2 class="oj-row-title">Pre-wedding shoot</h2>
+          <span class="oj-tag oj-tag-held">Held</span>
+        </div>
+        <p class="oj-row-meta">Fri, Aug 15 · 7:00 AM · Lake Pichola, Udaipur</p>
+      </div>
+      <div class="oj-row-actions">
+        <label class="oj-vis">
+          <span class="oj-vis-label">Website</span>
+          <button type="button" role="switch" aria-checked="false" class="toggle-switch" aria-label="Show Pre-wedding shoot on website"></button>
+        </label>
+        <button type="button" class="fn-icon-btn" data-oj-edit aria-label="Edit Pre-wedding shoot"><span aria-hidden="true" class="material-symbols-outlined">edit</span></button>
+        <button type="button" class="fn-icon-btn oj-del" data-oj-remove aria-label="Remove Pre-wedding shoot"><span aria-hidden="true" class="material-symbols-outlined">delete</span></button>
+      </div>
+    </li>
+
+    <!-- 2: next up -->
+    <li class="oj-row clay-card is-next">
+      <span class="oj-row-icon" aria-hidden="true"><span class="material-symbols-outlined icon-fill">back_hand</span></span>
+      <div class="oj-row-main">
+        <div class="oj-row-head">
+          <h2 class="oj-row-title">Mehendi</h2>
+          <span class="oj-tag oj-tag-next"><span class="oj-dot" aria-hidden="true"></span>Next up</span>
+        </div>
+        <p class="oj-row-meta">Fri, Dec 19 · 4:00 PM · Heritage Palace, Courtyard Lawn</p>
+      </div>
+      <div class="oj-row-actions">
+        <label class="oj-vis">
+          <span class="oj-vis-label">Website</span>
+          <button type="button" role="switch" aria-checked="true" class="toggle-switch" aria-label="Show Mehendi on website"></button>
+        </label>
+        <button type="button" class="fn-icon-btn" data-oj-edit aria-label="Edit Mehendi"><span aria-hidden="true" class="material-symbols-outlined">edit</span></button>
+        <button type="button" class="fn-icon-btn oj-del" data-oj-remove aria-label="Remove Mehendi"><span aria-hidden="true" class="material-symbols-outlined">delete</span></button>
+      </div>
+    </li>
+
+    <!-- 3 -->
+    <li class="oj-row clay-card">
+      <span class="oj-row-icon" aria-hidden="true"><span class="material-symbols-outlined icon-fill">spa</span></span>
+      <div class="oj-row-main">
+        <div class="oj-row-head"><h2 class="oj-row-title">Haldi</h2></div>
+        <p class="oj-row-meta">Sat, Dec 20 · 10:00 AM · Heritage Palace, Garden</p>
+      </div>
+      <div class="oj-row-actions">
+        <label class="oj-vis">
+          <span class="oj-vis-label">Website</span>
+          <button type="button" role="switch" aria-checked="true" class="toggle-switch" aria-label="Show Haldi on website"></button>
+        </label>
+        <button type="button" class="fn-icon-btn" data-oj-edit aria-label="Edit Haldi"><span aria-hidden="true" class="material-symbols-outlined">edit</span></button>
+        <button type="button" class="fn-icon-btn oj-del" data-oj-remove aria-label="Remove Haldi"><span aria-hidden="true" class="material-symbols-outlined">delete</span></button>
+      </div>
+    </li>
+
+    <!-- 4 -->
+    <li class="oj-row clay-card">
+      <span class="oj-row-icon" aria-hidden="true"><span class="material-symbols-outlined icon-fill">music_note</span></span>
+      <div class="oj-row-main">
+        <div class="oj-row-head"><h2 class="oj-row-title">Sangeet</h2></div>
+        <p class="oj-row-meta">Sat, Dec 20 · 7:00 PM · Heritage Palace, Banquet Hall</p>
+      </div>
+      <div class="oj-row-actions">
+        <label class="oj-vis">
+          <span class="oj-vis-label">Website</span>
+          <button type="button" role="switch" aria-checked="true" class="toggle-switch" aria-label="Show Sangeet on website"></button>
+        </label>
+        <button type="button" class="fn-icon-btn" data-oj-edit aria-label="Edit Sangeet"><span aria-hidden="true" class="material-symbols-outlined">edit</span></button>
+        <button type="button" class="fn-icon-btn oj-del" data-oj-remove aria-label="Remove Sangeet"><span aria-hidden="true" class="material-symbols-outlined">delete</span></button>
+      </div>
+    </li>
+
+    <!-- 5: the big day -->
+    <li class="oj-row clay-card is-marquee">
+      <span class="oj-row-icon oj-row-icon-brand" aria-hidden="true"><span class="material-symbols-outlined icon-fill">favorite</span></span>
+      <div class="oj-row-main">
+        <div class="oj-row-head"><h2 class="oj-row-title">Wedding ceremony</h2><span class="oj-tag oj-tag-day">The big day</span></div>
+        <p class="oj-row-meta">Mon, Dec 22 · 8:00 AM · Heritage Palace, Mandap Lawn</p>
+      </div>
+      <div class="oj-row-actions">
+        <label class="oj-vis">
+          <span class="oj-vis-label">Website</span>
+          <button type="button" role="switch" aria-checked="true" class="toggle-switch" aria-label="Show Wedding ceremony on website"></button>
+        </label>
+        <button type="button" class="fn-icon-btn" data-oj-edit aria-label="Edit Wedding ceremony"><span aria-hidden="true" class="material-symbols-outlined">edit</span></button>
+        <button type="button" class="fn-icon-btn oj-del" data-oj-remove aria-label="Remove Wedding ceremony"><span aria-hidden="true" class="material-symbols-outlined">delete</span></button>
+      </div>
+    </li>
+
+    <!-- 6 -->
+    <li class="oj-row clay-card">
+      <span class="oj-row-icon" aria-hidden="true"><span class="material-symbols-outlined icon-fill">celebration</span></span>
+      <div class="oj-row-main">
+        <div class="oj-row-head"><h2 class="oj-row-title">Reception</h2></div>
+        <p class="oj-row-meta">Mon, Dec 22 · 7:00 PM · Heritage Palace, Grand Ballroom</p>
+      </div>
+      <div class="oj-row-actions">
+        <label class="oj-vis">
+          <span class="oj-vis-label">Website</span>
+          <button type="button" role="switch" aria-checked="true" class="toggle-switch" aria-label="Show Reception on website"></button>
+        </label>
+        <button type="button" class="fn-icon-btn" data-oj-edit aria-label="Edit Reception"><span aria-hidden="true" class="material-symbols-outlined">edit</span></button>
+        <button type="button" class="fn-icon-btn oj-del" data-oj-remove aria-label="Remove Reception"><span aria-hidden="true" class="material-symbols-outlined">delete</span></button>
+      </div>
+    </li>
+
+  </ul>
+
+  <!-- Empty state (revealed when the list is cleared) -->
+  <div class="oj-empty hidden" id="oj-empty">
+    <span class="oj-empty-icon" aria-hidden="true"><span class="material-symbols-outlined">event</span></span>
+    <p class="oj-empty-title">No functions yet</p>
+    <p class="oj-empty-sub">Add the ceremonies and functions for your celebration — they'll appear here, on Event Control, and on your event website.</p>
+    <button type="button" class="btn-pill btn-pill-primary" data-oj-add>
+      <span aria-hidden="true" class="material-symbols-outlined">add</span>
+      Add your first sub-event
+    </button>
+  </div>
+
+  <p class="oj-foot-note">Tip: toggle <strong>Website</strong> off to keep a function private — it stays on your Event Control roadmap but won't show on the public schedule.</p>
+
+</main>
+
+<footer class="page-band mt-20 pt-10 pb-10 border-t border-line">
+  <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="flex items-center gap-3">
+      <span aria-hidden="true" class="w-9 h-9 shrink-0 rounded-full bg-brand text-white inline-flex items-center justify-center font-display font-bold">E</span>
+      <p class="text-sm text-muted font-semibold">© 2026 Evenzi · Capture · Share · Cherish</p>
+    </div>
+    <div class="flex items-center gap-6 text-xs font-bold tracking-widest text-muted uppercase">
+      <a href="#" class="hover:text-brand transition-colors">Privacy</a>
+      <a href="#" class="hover:text-brand transition-colors">Terms</a>
+      <a href="#" class="hover:text-brand transition-colors">Help</a>
+    </div>
+  </div>
+</footer>
+
+<button aria-label="Open help center" class="help-fab">
+  <span aria-hidden="true" class="material-symbols-outlined icon-fill">support_agent</span>
+</button>
+
+<!-- ── Add / Edit sub-event modal (reused for both) ── -->
+<div id="oj-form-modal" class="modal-scrim" data-modal>
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="oj-form-title">
+    <div class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="oj-form-title">Add sub-event</h2>
+        <p class="modal-sub">Functions appear on Event Control and your website schedule.</p>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Close">
+        <span aria-hidden="true" class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body oj-form-body">
+      <div class="form-group">
+        <label class="form-label" for="oj-f-name">Function name</label>
+        <input id="oj-f-name" class="form-input" type="text" placeholder="e.g. Mehendi, Sangeet, Reception" autocomplete="off" aria-describedby="oj-f-name-err" />
+        <p class="form-error" id="oj-f-name-err" role="alert" hidden>Give this function a name.</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="oj-f-type">Type</label>
+        <div class="form-select">
+          <select id="oj-f-type">
+            <option value="Pre-wedding shoot">Pre-wedding shoot</option>
+            <option value="Engagement">Engagement / Roka</option>
+            <option value="Mehendi">Mehendi</option>
+            <option value="Haldi">Haldi</option>
+            <option value="Sangeet">Sangeet</option>
+            <option value="Wedding ceremony">Wedding ceremony</option>
+            <option value="Reception">Reception</option>
+            <option value="Other">Other / custom</option>
+          </select>
+          <span class="form-select-chevron" aria-hidden="true"><span class="material-symbols-outlined">expand_more</span></span>
+        </div>
+      </div>
+      <div class="oj-form-row">
+        <div class="form-group">
+          <label class="form-label" for="oj-f-date">Date</label>
+          <input id="oj-f-date" class="form-input" type="text" placeholder="e.g. Sat, Dec 20" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="oj-f-time">Time</label>
+          <input id="oj-f-time" class="form-input" type="text" placeholder="e.g. 4:00 PM" autocomplete="off" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="oj-f-venue">Venue</label>
+        <input id="oj-f-venue" class="form-input" type="text" placeholder="e.g. Heritage Palace, Courtyard Lawn" autocomplete="off" />
+      </div>
+      <label class="oj-form-toggle">
+        <span class="oj-form-toggle-text">
+          <span class="oj-form-toggle-title">Show on event website</span>
+          <span class="oj-form-toggle-sub">Off = stays on your roadmap but hidden from guests.</span>
+        </span>
+        <button type="button" role="switch" aria-checked="true" class="toggle-switch" id="oj-f-web" aria-label="Show on event website"></button>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="oj-form-save">Add sub-event</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Remove confirm ── -->
+<div id="oj-del-modal" class="modal-scrim" data-modal>
+  <div class="modal-card lg-glass-card modal-confirm-cautionary" role="dialog" aria-modal="true" aria-labelledby="oj-del-title">
+    <span class="modal-confirm-icon is-cautionary" aria-hidden="true"><span class="material-symbols-outlined">delete</span></span>
+    <h2 class="modal-confirm-title" id="oj-del-title">Remove this function?</h2>
+    <p class="modal-confirm-text" id="oj-del-text">It'll be removed from your journey, the Event Control roadmap and your website schedule. This can't be undone.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Keep it</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="oj-del-confirm">Remove</button>
+    </div>
+  </div>
+</div>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">PATH COPIED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="our-journey.js"></script>
+</body>
+</html>
