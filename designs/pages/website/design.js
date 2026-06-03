@@ -31,7 +31,8 @@
   /* ── Template definitions (palette + font defaults per template).
         The full template "bundle" decision lives here because the
         Design tab needs to know what to apply on template change.
-        IDs match data-dp-template-pick attributes in design.html. */
+        Keys are the canonical template IDs used by the apply
+        round-trip (sessionStorage.dpTemplateApplied) and templates.js. */
   var TEMPLATES = {
     'classic-romance': { palette: 'blush',    font: 'cormorant', name: 'Classic Romance',  blurb: 'Editorial layout, serif headings, blush palette.' },
     'minimal-modern':  { palette: 'ivory',    font: 'inter',     name: 'Minimal Modern',   blurb: 'Single column, sans headings, ivory palette.' },
@@ -225,11 +226,8 @@
     /* Update fallback label in the thumb (until designer screenshots land) */
     var fallback = document.querySelector('.dp-thumb-fallback-label');
     if (fallback) fallback.textContent = tpl.name;
-    /* Move the green "Current" pill to the new template's card.
-       .is-current is sticky to whichever template is live. */
-    document.querySelectorAll('#dp-template-modal .dp-template-card').forEach(function (t) {
-      t.classList.toggle('is-current', t.getAttribute('data-dp-template-pick') === tplId);
-    });
+    /* The gallery's "Current" pill is synced separately by
+       templates.js syncGalleryCurrent() — nothing to update here. */
     syncResetChips();
     toast('TEMPLATE APPLIED');
   }
