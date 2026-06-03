@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Event Website · Edit Pages · Vibrant Union</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="All the pages of your Evenzi invitation website — add, arrange, and open any page to edit." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          bg:'var(--bg)', card:'var(--card)',
+          cream:'var(--bg)','cream-soft':'var(--cream-soft)',
+          peach:'var(--peach)','peach-deep':'var(--peach-deep)',
+          'dark-card':'var(--dark-card)','dark-card-soft':'var(--dark-card-soft)',
+          brand:'var(--brand)','brand-hover':'var(--brand-hover)',
+          'brand-tint':'var(--brand-tint)','brand-tint-2':'var(--brand-tint-2)',
+          ink:'var(--ink)','ink-soft':'var(--ink-soft)',
+          muted:'var(--muted)','muted-soft':'var(--muted-soft)',
+          line:'var(--line)','line-soft':'var(--line-soft)',
+        },
+        fontFamily: { display:['Poppins','sans-serif'], body:['Poppins','sans-serif'] },
+        borderRadius: { 'clay':'24px','clay-sm':'16px','clay-lg':'32px' }
+      }
+    }
+  }
+</script>
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="website.css" />
+</head>
+<body class="min-h-dvh bg-bg text-ink" data-page="website" data-section="website" data-wb-page="edit-pages">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ────────────────────── FLOATING TOP NAV ────────────────────── -->
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../event-control/event-control.html" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="overview.html" class="nav-tab is-active" aria-current="page" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ────────────────────── FLOATING TOOL RAIL ────────────────────── -->
+<aside class="tool-rail" aria-label="Event tools">
+  <a href="../guests/guests.html" class="tr-btn" data-label="Guest management" data-page="guests">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+  </a>
+  <a href="../invitations/invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
+  </a>
+  <a href="../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
+  </a>
+  <a href="../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
+  </a>
+  <a href="../event-settings/general.html" class="tr-btn" data-label="Event settings" data-page="event-settings">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+  </a>
+</aside>
+
+<!-- ────────────────────── BREADCRUMB ────────────────────── -->
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event" data-bc-back data-bc-back-label="EVENT">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html" data-bc-link>VIBRANT UNION</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        WEBSITE · EDIT PAGES
+      </li>
+    </ol>
+    <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
+    <div class="bc-system hidden md:inline-flex" aria-live="polite">
+      <span class="bc-live" aria-hidden="true"></span>
+      <span>SYNCED</span>
+      <span class="bc-mono" id="bc-clock" aria-label="Last synced">--:--:--</span>
+    </div>
+    <button type="button" class="bc-copy" aria-label="Copy page link" data-bc-copy data-bc-copy-path="https://evenzi.com/e/vibrant-union">
+      <span aria-hidden="true" class="material-symbols-outlined">content_copy</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ────────────────────── SECTION HEAD ────────────────────── -->
+<header class="section-head reveal">
+  <p class="section-head-eyebrow">Website</p>
+  <h1 class="section-head-title">Edit Pages</h1>
+  <p class="section-head-sub">Every page on your site. Tap a page to open its editor, or add and arrange pages here.</p>
+</header>
+
+<!-- ────────────────────── WEBSITE MODULE SUB-NAV ────────────────────── -->
+<div class="wb-tabs-wrap reveal">
+  <nav class="wb-tabs" aria-label="Website sections">
+    <a href="overview.html" class="wb-tab">
+      <span class="material-symbols-outlined" aria-hidden="true">tune</span>
+      <span>Overview</span>
+    </a>
+    <a href="design.html" class="wb-tab">
+      <span class="material-symbols-outlined" aria-hidden="true">palette</span>
+      <span>Design</span>
+    </a>
+    <a href="edit-pages.html" class="wb-tab is-active" aria-current="page">
+      <span class="material-symbols-outlined" aria-hidden="true">edit_note</span>
+      <span>Edit Pages</span>
+    </a>
+    <a href="overview.html#photos" class="wb-tab">
+      <span class="material-symbols-outlined" aria-hidden="true">photo_library</span>
+      <span>Photos</span>
+    </a>
+    <a href="overview.html#cards" class="wb-tab">
+      <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+      <span>Card Templates</span>
+    </a>
+  </nav>
+</div>
+
+<!-- ────────────────────── PAGES LIST (full width) ────────────────────── -->
+<main class="bc-wrap reveal" id="wb-main">
+
+  <!-- .dp-pages-card class is REQUIRED — website.js syncPagesState() keys off it. -->
+  <section class="clay-card dp-card dp-pages-card ep-list-card" aria-labelledby="dp-pages-h" data-pages-state="populated">
+    <header class="dp-card-head">
+      <div>
+        <h2 id="dp-pages-h" class="dp-card-title">Pages</h2>
+        <p class="dp-card-sub" aria-live="polite"><span id="dp-pages-count">9</span> total · tap a page to edit</p>
+      </div>
+      <button type="button" class="dp-icon-btn dp-add-btn" data-dp-add-page aria-label="Add page">
+        <span class="material-symbols-outlined" aria-hidden="true">add</span>
+      </button>
+    </header>
+
+    <!-- Empty state (shown when data-pages-state="empty") -->
+    <div class="dp-pages-empty" aria-hidden="true">
+      <span class="material-symbols-outlined dp-pages-empty-icon" aria-hidden="true">web</span>
+      <p class="dp-pages-empty-title">No pages yet</p>
+      <p class="dp-pages-empty-help">Start with Home and RSVP — we'll set them up for you.</p>
+      <button type="button" class="btn-pill btn-pill-primary" data-dp-add-page>
+        <span class="material-symbols-outlined" aria-hidden="true">add</span>
+        Add first page
+      </button>
+    </div>
+
+    <!-- Rows lifted from the Overview Pages card in PRE-INJECTION state
+         (toggle + edit chevron only; website.js ensureRemoveButtons() adds
+         the Remove button to non-mandatory rows at load). -->
+    <ul class="dp-page-list" role="list">
+      <li class="page-list-row" data-page="home">
+        <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Home — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+        <div class="dp-page-meta">
+          <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">home</span>
+          <span class="dp-page-name">Home</span>
+          <span class="dp-page-tier dp-tier-public">Public</span>
+        </div>
+        <div class="dp-page-actions">
+          <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+          <button class="dp-icon-btn-sm" aria-label="Edit Home" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+        </div>
+      </li>
+      <li class="page-list-row" data-page="rsvp">
+        <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder RSVP — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+        <div class="dp-page-meta">
+          <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">how_to_reg</span>
+          <span class="dp-page-name">RSVP</span>
+          <span class="dp-page-tier dp-tier-private" title="Private — guest must unlock"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+        </div>
+        <div class="dp-page-actions">
+          <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+          <button class="dp-icon-btn-sm" aria-label="Edit RSVP" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+        </div>
+      </li>
+      <li class="page-list-row" data-page="schedule">
+        <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Schedule — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+        <div class="dp-page-meta">
+          <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">calendar_month</span>
+          <span class="dp-page-name">Schedule</span>
+          <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+        </div>
+        <div class="dp-page-actions">
+          <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+          <button class="dp-icon-btn-sm" aria-label="Edit Schedule" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+        </div>
+      </li>
+      <li class="page-list-row" data-page="story">
+        <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Story — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+        <div class="dp-page-meta">
+          <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">favorite</span>
+          <span class="dp-page-name">Story</span>
+          <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+        </div>
+        <div class="dp-page-actions">
+          <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+          <button class="dp-icon-btn-sm" aria-label="Edit Story" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+        </div>
+      </li>
+      <li class="page-list-row" data-page="wedding-party">
+        <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Wedding Party — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+        <div class="dp-page-meta">
+          <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">groups</span>
+          <span class="dp-page-name">Wedding Party</span>
+          <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+        </div>
+        <div class="dp-page-actions">
+          <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+          <button class="dp-icon-btn-sm" aria-label="Edit Wedding Party" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+        </div>
+      </li>
+      <li class="page-list-row is-hidden" data-page="venue">
+        <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Venue — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+        <div class="dp-page-meta">
+          <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">place</span>
+          <span class="dp-page-name">Venue</span>
+          <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+        </div>
+        <div class="dp-page-actions">
+          <button class="dp-icon-btn-sm" aria-label="Show page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility_off</span></button>
+          <button class="dp-icon-btn-sm" aria-label="Edit Venue" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+        </div>
+      </li>
+      <li class="page-list-row" data-page="travel">
+        <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Travel and Stay — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+        <div class="dp-page-meta">
+          <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">hotel</span>
+          <span class="dp-page-name">Travel &amp; Stay</span>
+          <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+        </div>
+        <div class="dp-page-actions">
+          <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+          <button class="dp-icon-btn-sm" aria-label="Edit Travel and Stay" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+        </div>
+      </li>
+      <li class="page-list-row" data-page="qa">
+        <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Q and A — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+        <div class="dp-page-meta">
+          <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">question_answer</span>
+          <span class="dp-page-name">Q &amp; A</span>
+          <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+        </div>
+        <div class="dp-page-actions">
+          <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+          <button class="dp-icon-btn-sm" aria-label="Edit Q and A" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+        </div>
+      </li>
+      <li class="page-list-row" data-page="gallery">
+        <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Gallery — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+        <div class="dp-page-meta">
+          <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">collections</span>
+          <span class="dp-page-name">Gallery</span>
+          <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+        </div>
+        <div class="dp-page-actions">
+          <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+          <button class="dp-icon-btn-sm" aria-label="Edit Gallery" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+        </div>
+      </li>
+    </ul>
+
+    <button class="dp-add-page-cta" type="button" data-dp-add-page>
+      <span class="material-symbols-outlined" aria-hidden="true">add</span>
+      Add page
+    </button>
+  </section>
+
+</main>
+
+<!-- ────────────────────── FOOTER ────────────────────── -->
+<footer class="dp-foot reveal">
+  <p>© 2026 Evenzi · Crafted with care</p>
+</footer>
+
+<!-- Help FAB -->
+<button class="help-fab" type="button" aria-label="Need help?">
+  <span class="material-symbols-outlined" aria-hidden="true">help</span>
+</button>
+
+<!-- Shell toast -->
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text"></span>
+</div>
+
+<script src="../../shared/shell.js" defer></script>
+<script src="website.js" defer></script>
+<script src="edit-pages.js" defer></script>
+</body>
+</html>

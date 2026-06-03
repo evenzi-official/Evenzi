@@ -4,6 +4,26 @@
 
 ---
 
+## Recently Landed (2026-06-03 — Website editor flow end-to-end + polish + per-page tier)
+
+Very large design-path session. Built the whole **Website / Digital Presence editor flow** (Templates → list → per-page editor) and ran a multi-step polish + founder-review pass. Every build went plan → UI/UX agent plan review → sign-off → build → test → agent post-build review. Full report: `docs/session-reports/2026-06-03-session-report.md`. Per-feature `## Built` in `designs/_plans/website-*.md`.
+
+**Shipped:**
+- **Templates** (`designs/pages/website/templates/`) — gallery `index.html` + 5 detail pages + `templates.{css,js}`. Reuses `.dp-template-card` + `[data-palette]`/`[data-font]`; "Apply" round-trips via `sessionStorage` (+ `?apply=` fallback) into the Design tab (`design.js` extended: `dpHasOverrides`, `?apply=`, `dpCurrentTemplate`).
+- **Overview modals** — Add-page picker + Remove-page confirm injected into `website.js SHARED_MODALS_HTML`. Completed the orphan **`.modal-picker-grid`** shell primitive (added the grid + `.modal-picker-tile-check` gating) + hardened radiogroup a11y. Page rows got Remove on the 7 non-mandatory pages (Home/RSVP locked).
+- **Edit Pages per-page editor** (`edit-page.{html,css,js}`) — section engine, **all 11 section types** (inline editor + faithful live preview each), new shell primitives **`.dp-section-block`** + **`.dp-preview-frame.is-scrollable`**, mobile Edit|Preview toggle, autosave indicator.
+- **Edit Pages list view** (`edit-pages.{html,js}`) — the landing the tab needed; lists all pages → click drills into the editor. Reuses the Pages-card machinery + delegated `website.js` handlers.
+- **Editor polish** (`designs/_plans/website-editor-polish-plan.md`): Step 1 spacing (asymmetric 12/16px scale, removed subtitle, scroll-into-view), Step 2 meta-card redesign (**tier vs visibility disambiguated** — tier rides with the name as a label, visibility is the one control, collapse-all moved to a chromeless row above the list), Step 3 **shell-wide mobile breadcrumb collapse** (≤767: drop DASHBOARD + sep, keep `event → active`; unified 5 ad-hoc inline `hidden md:` collapses; back-chip → 44px), Step 1b removed the module tabs from the editor.
+- **Founder review fixes:** event-control hero **top-anchored** (52px nav→breadcrumb, in sync with all pages — was centered); Share modal (squared WhatsApp textarea + 700px on desktop); **per-page Public/Private toggle** — the editor tier badge is now interactive (Home always Public; Pages list reflects via `sessionStorage epTier:<id>` + `website.js syncPageTiers()`).
+
+**Carryover / next (see report for full list):**
+- **`components.html` backfill — now sizable** (`.dp-template-card`, `.modal-picker-*`, `.dp-section-block`, `.is-scrollable`, `.epv-*`, gallery grid, tier toggle). Deferred all session.
+- **Guest-side unlock flow** (public hero + "Unlock Guest Details" modal + RSVP) — designed, not built (DP steps 7–9); needed to make Private testable end-to-end.
+- Dead `overview.html#photos`/`#cards` tab anchors (pre-existing); demo-name inconsistency ("ANYA & KABIR" vs "VIBRANT UNION"); dead `#dp-template-modal` selector in `design.js` (no-op).
+- `/agent-evolve` candidates noted in the report (orphan-primitive check, toast-only back-chip label, tier-vs-visibility, asymmetric spacing scale).
+
+---
+
 ## Recently Landed (2026-05-26 — Design tab shipped + cross-cutting bc-wrap fix + template route pivot)
 
 Large design-path session. Design tab Phases 1–12 all shipped. UI/UX agent post-build review passed (APPROVE WITH NOTES); 2 P1s fixed in-session. Cross-cutting `.bc-wrap` bug fixed across 13 pages. Template picker redesigned then pivoted to a dedicated route (gallery + detail pages queued for next session).

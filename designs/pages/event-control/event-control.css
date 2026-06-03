@@ -12,8 +12,12 @@ body[data-page="event-control"]{scroll-snap-type:y proximity}
 
 .hero-screen{
   position:relative;min-height:100dvh;
-  display:flex;flex-direction:column;justify-content:center;
-  padding:5rem 0 2.5rem;
+  /* Top-anchor the hero content so the breadcrumb sits ~52px below the nav,
+     in sync with every other page (was justify-content:center, which centred
+     content in the full-height hero and left a large void up top on desktop —
+     mobile was already flex-start). */
+  display:flex;flex-direction:column;justify-content:flex-start;
+  padding:3.25rem 0 2.5rem;   /* tuned so the nav→breadcrumb gap matches the shared 52px */
 }
 @media (max-width:768px){
   .hero-screen{min-height:auto;padding:5.5rem 0 7rem;justify-content:flex-start}

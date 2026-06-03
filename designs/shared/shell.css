@@ -350,6 +350,18 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
   .bc-path{font-size:10px;letter-spacing:.14em;gap:.3rem}
   .bc-shell{padding:.3rem .6rem .3rem .3rem;gap:.35rem}
 }
+/* ── Mobile breadcrumb collapse (≤767 — reuses the md breakpoint used by
+   bc-copy/bc-system). Drop the redundant DASHBOARD crumb + its separator,
+   keep the event-name → active trail. Two crumbs preserves real breadcrumb
+   semantics AND the "which event am I in" anchor (the founder's question);
+   DASHBOARD stays reachable via the floating-nav logo. This is the SINGLE
+   collapse mechanism — the per-page inline `hidden md:` event-name hides on
+   event-control/guests/planning/invitations/media were removed in favour of
+   this so every page's mobile breadcrumb behaves identically. ── */
+@media (max-width:767px){
+  .bc-path > li:first-child,
+  .bc-path > li:first-child + .bc-sep{display:none}
+}
 .bc-corner{position:absolute;width:9px;height:9px;border:1px solid var(--brand);pointer-events:none}
 .bc-corner-tl{top:-1px;left:-1px;border-right:0;border-bottom:0;border-top-left-radius:999px}
 .bc-corner-tr{top:-1px;right:-1px;border-left:0;border-bottom:0;border-top-right-radius:999px}
@@ -363,6 +375,9 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
 }
 @media (hover:hover) and (pointer:fine){.bc-back:hover{transform:translateX(-2px);background:var(--brand-hover)}}
 .bc-back .material-symbols-outlined{font-size:18px}
+/* Back-chip is the primary nav affordance once the path collapses on mobile —
+   clear the 44px touch floor (placed after the base rule so it wins). */
+@media (max-width:767px){.bc-back{width:44px;height:44px}}
 .bc-path{display:inline-flex;align-items:center;gap:.45rem;list-style:none;font-size:11px;font-weight:700;letter-spacing:.18em;position:relative;margin:0;padding:0}
 .bc-path a{color:var(--ink);transition:color .2s,text-shadow .2s;position:relative;text-decoration:none}
 @media (hover:hover) and (pointer:fine){.bc-path a:hover{color:var(--brand);text-shadow:0 0 12px color-mix(in oklab,var(--brand) 60%,transparent)}}
@@ -2532,6 +2547,103 @@ body.no-scroll{overflow:hidden}
 .dp-preview-frame.is-page-scoped{max-width:280px}
 [data-device-stage="desktop"] .dp-preview-frame.is-page-scoped{max-width:520px}
 
+/* Mode: .is-scrollable — per-page editor preview. The base frame is a fixed
+   phone-aspect hero mock; a multi-section page is taller than one screen, so
+   relax the aspect lock and let the screen scroll internally. The content
+   becomes a top-aligned vertical rail instead of a centred hero. */
+.dp-preview-frame.is-scrollable,
+[data-device-stage="desktop"] .dp-preview-frame.is-scrollable{
+  aspect-ratio:auto;
+  height:min(68vh, 600px);
+}
+.dp-preview-frame.is-scrollable .dp-preview-screen{
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-width:thin;
+}
+.dp-preview-frame.is-scrollable .dp-preview-content{
+  height:auto;
+  display:block;
+  justify-content:flex-start;
+  /* clear the phone notch (top:18px, 22px tall) so the first section
+     doesn't sit behind it */
+  padding:2.6rem .9rem 1.6rem;
+}
+[data-device-stage="desktop"] .dp-preview-frame.is-scrollable .dp-preview-content{
+  padding-top:1.5rem;   /* desktop chrome is traffic-light dots, much shorter */
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   .dp-section-block — per-page editor section card (Edit Pages editor)
+   Composition:
+     <ul class="dp-section-list" role="list">
+       <li class="dp-section-block" role="group" aria-label="Schedule item">
+         <div class="dp-section-head">
+           <button class="dp-section-drag" aria-disabled="true">⠿</button>
+           <span class="dp-section-type"><icon> Schedule item</span>
+           <div class="dp-section-actions">▲ ▼ 👁 🗑 ⌄</div>
+         </div>
+         <div class="dp-section-body"> …inline editor fields… </div>
+       </li>
+     </ul>
+   Reuses .dp-icon-btn-sm for every action button. First consumer: edit-page.
+   ════════════════════════════════════════════════════════════════════ */
+.dp-section-list{
+  list-style:none;margin:0;padding:0;
+  display:flex;flex-direction:column;gap:.85rem;
+}
+.dp-section-block{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--card);
+  overflow:hidden;
+  transition:opacity .15s ease,border-color .15s ease;
+}
+.dp-section-block:focus-within{border-color:color-mix(in oklab,var(--brand) 30%,var(--line))}
+.dp-section-block.is-hidden{opacity:.55}
+.dp-section-head{
+  display:flex;align-items:center;gap:.4rem;
+  padding:.5rem .6rem;
+  background:color-mix(in oklab, var(--muted) 5%, var(--card));
+  border-bottom:1px solid var(--line-soft);
+}
+.dp-section-block.is-collapsed .dp-section-head{border-bottom:0}
+.dp-section-drag{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;flex-shrink:0;
+  color:var(--muted-soft);cursor:grab;background:none;border:0;
+}
+.dp-section-drag[aria-disabled="true"]{cursor:default}
+.dp-section-drag .material-symbols-outlined{font-size:18px}
+@media (max-width:767px){ .dp-section-head .dp-section-drag{display:none} }
+.dp-section-type{
+  flex:1;min-width:0;
+  display:flex;align-items:center;gap:.4rem;
+  font-size:.82rem;font-weight:700;color:var(--ink);
+  letter-spacing:-.005em;overflow-wrap:anywhere;
+}
+.dp-section-type .material-symbols-outlined{font-size:18px;color:var(--brand);flex-shrink:0}
+.dp-section-block.is-hidden .dp-section-type{color:var(--muted)}
+.dp-section-actions{display:inline-flex;align-items:center;gap:.1rem;flex-shrink:0}
+.dp-section-actions .dp-icon-btn-sm[aria-disabled="true"]{opacity:.35;cursor:default}
+.dp-section-actions .dp-icon-btn-sm[data-sec-remove]{color:var(--muted)}
+@media (hover:hover) and (pointer:fine){
+  .dp-section-actions .dp-icon-btn-sm[data-sec-remove]:hover{color:var(--brand);background:var(--brand-tint)}
+}
+.dp-section-collapse .material-symbols-outlined{transition:transform .15s ease}
+.dp-section-block.is-collapsed .dp-section-collapse .material-symbols-outlined{transform:rotate(-90deg)}
+.dp-section-body{
+  padding:.85rem .9rem 1rem;
+  display:grid;gap:.7rem;
+}
+.dp-section-block.is-collapsed .dp-section-body{display:none}
+/* Two-field rows inside a section editor (e.g. date + time). */
+.dp-section-row{display:grid;gap:.7rem}
+@media (min-width:520px){ .dp-section-row{grid-template-columns:1fr 1fr} }
+@media (prefers-reduced-motion:reduce){
+  .dp-section-block,.dp-section-collapse .material-symbols-outlined{transition:none}
+}
+
 /* Caption sub-element (informational text under the frame) */
 .dp-preview-caption{
   display:flex;
@@ -2771,7 +2883,17 @@ body.no-scroll{overflow:hidden}
   overflow:auto;
   margin:0 -.25rem;
   padding:.25rem;
+  /* Tile grid — 1-col on small phones, 2-col from 440px. First consumer:
+     the Website Add-page picker (2026-06-02); reused by Edit Pages later. */
+  display:grid;
+  grid-template-columns:1fr;
+  gap:.6rem;
 }
+@media (min-width:440px){
+  .modal-picker-grid .modal-picker-body{grid-template-columns:repeat(2, minmax(0, 1fr))}
+}
+/* Long custom titles must not blow tile height (post-build P2-1). */
+.modal-picker-tile-name{overflow-wrap:anywhere}
 .modal-picker-grid .dp-filter-chips{margin-bottom:.85rem}
 .modal-picker-tile{
   position:relative;
@@ -2793,6 +2915,7 @@ body.no-scroll{overflow:hidden}
   }
 }
 .modal-picker-tile:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.modal-picker-tile{transition:none}}
 .modal-picker-tile.is-selected{
   border-color:var(--brand);
   background:var(--brand-tint);
@@ -2822,9 +2945,11 @@ body.no-scroll{overflow:hidden}
 .modal-picker-tile-flag.is-multi{background:var(--brand-tint);color:var(--brand)}
 .modal-picker-tile-check{
   position:absolute;top:.6rem;right:.6rem;
-  color:var(--success);
+  color:var(--brand);
+  display:none;                 /* shown only on the selected tile */
 }
-.modal-picker-tile-check .material-symbols-outlined{font-size:18px}
+.modal-picker-tile.is-selected .modal-picker-tile-check{display:inline-flex}
+.modal-picker-tile-check .material-symbols-outlined{font-size:18px;font-variation-settings:'FILL' 1}
 
 /* ── A2 · .modal-image-crop — upload + crop ─────────────────────────── */
 .modal-image-crop.modal-card{max-width:560px}

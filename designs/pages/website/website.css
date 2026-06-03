@@ -886,6 +886,13 @@
   font-size:.85rem;
   line-height:1.5;
   font-family:'Poppins',sans-serif;
+  border-radius:12px;   /* square-ish — reads as a text block, not a pill (was the clay input radius) */
+}
+/* Share modal is roomier on laptop/desktop (the default .modal-card caps at
+   520px; the WhatsApp message + QR want more breathing room). Mobile stays a
+   full-width bottom-sheet, so this only affects the centred desktop modal. */
+@media (min-width:768px){
+  #wb-share-modal .modal-card{max-width:700px}
 }
 .wb-share-send-row{
   display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem;
@@ -1485,3 +1492,44 @@
 @media (prefers-reduced-motion: reduce){
   .dp-jump-preview{transition:none}
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   ADD-PAGE PICKER + REMOVE — Overview Pages card (2026-06-02)
+   ════════════════════════════════════════════════════════════════════ */
+
+/* The drag handle is a non-functional aria-disabled stub (keyboard reorder
+   "coming soon"). Hide it on phones to make room for the 3rd row action
+   (Remove) without crowding the name/tier badge at 360px (plan P1-1). */
+@media (max-width:767px){
+  .page-list-row .dp-drag{display:none}
+}
+
+/* Remove icon stays neutral — removing a page is reversible, so don't
+   over-alarm with red (plan P2-2). Brand-tint only on hover/focus. */
+.dp-icon-btn-sm[data-dp-row-remove]{color:var(--muted)}
+@media (hover:hover) and (pointer:fine){
+  .dp-icon-btn-sm[data-dp-row-remove]:hover{color:var(--brand);background:var(--brand-tint)}
+}
+
+/* Custom-page name field — revealed below the tile grid when the Custom
+   tile is selected (plan D2). Sits inside the picker modal. */
+.wb-addpage-custom{
+  margin-top:.85rem;
+  padding-top:.85rem;
+  border-top:1px solid var(--line-soft);
+}
+.wb-addpage-hint{
+  font-size:.74rem;color:var(--muted-soft);
+  margin:.7rem 0 0;text-align:center;
+}
+
+/* ── Edit Pages list view — rows are click-to-edit (edit-pages.js handles
+   the row-meta click; the Edit chevron is the keyboard affordance). ── */
+body[data-wb-page="edit-pages"] .page-list-row{cursor:pointer}
+@media (hover:hover) and (pointer:fine){
+  body[data-wb-page="edit-pages"] .page-list-row:hover{
+    background:color-mix(in oklab, var(--brand) 4%, transparent);
+  }
+}
+/* Full-width list card: a touch more row height than the Overview aside. */
+.ep-list-card .page-list-row{padding-top:.7rem;padding-bottom:.7rem}

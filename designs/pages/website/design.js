@@ -80,6 +80,12 @@
       var axis = chip.getAttribute('data-dp-reset');
       chip.classList.toggle('is-visible', !!diffs[axis]);
     });
+    /* Persist override state so the Templates detail page can decide whether
+       to fire the cautionary confirm on apply (plan D1c). '1' = host has
+       diverged palette/font from the template default. */
+    try {
+      sessionStorage.setItem('dpHasOverrides', (diffs.palette || diffs.font) ? '1' : '0');
+    } catch (_) {}
   }
 
   /* ── Apply a palette pick to state + preview frame ──────────────── */
@@ -182,9 +188,25 @@
   (function applyFromSession() {
     var pending = null;
     try { pending = sessionStorage.getItem('dpTemplateApplied'); } catch (_) {}
-    if (!pending || !TEMPLATES[pending]) return;
     /* Clear immediately so a refresh doesn't re-apply */
-    try { sessionStorage.removeItem('dpTemplateApplied'); } catch (_) {}
+    if (pending) { try { sessionStorage.removeItem('dpTemplateApplied'); } catch (_) {} }
+    /* Fallback for storage-blocked browsers (WhatsApp/private-mode WebView):
+       the detail page navigates with ?apply=<id> instead. Read + strip it so
+       a refresh doesn't re-apply. (templates.js plan P1-6) */
+    if (!pending) {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var q = params.get('apply');
+        if (q) {
+          pending = q;
+          params.delete('apply');
+          var qs = params.toString();
+          history.replaceState(null, '',
+            window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
+        }
+      } catch (_) {}
+    }
+    if (!pending || !TEMPLATES[pending]) return;
     /* No need for discard confirm here — the host already confirmed on
        the detail page before navigating back. Just commit. */
     commitTemplate(pending);
@@ -194,6 +216,8 @@
     var tpl = TEMPLATES[tplId];
     if (!tpl) return;
     DesignState.template = tplId;
+    /* Keep the Templates gallery's "Current" pill in sync next visit. */
+    try { sessionStorage.setItem('dpCurrentTemplate', tplId); } catch (_) {}
     applyPalette(tpl.palette, { fromTemplate: true });
     applyFont(tpl.font,       { fromTemplate: true });
     if (tplCurrentName)  tplCurrentName.textContent = tpl.name;

@@ -1,0 +1,226 @@
+/* ════════════════════════════════════════════════════════════════════
+   Evenzi · Website · Edit Pages — per-page section editor (page CSS)
+   Owner: designs/pages/website/edit-page.*
+
+   Builds on shell.css (.dp-shell split, .dp-section-block, .dp-preview-frame
+   .is-scrollable, form-*, device-toggle, modal-picker-grid) and website.css
+   ([data-palette]/[data-font] → --dpp-* cascade, .dpp-* preview tokens).
+
+   Page-specific only:
+   - .ep-view-toggle   mobile Edit|Preview segmented control (device-toggle idiom)
+   - .ep-meta          page meta bar (name · tier · visibility · collapse-all · delete)
+   - .ep-add-section / .ep-empty
+   - .epv-*            the live-preview renders for the 11 section types
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════════════════════════════
+   STEP 1 — Spacing / density (page-scoped to the editor; UI/UX agent pass)
+   Asymmetric scale: chrome-to-chrome gaps → 12px; content gaps stay 16px.
+   The editor reads as a TOOL (denser), not a marketing page — a deliberate
+   mode-shift vs overview/design. All overrides carry the [data-wb-page]
+   scope so sibling pages keep the shared 1.25rem rhythm.
+   ════════════════════════════════════════════════════════════════════ */
+body[data-wb-page="edit"] .bc-wrap{padding-top:1rem}
+body[data-wb-page="edit"] .section-head{margin-top:.75rem}
+body[data-wb-page="edit"] .section-head-eyebrow{margin-bottom:.25rem}
+body[data-wb-page="edit"] .section-head-title{font-size:1.65rem;margin-bottom:.25rem}
+@media (min-width:768px){
+  body[data-wb-page="edit"] .section-head-title{font-size:2rem}
+}
+/* Module tabs removed from the editor — the Edit|Preview toggle now follows
+   the title directly and needs its own top gap (mobile only; hidden ≥1024). */
+body[data-wb-page="edit"] .ep-view-toggle-wrap{margin-top:.85rem}
+body[data-wb-page="edit"] .dp-shell{margin-top:.75rem}
+body[data-wb-page="edit"] .dp-col-left{gap:1rem}
+
+/* ── Mobile Edit | Preview toggle (hidden ≥1024 — both columns show there) ── */
+.ep-view-toggle-wrap{
+  max-width:1440px;margin:0 auto;padding:0 1.5rem .25rem;
+}
+@media (min-width:768px){ .ep-view-toggle-wrap{padding:0 2.5rem .25rem} }
+@media (min-width:1024px){ .ep-view-toggle-wrap{display:none} }
+.ep-view-toggle{
+  display:inline-flex;width:100%;gap:.25rem;
+  background:var(--line-soft);border-radius:9999px;padding:.25rem;
+}
+.ep-view-btn{
+  flex:1;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  padding:.55rem 1rem;min-height:44px;   /* clear the touch floor (agent P1) */
+  border-radius:9999px;border:0;background:none;cursor:pointer;
+  font-size:.85rem;font-weight:600;color:var(--muted);
+  transition:background .15s ease,color .15s ease;
+}
+.ep-view-btn .material-symbols-outlined{font-size:18px}
+.ep-view-btn.is-active{background:var(--card);color:var(--brand);box-shadow:var(--shadow-clay-sm,0 1px 3px rgba(17,24,39,.12))}
+.ep-view-btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){ .ep-view-btn{transition:none} }
+
+/* On mobile, show only the active view's column. ≥1024 both always show. */
+@media (max-width:1023px){
+  .dp-shell[data-ep-view="edit"] .dp-col-right{display:none}
+  .dp-shell[data-ep-view="preview"] .dp-col-left{display:none}
+}
+
+/* ── Preview sticky on desktop (clears the floating nav) ── */
+@media (min-width:1024px){
+  .ep-preview-card{position:sticky;top:6.5rem}
+}
+
+/* ── Page meta bar — Step 2: identity zone | one control zone ──
+   Tier rides WITH the name as a quiet read-only label; "Show on website" is
+   the single editable control. Desktop = 1 row; mobile = 2 clean rows.
+   Collapse-all moved to the chromeless .ep-section-bar below. */
+.ep-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1rem;justify-content:space-between;padding:.85rem 1rem}
+.ep-meta-lead{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:.55rem}
+.ep-meta-name{font-size:1.15rem;font-weight:700;color:var(--ink);margin:0;overflow-wrap:anywhere;min-width:0}
+.ep-meta-lead .dp-page-tier{flex-shrink:0}   /* never crushed by a long name */
+/* Tier badge is interactive (except Home) — click to switch Public ↔ Private. */
+.ep-tier-toggle{cursor:pointer;border:0;font:inherit;transition:filter .15s ease}
+.ep-tier-toggle .material-symbols-outlined:last-child{font-size:14px;opacity:.65;margin-left:.05rem}
+@media (hover:hover) and (pointer:fine){
+  .ep-tier-toggle:hover{filter:brightness(1.14)}
+}
+.ep-tier-toggle:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){ .ep-tier-toggle{transition:none} }
+.ep-meta-actions{flex:0 0 auto;display:flex;align-items:center;gap:.6rem;min-width:0}
+.ep-meta-vis{display:inline-flex;align-items:center;gap:.5rem}
+.ep-meta-vis-label{font-size:.78rem;font-weight:600;color:var(--muted)}
+.ep-meta-delete{color:var(--muted);min-width:44px;min-height:44px}
+@media (hover:hover) and (pointer:fine){
+  .ep-meta-delete:hover{color:var(--brand);background:var(--brand-tint)}
+}
+/* Mobile: two clean rows — identity, then the control row. */
+@media (max-width:767px){
+  .ep-meta-lead, .ep-meta-actions{flex-basis:100%}
+  .ep-meta-delete{margin-left:auto}    /* delete to the far right of its row */
+}
+
+/* Autosave indicator — ambient, far-right of the identity line; width
+   reserved for the wider "Saving…" so there's no reflow jitter on save. */
+.ep-saved{display:inline-flex;align-items:center;gap:.3rem;margin-left:auto;flex-shrink:0;font-size:.72rem;font-weight:600;color:var(--success);white-space:nowrap}
+.ep-saved .material-symbols-outlined{font-size:15px}
+.ep-saved.is-saving{color:var(--muted)}
+.ep-saved-txt{display:inline-block;min-width:3.1rem}
+
+/* Section control row (chromeless label row above the list; collapse-all
+   demoted from a filled pill to a quiet ghost button). */
+.ep-section-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:.6rem;
+  padding:.2rem .35rem;margin:.15rem 0 .1rem;
+}
+.ep-section-count{font-size:.78rem;color:var(--muted);font-weight:500}
+.ep-collapse-btn{
+  display:inline-flex;align-items:center;gap:.35rem;
+  background:none;border:0;cursor:pointer;
+  color:var(--muted);font-size:.8rem;font-weight:600;
+  padding:.45rem .55rem;min-height:40px;border-radius:9px;
+  transition:color .15s ease,background .15s ease;
+}
+.ep-collapse-btn .material-symbols-outlined{font-size:18px}
+@media (hover:hover) and (pointer:fine){
+  .ep-collapse-btn:hover{color:var(--brand);background:var(--brand-tint)}
+}
+.ep-collapse-btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){ .ep-collapse-btn{transition:none} }
+
+/* Per-field help text inside section editors (distinct from .ep-empty-help). */
+.ep-field-help{font-size:.8rem;color:var(--muted);margin:0;line-height:1.45}
+
+/* ── Add section CTA (dashed) ── */
+.ep-add-section{
+  margin-top:.95rem;width:100%;
+  display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+  padding:.85rem 1rem;border-radius:14px;
+  border:1.5px dashed color-mix(in oklab,var(--brand) 40%,var(--line));
+  background:color-mix(in oklab,var(--brand) 4%,transparent);
+  color:var(--brand);font-weight:600;font-size:.9rem;cursor:pointer;
+  transition:background .15s ease,border-color .15s ease;
+}
+.ep-add-section .material-symbols-outlined{font-size:20px}
+@media (hover:hover) and (pointer:fine){
+  .ep-add-section:hover{background:var(--brand-tint);border-color:var(--brand)}
+}
+.ep-add-section:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* ── Empty state ── */
+.ep-empty{
+  text-align:center;padding:2.25rem 1rem;
+  border:1px dashed var(--line);border-radius:16px;background:var(--card);
+}
+.ep-empty-icon{font-size:34px;color:var(--muted-soft)}
+.ep-empty-title{font-weight:700;color:var(--ink);margin:.4rem 0 .15rem}
+.ep-empty-help{font-size:.85rem;color:var(--muted);margin:0}
+
+/* ── Section editor field helpers (most fields reuse shell .form-*) ── */
+.ep-field-label{font-size:.74rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:0 0 .3rem;display:block}
+.ep-img-slot{
+  display:flex;align-items:center;justify-content:center;gap:.4rem;
+  aspect-ratio:16/9;border:1.5px dashed var(--line);border-radius:12px;
+  background:color-mix(in oklab,var(--muted) 4%,var(--card));
+  color:var(--muted);font-size:.8rem;cursor:pointer;width:100%;
+}
+.ep-img-slot .material-symbols-outlined{font-size:22px}
+.ep-img-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.ep-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:.6rem}
+.ep-toggle-row span{font-size:.82rem;color:var(--ink-soft);font-weight:500}
+
+/* ════════════════════════════════════════════════════════════════════
+   PREVIEW RENDERS — .epv-* — one per section type. All use --dpp-* palette
+   tokens (cascaded from [data-palette]/[data-font] on the preview frame).
+   ════════════════════════════════════════════════════════════════════ */
+.epv-section{margin-bottom:1.1rem}
+.epv-section:last-child{margin-bottom:0}
+
+/* Heading + paragraph */
+.epv-heading{font-family:var(--dpp-heading-font);font-weight:700;font-size:1.15rem;color:var(--dpp-ink);line-height:1.15;margin:0 0 .35rem;letter-spacing:-.01em}
+.epv-paragraph{font-size:.82rem;color:var(--dpp-ink);opacity:.85;line-height:1.5;margin:0}
+.epv-twocol{column-count:2;column-gap:1rem}
+
+/* Photo single / grid */
+.epv-photo{aspect-ratio:16/9;border-radius:10px;background:color-mix(in oklab,var(--dpp-primary) 14%,var(--dpp-surface));display:flex;align-items:center;justify-content:center;color:color-mix(in oklab,var(--dpp-ink) 45%,transparent)}
+.epv-photo .material-symbols-outlined{font-size:26px}
+.epv-photogrid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.epv-photogrid .epv-photo{aspect-ratio:1/1}
+
+/* Schedule item */
+.epv-schedule{border:1px solid color-mix(in oklab,var(--dpp-ink) 12%,transparent);border-radius:10px;padding:.6rem .7rem;background:color-mix(in oklab,var(--dpp-surface) 92%,#fff)}
+.epv-schedule-name{font-family:var(--dpp-heading-font);font-weight:700;font-size:.92rem;color:var(--dpp-ink);margin:0}
+.epv-schedule-meta{font-size:.72rem;color:var(--dpp-muted);margin:.2rem 0 0;display:flex;flex-wrap:wrap;gap:.5rem}
+
+/* Person card */
+.epv-person{display:flex;align-items:center;gap:.6rem}
+.epv-person-avatar{width:42px;height:42px;border-radius:9999px;background:color-mix(in oklab,var(--dpp-primary) 26%,var(--dpp-surface));flex-shrink:0;display:flex;align-items:center;justify-content:center;color:color-mix(in oklab,var(--dpp-ink) 55%,transparent)}
+.epv-person-name{font-weight:600;font-size:.86rem;color:var(--dpp-ink);margin:0}
+.epv-person-rel{font-size:.72rem;color:var(--dpp-muted);margin:.05rem 0 0}
+
+/* Hotel/venue card */
+.epv-hotel{display:flex;gap:.6rem;border:1px solid color-mix(in oklab,var(--dpp-ink) 12%,transparent);border-radius:10px;padding:.55rem;background:color-mix(in oklab,var(--dpp-surface) 92%,#fff)}
+.epv-hotel-thumb{width:54px;height:54px;border-radius:8px;flex-shrink:0;background:color-mix(in oklab,var(--dpp-primary) 16%,var(--dpp-surface));display:flex;align-items:center;justify-content:center;color:color-mix(in oklab,var(--dpp-ink) 45%,transparent)}
+.epv-hotel-name{font-weight:600;font-size:.84rem;color:var(--dpp-ink);margin:0}
+.epv-hotel-meta{font-size:.72rem;color:var(--dpp-muted);margin:.15rem 0 0}
+
+/* Q&A */
+.epv-qa-q{font-weight:600;font-size:.84rem;color:var(--dpp-ink);margin:0 0 .2rem;display:flex;gap:.35rem}
+.epv-qa-q .material-symbols-outlined{font-size:16px;color:var(--dpp-primary)}
+.epv-qa-a{font-size:.8rem;color:var(--dpp-ink);opacity:.8;line-height:1.45;margin:0}
+
+/* Divider */
+.epv-divider{height:1px;background:color-mix(in oklab,var(--dpp-ink) 18%,transparent);border:0;margin:.4rem 0}
+
+/* Map embed */
+.epv-map{aspect-ratio:16/9;border-radius:10px;background:repeating-linear-gradient(45deg,color-mix(in oklab,var(--dpp-primary) 9%,var(--dpp-surface)) 0 10px,var(--dpp-surface) 10px 20px);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--dpp-primary);gap:.2rem}
+.epv-map .material-symbols-outlined{font-size:26px}
+.epv-map-addr{font-size:.72rem;color:var(--dpp-muted)}
+
+/* Countdown */
+.epv-countdown{text-align:center;padding:.6rem;border-radius:10px;background:color-mix(in oklab,var(--dpp-primary) 8%,var(--dpp-surface))}
+.epv-countdown-num{font-family:var(--dpp-heading-font);font-weight:700;font-size:1.4rem;color:var(--dpp-primary);margin:0;line-height:1}
+.epv-countdown-label{font-size:.7rem;color:var(--dpp-muted);text-transform:uppercase;letter-spacing:.1em;margin:.2rem 0 0}
+
+/* Video embed */
+.epv-video{position:relative;aspect-ratio:16/9;border-radius:10px;background:color-mix(in oklab,var(--dpp-ink) 80%,#000);display:flex;align-items:center;justify-content:center}
+.epv-video .material-symbols-outlined{font-size:34px;color:#fff;opacity:.92}
+
+/* Hidden section (visibility off) is omitted from preview entirely (JS).
+   Empty-page preview placeholder. */
+.epv-empty{font-size:.8rem;color:var(--dpp-muted);text-align:center;padding:2rem 1rem;opacity:.8}

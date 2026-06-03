@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Event Website · Templates · Vibrant Union</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Browse Evenzi invitation-website templates. Each bundles a layout, palette, and heading font." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<!-- 4 non-Poppins heading fonts — needed because the gallery cards render
+     each template's couple name in its own heading font. -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:wght@600;700&family=Lora:wght@500;600&family=Inter:wght@600;700;800&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          bg:'var(--bg)', card:'var(--card)',
+          cream:'var(--bg)','cream-soft':'var(--cream-soft)',
+          peach:'var(--peach)','peach-deep':'var(--peach-deep)',
+          'dark-card':'var(--dark-card)','dark-card-soft':'var(--dark-card-soft)',
+          brand:'var(--brand)','brand-hover':'var(--brand-hover)',
+          'brand-tint':'var(--brand-tint)','brand-tint-2':'var(--brand-tint-2)',
+          ink:'var(--ink)','ink-soft':'var(--ink-soft)',
+          muted:'var(--muted)','muted-soft':'var(--muted-soft)',
+          line:'var(--line)','line-soft':'var(--line-soft)',
+        },
+        fontFamily: { display:['Poppins','sans-serif'], body:['Poppins','sans-serif'] },
+        borderRadius: { 'clay':'24px','clay-sm':'16px','clay-lg':'32px' }
+      }
+    }
+  }
+</script>
+<link rel="stylesheet" href="../../../shared/shell.css" />
+<link rel="stylesheet" href="../website.css" />
+<link rel="stylesheet" href="templates.css" />
+</head>
+<body class="min-h-dvh bg-bg text-ink" data-page="website" data-section="website" data-wb-page="templates">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ────────────────────── FLOATING TOP NAV ────────────────────── -->
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner">
+
+    <a href="../../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../../event-control/event-control.html" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="../overview.html" class="nav-tab is-active" aria-current="page" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+
+  </div>
+</nav>
+
+<!-- ────────────────────── FLOATING TOOL RAIL ────────────────────── -->
+<aside class="tool-rail" aria-label="Event tools">
+  <a href="../../guests/guests.html" class="tr-btn" data-label="Guest management" data-page="guests">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+  </a>
+  <a href="../../invitations/invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
+  </a>
+  <a href="../../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
+  </a>
+  <a href="../../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
+  </a>
+  <a href="../../event-settings/general.html" class="tr-btn" data-label="Event settings" data-page="event-settings">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+  </a>
+</aside>
+
+<!-- ────────────────────── BREADCRUMB ────────────────────── -->
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="../design.html" class="bc-back" aria-label="Back to Design" data-bc-back data-bc-back-label="DESIGN">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../../index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../../event-control/event-control.html" data-bc-link>VIBRANT UNION</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        TEMPLATES
+      </li>
+    </ol>
+    <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
+    <div class="bc-system hidden md:inline-flex" aria-live="polite">
+      <span class="bc-live" aria-hidden="true"></span>
+      <span>SYNCED</span>
+      <span class="bc-mono" id="bc-clock" aria-label="Last synced">--:--:--</span>
+    </div>
+    <button type="button" class="bc-copy" aria-label="Copy page link" data-bc-copy data-bc-copy-path="https://evenzi.com/e/vibrant-union">
+      <span aria-hidden="true" class="material-symbols-outlined">content_copy</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ────────────────────── SECTION HEAD ────────────────────── -->
+<header class="section-head reveal">
+  <p class="section-head-eyebrow">Website · Design</p>
+  <h1 class="section-head-title">Templates</h1>
+  <p class="section-head-sub">Pick a look — each template bundles a layout, color palette, and heading font. You can fine-tune the palette and font after you apply.</p>
+</header>
+
+<!-- ────────────────────── WEBSITE MODULE SUB-NAV ────────────────────── -->
+<div class="wb-tabs-wrap reveal">
+  <nav class="wb-tabs" aria-label="Website sections">
+    <a href="../overview.html" class="wb-tab">
+      <span class="material-symbols-outlined" aria-hidden="true">tune</span>
+      <span>Overview</span>
+    </a>
+    <a href="../design.html" class="wb-tab is-active" aria-current="page">
+      <span class="material-symbols-outlined" aria-hidden="true">palette</span>
+      <span>Design</span>
+    </a>
+    <a href="../design.html#pages" class="wb-tab">
+      <span class="material-symbols-outlined" aria-hidden="true">edit_note</span>
+      <span>Edit Pages</span>
+    </a>
+    <a href="../design.html#photos" class="wb-tab">
+      <span class="material-symbols-outlined" aria-hidden="true">photo_library</span>
+      <span>Photos</span>
+    </a>
+    <a href="../design.html#cards" class="wb-tab">
+      <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+      <span>Card Templates</span>
+    </a>
+  </nav>
+</div>
+
+<!-- ────────────────────── GALLERY ────────────────────── -->
+<main class="bc-wrap reveal" id="wb-main">
+
+  <p class="tpl-gallery-note">
+    <span class="material-symbols-outlined" aria-hidden="true">info</span>
+    Tap a template to preview it across your pages before applying.
+  </p>
+
+  <div class="tpl-gallery-grid">
+
+    <!-- Bold Festive — current default -->
+    <a href="bold-festive.html" class="dp-template-card is-current" data-template-id="bold-festive"
+       data-palette="brand-red" data-font="poppins"
+       aria-label="Bold Festive — brand red palette, Poppins headings. Your current template. Open preview.">
+      <div class="dp-template-preview" aria-hidden="true">
+        <span class="dp-template-current">Current</span>
+        <span class="dp-template-name">Vidya &amp; Anshuman</span>
+        <span class="dp-template-rule"></span>
+      </div>
+      <div class="dp-template-meta">
+        <p class="dp-template-title">Bold Festive</p>
+        <p class="dp-template-tag">
+          <span class="dp-template-swatches" aria-hidden="true">
+            <span style="background:#BB0020"></span>
+            <span style="background:#FDF7F4"></span>
+            <span style="background:#5B1820"></span>
+          </span>
+          Brand Red · Poppins
+        </p>
+      </div>
+    </a>
+
+    <!-- Classic Romance -->
+    <a href="classic-romance.html" class="dp-template-card" data-template-id="classic-romance"
+       data-palette="blush" data-font="cormorant"
+       aria-label="Classic Romance — blush palette, Cormorant Garamond headings. Open preview.">
+      <div class="dp-template-preview" aria-hidden="true">
+        <span class="dp-template-name">Vidya &amp; Anshuman</span>
+        <span class="dp-template-rule"></span>
+      </div>
+      <div class="dp-template-meta">
+        <p class="dp-template-title">Classic Romance</p>
+        <p class="dp-template-tag">
+          <span class="dp-template-swatches" aria-hidden="true">
+            <span style="background:#C97B7B"></span>
+            <span style="background:#FBF4F2"></span>
+            <span style="background:#4A2C2C"></span>
+          </span>
+          Blush · Cormorant
+        </p>
+      </div>
+    </a>
+
+    <!-- Minimal Modern -->
+    <a href="minimal-modern.html" class="dp-template-card" data-template-id="minimal-modern"
+       data-palette="ivory" data-font="inter"
+       aria-label="Minimal Modern — ivory palette, Inter headings. Open preview.">
+      <div class="dp-template-preview" aria-hidden="true">
+        <span class="dp-template-name">Vidya &amp; Anshuman</span>
+        <span class="dp-template-rule"></span>
+      </div>
+      <div class="dp-template-meta">
+        <p class="dp-template-title">Minimal Modern</p>
+        <p class="dp-template-tag">
+          <span class="dp-template-swatches" aria-hidden="true">
+            <span style="background:#6B4A2B"></span>
+            <span style="background:#FAF6EE"></span>
+            <span style="background:#2C1F12"></span>
+          </span>
+          Ivory · Inter
+        </p>
+      </div>
+    </a>
+
+    <!-- Garden Soft -->
+    <a href="garden-soft.html" class="dp-template-card" data-template-id="garden-soft"
+       data-palette="sage" data-font="lora"
+       aria-label="Garden Soft — sage palette, Lora headings. Open preview.">
+      <div class="dp-template-preview" aria-hidden="true">
+        <span class="dp-template-name">Vidya &amp; Anshuman</span>
+        <span class="dp-template-rule"></span>
+      </div>
+      <div class="dp-template-meta">
+        <p class="dp-template-title">Garden Soft</p>
+        <p class="dp-template-tag">
+          <span class="dp-template-swatches" aria-hidden="true">
+            <span style="background:#5A7A5A"></span>
+            <span style="background:#F2F6EF"></span>
+            <span style="background:#2D3D2D"></span>
+          </span>
+          Sage · Lora
+        </p>
+      </div>
+    </a>
+
+    <!-- Midnight Elegant -->
+    <a href="midnight-elegant.html" class="dp-template-card" data-template-id="midnight-elegant"
+       data-palette="midnight" data-font="playfair"
+       aria-label="Midnight Elegant — midnight palette, Playfair Display headings. Open preview.">
+      <div class="dp-template-preview" aria-hidden="true">
+        <span class="dp-template-name">Vidya &amp; Anshuman</span>
+        <span class="dp-template-rule"></span>
+      </div>
+      <div class="dp-template-meta">
+        <p class="dp-template-title">Midnight Elegant</p>
+        <p class="dp-template-tag">
+          <span class="dp-template-swatches" aria-hidden="true">
+            <span style="background:#6B5BA9"></span>
+            <span style="background:#F4F4F8"></span>
+            <span style="background:#1A1F2E"></span>
+          </span>
+          Midnight · Playfair
+        </p>
+      </div>
+    </a>
+
+  </div>
+</main>
+
+<!-- ────────────────────── FOOTER ────────────────────── -->
+<footer class="dp-foot reveal">
+  <p>© 2026 Evenzi · Crafted with care</p>
+</footer>
+
+<!-- Help FAB -->
+<button class="help-fab" type="button" aria-label="Need help?">
+  <span class="material-symbols-outlined" aria-hidden="true">help</span>
+</button>
+
+<!-- Shell toast -->
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text"></span>
+</div>
+
+<script src="../../../shared/shell.js" defer></script>
+<script src="../website.js" defer></script>
+<script src="templates.js" defer></script>
+</body>
+</html>
