@@ -4,6 +4,25 @@
 
 ---
 
+## Recently Landed (2026-06-05 — Guest Management page, full build) — COMMITTED, NOT MERGED
+
+Host-side **Guest Management** built end-to-end (`designs/pages/guests/*`) + a **tagging & sub-event-assignment** feature + multiple founder phone-review passes. Committed on worktree branch `claude/affectionate-neumann-65a437` as **0dd40a5** (NOT merged to Dev-Vibe).
+
+Shipped: stats cards · responsive guest cards · manual-RSVP setter (sheet/popover) · search/filter/sort · 5 modals · CSV import sim · per-guest function assignment + tags combobox · row meta strip · tag manager · zero-assigned banner · **Jira-style bulk select** (floating bottom bar) · **swipe-to-reveal row actions** (RSVP/Assign/Send) · icon-only Add FAB · offline toast. New shell primitives: `--danger`/`--warning` tokens, RSVP badges, status radio-pills, `.guest-row` family (surface+swipe-rail), `.tag-chip`, `.guest-assign-chip`, `.form-input-search`, `.form-check`, reusable `openPicker` (single+multi). Reviewed by council + Codex + UI/UX agent; critical a11y/trust fixes applied.
+
+Full detail + deferred list: `designs/_plans/guests-plan.md` + `designs/_plans/guests-tags-subevents-plan.md`.
+
+### Parked for next session (priority order)
+1. **Merge to Dev-Vibe** (when ready) + council/Codex re-review of the final tagging state.
+2. **Quick cleanup batch:** active-filter chips (removable, when results non-empty) · `title` tooltips (long names, `+N`) · dead-CSS cleanup (`.guest-row-actions`/`.gm-add-btn`/`.gm-sort`) · BRAND-GUIDELINES mirror `--danger`/`--warning` · bulk Tag/Assign pickers pre-fill current state · icon FOUT gate (shell-wide).
+3. **`components.html` backfill** — sizable debt: all new guests primitives unrecorded.
+4. **Public RSVP page** (guest-facing, no-login) — the other half of the feature. **DEPRIORITIZED — do at the very end, NOT a near-term priority.**
+
+### Multi-editor workflow (proposed, not yet set up)
+Split future dev: Claude (plan + review + merge) · Cursor (UI builds) · Codex (logic/refactor) · Antigravity (test). Handoff = a `docs/specs/<feature>.md` spec per feature (template not yet scaffolded). See chat plan from 2026-06-05.
+
+---
+
 ## Recently Landed (2026-06-03b — Design review sweep + Photos/Card Templates tabs)
 
 Second design-path session today. Page-by-page review/build + a permanent width fix. Full report: `docs/session-reports/2026-06-03-design-review-session-report.md`.
