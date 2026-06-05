@@ -17,7 +17,7 @@ Goal: Claude plans (council/codex/agents) → generates a per-feature kit → Cu
 - [x] Agents already exist: `ui_ux_designer.md` (UI/UX) + `test_engineer.md` (testing).
 
 ## D. First real run — Planning tab (the Cursor trial)
-- [ ] `/spec-kit planning` → council pass + answer open Qs → generate kit in `designs/pages/planning/`.
+- [x] `/spec-kit planning` → council pass + answer open Qs → generate kit in `designs/pages/planning/`. _(2026-06-05; kit at SPEC_VERSION 2026-06-05.1, status BUILD — ready for Cursor)_
 - [ ] Open Cursor → "read `_cursor-prompt.md`, execute" → build.
 - [ ] Antigravity → "read `_antigravity-prompt.md`" → test → `_findings.md`.
 - [ ] `/spec-kit-review planning` → review → update kit → loop until Done.
