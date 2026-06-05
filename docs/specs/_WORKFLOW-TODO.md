@@ -3,7 +3,7 @@
 Goal: Claude plans (council/codex/agents) → generates a per-feature kit → Cursor builds → Antigravity tests → Claude reviews → merge. File-based handoff (`_status.md` = baton).
 
 ## A. Build the skills (one-time)
-- [ ] `/spec-kit <page>` skill — reads overview + shell + brand → brainstorm → **council + codex + UI/UX agent** → **ask user open Qs** → write the kit.
+- [x] `/spec-kit <page>` skill — reads overview + shell + brand → brainstorm → **council (design mode) + codex opt-in** → **ask user open Qs** → write the kit. _(built 2026-06-05; spec: docs/superpowers/specs/2026-06-05-spec-kit-skill-design.md)_
 - [ ] `/spec-kit-review <page>` skill — read `_findings.md` → council/codex review → write `_review.md` → update `_spec.md` → bump `_status.md`.
 
 ## B. Kit templates (one-time)
