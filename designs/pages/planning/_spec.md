@@ -1,4 +1,4 @@
-# Spec — Planning (`planning`)  ·  SPEC_VERSION 2026-06-05.1
+# Spec — Planning (`planning`)  ·  SPEC_VERSION 2026-06-05.2
 
 > Build source of truth. Cursor builds **only** from this file. Filled by `/spec-kit` from the
 > feature overview + design system + council review. Overwritten on re-run (SPEC_VERSION bumps).

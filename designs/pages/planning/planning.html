@@ -39,6 +39,7 @@
   }
 </script>
 <link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="planning.css" />
 </head>
 <body data-page="planning" data-section="dashboard">
 
@@ -130,8 +131,133 @@
     <p class="mt-4 text-base md:text-lg text-muted max-w-2xl">Checklists, budget tracking, and event timeline.</p>
   </header>
 
-  <section class="lg-glass-card p-10 md:p-16 min-h-[42vh] flex items-center justify-center reveal">
-    <p class="text-muted-soft text-[10px] font-bold uppercase tracking-[0.32em]">Content area</p>
+  <!-- In-page tab bar -->
+  <div class="plan-tabs-wrap reveal">
+    <div class="plan-tabs nav-tabs" role="tablist" aria-label="Planning views">
+      <button type="button" role="tab" id="plan-tab-checklist" class="nav-tab is-active" aria-selected="true" aria-controls="plan-panel-checklist" tabindex="0">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist</span>
+        <span class="nav-tab-label">Checklist</span>
+      </button>
+      <button type="button" role="tab" id="plan-tab-budget" class="nav-tab" aria-selected="false" aria-controls="plan-panel-budget" tabindex="-1">
+        <span aria-hidden="true" class="material-symbols-outlined">account_balance_wallet</span>
+        <span class="nav-tab-label">Budget</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Checklist panel -->
+  <section id="plan-panel-checklist" role="tabpanel" aria-labelledby="plan-tab-checklist" class="plan-panel reveal">
+    <header class="section-head">
+      <p class="section-head-eyebrow">Checklist</p>
+      <h2 class="section-head-title">Tasks</h2>
+      <p class="section-head-sub">Check off items as you go — add your own anytime.</p>
+    </header>
+
+    <div class="clay-card plan-checklist-card">
+      <div class="plan-progress-row">
+        <p class="plan-progress-label" id="plan-progress-label">14 of 30 done · 47%</p>
+        <div class="plan-progress-track" aria-hidden="true">
+          <span class="plan-progress-fill pf-bar" id="plan-progress-fill" data-fill="47"></span>
+        </div>
+      </div>
+
+      <div class="plan-alldone" id="plan-alldone" hidden role="status">
+        <span class="material-symbols-outlined" aria-hidden="true">celebration</span>
+        <span>All done — every task complete 🎉</span>
+      </div>
+
+      <ul class="plan-checklist-list" id="plan-checklist-list" role="list" aria-label="Planning checklist"></ul>
+
+      <form id="plan-add-form" class="plan-add-row">
+        <label class="sr-only" for="plan-add-input">New checklist item</label>
+        <input class="form-input" type="text" id="plan-add-input" placeholder="Add a custom task…" autocomplete="off" />
+        <button type="submit" class="btn-pill btn-pill-primary">
+          <span class="material-symbols-outlined" aria-hidden="true">add</span>
+          Add item
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Budget panel -->
+  <section id="plan-panel-budget" role="tabpanel" aria-labelledby="plan-tab-budget" class="plan-panel reveal" hidden>
+    <header class="section-head">
+      <p class="section-head-eyebrow">Budget</p>
+      <h2 class="section-head-title">Spending tracker</h2>
+      <p class="section-head-sub">Set a total, log expenses, and see where the money goes.</p>
+    </header>
+
+    <!-- Budget unset -->
+    <div class="empty-cta-card plan-budget-empty" id="plan-budget-unset">
+      <span class="empty-cta-icon" aria-hidden="true"><span class="material-symbols-outlined">savings</span></span>
+      <p class="empty-cta-title">Set your total budget</p>
+      <p class="empty-cta-sub">Set your total budget to start tracking.</p>
+      <button type="button" class="btn-pill btn-pill-primary" data-plan-set-budget>
+        <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+        Set budget
+      </button>
+    </div>
+
+    <!-- Budget body (when set) -->
+    <div id="plan-budget-body" hidden>
+      <div class="plan-stats" role="group" aria-label="Budget summary">
+        <div class="stats-strip-card plan-stat-card">
+          <span class="stat-icon"><span class="material-symbols-outlined icon-fill">account_balance</span></span>
+          <div class="min-w-0">
+            <p class="plan-stat-label">Total budget</p>
+            <p class="plan-stat-value" id="plan-stat-total">₹0</p>
+          </div>
+          <button type="button" class="plan-icon-btn plan-stat-edit" data-plan-edit-budget aria-label="Edit total budget">
+            <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+          </button>
+        </div>
+        <div class="stats-strip-card plan-stat-card">
+          <span class="stat-icon"><span class="material-symbols-outlined icon-fill">payments</span></span>
+          <div class="min-w-0">
+            <p class="plan-stat-label">Amount spent</p>
+            <p class="plan-stat-value" id="plan-stat-spent">₹0</p>
+          </div>
+        </div>
+        <div class="stats-strip-card plan-stat-card">
+          <span class="stat-icon"><span class="material-symbols-outlined icon-fill">savings</span></span>
+          <div class="min-w-0">
+            <p class="plan-stat-label">Remaining</p>
+            <p class="plan-stat-value" id="plan-stat-remaining">₹0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-over-wrap">
+        <span class="status-badge status-badge--over" id="plan-over-badge" hidden role="status"></span>
+      </div>
+
+      <div class="clay-card plan-budget-card">
+        <div class="plan-cat-section">
+          <p class="plan-cat-heading">Category breakdown</p>
+          <ul class="plan-cat-list" id="plan-cat-list" role="list" aria-label="Spending by category"></ul>
+        </div>
+
+        <div class="plan-exp-section">
+          <div class="plan-exp-heading">
+            <h3>Expenses</h3>
+            <button type="button" class="btn-pill btn-pill-secondary" data-plan-add-expense>
+              <span class="material-symbols-outlined" aria-hidden="true">add</span>
+              Add expense
+            </button>
+          </div>
+          <ul class="plan-exp-list" id="plan-exp-list" role="list" aria-label="Expense entries"></ul>
+          <div class="empty-cta-card plan-exp-empty" id="plan-exp-empty" hidden>
+            <span class="empty-cta-icon" aria-hidden="true"><span class="material-symbols-outlined">receipt_long</span></span>
+            <p class="empty-cta-title">No expenses yet</p>
+            <p class="empty-cta-sub">Log your first vendor payment to see spending by category.</p>
+            <button type="button" class="btn-pill btn-pill-primary" data-plan-add-expense>
+              <span class="material-symbols-outlined" aria-hidden="true">add</span>
+              Add expense
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 </main>
 
@@ -158,6 +284,99 @@
   <span id="bc-toast-text">PATH COPIED</span>
 </div>
 
+<!-- ══════════════════ MODALS ══════════════════ -->
+
+<!-- Set / update budget -->
+<div class="modal-scrim" id="plan-budget-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="plan-budget-h">
+    <header class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="plan-budget-h">Set total budget</h2>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </header>
+    <form id="plan-budget-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="plan-budget-input">Total event budget <span aria-hidden="true" style="color:var(--brand)">*</span></label>
+        <div class="form-input form-input-group">
+          <span class="form-input-prefix" aria-hidden="true">₹</span>
+          <input id="plan-budget-input" name="budget" type="text" class="form-input-field" inputmode="numeric" autocomplete="off" placeholder="8,00,000" required />
+        </div>
+        <p class="form-error" id="plan-budget-err" role="alert" hidden>
+          <span class="material-symbols-outlined" aria-hidden="true">error</span> Enter a valid amount greater than zero.
+        </p>
+      </div>
+      <footer class="modal-actions">
+        <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+        <button type="submit" class="btn-pill btn-pill-primary" id="plan-budget-save">Save budget</button>
+      </footer>
+    </form>
+  </div>
+</div>
+
+<!-- Add / edit expense -->
+<div class="modal-scrim" id="plan-expense-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="plan-exp-title">
+    <header class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="plan-exp-title">Add expense</h2>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </header>
+    <form id="plan-expense-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="plan-exp-amount">Amount <span aria-hidden="true" style="color:var(--brand)">*</span></label>
+        <div class="form-input form-input-group">
+          <span class="form-input-prefix" aria-hidden="true">₹</span>
+          <input id="plan-exp-amount" name="amount" type="text" class="form-input-field" inputmode="numeric" autocomplete="off" placeholder="45,000" required />
+        </div>
+        <p class="form-error" id="plan-exp-amount-err" role="alert" hidden>
+          <span class="material-symbols-outlined" aria-hidden="true">error</span> Enter a valid amount greater than zero.
+        </p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="plan-exp-category">Category</label>
+        <div class="form-select">
+          <select id="plan-exp-category" name="category" class="form-input"></select>
+          <span class="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="plan-exp-vendor">Vendor name <span class="form-label-opt">(optional)</span></label>
+        <input id="plan-exp-vendor" name="vendor" type="text" class="form-input" autocomplete="organization" placeholder="e.g. Tadka Heritage" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="plan-exp-notes">Notes <span class="form-label-opt">(optional)</span></label>
+        <input id="plan-exp-notes" name="notes" type="text" class="form-input" placeholder="Advance payment, etc." />
+      </div>
+      <footer class="modal-actions">
+        <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+        <button type="submit" class="btn-pill btn-pill-primary" id="plan-exp-save">Save expense</button>
+      </footer>
+    </form>
+  </div>
+</div>
+
+<!-- Delete confirm -->
+<div class="modal-scrim" id="plan-delete-modal" data-modal aria-hidden="true">
+  <div class="modal-confirm-cautionary modal-card" role="alertdialog" aria-modal="true" aria-labelledby="plan-delete-title">
+    <div class="modal-confirm-icon is-cautionary">
+      <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+    </div>
+    <h3 class="modal-confirm-title" id="plan-delete-title">Delete this item?</h3>
+    <p class="modal-confirm-text" id="plan-delete-text">This cannot be undone.</p>
+    <footer class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-danger" id="plan-delete-confirm">Delete</button>
+    </footer>
+  </div>
+</div>
+
 <script src="../../shared/shell.js"></script>
+<script src="planning.js"></script>
 </body>
 </html>

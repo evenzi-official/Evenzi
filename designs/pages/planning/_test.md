@@ -1,4 +1,4 @@
-# Test plan — Planning (`planning`)  ·  against SPEC_VERSION 2026-06-05.1
+# Test plan — Planning (`planning`)  ·  against SPEC_VERSION 2026-06-05.2
 
 > Test source of truth. Antigravity tests **only** from this file. Run every row; record PASS/FAIL in _findings.md by row ID.
 
@@ -22,10 +22,11 @@
 - `2.checkitem` — Checklist item: unchecked → checked toggles strike-through; hover + focus-visible visible; delete icon is ≥44px, not hover-only.
 - `2.expform` — Add/edit expense modal: opens centered ≥768px / bottom-sheet <768px; fields focusable; save shows loading; invalid/blank amount → `.form-error` + `aria-invalid`.
 - `2.console` — No new console errors/warnings after each interaction.
+- `2.noinline` — No inline `style="..."` attributes added by the build in `planning.html` (the pre-existing shell breadcrumb `style="font-size:15px"` at the chrome is exempt). Token colors/spacing come from classes, not inline styles.
 
 ### 3. Interaction & keyboard
 - `3.controls` — Every control fires: tab switch, check toggle, add item, delete item, set/edit budget, add/edit/delete expense.
-- `3.tablist` — Tabs are a true tablist: arrow keys move between tabs (roving tabindex), `aria-controls` points at the visible `role="tabpanel"`; TalkBack/SR announces "tab, 1 of 2".
+- `3.tablist` — Tabs are a true tablist: **both** ArrowLeft AND ArrowRight move selection/focus between the two tabs (roving tabindex), `aria-controls` points at the visible `role="tabpanel"`; TalkBack/SR announces "tab, 1 of 2".
 - `3.keyboard` — Logical tab order; Enter/Space activate; Esc closes modals; add-item input submits on Enter.
 - `3.modalfocus` — Modal traps focus, returns focus to trigger on close.
 - `3.deadlinks` — No dead links (href → existing page or explicit `#` with comment).

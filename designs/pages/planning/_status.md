@@ -5,7 +5,7 @@
      v1: REVIEW is the terminal state. /spec-kit-review (TODO A.2) owns REVIEW→DONE when built —
      a cold agent at REVIEW should stop and wait, not treat it as a failure. -->
 PAGE: planning
-STAGE: BUILD (Cursor)
-SPEC_VERSION: 2026-06-05.1
-UPDATED: 2026-06-05 — /spec-kit (Gate-2 approved)
-NEXT: open Cursor on designs/pages/planning/ → "read _cursor-prompt.md, execute" → build → bump STAGE to TEST
+STAGE: BUILD (Cursor — fix pass)
+SPEC_VERSION: 2026-06-05.2
+UPDATED: 2026-06-05 — /spec-kit-review (LOOP: 2 minor defects)
+NEXT: open Cursor → read _review.md fix-list (2 items: ArrowLeft tab key; remove 2 inline styles) → apply → bump STAGE to TEST

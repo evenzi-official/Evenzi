@@ -1257,6 +1257,43 @@ html{scroll-behavior:smooth}
   .checklist-due{grid-column:2;justify-self:start;padding-left:0}
 }
 
+/* CHECKLIST ROW — SIMPLE modifier (Planning + future task lists)
+   Collapses to [check | title | delete] — no sub-line, no due chip.
+   Compose inside .plan-check-item (page wrapper) for the trailing delete btn. */
+.checklist-row--simple{
+  grid-template-columns:auto 1fr;
+  flex:1;min-width:0;
+  cursor:pointer;
+}
+.checklist-row--simple .checklist-body{min-width:0}
+.checklist-row--simple .checklist-title{
+  -webkit-line-clamp:unset;
+  display:block;
+  overflow:visible;
+  word-break:break-word;
+}
+.checklist-row--simple:focus-within{
+  outline:2px solid var(--brand);outline-offset:2px;border-radius:14px;
+}
+.checklist-row--simple.is-deleting{opacity:.45;pointer-events:none}
+
+/* STATUS BADGE — OVER modifier (budget overrun) */
+.status-badge--over{
+  background:var(--danger-tint);
+  color:var(--danger-ink);
+  border-color:var(--danger-rim);
+  text-transform:none;
+  font-size:.78rem;
+  font-weight:600;
+  letter-spacing:normal;
+  padding:.45rem .75rem;
+  white-space:normal;
+  line-height:1.35;
+}
+.status-badge--over .material-symbols-outlined{
+  font-size:16px;color:var(--danger);flex-shrink:0;
+}
+
 /* Empty-state CTA card — dashed-border invitation surface (e.g. "+ New project") */
 .empty-cta-card{
   position:relative;

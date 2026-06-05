@@ -1,0 +1,265 @@
+/* ════════════════════════════════════════════════════════════════════
+   Planning — page-specific styles only.
+   Generic primitives live in shared/shell.css.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── In-page tablist (subordinate to floating-nav) ─────────────────── */
+.plan-tabs-wrap{
+  display:flex;
+  justify-content:flex-start;
+  margin-bottom:1.5rem;
+}
+.plan-tabs{
+  width:100%;
+  max-width:100%;
+  background:color-mix(in oklab,var(--card) 55%,transparent);
+  backdrop-filter:blur(10px) saturate(130%);
+  -webkit-backdrop-filter:blur(10px) saturate(130%);
+  border-color:var(--line);
+  box-shadow:none;
+}
+.plan-tabs .nav-tab{
+  flex:1 1 0;
+  justify-content:center;
+  min-height:44px;
+  font-size:12.5px;
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .plan-tabs{background:var(--card);border-color:var(--line)}
+}
+
+/* ── Panels ────────────────────────────────────────────────────────── */
+.plan-panel[hidden]{display:none !important}
+
+/* ── Checklist card ────────────────────────────────────────────────── */
+.plan-checklist-card{
+  padding:1.25rem 1rem 1rem;
+}
+@media (min-width:768px){
+  .plan-checklist-card{padding:1.5rem 1.35rem 1.25rem}
+}
+
+.plan-progress-row{margin-bottom:1rem}
+.plan-progress-label{
+  font-size:.78rem;font-weight:600;color:var(--muted);
+  margin:0 0 .55rem;
+  font-variant-numeric:tabular-nums;
+}
+.plan-progress-track{
+  height:6px;border-radius:9999px;background:var(--line);
+  overflow:hidden;
+}
+.plan-progress-fill{
+  display:block;height:100%;border-radius:9999px;
+  background:var(--brand);width:0%;
+}
+
+.plan-checklist-list{
+  list-style:none;margin:0;padding:0;
+  display:flex;flex-direction:column;gap:.15rem;
+}
+.plan-check-item{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;gap:.25rem;
+}
+.plan-check-item .checklist-row--simple{padding-right:.35rem}
+
+.plan-alldone{
+  display:flex;align-items:center;gap:.5rem;
+  padding:.75rem .85rem;margin-bottom:.75rem;
+  border-radius:14px;
+  background:var(--success-tint);
+  border:1px solid var(--success-rim);
+  color:var(--success-ink);
+  font-size:.85rem;font-weight:600;
+}
+.plan-alldone .material-symbols-outlined{font-size:18px}
+
+.plan-add-row{
+  display:flex;flex-wrap:wrap;gap:.6rem;
+  align-items:flex-end;
+  margin-top:1rem;padding-top:1rem;
+  border-top:1px solid var(--line-soft);
+}
+.plan-add-row .form-input{flex:1 1 12rem;min-width:0}
+.plan-add-row .btn-pill{flex-shrink:0;min-height:44px}
+
+/* ── Icon buttons (44px hit area) ──────────────────────────────────── */
+.plan-icon-btn{
+  position:relative;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:32px;height:32px;
+  border-radius:10px;border:1px solid transparent;
+  background:transparent;color:var(--muted);
+  cursor:pointer;
+  transition:background .15s ease,color .15s ease,border-color .15s ease;
+}
+.plan-icon-btn .material-symbols-outlined{font-size:18px}
+.plan-icon-btn::before{
+  content:"";position:absolute;inset:-7px;border-radius:inherit;
+}
+@media (hover:hover) and (pointer:fine){
+  .plan-icon-btn:hover{
+    background:var(--card);color:var(--ink);border-color:var(--line);
+  }
+  .plan-icon-btn[data-plan-delete]:hover{color:var(--danger-ink);background:var(--danger-tint)}
+}
+.plan-icon-btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* ── Budget stat strip ─────────────────────────────────────────────── */
+.plan-stats{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:.65rem;
+  margin-bottom:1.25rem;
+}
+@media (min-width:768px){
+  .plan-stats{grid-template-columns:repeat(3,1fr);gap:.75rem}
+}
+.plan-stat-card{
+  display:flex;align-items:center;gap:1rem;
+  position:relative;
+}
+.plan-stat-label{
+  font-size:.66rem;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--muted);margin:0;
+}
+.plan-stat-value{
+  font-family:'Poppins',sans-serif;font-weight:800;
+  font-size:1.65rem;line-height:1.1;
+  color:var(--ink);margin:.15rem 0 0;
+  font-variant-numeric:tabular-nums;
+  word-break:break-word;
+}
+@media (min-width:768px){
+  .plan-stat-value{font-size:1.85rem}
+}
+.plan-stat-value.is-negative{color:var(--danger-ink)}
+.plan-stat-edit{
+  position:absolute;top:.85rem;right:.85rem;
+}
+.plan-over-wrap{
+  margin:-.5rem 0 1rem;
+}
+@media (max-width:767px){
+  .plan-over-wrap .status-badge--over{
+    width:100%;justify-content:flex-start;
+  }
+}
+
+/* ── Category breakdown ────────────────────────────────────────────── */
+.plan-cat-section{margin-bottom:1.5rem}
+.plan-cat-heading{
+  font-size:.72rem;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);
+  margin:0 0 .85rem;
+}
+.plan-cat-list{
+  list-style:none;margin:0;padding:0;
+  display:flex;flex-direction:column;gap:.85rem;
+}
+
+.budget-bar-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,2fr) auto;
+  align-items:center;gap:.65rem .75rem;
+}
+@media (max-width:479px){
+  .budget-bar-row{
+    grid-template-columns:1fr auto;
+    grid-template-rows:auto auto;
+  }
+  .budget-bar-row .budget-bar-track{grid-column:1 / -1}
+}
+.budget-bar-label{
+  font-size:.82rem;font-weight:600;color:var(--ink);
+  min-width:0;word-break:break-word;
+}
+.budget-bar-track{
+  height:6px;border-radius:9999px;background:var(--line);
+  overflow:hidden;min-width:0;
+}
+.budget-bar-fill{
+  display:block;height:100%;border-radius:9999px;
+  background:var(--brand);width:0%;
+}
+.budget-bar-meta{
+  font-size:.74rem;font-weight:600;color:var(--muted);
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;text-align:right;
+  min-width:0;
+}
+@media (max-width:479px){
+  .budget-bar-meta{white-space:normal;text-align:left}
+}
+
+/* ── Expense list ──────────────────────────────────────────────────── */
+.plan-exp-section{margin-top:.5rem}
+.plan-exp-heading{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:.75rem;flex-wrap:wrap;
+  margin-bottom:.85rem;
+}
+.plan-exp-heading h3{
+  font-size:.72rem;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);margin:0;
+}
+.plan-exp-list{
+  list-style:none;margin:0;padding:0;
+  display:flex;flex-direction:column;gap:.35rem;
+}
+
+.exp-row{
+  display:grid;
+  grid-template-columns:auto 1fr auto auto;
+  align-items:center;gap:.65rem .5rem;
+  padding:.7rem .75rem;
+  border-radius:14px;
+  border:1px solid var(--line-soft);
+  background:var(--card);
+  transition:border-color .15s ease,background .15s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  .exp-row:hover{border-color:color-mix(in oklab,var(--brand) 28%,var(--line))}
+}
+.exp-row-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--brand-tint);color:var(--brand);flex-shrink:0;
+}
+.exp-row-icon .material-symbols-outlined{font-size:18px}
+.exp-row-body{min-width:0}
+.exp-row-vendor{
+  font-size:.88rem;font-weight:600;color:var(--ink);
+  line-height:1.3;word-break:break-word;
+}
+.exp-row-cat{
+  font-size:.72rem;color:var(--muted);font-weight:500;margin-top:.1rem;
+}
+.exp-row-amt{
+  font-size:.92rem;font-weight:700;color:var(--ink);
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.exp-row-actions{
+  display:flex;align-items:center;gap:.15rem;
+}
+
+.plan-budget-empty{margin-bottom:1.25rem}
+.plan-exp-empty{
+  padding:1.5rem 1rem;
+  margin-top:.5rem;
+}
+
+/* ── Budget card wrapper ───────────────────────────────────────────── */
+.plan-budget-card{padding:1.25rem 1rem}
+@media (min-width:768px){
+  .plan-budget-card{padding:1.5rem 1.35rem}
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion:reduce){
+  .plan-progress-fill,
+  .budget-bar-fill{transition:none}
+}
