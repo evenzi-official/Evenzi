@@ -2,6 +2,8 @@
 
 Goal: Claude plans (council/codex/agents) → generates a per-feature kit → Cursor builds → Antigravity tests → Claude reviews → merge. File-based handoff (`_status.md` = baton).
 
+> **STATUS (2026-06-05): OPERATIONAL.** A + B + C done; D trial ran front-to-back (`/spec-kit planning` → Cursor → Antigravity → `/spec-kit-review` → LOOP → fixes → DONE). Pipeline validated end-to-end. Only open item: D.5 (judge Cursor → Pro/Pro+ decision — Abhijith). To kit the next page: `/spec-kit <page>` (10 supported slugs).
+
 ## A. Build the skills (one-time)
 - [x] `/spec-kit <page>` skill — reads overview + shell + brand → brainstorm → **council (design mode) + codex opt-in** → **ask user open Qs** → write the kit. _(built 2026-06-05; spec: docs/superpowers/specs/2026-06-05-spec-kit-skill-design.md)_
 - [x] `/spec-kit-review <page>` skill — read `_findings.md` → council/codex review → write `_review.md` → update `_spec.md` → bump `_status.md`. _(built 2026-06-05; owns REVIEW→DONE)_
