@@ -6,10 +6,10 @@ Goal: Claude plans (council/codex/agents) → generates a per-feature kit → Cu
 - [x] `/spec-kit <page>` skill — reads overview + shell + brand → brainstorm → **council (design mode) + codex opt-in** → **ask user open Qs** → write the kit. _(built 2026-06-05; spec: docs/superpowers/specs/2026-06-05-spec-kit-skill-design.md)_
 - [x] `/spec-kit-review <page>` skill — read `_findings.md` → council/codex review → write `_review.md` → update `_spec.md` → bump `_status.md`. _(built 2026-06-05; owns REVIEW→DONE)_
 
-## B. Kit templates (one-time)
-- [ ] `_spec.md` (build detail) · `_test.md` (test detail)
-- [ ] `_cursor-prompt.md` (numbered build runbook) · `_antigravity-prompt.md` (numbered test runbook)
-- [ ] `_status.md` (one-line baton) · `_findings.md` / `_review.md` (append-only)
+## B. Kit templates (one-time) — DONE, co-located in `.claude/skills/spec-kit/templates/`
+- [x] `_spec.md` (build detail) · `_test.md` (test detail)
+- [x] `_cursor-prompt.md` (numbered build runbook) · `_antigravity-prompt.md` (numbered test runbook)
+- [x] `_status.md` (one-line baton) · `_findings.md` / `_review.md` (append-only)
 
 ## C. Wire the other tools to our agents (one-time)
 - [x] `.cursor/rules/` → point at `ai/agents/ui_ux_designer.md` + `ai/agents/frontend_engineer.md` + `ai/system/agent_rules.md` + constraints (tokens-only, no inline CSS/JS, mobile-first). _(`.cursor/rules/evenzi-design.mdc`, globs `designs/**`)_
