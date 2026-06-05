@@ -12,8 +12,8 @@ Goal: Claude plans (council/codex/agents) → generates a per-feature kit → Cu
 - [ ] `_status.md` (one-line baton) · `_findings.md` / `_review.md` (append-only)
 
 ## C. Wire the other tools to our agents (one-time)
-- [ ] `.cursor/rules/` → point at `ai/agents/ui_ux_designer.md` + `ai/agents/frontend_engineer.md` + `ai/system/agent_rules.md` + constraints (tokens-only, no inline CSS/JS, mobile-first).
-- [ ] Antigravity test-config → point at `ai/agents/test_engineer.md` + the test conventions.
+- [x] `.cursor/rules/` → point at `ai/agents/ui_ux_designer.md` + `ai/agents/frontend_engineer.md` + `ai/system/agent_rules.md` + constraints (tokens-only, no inline CSS/JS, mobile-first). _(`.cursor/rules/evenzi-design.mdc`, globs `designs/**`)_
+- [x] Antigravity test-config → point at `ai/agents/test_engineer.md` + the test conventions. _(`.agents/rules/evenzi-testing.md`)_
 - [x] Agents already exist: `ui_ux_designer.md` (UI/UX) + `test_engineer.md` (testing).
 
 ## D. First real run — Planning tab (the Cursor trial)
