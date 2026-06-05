@@ -4,7 +4,7 @@ Goal: Claude plans (council/codex/agents) → generates a per-feature kit → Cu
 
 ## A. Build the skills (one-time)
 - [x] `/spec-kit <page>` skill — reads overview + shell + brand → brainstorm → **council (design mode) + codex opt-in** → **ask user open Qs** → write the kit. _(built 2026-06-05; spec: docs/superpowers/specs/2026-06-05-spec-kit-skill-design.md)_
-- [ ] `/spec-kit-review <page>` skill — read `_findings.md` → council/codex review → write `_review.md` → update `_spec.md` → bump `_status.md`.
+- [x] `/spec-kit-review <page>` skill — read `_findings.md` → council/codex review → write `_review.md` → update `_spec.md` → bump `_status.md`. _(built 2026-06-05; owns REVIEW→DONE)_
 
 ## B. Kit templates (one-time)
 - [ ] `_spec.md` (build detail) · `_test.md` (test detail)
