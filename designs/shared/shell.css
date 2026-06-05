@@ -41,19 +41,39 @@
   --avatar-2:          linear-gradient(135deg,rgba(187,0,32,0.10),rgba(187,0,32,0.20));
   --avatar-3:          linear-gradient(135deg,rgba(187,0,32,0.06),rgba(187,0,32,0.14));
   --dot-color:         rgba(187,0,32,0.16);
-  /* Semantic status tokens (used by status-badge, page-tier, gs-tile.is-done) */
+  /* Semantic status tokens (used by status-badge, page-tier, gs-tile.is-done)
+     `-ink`  = text-on-tint, AA-verified ≥4.5:1 at 11px on the tinted bg.
+     hue tok = vivid dot / accent.  `-on` retained for back-compat (= -ink). */
   --success:           #15803d;
+  --success-ink:       #15803d;   /* on white ≈ 4.8:1 ✓ */
   --success-on:        #15803d;
   --success-tint:      rgba(22,163,74,0.10);
   --success-rim:       rgba(22,163,74,0.28);
+  --danger:            #ef4444;   /* vivid — dot / accent (distinct from brand crimson) */
+  --danger-ink:        #dc2626;   /* text — on white ≈ 4.7:1 ✓ */
+  --danger-tint:       rgba(239,68,68,0.10);
+  --danger-rim:        rgba(239,68,68,0.28);
+  --warning:           #f59e0b;   /* vivid amber — dot only (fails AA as text) */
+  --warning-ink:       #b45309;   /* text — on white ≈ 4.9:1 ✓ */
+  --warning-tint:      rgba(245,158,11,0.12);
+  --warning-rim:       rgba(245,158,11,0.30);
 }
 /* ── DARK ─────────────────────────────────────── */
 .dark{
-  /* Success tokens, dark variant */
+  /* Semantic status tokens, dark variant (text vs near-black card #18181b) */
   --success:           #4ade80;
+  --success-ink:       #4ade80;
   --success-on:        #4ade80;
   --success-tint:      rgba(74,222,128,0.12);
   --success-rim:       rgba(74,222,128,0.32);
+  --danger:            #f87171;
+  --danger-ink:        #f87171;
+  --danger-tint:       rgba(248,113,113,0.14);
+  --danger-rim:        rgba(248,113,113,0.34);
+  --warning:           #fbbf24;
+  --warning-ink:       #fbbf24;
+  --warning-tint:      rgba(251,191,36,0.14);
+  --warning-rim:       rgba(251,191,36,0.34);
   --bg:            #0d0d0d;
   --card:          #18181b;
   --cream-soft:    rgba(238,63,58,0.08);
@@ -1791,6 +1811,30 @@ html{scroll-behavior:smooth}
 .radio-pill.is-checked .material-symbols-outlined{
   color:var(--brand);
 }
+/* Status-scoped checked variants — used by the manual-RSVP setter so a
+   selected "Declined" reads red, "Confirmed" green, etc. (not brand red).
+   Apply the modifier on the pill alongside is-checked / aria-checked. */
+.radio-pill--confirmed[aria-checked="true"],.radio-pill--confirmed.is-checked{
+  background:var(--success-tint);border-color:var(--success);color:var(--success-ink);
+  box-shadow:0 0 0 1px var(--success);
+}
+.radio-pill--declined[aria-checked="true"],.radio-pill--declined.is-checked{
+  background:var(--danger-tint);border-color:var(--danger);color:var(--danger-ink);
+  box-shadow:0 0 0 1px var(--danger);
+}
+.radio-pill--maybe[aria-checked="true"],.radio-pill--maybe.is-checked{
+  background:var(--warning-tint);border-color:var(--warning);color:var(--warning-ink);
+  box-shadow:0 0 0 1px var(--warning);
+}
+.radio-pill--pending[aria-checked="true"],.radio-pill--pending.is-checked{
+  background:color-mix(in oklab,var(--muted) 12%,var(--card));
+  border-color:var(--muted);color:var(--ink-soft);
+  box-shadow:0 0 0 1px var(--muted);
+}
+.radio-pill--confirmed[aria-checked="true"] .material-symbols-outlined,.radio-pill--confirmed.is-checked .material-symbols-outlined{color:var(--success)}
+.radio-pill--declined[aria-checked="true"] .material-symbols-outlined,.radio-pill--declined.is-checked .material-symbols-outlined{color:var(--danger)}
+.radio-pill--maybe[aria-checked="true"] .material-symbols-outlined,.radio-pill--maybe.is-checked .material-symbols-outlined{color:var(--warning)}
+.radio-pill--pending[aria-checked="true"] .material-symbols-outlined,.radio-pill--pending.is-checked .material-symbols-outlined{color:var(--muted)}
 
 /* ════════════════════════════════════════════════════════════════════
    FORM ERROR / SUCCESS MESSAGE — inline below a field
@@ -2391,6 +2435,31 @@ body.no-scroll{overflow:hidden}
   color:var(--brand);
   border-color:color-mix(in oklab, var(--brand) 32%, transparent);
 }
+/* RSVP status variants — text uses `-ink` (AA), dot uses the vivid hue.
+   color-not-only: every badge keeps its .status-dot + text label. */
+.status-confirmed{
+  background:var(--success-tint);
+  color:var(--success-ink);
+  border-color:var(--success-rim);
+}
+.status-declined{
+  background:var(--danger-tint);
+  color:var(--danger-ink);
+  border-color:var(--danger-rim);
+}
+.status-maybe{
+  background:var(--warning-tint);
+  color:var(--warning-ink);
+  border-color:var(--warning-rim);
+}
+.status-pending{
+  background:color-mix(in oklab, var(--muted) 12%, var(--card));
+  color:var(--muted);
+  border-color:color-mix(in oklab, var(--muted) 24%, transparent);
+}
+.status-confirmed .status-dot{background:var(--success)}
+.status-declined  .status-dot{background:var(--danger)}
+.status-maybe     .status-dot{background:var(--warning)}
 
 /* ════════════════════════════════════════════════════════════════════
    PAGE TIER badge — Public / Private (with optional lock icon)
@@ -3219,3 +3288,200 @@ body.no-scroll{overflow:hidden}
 .modal-radio-meta{min-width:0}
 .modal-radio-title{font-size:.9rem;font-weight:600;color:var(--ink)}
 .modal-radio-desc{font-size:.78rem;color:var(--muted);line-height:1.4}
+
+/* ════════════════════════════════════════════════════════════════════
+   SEARCH INPUT — .form-input with a leading search glyph + a trailing
+   clear button that appears once the field has a value (.is-filled,
+   toggled by shell.js). Composition:
+     <div class="form-input-search">
+       <span class="material-symbols-outlined" aria-hidden="true">search</span>
+       <input class="form-input" type="search" placeholder="Search guests…">
+       <button class="form-input-search-clear" aria-label="Clear search">
+         <span class="material-symbols-outlined">close</span>
+       </button>
+     </div>
+   2nd+ consumer: every list page (guests, future invitations/media).
+   ════════════════════════════════════════════════════════════════════ */
+.form-input-search{position:relative;display:block;width:100%}
+.form-input-search > .material-symbols-outlined{
+  position:absolute;left:.85rem;top:50%;transform:translateY(-50%);
+  font-size:20px;color:var(--muted-soft);pointer-events:none;
+}
+.form-input-search .form-input{padding-left:2.65rem;padding-right:2.6rem}
+/* native search affordances off — we provide our own clear button */
+.form-input-search input[type=search]::-webkit-search-decoration,
+.form-input-search input[type=search]::-webkit-search-cancel-button{
+  -webkit-appearance:none;appearance:none;
+}
+.form-input-search-clear{
+  position:absolute;right:.45rem;top:50%;transform:translateY(-50%);
+  width:32px;height:32px;border-radius:9999px;border:0;
+  background:transparent;color:var(--muted);cursor:pointer;
+  display:none;align-items:center;justify-content:center;
+}
+.form-input-search-clear .material-symbols-outlined{font-size:18px}
+.form-input-search.is-filled .form-input-search-clear{display:inline-flex}
+@media (hover:hover) and (pointer:fine){
+  .form-input-search-clear:hover{background:var(--line-soft);color:var(--ink)}
+}
+.form-input-search-clear:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* ════════════════════════════════════════════════════════════════════
+   CHECKBOX — labelled, brand-tinted custom box over a native input.
+   Composition:
+     <label class="form-check">
+       <input type="checkbox">
+       <span>I have consent to share these contacts.</span>
+     </label>
+   Generic; first consumer is the CSV-import consent gate.
+   ════════════════════════════════════════════════════════════════════ */
+.form-check{
+  display:flex;align-items:flex-start;gap:.65rem;cursor:pointer;
+  font-family:'Poppins',sans-serif;font-size:.85rem;line-height:1.45;
+  color:var(--ink-soft);
+}
+.form-check input[type=checkbox]{
+  appearance:none;-webkit-appearance:none;
+  width:20px;height:20px;flex-shrink:0;margin:.05rem 0 0;
+  border:1.5px solid var(--line);border-radius:6px;background:var(--card);
+  cursor:pointer;position:relative;
+  transition:background .15s ease,border-color .15s ease;
+}
+.form-check input[type=checkbox]:checked{background:var(--brand);border-color:var(--brand)}
+.form-check input[type=checkbox]:checked::after{
+  content:"";position:absolute;left:6px;top:2px;
+  width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;
+  transform:rotate(45deg);
+}
+.form-check input[type=checkbox]:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* ════════════════════════════════════════════════════════════════════
+   GUEST ROW — responsive identity row. Reads as an aligned table on
+   desktop (fixed trailing columns so header + rows line up) and a
+   stacked card on mobile. Semantic <ul role="list"> / <li>.
+   Children are direct grid items placed by grid-area:
+     avatar · name · contact · invite · rsvp · actions
+   ════════════════════════════════════════════════════════════════════ */
+.guest-list{list-style:none;margin:0;padding:0}
+/* desktop column header (3 cols: avatar · Guest · RSVP) */
+.guest-row-head{display:none}
+@media (min-width:768px){
+  .guest-row-head{
+    display:grid;
+    grid-template-columns:44px minmax(0,1fr) 132px;
+    column-gap:1rem;align-items:center;
+    padding:0 1rem .55rem;
+  }
+  .guest-row-head span{
+    font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted-soft);
+  }
+  .guest-row-head .grh-rsvp{justify-self:end}
+}
+/* Unified 2-row layout both breakpoints: row1 = avatar | name/contact | RSVP;
+   row2 = meta strip (invite / assignment / tags) under the name, collapses
+   when there's nothing notable to show. */
+.guest-row{display:block}
+.guest-row + .guest-row{margin-top:2px}
+/* the visible card surface (slides to reveal the swipe rail on mobile) */
+.guest-row-surface{
+  display:grid;
+  grid-template-columns:40px minmax(0,1fr) auto;
+  grid-template-areas:
+    "avatar id   rsvp"
+    "avatar meta meta";
+  column-gap:.6rem;row-gap:2px;align-items:center;
+  padding:.5rem .35rem;
+  border-radius:14px;
+  border:1px solid transparent;
+  transition:background .15s ease,border-color .15s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  .guest-row-surface:hover{background:var(--line-soft);border-color:var(--line)}
+}
+@media (min-width:768px){
+  .guest-row-surface{grid-template-columns:44px minmax(0,1fr) 132px;column-gap:1rem}
+}
+/* name + contact = one tight block AND the edit trigger (a reset <button>) */
+.guest-row-id{
+  grid-area:id;min-width:0;
+  display:flex;flex-direction:column;justify-content:center;gap:1px;
+  background:none;border:0;padding:0;margin:0;
+  font-family:inherit;text-align:left;cursor:pointer;
+}
+.guest-row-id:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:8px}
+.guest-row-name,.guest-row-contact{display:block}
+.guest-row-avatar{
+  grid-area:avatar;align-self:center;
+  width:40px;height:40px;border-radius:9999px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:.9rem;
+  color:var(--brand);background:var(--avatar-2);
+  border:1px solid var(--brand-tint-2);
+  overflow:hidden;flex-shrink:0;
+}
+.guest-row-avatar img{width:100%;height:100%;object-fit:cover}
+.guest-row-name{
+  min-width:0;
+  font-weight:600;font-size:.95rem;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.guest-row-contact{
+  min-width:0;
+  font-size:.8rem;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+/* row-2 meta strip — single horizontal line, truncates; collapses when empty */
+.guest-row-meta{
+  grid-area:meta;min-width:0;align-self:center;
+  display:flex;align-items:center;gap:.3rem;flex-wrap:nowrap;overflow:hidden;
+  margin-top:2px;
+}
+.guest-row-meta:empty{display:none}
+@media (min-width:768px){.guest-row-meta{margin-top:1px}}
+/* invite + assignment chips */
+.guest-invite-chip,.guest-assign-chip{
+  display:inline-flex;align-items:center;gap:.25rem;flex-shrink:0;
+  font-size:.66rem;font-weight:600;letter-spacing:.02em;
+  padding:.16rem .5rem;border-radius:9999px;white-space:nowrap;
+}
+.guest-invite-chip .material-symbols-outlined,.guest-assign-chip .material-symbols-outlined{font-size:13px}
+.guest-invite-none{   /* neutral — "not invited" is the normal initial state; amber is reserved for the 0-functions warning */
+  color:var(--muted);background:var(--line-soft);border:1px solid var(--line);
+}
+.guest-assign-chip{color:var(--muted);background:var(--line-soft);font-weight:700;font-variant-numeric:tabular-nums}
+.guest-assign-chip.is-none{color:var(--warning-ink);background:var(--warning-tint);border:1px solid var(--warning-rim)}
+/* rsvp badge = a button (opens the status setter) */
+.guest-row-rsvp{
+  grid-area:rsvp;justify-self:end;align-self:center;
+  cursor:pointer;min-height:34px;
+}
+.guest-row-rsvp .material-symbols-outlined{font-size:14px;margin-left:.1rem;opacity:.6}
+.guest-row-rsvp:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+@media (max-width:767px){
+  .guest-row-rsvp{min-height:30px;position:relative}
+  .guest-row-rsvp::after{content:"";position:absolute;inset:-8px -6px}    /* ≥44px tap */
+  .guest-row-rsvp .material-symbols-outlined{display:none}               /* drop chevron, save width */
+}
+
+/* ── TAG CHIP — display + removable variants. `--tag-tint`/`--tag-ink`
+   reserved hooks for future per-tag color (default neutral). ────────── */
+.tag-chip{
+  display:inline-flex;align-items:center;gap:.2rem;flex-shrink:0;max-width:120px;
+  padding:.12rem .5rem;border-radius:9999px;
+  font-size:.66rem;font-weight:600;letter-spacing:.01em;white-space:nowrap;
+  background:var(--tag-tint, var(--line-soft));
+  color:var(--tag-ink, var(--ink-soft));
+  border:1px solid var(--tag-rim, transparent);
+}
+.tag-chip .tag-chip-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag-chip-more{color:var(--muted);background:transparent;font-weight:700;padding-inline:.25rem}
+.tag-chip-removable{padding-right:.2rem}
+.tag-chip-x{
+  width:16px;height:16px;border-radius:50%;border:0;flex-shrink:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:transparent;color:inherit;cursor:pointer;opacity:.7;
+}
+.tag-chip-x:hover{opacity:1;background:color-mix(in oklab,currentColor 18%,transparent)}
+.tag-chip-x .material-symbols-outlined{font-size:13px}
+.tag-chip-x:focus-visible{outline:2px solid var(--brand);outline-offset:1px}

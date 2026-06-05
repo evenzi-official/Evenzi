@@ -1327,3 +1327,29 @@
     }
   });
 })();
+
+/* ── Search input: toggle .is-filled + clear button ──────────────
+   Delegated so any .form-input-search on any page inherits it.
+   Clear refocuses the field and re-fires `input` so list filters react. */
+(function () {
+  function sync(input) {
+    var wrap = input.closest('.form-input-search');
+    if (!wrap) return;
+    wrap.classList.toggle('is-filled', input.value.length > 0);
+  }
+  document.addEventListener('input', function (e) {
+    var input = e.target.closest && e.target.closest('.form-input-search input');
+    if (input) sync(input);
+  });
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.form-input-search-clear');
+    if (!btn) return;
+    var wrap = btn.closest('.form-input-search');
+    var input = wrap && wrap.querySelector('input');
+    if (!input) return;
+    input.value = '';
+    sync(input);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.focus();
+  });
+})();
