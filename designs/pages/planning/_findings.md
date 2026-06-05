@@ -45,3 +45,11 @@
 | 6.divzero | PASS | Guards against division by zero present in code. |
 | 7.whatsapp | N/A | |
 | 7.device | SKIP (human) | |
+
+## 2026-06-05 — Claude (fix re-test) — against SPEC_VERSION 2026-06-05.2
+
+| Matrix row | Result | Note / repro |
+|---|---|---|
+| 3.tablist | PASS | ArrowLeft now toggles (planning.js:194 `(i - 1 + n) % n`); both arrows move selection. Was a false-pass in the prior run. |
+| 2.noinline | PASS | Cursor's 2 inline `style="color:var(--brand)"` replaced with `class="text-brand"`; only the exempt pre-existing chrome style at line 122 remains. |
+| (regression check) | PASS | planning.html serves 200; no other rows affected by the 2 one-line fixes. |

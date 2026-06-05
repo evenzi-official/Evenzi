@@ -18,10 +18,10 @@ Goal: Claude plans (council/codex/agents) → generates a per-feature kit → Cu
 
 ## D. First real run — Planning tab (the Cursor trial)
 - [x] `/spec-kit planning` → council pass + answer open Qs → generate kit in `designs/pages/planning/`. _(2026-06-05; kit at SPEC_VERSION 2026-06-05.1, status BUILD — ready for Cursor)_
-- [ ] Open Cursor → "read `_cursor-prompt.md`, execute" → build.
-- [ ] Antigravity → "read `_antigravity-prompt.md`" → test → `_findings.md`.
-- [ ] `/spec-kit-review planning` → review → update kit → loop until Done.
-- [ ] **Judge Cursor** (follows spec? reuses tokens? doesn't break shell? clean code?) → decide Pro/Pro+ purchase.
+- [x] Open Cursor → "read `_cursor-prompt.md`, execute" → build. _(2026-06-05; ~95% spec-faithful on first pass)_
+- [x] Antigravity → "read `_antigravity-prompt.md`" → test → `_findings.md`. _(matrix all-PASS)_
+- [x] `/spec-kit-review planning` → review → update kit → loop until Done. _(caught 2 minor defects → LOOP → fixes applied + verified → STAGE: DONE at SPEC_VERSION 2026-06-05.2)_
+- [ ] **Judge Cursor** (follows spec? reuses tokens? doesn't break shell? clean code?) → decide Pro/Pro+ purchase. _(Abhijith's call — evidence in `designs/pages/planning/_review.md`: spec-faithful, tokens reused, shell intact, clean DOM; only 2 trivial misses.)_
 
 ## Notes
 - Codex is on a **limited** plan (Go, ~75% left) → reserve for hard tasks / one review pass, not main building.

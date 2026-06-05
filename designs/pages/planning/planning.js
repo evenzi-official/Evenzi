@@ -187,10 +187,11 @@
 
   function onTabKeydown(e, tab) {
     var tabs = [tabChecklist, tabBudget];
+    var n = tabs.length;
     var i = tabs.indexOf(tab);
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
       e.preventDefault();
-      var next = e.key === 'ArrowRight' ? (i + 1) % 2 : (i + 1 + 1) % 2;
+      var next = e.key === 'ArrowRight' ? (i + 1) % n : (i - 1 + n) % n;
       selectTab(next === 0 ? 'checklist' : 'budget');
       tabs[next].focus();
     }

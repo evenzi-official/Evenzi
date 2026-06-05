@@ -5,7 +5,7 @@
      v1: REVIEW is the terminal state. /spec-kit-review (TODO A.2) owns REVIEW→DONE when built —
      a cold agent at REVIEW should stop and wait, not treat it as a failure. -->
 PAGE: planning
-STAGE: BUILD (Cursor — fix pass)
+STAGE: DONE
 SPEC_VERSION: 2026-06-05.2
-UPDATED: 2026-06-05 — /spec-kit-review (LOOP: 2 minor defects)
-NEXT: open Cursor → read _review.md fix-list (2 items: ArrowLeft tab key; remove 2 inline styles) → apply → bump STAGE to TEST
+UPDATED: 2026-06-05 — /spec-kit-review (fixes applied + verified)
+NEXT: none — page complete. (Manual residual: on-device crore-scale ₹ fit at 360px, _test.md 7.device.)

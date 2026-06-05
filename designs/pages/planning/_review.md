@@ -23,3 +23,13 @@
 - `_spec.md`: SPEC_VERSION bumped to 2026-06-05.2 (no content change; the build already matches — only the two fixes above remain).
 
 _Re-run note: findings above were recorded against SPEC_VERSION 2026-06-05.1; the spec/test are now at 2026-06-05.2. After Cursor applies the 2 fixes and Antigravity re-tests `3.tablist` + `2.noinline`, re-run /spec-kit-review planning to close to DONE._
+
+## 2026-06-05 — /spec-kit-review (close-out) — SPEC_VERSION 2026-06-05.2
+
+**Verdict: 🟢 DONE.** Both LOOP defects fixed (by Claude at the user's request, in lieu of a Cursor round-trip) and re-verified:
+1. `planning.js:194` — ArrowLeft now `(i - 1 + n) % n`; both arrows toggle the tablist. `3.tablist` → PASS.
+2. `planning.html` — the 2 inline `style="color:var(--brand)"` replaced with `class="text-brand"`; only the exempt pre-existing chrome style remains. `2.noinline` → PASS.
+
+Regression check: page serves 200, no other matrix rows affected. `_status.md` → DONE.
+
+**Remaining (non-blocking, deferred):** `7.device` — on-device crore-scale ₹ fit at 360px (manual, host). The full pipeline (spec-kit → Cursor → Antigravity → spec-kit-review → loop → DONE) is validated end-to-end.
