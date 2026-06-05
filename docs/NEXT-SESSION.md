@@ -4,7 +4,26 @@
 
 ---
 
-## Recently Landed (2026-06-05 — Guest Management page, full build) — COMMITTED, NOT MERGED
+## Recently Landed (2026-06-05b — Multi-editor workflow OPERATIONAL: /spec-kit + /spec-kit-review + planning trial)
+
+Infra/skill session. Built the whole multi-editor pipeline from `docs/specs/_WORKFLOW-TODO.md` and validated it end-to-end. Full report: `docs/session-reports/2026-06-05-session-report.md`.
+
+**Shipped:**
+- **`/spec-kit <page>`** + **`/spec-kit-review <page>`** skills (`.claude/skills/`), 7 kit templates, v1 alias map (10 slugs), re-run contract. Surfaced in `/start-evenzi-session`.
+- **Editor wiring:** `.cursor/rules/evenzi-design.mdc` + `.agents/rules/evenzi-testing.md` → agent role-books + constraints.
+- **Planning trial DONE:** `/spec-kit planning` → Cursor build (~95% spec-faithful) → Antigravity test → `/spec-kit-review` → LOOP (2 minor defects) → fixes → 🟢 DONE. Kit + built page in `designs/pages/planning/` (SPEC_VERSION 2026-06-05.2). 2 new shell primitives: `.checklist-row--simple`, `.status-badge--over`.
+
+**Next:**
+- **D.5 — judge Cursor → Pro/Pro+ decision** (evidence in `designs/pages/planning/_review.md`).
+- `components.html` backfill now also owes `.checklist-row--simple` + `.status-badge--over`.
+- Planning residual `7.device` (on-device crore-scale ₹ at 360px, manual).
+- Kit the next page anytime: `/spec-kit <slug>`.
+
+> ⚠️ The Guest Management "NOT MERGED" note below is now stale — it was merged to `Dev-Vibe` this session (FF to `2a232c1`), and this session's work merges on top.
+
+---
+
+## Recently Landed (2026-06-05 — Guest Management page, full build) — MERGED to Dev-Vibe
 
 Host-side **Guest Management** built end-to-end (`designs/pages/guests/*`) + a **tagging & sub-event-assignment** feature + multiple founder phone-review passes. Committed on worktree branch `claude/affectionate-neumann-65a437` as **0dd40a5** (NOT merged to Dev-Vibe).
 
