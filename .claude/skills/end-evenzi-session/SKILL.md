@@ -40,7 +40,7 @@ Both users:
 
 #### 4a.1 Update ClickUp tasks
 
-If the session worked exclusively on the design path (5a.7 of start-evenzi-session) with no ClickUp-tracked feature touched, **skip this step** — design path is pre-task and has no tickets. Note in the session report that no ClickUp tasks were touched. Otherwise:
+If the session worked exclusively on a pre-task path with no ClickUp-tracked feature touched — the design path (5a.7), a `/spec-kit` build-kit run, or pure infra/skill work — **skip this step** — these are pre-task and have no tickets. Note in the session report that no ClickUp tasks were touched. Otherwise:
 
 Invoke `/clickup-pm` with mode `session-end`. Provide:
 - List of task IDs worked on

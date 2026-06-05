@@ -99,6 +99,7 @@ Then `AskUserQuestion` with paths:
 | **ClickUp task management** | Sprint planning, task CRUD, dependencies — handled by `/clickup-pm` |
 | **Design / brainstorm** | `superpowers:brainstorming` → spec doc, no implementation |
 | **Design next page** | Pure HTML/CSS/JS design work in `designs/`. No superpowers. Plan → build → test, reuses `shell.css`/`shell.js`, mobile-first, UI/UX agent throughout |
+| **Generate a build kit (`/spec-kit`)** | Multi-editor workflow planning front-door. `/spec-kit <page>` reads overview + shell + brand → drafts spec → open Qs → `/council design` (codex opt-in) → writes the 7-file kit into `designs/pages/<page>/` for Cursor to build + Antigravity to test. See `docs/specs/_WORKFLOW-TODO.md`. |
 | **Codebase maintenance** | Refactor, cleanup, dependency updates |
 | **Review / explore** | Read code, understand a system |
 
@@ -109,6 +110,7 @@ After the path is chosen, start the appropriate server in background — but onl
 | Path                        | Server           | Port | Notes |
 |-----------------------------|------------------|------|-------|
 | Design next page            | `npm run design` | 4000 | Handled in 5a.7.1 — skip here |
+| Generate a build kit (`/spec-kit`) | `npm run design` | 4000 | Optional — only if you want to eyeball the existing page while planning; the kit write itself needs no server |
 | Work on a ClickUp task      | `npm run dev`    | 3000 | |
 | Review Dheeraj's work       | `npm run dev`    | 3000 | |
 | Fix a bug                   | `npm run dev`    | 3000 | |
