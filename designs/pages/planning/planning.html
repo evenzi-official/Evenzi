@@ -131,34 +131,46 @@
     <p class="mt-4 text-base md:text-lg text-muted max-w-2xl">Checklists, budget tracking, and event timeline.</p>
   </header>
 
-  <!-- In-page tab bar -->
-  <div class="plan-tabs-wrap reveal">
-    <div class="plan-tabs nav-tabs" role="tablist" aria-label="Planning views">
-      <button type="button" role="tab" id="plan-tab-checklist" class="nav-tab is-active" aria-selected="true" aria-controls="plan-panel-checklist" tabindex="0">
+  <!-- In-page tab bar (pill style) -->
+  <div class="plan-tabs-wrap pill-tabs-wrap reveal">
+    <div class="plan-tabs pill-tabs" role="tablist" aria-label="Planning views">
+      <button type="button" role="tab" id="plan-tab-checklist" class="pill-tab is-active" aria-selected="true" aria-controls="plan-panel-checklist" tabindex="0">
         <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist</span>
-        <span class="nav-tab-label">Checklist</span>
+        Checklist
       </button>
-      <button type="button" role="tab" id="plan-tab-budget" class="nav-tab" aria-selected="false" aria-controls="plan-panel-budget" tabindex="-1">
+      <button type="button" role="tab" id="plan-tab-budget" class="pill-tab" aria-selected="false" aria-controls="plan-panel-budget" tabindex="-1">
         <span aria-hidden="true" class="material-symbols-outlined">account_balance_wallet</span>
-        <span class="nav-tab-label">Budget</span>
+        Budget
       </button>
     </div>
   </div>
 
-  <!-- Checklist panel -->
+  <!-- Checklist panel → Tasks -->
   <section id="plan-panel-checklist" role="tabpanel" aria-labelledby="plan-tab-checklist" class="plan-panel reveal">
     <header class="section-head">
       <p class="section-head-eyebrow">Checklist</p>
       <h2 class="section-head-title">Tasks</h2>
-      <p class="section-head-sub">Check off items as you go — add your own anytime.</p>
+      <p class="section-head-sub">Track what to do, when it's due, and which function it belongs to.</p>
     </header>
 
-    <div class="clay-card plan-checklist-card">
+    <div class="clay-card plan-tasks-card" id="plan-tasks-card">
       <div class="plan-progress-row">
         <p class="plan-progress-label" id="plan-progress-label">14 of 30 done · 47%</p>
+        <span class="plan-progress-shown" id="plan-progress-shown" hidden></span>
         <div class="plan-progress-track" aria-hidden="true">
           <span class="plan-progress-fill pf-bar" id="plan-progress-fill" data-fill="47"></span>
         </div>
+      </div>
+
+      <div class="plan-tasks-toolbar">
+        <div class="pill-tabs pill-tabs--sm plan-view-toggle" role="radiogroup" aria-label="Task view" id="plan-view-toggle">
+          <button type="button" role="radio" class="pill-tab is-active" id="plan-view-list" aria-checked="true" tabindex="0" data-plan-view="list">List</button>
+          <button type="button" role="radio" class="pill-tab" id="plan-view-timeline" aria-checked="false" tabindex="-1" data-plan-view="timeline">Timeline</button>
+        </div>
+        <button type="button" class="plan-select-btn" id="plan-select-mode" aria-label="Select tasks">
+          <span class="material-symbols-outlined" aria-hidden="true">checklist</span>
+          <span class="plan-select-label">Select</span>
+        </button>
       </div>
 
       <div class="plan-alldone" id="plan-alldone" hidden role="status">
@@ -166,16 +178,36 @@
         <span>All done — every task complete 🎉</span>
       </div>
 
-      <ul class="plan-checklist-list" id="plan-checklist-list" role="list" aria-label="Planning checklist"></ul>
+      <!-- List view -->
+      <div class="plan-view-body" id="plan-view-list-body">
+        <div class="plan-empty" id="plan-tasks-empty" hidden>
+          <p class="plan-empty-title">No tasks yet</p>
+          <p class="plan-empty-sub">Tap the + button to add your first task.</p>
+        </div>
+        <ul class="plan-task-list" id="plan-task-list" role="list" aria-label="Task list"></ul>
+      </div>
 
-      <form id="plan-add-form" class="plan-add-row">
-        <label class="sr-only" for="plan-add-input">New checklist item</label>
-        <input class="form-input" type="text" id="plan-add-input" placeholder="Add a custom task…" autocomplete="off" />
-        <button type="submit" class="btn-pill btn-pill-primary">
-          <span class="material-symbols-outlined" aria-hidden="true">add</span>
-          Add item
-        </button>
-      </form>
+      <!-- Timeline view -->
+      <div class="plan-view-body" id="plan-view-timeline-body" hidden>
+        <div class="task-datebar" id="plan-datebar" aria-label="Filter by date">
+          <div class="task-datebar-head">
+            <button type="button" class="task-datebar-nav" id="plan-date-prev" aria-label="Previous month">
+              <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+            </button>
+            <span class="task-datebar-month" id="plan-datebar-month"></span>
+            <button type="button" class="task-datebar-nav" id="plan-date-next" aria-label="Next month">
+              <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+            </button>
+          </div>
+          <div class="task-datebar-chips" id="plan-datebar-chips" role="group" aria-label="Days"></div>
+        </div>
+        <div class="plan-agenda" id="plan-agenda"></div>
+        <div class="plan-empty" id="plan-day-empty" hidden>
+          <p class="plan-empty-title" id="plan-day-empty-title">Nothing due on this day.</p>
+        </div>
+      </div>
+
+      <p class="sr-only" id="plan-task-live" aria-live="polite"></p>
     </div>
   </section>
 
@@ -233,7 +265,7 @@
 
       <div class="clay-card plan-budget-card">
         <div class="plan-cat-section">
-          <p class="plan-cat-heading">Category breakdown</p>
+          <p class="plan-cat-heading">Spending by type</p>
           <ul class="plan-cat-list" id="plan-cat-list" role="list" aria-label="Spending by category"></ul>
         </div>
 
@@ -316,9 +348,59 @@
   </div>
 </div>
 
+<!-- Add / edit task -->
+<div class="modal-scrim" id="plan-task-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card plan-task-modal-card" role="dialog" aria-modal="true" aria-labelledby="plan-task-title">
+    <header class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="plan-task-title">Add task</h2>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </header>
+    <form id="plan-task-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="plan-task-label">Task <span aria-hidden="true" class="text-brand">*</span></label>
+        <input id="plan-task-label" name="label" type="text" class="form-input" autocomplete="off" placeholder="e.g. Confirm florist" required />
+        <p class="form-error" id="plan-task-label-err" role="alert" hidden>
+          <span class="material-symbols-outlined" aria-hidden="true">error</span> Enter a task name.
+        </p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="plan-task-due">Due date <span class="form-label-opt">(optional)</span></label>
+        <input id="plan-task-due" name="due" type="date" class="form-input" />
+      </div>
+      <div class="form-group" id="plan-task-subevent-wrap">
+        <label class="form-label" for="plan-task-subevent">Sub-event</label>
+        <div class="form-select">
+          <select id="plan-task-subevent" name="subEvent" class="form-input"></select>
+          <span class="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <span class="form-label" id="plan-task-prio-label">Priority</span>
+        <div class="task-prio-pills radio-pill-group" role="radiogroup" aria-labelledby="plan-task-prio-label" id="plan-task-prio">
+          <button type="button" role="radio" class="radio-pill" data-prio="low" aria-checked="false" tabindex="-1">Low</button>
+          <button type="button" role="radio" class="radio-pill is-checked" data-prio="med" aria-checked="true" tabindex="0">Medium</button>
+          <button type="button" role="radio" class="radio-pill" data-prio="high" aria-checked="false" tabindex="-1">High</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="plan-task-notes">Notes <span class="form-label-opt">(optional)</span></label>
+        <input id="plan-task-notes" name="notes" type="text" class="form-input" placeholder="Any extra detail…" />
+      </div>
+      <footer class="modal-actions">
+        <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+        <button type="submit" class="btn-pill btn-pill-primary" id="plan-task-save">Save task</button>
+      </footer>
+    </form>
+  </div>
+</div>
+
 <!-- Add / edit expense -->
-<div class="modal-scrim" id="plan-expense-modal" data-modal aria-hidden="true">
-  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="plan-exp-title">
+<div class="modal-scrim plan-expense-scrim" id="plan-expense-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card plan-expense-modal-card" role="dialog" aria-modal="true" aria-labelledby="plan-exp-title">
     <header class="modal-head">
       <div class="modal-head-lead">
         <h2 class="modal-title" id="plan-exp-title">Add expense</h2>
@@ -327,33 +409,85 @@
         <span class="material-symbols-outlined" aria-hidden="true">close</span>
       </button>
     </header>
-    <form id="plan-expense-form" novalidate>
-      <div class="form-group">
-        <label class="form-label" for="plan-exp-amount">Amount <span aria-hidden="true" class="text-brand">*</span></label>
-        <div class="form-input form-input-group">
-          <span class="form-input-prefix" aria-hidden="true">₹</span>
-          <input id="plan-exp-amount" name="amount" type="text" class="form-input-field" inputmode="numeric" autocomplete="off" placeholder="45,000" required />
+    <form id="plan-expense-form" class="plan-expense-form" novalidate>
+      <div class="plan-modal-block">
+        <p class="plan-modal-block-title">Expense</p>
+        <div class="form-group">
+          <label class="form-label" for="plan-exp-amount">Amount <span aria-hidden="true" class="text-brand">*</span></label>
+          <div class="form-input form-input-group">
+            <span class="form-input-prefix" aria-hidden="true">₹</span>
+            <input id="plan-exp-amount" name="amount" type="text" class="form-input-field" inputmode="numeric" autocomplete="off" placeholder="45,000" required />
+          </div>
+          <p class="form-error" id="plan-exp-amount-err" role="alert" hidden>
+            <span class="material-symbols-outlined" aria-hidden="true">error</span> Enter a valid amount greater than zero.
+          </p>
         </div>
-        <p class="form-error" id="plan-exp-amount-err" role="alert" hidden>
-          <span class="material-symbols-outlined" aria-hidden="true">error</span> Enter a valid amount greater than zero.
-        </p>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="plan-exp-category">Category</label>
-        <div class="form-select">
-          <select id="plan-exp-category" name="category" class="form-input"></select>
-          <span class="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
+        <div class="form-group">
+          <label class="form-label" for="plan-exp-type">Expense type</label>
+          <div class="form-select">
+            <select id="plan-exp-type" name="type" class="form-input"></select>
+            <span class="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
+          </div>
+          <div class="expense-type-add" id="plan-exp-type-add">
+            <button type="button" class="expense-type-add-trigger" id="plan-exp-type-trigger">+ Add type</button>
+            <div class="expense-type-add-panel" id="plan-exp-type-panel" hidden>
+              <label class="sr-only" for="plan-exp-type-input">New expense type</label>
+              <input id="plan-exp-type-input" type="text" class="form-input" placeholder="New expense type" autocomplete="off" />
+              <div class="expense-type-add-actions">
+                <button type="button" class="btn-pill btn-pill-secondary" id="plan-exp-type-cancel">Cancel</button>
+                <button type="button" class="btn-pill btn-pill-primary" id="plan-exp-type-confirm" disabled>Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="plan-exp-vendor">Vendor name <span class="form-label-opt">(optional)</span></label>
+          <input id="plan-exp-vendor" name="vendor" type="text" class="form-input" autocomplete="organization" placeholder="e.g. Tadka Heritage" />
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="plan-exp-vendor">Vendor name <span class="form-label-opt">(optional)</span></label>
-        <input id="plan-exp-vendor" name="vendor" type="text" class="form-input" autocomplete="organization" placeholder="e.g. Tadka Heritage" />
+      <div class="plan-modal-divider" aria-hidden="true"></div>
+      <div class="plan-modal-block">
+        <p class="plan-modal-block-title">Details</p>
+        <div class="form-group">
+          <span class="form-label">Event</span>
+          <span class="expense-event-chip">
+            <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+            Anya &amp; Kabir
+          </span>
+        </div>
+        <div class="form-group" id="plan-exp-subevent-wrap">
+          <label class="form-label" for="plan-exp-subevent">Sub-event <span class="form-label-opt">(optional)</span></label>
+          <div class="form-select">
+            <select id="plan-exp-subevent" name="subEvent" class="form-input"></select>
+            <span class="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <span class="form-label" id="plan-receipt-label">Receipt <span class="form-label-opt">(optional)</span></span>
+          <div class="receipt-upload" id="plan-receipt-upload">
+            <label class="receipt-upload-trigger" for="plan-receipt-file" id="plan-receipt-trigger">
+              <span class="material-symbols-outlined" aria-hidden="true">upload_file</span>
+              <span>Upload receipt or image</span>
+            </label>
+            <p class="receipt-upload-hint">Prototype — won't save yet</p>
+            <input type="file" id="plan-receipt-file" accept="image/*" class="sr-only" aria-labelledby="plan-receipt-label" />
+            <div class="receipt-upload-preview" id="plan-receipt-preview" hidden>
+              <img id="plan-receipt-img" alt="" loading="lazy" />
+              <span class="receipt-upload-name" id="plan-receipt-name"></span>
+              <button type="button" class="receipt-upload-remove" id="plan-receipt-remove">Remove</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="plan-exp-date">Date</label>
+          <input id="plan-exp-date" name="date" type="date" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="plan-exp-notes">Notes <span class="form-label-opt">(optional)</span></label>
+          <input id="plan-exp-notes" name="notes" type="text" class="form-input" placeholder="Advance payment, etc." />
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="plan-exp-notes">Notes <span class="form-label-opt">(optional)</span></label>
-        <input id="plan-exp-notes" name="notes" type="text" class="form-input" placeholder="Advance payment, etc." />
-      </div>
-      <footer class="modal-actions">
+      <footer class="modal-actions plan-expense-footer">
         <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
         <button type="submit" class="btn-pill btn-pill-primary" id="plan-exp-save">Save expense</button>
       </footer>
@@ -367,7 +501,7 @@
     <div class="modal-confirm-icon is-cautionary">
       <span class="material-symbols-outlined" aria-hidden="true">delete</span>
     </div>
-    <h3 class="modal-confirm-title" id="plan-delete-title">Delete this item?</h3>
+    <h3 class="modal-confirm-title" id="plan-delete-title">Delete this task?</h3>
     <p class="modal-confirm-text" id="plan-delete-text">This cannot be undone.</p>
     <footer class="modal-actions">
       <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
@@ -375,6 +509,31 @@
     </footer>
   </div>
 </div>
+
+<!-- Bulk bar + Add FAB -->
+<div class="bulk-bar" id="plan-bulkbar" role="toolbar" aria-label="Bulk task actions" hidden>
+  <span class="bulk-bar-count"><span id="plan-sel-count">0</span> selected</span>
+  <span class="bulk-bar-div" aria-hidden="true"></span>
+  <button type="button" class="bulk-bar-act" id="plan-bulk-complete" disabled>
+    <span class="material-symbols-outlined" aria-hidden="true">check_circle</span><span class="bulk-bar-act-label">Complete</span>
+  </button>
+  <button type="button" class="bulk-bar-act" id="plan-bulk-date" disabled>
+    <span class="material-symbols-outlined" aria-hidden="true">event</span><span class="bulk-bar-act-label">Set date</span>
+  </button>
+  <button type="button" class="bulk-bar-act" id="plan-bulk-assign" disabled>
+    <span class="material-symbols-outlined" aria-hidden="true">celebration</span><span class="bulk-bar-act-label">Assign</span>
+  </button>
+  <button type="button" class="bulk-bar-act" id="plan-bulk-delete" disabled>
+    <span class="material-symbols-outlined" aria-hidden="true">delete</span><span class="bulk-bar-act-label">Delete</span>
+  </button>
+  <button type="button" class="bulk-bar-cancel" id="plan-bulk-cancel" aria-label="Cancel selection">
+    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+  </button>
+</div>
+
+<button type="button" class="add-fab" id="plan-add-fab" aria-label="Add task">
+  <span class="material-symbols-outlined" aria-hidden="true">add</span>
+</button>
 
 <script src="../../shared/shell.js"></script>
 <script src="planning.js"></script>

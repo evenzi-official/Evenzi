@@ -25,6 +25,30 @@ You are building static HTML/CSS/JS design prototypes in `designs/` (mobile-web 
 - **`.bc-wrap`** is the canonical page wrapper — do not override page width at module level. Dark mode (`.dark`) + semantic status tokens (`--success/--warning/--danger/--info`) are mandatory.
 - **Load order is load-bearing** — `shell.css` before `<page>.css`, `shell.js` before `<page>.js`.
 - Tag top-level sections `class="reveal"` for scroll-in (shell.js auto-wires the IntersectionObserver).
+- **Restraint & reuse fidelity** — when a shared component already exists (`.pill-tabs`/`.pill-tab`, filter chips like `.gm-filter-btn`, `.guest-row` family, status badges), **match its exact treatment** — do NOT add extra glow, shadow, border, or motion beyond what the shell token gives it. "Make it pop" is not a goal; the shell's restraint IS the design. If two surfaces do the same job (e.g. a tab vs a filter chip), they should read as one family, not two. Decorative glow/shadow/`filter: drop-shadow` that isn't already a shell token is a defect, not polish.
+
+## Design self-review pass (MANDATORY before you set STAGE: TEST)
+A single agent grading its own build is weaker than independent review — so do this deliberately. After building, **re-read your output against this checklist and fix every gap before bumping the baton.** This is not optional; the downstream `/spec-kit-review` will catch what you skip and loop the page back to you.
+
+1. **Reuse fidelity** — every element either cites a catalog primitive (reuse-as-is / modifier-extend) or is justified as genuinely new. No re-invented version of an existing component. No glow/shadow/motion added beyond shell tokens (see Restraint above).
+2. **A11y floor** — visible `:focus-visible` on EVERY control; every input has a programmatic `<label>`; icons `aria-hidden` + labelled controls; single logical heading order; **status is never color-only** (overdue/priority/done = icon **+** text, not just a colored dot/tint); ≥44px targets; one `aria-live` region per announcement (no nesting a live region inside another).
+3. **States** — every interactive element renders default/hover(guarded)/active/focus/disabled/loading/error; every list has its empty state; no dead `href`.
+4. **Content-length resilience** — long names wrap (no clipped values); money is `tabular-nums` + en-IN; nothing breaks at the longest realistic content.
+5. **Responsive** — re-check 360 / 390 / 414 / 768 / 1024 / 1440: no horizontal overflow, no clipped content, modal → bottom-sheet <768 with a sticky footer.
+6. **Spacing rhythm** — consistent vertical scale; no cramped or orphaned gaps between stacked sections.
+7. **No-regress** — `git status` shows changes ONLY under the page folder + `designs/shared/shell.*`. You did NOT edit any OTHER page's files (promotions to shell must be alias-first).
+8. **Tokens & hygiene** — no inline CSS/JS; no hardcoded hex/px; no `innerHTML`; `prefers-reduced-motion` respected; load order intact.
+
+If a `_spec.md` / `_test.md` is present, the spec's reuse map + the test matrix are the authoritative version of this checklist — self-verify against the actual matrix rows.
+
+## Self-test pass (MANDATORY smoke-gate before you set STAGE: TEST)
+Don't hand an obviously-broken build downstream. After the design self-review, run a functional round on your OWN build, fix what fails, then bump the baton. This does NOT replace Antigravity's independent test or Claude's `/spec-kit-review` — both still run — it just stops you shipping breakage.
+
+1. **Serve + smoke** — run the page (the design server on :4000, e.g. `npx --yes live-server@^1.2.2 designs --port=4000 --no-browser`, or open it in a browser). Confirm it LOADS with **no console errors/warnings**, the themed surface renders (tokens loaded), `<body data-page>` is correct, and the chrome (nav / tool-rail / breadcrumb / footer) renders.
+2. **JS sanity** — `node --check <page>.js` passes; nothing throws on load.
+3. **Drive the matrix you can** — if a `_test.md` is present, run **section 1 (smoke) FIRST** — if any smoke row fails, STOP and fix before anything else. Then exercise the interaction rows you can trigger in a browser (tab/toggle switches, modal open/close + blank-submit error, add/edit/delete, filters, keyboard Tab/Esc/arrows) and eyeball the responsive widths (360→1440) in devtools.
+4. **Guardrails** — `git status` shows changes ONLY under the page folder + `designs/shared/shell.*` (no other page touched); no inline styles; no `new Date()` in any render path the spec forbids.
+5. **Fix every failure**, re-run, and note in your handoff what you self-tested (e.g. "self-tested: smoke + N interaction rows pass"). Do **not** write to `_findings.md` (that is Antigravity's authoritative record) and do **not** set `STAGE: REVIEW` (that is Antigravity's). When smoke + your verifiable rows are green, set `_status.md` → `STAGE: TEST`.
 
 ## When a build kit is present
-If the page folder contains a `_cursor-prompt.md`, **follow it exactly** — it is the build runbook generated by `/spec-kit`. Build from `_spec.md` (its reuse map is authoritative). When done, update `_status.md` → `STAGE: TEST`.
+If the page folder contains a `_cursor-prompt.md`, **follow it exactly** — it is the build runbook generated by `/spec-kit`. Build from `_spec.md` (its reuse map is authoritative). Then run the **Design self-review pass** AND the **Self-test pass** above. Only when both are green, update `_status.md` → `STAGE: TEST`.

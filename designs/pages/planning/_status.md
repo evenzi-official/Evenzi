@@ -6,6 +6,6 @@
      a cold agent at REVIEW should stop and wait, not treat it as a failure. -->
 PAGE: planning
 STAGE: DONE
-SPEC_VERSION: 2026-06-05.2
-UPDATED: 2026-06-05 — /spec-kit-review (fixes applied + verified)
-NEXT: none — page complete. (Manual residual: on-device crore-scale ₹ fit at 360px, _test.md 7.device.)
+SPEC_VERSION: 2026-06-06.1
+UPDATED: 2026-06-06 — /spec-kit-review (close-out, loop 2: all 9 fixes verified + #5 resolved)
+NEXT: none — page complete. (Manual residual: 7.device — on-device crore-scale ₹ at 360px, partially covered by founder phone pass.)

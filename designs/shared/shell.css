@@ -3522,3 +3522,134 @@ body.no-scroll{overflow:hidden}
 .tag-chip-x:hover{opacity:1;background:color-mix(in oklab,currentColor 18%,transparent)}
 .tag-chip-x .material-symbols-outlined{font-size:13px}
 .tag-chip-x:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+
+/* ════════════════════════════════════════════════════════════════════
+   PILL TABS — segmented sub-nav (promoted from website .wb-tab*)
+   alias — migrate website source to .pill-tabs in follow-up ticket
+   ════════════════════════════════════════════════════════════════════ */
+.pill-tabs-wrap,
+.wb-tabs-wrap{
+  position:relative;
+  max-width:100%;
+}
+.pill-tabs-wrap::after,
+.wb-tabs-wrap::after{
+  content:"";
+  position:absolute;top:0;bottom:0;right:0;
+  width:24px;pointer-events:none;
+  background:linear-gradient(90deg, transparent 0%, var(--bg) 90%);
+  border-top-right-radius:9999px;
+  border-bottom-right-radius:9999px;
+}
+.pill-tabs,
+.wb-tabs{
+  display:flex;gap:.5rem;
+  overflow-x:auto;scrollbar-width:none;
+  padding:.3rem;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:9999px;
+  box-shadow:none;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x mandatory;
+  scroll-padding-inline:.3rem;
+}
+.pill-tabs::-webkit-scrollbar,
+.wb-tabs::-webkit-scrollbar{display:none}
+.pill-tab,
+.wb-tab{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.55rem 1rem;border-radius:9999px;
+  font-size:.85rem;font-weight:500;color:var(--muted);
+  background:transparent;white-space:nowrap;
+  transition:background .15s ease,color .15s ease;
+  text-decoration:none;border:0;cursor:pointer;
+  font-family:inherit;scroll-snap-align:start;
+}
+.pill-tab .material-symbols-outlined,
+.wb-tab .material-symbols-outlined{font-size:18px}
+@media (hover:hover) and (pointer:fine){
+  .pill-tab:hover,.wb-tab:hover{color:var(--ink);background:var(--brand-tint)}
+}
+.pill-tab:focus-visible,.wb-tab:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.pill-tab.is-active,.pill-tab[aria-selected="true"],
+.wb-tab.is-active,.wb-tab[aria-selected="true"]{
+  background:var(--brand-tint);color:var(--brand);font-weight:600;
+}
+.pill-tab.is-active .material-symbols-outlined,
+.pill-tab[aria-selected="true"] .material-symbols-outlined,
+.wb-tab.is-active .material-symbols-outlined,
+.wb-tab[aria-selected="true"] .material-symbols-outlined{color:var(--brand)}
+.pill-tabs--sm .pill-tab{padding:.4rem .75rem;font-size:.78rem}
+.pill-tabs--sm .pill-tab .material-symbols-outlined{font-size:16px}
+
+/* ════════════════════════════════════════════════════════════════════
+   ADD FAB — floating primary action (promoted from guests .gm-add-fab)
+   alias — migrate guests source to .add-fab in follow-up ticket
+   ════════════════════════════════════════════════════════════════════ */
+.add-fab[hidden],.gm-add-fab[hidden]{display:none}
+.add-fab,.gm-add-fab{
+  position:fixed;z-index:60;
+  right:1.25rem;bottom:calc(5.75rem + env(safe-area-inset-bottom,0px));
+  width:56px;height:56px;border-radius:9999px;border:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--brand);color:#fff;cursor:pointer;
+  box-shadow:var(--shadow-clay-pill),0 10px 26px -8px rgba(0,0,0,.45);
+  transition:transform .15s ease,box-shadow .2s ease;
+}
+.add-fab .material-symbols-outlined,.gm-add-fab .material-symbols-outlined{font-size:24px}
+@media (hover:hover) and (pointer:fine){
+  .add-fab:hover,.gm-add-fab:hover{
+    transform:translateY(-2px);
+    box-shadow:var(--shadow-clay-pill),0 14px 32px -8px rgba(0,0,0,.5);
+  }
+}
+.add-fab:focus-visible,.gm-add-fab:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.add-fab,.gm-add-fab{transition:none}}
+
+/* ════════════════════════════════════════════════════════════════════
+   BULK BAR — floating bottom selection chrome (from guests #gm-bulkbar)
+   alias — migrate guests source to .bulk-bar in follow-up ticket
+   ════════════════════════════════════════════════════════════════════ */
+.bulk-bar[hidden],.gm-bulkbar[hidden]{display:none}
+.bulk-bar,.gm-bulkbar{
+  position:fixed;z-index:78;
+  left:50%;transform:translateX(-50%);
+  bottom:calc(5.75rem + env(safe-area-inset-bottom,0px));
+  display:flex;align-items:center;gap:.45rem;
+  padding:.45rem .5rem .45rem .9rem;border-radius:9999px;
+  background:var(--dark-card);box-shadow:0 14px 36px -8px rgba(0,0,0,.6);
+  max-width:min(440px,calc(100vw - 1.5rem));
+}
+.bulk-bar-count,.gm-bulk-count{
+  font-weight:700;font-size:.82rem;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.bulk-bar-div,.gm-bulk-div{width:1px;height:20px;background:rgba(255,255,255,.22);flex-shrink:0}
+.bulk-bar-act,.gm-bulk-act{
+  display:inline-flex;align-items:center;gap:.35rem;
+  background:rgba(255,255,255,.1);border:0;color:#fff;
+  font-weight:600;font-size:.8rem;cursor:pointer;
+  padding:.45rem .7rem;border-radius:9999px;white-space:nowrap;
+}
+@media (hover:hover) and (pointer:fine){
+  .bulk-bar-act:hover,.gm-bulk-act:hover{background:rgba(255,255,255,.2)}
+}
+.bulk-bar-act[disabled],.gm-bulk-act[disabled]{opacity:.4;cursor:not-allowed}
+.bulk-bar-act .material-symbols-outlined,.gm-bulk-act .material-symbols-outlined{font-size:16px}
+.bulk-bar-act:focus-visible,.gm-bulk-act:focus-visible{outline:2px solid #fff;outline-offset:1px}
+.bulk-bar-cancel,.gm-bulk-cancel{
+  width:32px;height:32px;border-radius:9999px;border:0;
+  background:rgba(255,255,255,.12);color:#fff;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:.15rem;
+}
+@media (hover:hover) and (pointer:fine){
+  .bulk-bar-cancel:hover,.gm-bulk-cancel:hover{background:rgba(255,255,255,.24)}
+}
+.bulk-bar-cancel:focus-visible,.gm-bulk-cancel:focus-visible{outline:2px solid #fff;outline-offset:1px}
+@media (max-width:479px){
+  .bulk-bar-act-label,.gm-bulk-act-label{
+    position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+  }
+  .bulk-bar-act,.gm-bulk-act{padding:.5rem .65rem;gap:0}
+  .bulk-bar,.gm-bulkbar{gap:.35rem;padding-left:.7rem}
+}
