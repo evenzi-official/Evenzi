@@ -4,6 +4,17 @@
 
 ---
 
+## Recently Landed (2026-06-06 — Terse inline-chat mode + caveman eval)
+
+Config/infra session, no tickets. Full report: `docs/session-reports/2026-06-06-session-report.md`.
+
+- **Declined the `caveman` plugin** (global SessionStart hook + memory-file rewriting — conflicts with verbatim gates + scope-split). Built an in-house **terse inline-chat mode** instead: terse in 1:1 chat, full plain-English in all persisted/team-facing artifacts.
+- Rule lives in memory (`feedback_terse_inline_chat.md`) **and** mirrored to a `## Communication Mode` section in `CLAUDE.md` — because memory is cwd-slug-keyed and doesn't load in worktrees (verified 0/22 worktree dirs have memory). CLAUDE.md is the worktree-proof carrier.
+- **Open finding:** worktree memory blindness is systemic — affects ALL memory rules, not just terse. Decide later if other load-bearing rules need CLAUDE.md backing.
+- Deferred (LOW): `/terse`↔`/full` toggle, per-turn enforcement hook, stray `-Users-xcalider-Documents-Evenzi-Evenzi/memory/` cleanup.
+
+---
+
 ## Recently Landed (2026-06-05b — Multi-editor workflow OPERATIONAL: /spec-kit + /spec-kit-review + planning trial)
 
 Infra/skill session. Built the whole multi-editor pipeline from `docs/specs/_WORKFLOW-TODO.md` and validated it end-to-end. Full report: `docs/session-reports/2026-06-05-session-report.md`.
