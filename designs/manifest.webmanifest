@@ -1,0 +1,11 @@
+{
+  "name": "Evenzi",
+  "short_name": "Evenzi",
+  "description": "Capture · Share · Cherish — wedding and event planning.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#0d0d0d",
+  "lang": "en"
+}

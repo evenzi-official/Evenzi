@@ -246,4 +246,6 @@ Toast-only; vendor MVP out of scope. No change.
 | Date | Change |
 |------|--------|
 | 2026-06-06 | Initial full audit — static crawl + `:4000` HTTP stress test |
+| 2026-06-06 | **Fixed P0** — 4 nav links `website.html` → `overview.html` (guests, invitations, media, planning) |
+| 2026-06-06 | **Fixed P1** — Added `designs/manifest.webmanifest`; nested pages point to `../../manifest.webmanifest` |
 | 2026-06-06 | Independently re-verified by Claude (17 confirmed, 0 false-neg/pos); added fix mandate + scope note. Open questions resolved: P0 fix 4 pages; P1 manifest → **strip (recommended, confirm)**; P2 stubs leave; vendor leave. |
