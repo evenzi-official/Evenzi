@@ -103,4 +103,10 @@ _Re-loop note: after Cursor applies fixes 1–3 (and ideally 4–6), it bumps `_
 
 `_status.md` → DONE. The rework (tasks-manager + pill tabs + expense-modal delta) is complete at SPEC_VERSION 2026-06-06.1.
 
+## 2026-06-06 — /spec-kit — v2 round opened (SPEC bumped 2026-06-06.1 → 2026-06-06.2)
+
+> Marker only — `/spec-kit-review` has NOT run against v2 yet. The DONE close-out above is for v1; this v2 round layers a Tasks toolbar + compact header + 11 more polish/spacing items on top.
+
+Founder review (mobile) flagged a batch of improvements; compiled into the build doc **`_tasks-rework.md`** (13 items): modal field rhythm · compact header + (i) info-disclosure on both tabs (website-clean) · tab/head/card spacing · full-width List/Timeline toggle · Tasks toolbar mirroring guests (search · status chips · sort · sub-event filter · relocated Select, all ANDed, even-spaced on mobile) · swipe-rail redesign (semantic tokens + icons) · Complete→toast+Undo · shell-wide 16px-input no-iOS-zoom. Two recurring principles (even-distribution on mobile, no-input-zoom) were also baked into `.cursor/rules/evenzi-design.mdc` as standing rules. `_spec`/`_test` bumped to 2026-06-06.2 (v2 sections added); `_status` reset DONE → BUILD → `_tasks-rework.md`. After Cursor builds + Antigravity tests against the v2 matrix (test section 8), run `/spec-kit-review planning` to close v2.
+
 **Post-council delta (founder direction, same session):** the **add/edit-expense modal** was also reworked AFTER the council pass — Expense type (rename from Category, customizable; canonical source = Event Settings, prototype-local), event tag preselected + optional sub-event, receipt upload **stub** (no storage), date-only date. This delta was NOT council-reviewed; risks flagged in `_spec.md` "Post-council addition". A focused `/council design`/`--codex` pass on the expense-modal delta is available if wanted before build.

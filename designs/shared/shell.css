@@ -453,18 +453,43 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
 .bc-ripple{position:absolute;border-radius:999px;transform:translate(-50%,-50%) scale(0);background:color-mix(in oklab,var(--brand) 35%,transparent);pointer-events:none;animation:bc-ripple .55s ease-out forwards}
 @keyframes bc-ripple{to{transform:translate(-50%,-50%) scale(8);opacity:0}}
 .bc-toast{
-  position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);
+  position:fixed;
+  top:calc(env(safe-area-inset-top, 0px) + 5rem);
+  right:1.5rem;
+  left:auto;
+  bottom:auto;
+  transform:translateY(-12px);
   background:var(--card);color:var(--ink);
   border:1px solid var(--brand-tint-2);border-radius:999px;
   padding:.55rem 1rem;font-size:11px;font-weight:700;letter-spacing:.18em;
-  display:inline-flex;align-items:center;gap:.5rem;
+  display:inline-flex;align-items:center;gap:.5rem;flex-wrap:wrap;
+  max-width:min(360px, calc(100vw - 3rem));
   box-shadow:0 12px 28px -8px rgba(0,0,0,.4);
   opacity:0;pointer-events:none;
   transition:opacity .25s ease,transform .25s ease;
   z-index:60;
 }
-.bc-toast.is-show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (min-width:768px){
+  .bc-toast{right:2.5rem}
+}
+.bc-toast.is-show{opacity:1;transform:translateY(0)}
+.bc-toast.is-actionable{pointer-events:auto}
 .bc-toast .bc-live{background:#22c55e}
+#bc-toast-text{flex:1;min-width:0}
+.bc-toast-action{
+  margin-left:.15rem;padding:.3rem .7rem;border-radius:9999px;
+  border:1px solid color-mix(in oklab,var(--brand) 35%,transparent);
+  background:var(--brand-tint);color:var(--brand);
+  font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;cursor:pointer;flex-shrink:0;
+}
+@media (hover:hover) and (pointer:fine){
+  .bc-toast-action:hover{background:color-mix(in oklab,var(--brand) 12%,var(--brand-tint))}
+}
+.bc-toast-action:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){
+  .bc-toast{transition:none}
+}
 .bc-path a[data-bc-link]{cursor:pointer}
 
 /* ════════════════════════════════════════════════════════════════════
@@ -1040,6 +1065,7 @@ html{scroll-behavior:smooth}
    FORM PRIMITIVES — pill inputs, labels, password field with eye toggle
    ════════════════════════════════════════════════════════════════════ */
 .form-group{display:flex;flex-direction:column;gap:.5rem;min-width:0}
+.modal-card form .form-group + .form-group{margin-top:1rem}
 .form-label{
   font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
   letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
@@ -2390,13 +2416,14 @@ body.no-scroll{overflow:hidden}
    patterns in older pages. Pairs with the rich .bc-shell breadcrumb
    above (with bc-active pill + bc-copy).
    ════════════════════════════════════════════════════════════════════ */
+/* TEMPLATE HEADING — alignment-neutral by design.
+   Owns ONLY vertical rhythm; its horizontal alignment is INHERITED from the
+   page content wrapper it lives in (.page-band / .es-shell / .dp-shell / the
+   hand-rolled max-w column). It must NOT re-apply max-width / margin:auto /
+   padding — that double-insets the heading vs sibling content (the recurring
+   misalignment bug). NEVER override its horizontal alignment per-page; fix here. */
 .section-head{
-  max-width:1440px;          /* aligned to .floating-nav width */
-  margin:1.25rem auto 0;
-  padding:0 1.5rem;
-}
-@media (min-width:768px){    /* px switch matches .floating-nav */
-  .section-head{padding:0 2.5rem}
+  margin:0 0 1.5rem;
 }
 .section-head-eyebrow{
   font-size:.72rem;
@@ -2426,6 +2453,82 @@ body.no-scroll{overflow:hidden}
   color:var(--muted);
   margin:0;
   max-width:62ch;
+}
+
+/* Compact variant — tighter against breadcrumb, description in info-tip */
+.section-head--compact{
+  margin-top:.5rem;
+}
+.section-head--compact .section-head-eyebrow{
+  margin-bottom:.2rem;
+}
+.section-head--compact .section-head-title{
+  font-size:1.625rem;
+  margin-bottom:0;
+}
+@media (min-width:768px){
+  .section-head--compact .section-head-title{font-size:2rem}
+}
+@media (min-width:1024px){
+  .section-head--compact .section-head-title{font-size:2.25rem}
+}
+.section-head-titlerow{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  position:relative;
+}
+.section-head-info{
+  flex-shrink:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:44px;
+  min-height:44px;
+  padding:.625rem;
+  border:0;
+  border-radius:9999px;
+  background:transparent;
+  cursor:pointer;
+  color:var(--muted);
+  transition:color .15s;
+}
+.section-head-info .material-symbols-outlined{
+  font-size:20px;
+  line-height:1;
+}
+@media (hover:hover) and (pointer:fine){
+  .section-head-info:hover{color:var(--brand)}
+}
+.section-head-info:focus-visible{
+  outline:2px solid var(--brand);
+  outline-offset:2px;
+}
+.section-head-tip{
+  position:absolute;
+  top:100%;
+  left:0;
+  margin-top:.35rem;
+  padding:.75rem 1rem;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:var(--shadow-clay);
+  max-width:min(320px,calc(100vw - 2rem));
+  font-size:1rem;
+  line-height:1.5;
+  color:var(--muted);
+  z-index:40;
+}
+.section-head-tip[hidden]{display:none !important}
+@media (prefers-reduced-motion:no-preference){
+  .section-head-tip:not([hidden]){
+    animation:section-head-tip-in .15s cubic-bezier(.2,.7,.2,1);
+  }
+}
+@keyframes section-head-tip-in{
+  from{opacity:0;transform:translateY(-4px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -3363,6 +3466,11 @@ body.no-scroll{overflow:hidden}
 }
 .form-input-search-clear:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 
+/* iOS Safari auto-zooms inputs below 16px — fix font-size on mobile */
+@media (max-width:767px){
+  .form-input,.form-input-field,select.form-input,textarea.form-input{font-size:16px}
+}
+
 /* ════════════════════════════════════════════════════════════════════
    CHECKBOX — labelled, brand-tinted custom box over a native input.
    Composition:
@@ -3525,21 +3633,40 @@ body.no-scroll{overflow:hidden}
 
 /* ════════════════════════════════════════════════════════════════════
    PILL TABS — segmented sub-nav (promoted from website .wb-tab*)
-   alias — migrate website source to .pill-tabs in follow-up ticket
+   .wb-tabs* aliased to .pill-tabs*; website wrap keeps section-head
+   container rhythm (standalone, outside a padded main).
    ════════════════════════════════════════════════════════════════════ */
-.pill-tabs-wrap,
-.wb-tabs-wrap{
+.pill-tabs-wrap{
   position:relative;
   max-width:100%;
 }
-.pill-tabs-wrap::after,
-.wb-tabs-wrap::after{
+.pill-tabs-wrap::after{
   content:"";
   position:absolute;top:0;bottom:0;right:0;
   width:24px;pointer-events:none;
   background:linear-gradient(90deg, transparent 0%, var(--bg) 90%);
   border-top-right-radius:9999px;
   border-bottom-right-radius:9999px;
+}
+.wb-tabs-wrap{
+  position:relative;
+  max-width:1440px;
+  margin:1.25rem auto 0;
+  padding:0 1.5rem;
+}
+@media (min-width:768px){
+  .wb-tabs-wrap{padding:0 2.5rem}
+}
+.wb-tabs-wrap::after{
+  content:"";
+  position:absolute;top:0;bottom:0;right:1.5rem;
+  width:24px;pointer-events:none;
+  background:linear-gradient(90deg, transparent 0%, var(--bg) 90%);
+  border-top-right-radius:9999px;
+  border-bottom-right-radius:9999px;
+}
+@media (min-width:768px){
+  .wb-tabs-wrap::after{right:2.5rem}
 }
 .pill-tabs,
 .wb-tabs{
@@ -3623,6 +3750,17 @@ body.no-scroll{overflow:hidden}
 }
 .bulk-bar-count,.gm-bulk-count{
   font-weight:700;font-size:.82rem;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.bulk-bar-selectall,.gm-bulk-selectall{
+  background:none;border:0;color:#fff;opacity:.85;
+  font-weight:600;font-size:.8rem;cursor:pointer;
+  padding:.3rem .45rem;border-radius:8px;white-space:nowrap;flex-shrink:0;
+}
+@media (hover:hover) and (pointer:fine){
+  .bulk-bar-selectall:hover,.gm-bulk-selectall:hover{opacity:1;background:rgba(255,255,255,.12)}
+}
+.bulk-bar-selectall:focus-visible,.gm-bulk-selectall:focus-visible{
+  outline:2px solid #fff;outline-offset:1px;
 }
 .bulk-bar-div,.gm-bulk-div{width:1px;height:20px;background:rgba(255,255,255,.22);flex-shrink:0}
 .bulk-bar-act,.gm-bulk-act{

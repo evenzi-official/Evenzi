@@ -134,10 +134,17 @@
 <main class="page-band pt-6 md:pt-8 pb-24">
 
   <!-- Section head -->
-  <header class="section-head reveal">
+  <header class="section-head section-head--compact reveal">
     <p class="section-head-eyebrow">Section</p>
-    <h1 class="section-head-title">Guest Management</h1>
-    <p class="section-head-sub">Build your invitee list, track RSVPs as they arrive, and send WhatsApp invitations — all in one place.</p>
+    <div class="section-head-titlerow">
+      <h1 class="section-head-title">Guest Management</h1>
+      <button class="section-head-info" type="button" data-info-tip
+              aria-label="About Guest Management"
+              aria-describedby="gm-head-tip" aria-expanded="false">
+        <span class="material-symbols-outlined" aria-hidden="true">info</span>
+      </button>
+      <span class="section-head-tip" id="gm-head-tip" role="tooltip" hidden>Build your invitee list, track RSVPs as they arrive, and send WhatsApp invitations — all in one place.</span>
+    </div>
   </header>
 
   <!-- ── STATS BAR ── -->

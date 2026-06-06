@@ -9,7 +9,10 @@
 
   var $  = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
-  var toast = function (t) { if (window.evenzi && window.evenzi.showToast) window.evenzi.showToast(t); };
+  var toast = function (msg, opts) {
+    var fn = window.evenzi && (window.evenzi.toast || window.evenzi.showToast);
+    if (fn) fn(msg, opts);
+  };
 
   function el(tag, attrs, kids) {
     var n = document.createElement(tag);
@@ -197,7 +200,10 @@
   var taskView = 'list';
   var timelineMonth = parseISO(TODAY);
   var timelineDayFilter = 'all';
-  var listSubFilter = null; /* null = no filter; '' = whole event; else sub-event id */
+  var searchQuery = '';
+  var statusFilter = 'all';
+  var sortKey = 'due';
+  var subEventFilter = null;
   var selecting = false;
   var selected = {};
 
@@ -299,15 +305,99 @@
     });
   }
 
-  function visibleTasks() {
-    var out = tasks.slice();
-    if (listSubFilter !== null) {
-      out = out.filter(function (t) {
-        if (listSubFilter === '') return t.subEvent == null;
-        return t.subEvent === listSubFilter;
+  function applySort(arr) {
+    if (sortKey === 'priority') {
+      return arr.slice().sort(function (a, b) {
+        var pa = PRIO_ORDER[a.priority] != null ? PRIO_ORDER[a.priority] : 1;
+        var pb = PRIO_ORDER[b.priority] != null ? PRIO_ORDER[b.priority] : 1;
+        if (pa !== pb) return pa - pb;
+        return a.label.localeCompare(b.label);
       });
     }
-    return sortTasks(out);
+    if (sortKey === 'label') {
+      return arr.slice().sort(function (a, b) { return a.label.localeCompare(b.label); });
+    }
+    return sortTasks(arr);
+  }
+
+  function tasksBeforeStatusFilter() {
+    var q = searchQuery.trim().toLowerCase();
+    return tasks.filter(function (t) {
+      if (q && t.label.toLowerCase().indexOf(q) === -1) return false;
+      if (subEventFilter !== null) {
+        if (subEventFilter === '') return t.subEvent == null;
+        return t.subEvent === subEventFilter;
+      }
+      return true;
+    });
+  }
+
+  function filteredTasks() {
+    var out = tasksBeforeStatusFilter();
+    if (statusFilter === 'all') return out;
+    return out.filter(function (t) {
+      var st = taskStatus(t);
+      if (statusFilter === 'todo') return st === 'todo';
+      if (statusFilter === 'done') return st === 'done';
+      if (statusFilter === 'overdue') return st === 'overdue';
+      return true;
+    });
+  }
+
+  function visibleTasks() {
+    return applySort(filteredTasks());
+  }
+
+  function visibleTasksForSelect() {
+    var filtered = filteredTasks();
+    if (taskView === 'timeline' && timelineDayFilter !== 'all') {
+      filtered = filtered.filter(function (t) { return t.due === timelineDayFilter; });
+    }
+    return taskView === 'list' ? applySort(filtered) : filtered;
+  }
+
+  function statusCounts() {
+    var base = tasksBeforeStatusFilter();
+    var c = { all: base.length, todo: 0, done: 0, overdue: 0 };
+    base.forEach(function (t) {
+      var st = taskStatus(t);
+      if (st === 'done') c.done++;
+      else if (st === 'overdue') c.overdue++;
+      else c.todo++;
+    });
+    return c;
+  }
+
+  function updateStatusChips() {
+    var c = statusCounts();
+    $$('[data-plan-chip]').forEach(function (el) {
+      var key = el.getAttribute('data-plan-chip');
+      if (key && c[key] != null) el.textContent = String(c[key]);
+    });
+  }
+
+  function updateFilterBadge() {
+    var badge = $('#plan-filter-count');
+    var btn = $('#plan-filter-btn');
+    var active = subEventFilter !== null;
+    if (badge) {
+      badge.textContent = active ? '1' : '0';
+      badge.hidden = !active;
+    }
+    if (btn) btn.classList.toggle('is-active', active);
+  }
+
+  function updateSortLabel() {
+    var l = $('.plan-sort-label');
+    if (!l) return;
+    if (sortKey === 'priority') l.textContent = 'Priority';
+    else if (sortKey === 'label') l.textContent = 'A–Z';
+    else l.textContent = 'Due date';
+  }
+
+  function announceFilterResult() {
+    var n = filteredTasks().length;
+    announce(n + ' task' + (n === 1 ? '' : 's') + ' shown');
   }
 
   function derive() {
@@ -401,6 +491,7 @@
   function setTaskView(v) {
     taskView = v;
     var isList = v === 'list';
+    if (tasksCard) tasksCard.classList.toggle('is-timeline', !isList);
     viewListBtn.classList.toggle('is-active', isList);
     viewTimelineBtn.classList.toggle('is-active', !isList);
     viewListBtn.setAttribute('aria-checked', isList ? 'true' : 'false');
@@ -427,6 +518,90 @@
   viewListBtn.addEventListener('click', function () { setTaskView('list'); });
   viewTimelineBtn.addEventListener('click', function () { setTaskView('timeline'); });
   $('#plan-view-toggle').addEventListener('keydown', onViewKeydown);
+
+  /* ── Toolbar: search, status chips, sort, sub-event filter ── */
+  var SORT_OPTS = [
+    { value: 'due', label: 'Due date', icon: 'event' },
+    { value: 'priority', label: 'Priority', icon: 'priority_high' },
+    { value: 'label', label: 'A–Z', icon: 'sort_by_alpha' }
+  ];
+
+  function setStatusFilter(val) {
+    statusFilter = val;
+    $$('[data-plan-status]').forEach(function (chip) {
+      var on = chip.getAttribute('data-plan-status') === val;
+      chip.classList.toggle('is-active', on);
+      chip.setAttribute('aria-checked', on ? 'true' : 'false');
+      chip.tabIndex = on ? 0 : -1;
+    });
+    renderTasks();
+    announceFilterResult();
+  }
+
+  $('#plan-search-input').addEventListener('input', function (e) {
+    searchQuery = e.target.value;
+    renderTasks();
+    announceFilterResult();
+  });
+
+  $('#plan-status-chips').addEventListener('click', function (e) {
+    var chip = e.target.closest('[data-plan-status]');
+    if (chip) setStatusFilter(chip.getAttribute('data-plan-status'));
+  });
+
+  $('#plan-status-chips').addEventListener('keydown', function (e) {
+    var chips = $$('[data-plan-status]', $('#plan-status-chips'));
+    var idx = chips.findIndex(function (c) { return c.getAttribute('aria-checked') === 'true'; });
+    if (idx < 0) idx = 0;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      var n = chips.length;
+      var next = e.key === 'ArrowRight' ? (idx + 1) % n : (idx - 1 + n) % n;
+      setStatusFilter(chips[next].getAttribute('data-plan-status'));
+      chips[next].focus();
+    }
+  });
+
+  function openSubEventFilter(btn) {
+    var opts = [
+      { value: '__all__', label: 'All', icon: 'filter_list' },
+      { value: '__whole__', label: 'Whole event', icon: 'celebration' }
+    ].concat(EVENT_SUBEVENTS.map(function (s) { return { value: s.id, label: s.label, icon: 'event' }; }));
+    var current = subEventFilter === null ? '__all__' : (subEventFilter === '' ? '__whole__' : subEventFilter);
+    openPicker({
+      anchor: btn,
+      ariaLabel: 'Filter by sub-event',
+      title: ['Sub-event'],
+      options: opts,
+      current: current,
+      onPick: function (val) {
+        if (val === '__all__') subEventFilter = null;
+        else if (val === '__whole__') subEventFilter = '';
+        else subEventFilter = val;
+        updateFilterBadge();
+        renderTasks();
+        announceFilterResult();
+      }
+    });
+  }
+
+  function openSortPicker(btn) {
+    openPicker({
+      anchor: btn,
+      ariaLabel: 'Sort tasks',
+      title: ['Sort by'],
+      options: SORT_OPTS,
+      current: sortKey,
+      onPick: function (val) {
+        sortKey = val;
+        updateSortLabel();
+        renderTasks();
+      }
+    });
+  }
+
+  $('#plan-filter-btn').addEventListener('click', function () { openSubEventFilter(this); });
+  $('#plan-sort-btn').addEventListener('click', function () { openSortPicker(this); });
 
   /* ════════════════ task row ════════════════ */
   function createTaskRow(task) {
@@ -457,15 +632,9 @@
     meta.appendChild(dueChip);
 
     if (EVENT_SUBEVENTS.length) {
-      var subKey = task.subEvent == null ? '' : task.subEvent;
-      var subBtn = el('button', {
-        type: 'button',
-        class: 'task-sub-chip guest-assign-chip',
-        'data-task-sub-filter': subKey,
-        'aria-pressed': listSubFilter !== null && listSubFilter === subKey ? 'true' : 'false',
-        'aria-label': 'Filter by ' + subEventLabel(task.subEvent)
-      }, [icon('event'), subEventLabel(task.subEvent)]);
-      meta.appendChild(subBtn);
+      meta.appendChild(el('span', {
+        class: 'task-sub-chip guest-assign-chip'
+      }, [icon('event'), subEventLabel(task.subEvent)]));
     }
 
     if (task.priority === 'high' || task.priority === 'low') {
@@ -536,6 +705,7 @@
 
   function renderList() {
     var rows = visibleTasks();
+    updateStatusChips();
     renderProgress(rows.length);
     tasksEmptyEl.hidden = tasks.length > 0;
     taskListEl.textContent = '';
@@ -587,10 +757,11 @@
   }
 
   function renderAgenda() {
-    var filtered = tasks.slice();
+    var filtered = filteredTasks();
     if (timelineDayFilter !== 'all') {
       filtered = filtered.filter(function (t) { return t.due === timelineDayFilter; });
     }
+    updateStatusChips();
     renderProgress(filtered.length);
     agendaEl.textContent = '';
     dayEmptyEl.hidden = true;
@@ -619,7 +790,7 @@
       var section = el('section', { class: 'task-date-group' });
       section.appendChild(el('h3', { class: 'task-date-group-title', text: heading }));
       var ul = el('ul', { class: 'plan-agenda-group-list', role: 'list' });
-      sortTasks(groups[key]).forEach(function (t) { ul.appendChild(createTaskRow(t)); });
+      applySort(groups[key]).forEach(function (t) { ul.appendChild(createTaskRow(t)); });
       section.appendChild(ul);
       agendaEl.appendChild(section);
     });
@@ -709,9 +880,38 @@
   }
 
   /* ════════════════ task interactions ════════════════ */
+  function completeTasks(ids) {
+    var snapshot = ids.map(function (id) {
+      var t = taskById(id);
+      return t ? { id: id, done: t.done } : null;
+    }).filter(Boolean);
+    ids.forEach(function (id) {
+      var t = taskById(id);
+      if (t) t.done = true;
+    });
+    renderTasks();
+    var msg = ids.length === 1 ? 'Task completed' : ids.length + ' tasks completed';
+    toast(msg, {
+      actionLabel: 'Undo',
+      onAction: function () {
+        snapshot.forEach(function (s) {
+          var t = taskById(s.id);
+          if (t) t.done = s.done;
+        });
+        renderTasks();
+      }
+    });
+  }
+
   function toggleTaskDone(id, done) {
     var t = taskById(id);
-    if (t) { t.done = done; renderTasks(); }
+    if (!t) return;
+    if (done && !t.done) {
+      completeTasks([id]);
+    } else {
+      t.done = done;
+      renderTasks();
+    }
   }
 
   function handleTaskListClick(e, root) {
@@ -731,16 +931,6 @@
       return;
     }
     if (e.target.closest('.task-row-check') || e.target.closest('.task-status-badge') || e.target.closest('.task-row-rail')) return;
-    var sub = e.target.closest('[data-task-sub-filter]');
-    if (sub && taskView === 'list') {
-      var val = sub.getAttribute('data-task-sub-filter');
-      listSubFilter = listSubFilter === val ? null : val;
-      var label = val === '' ? 'Whole event' : subEventLabel(val);
-      var n = visibleTasks().length;
-      announce('Showing ' + label + ' — ' + n + ' tasks');
-      renderList();
-      return;
-    }
     var surface = e.target.closest('[data-task-surface]');
     if (surface) openTaskModal(+surface.closest('.task-row').getAttribute('data-id'));
   }
@@ -815,6 +1005,19 @@
     var n = selectedIds().length;
     $('#plan-sel-count').textContent = String(n);
     $$('.bulk-bar-act', bulkBar).forEach(function (b) { b.disabled = n === 0; });
+    var sa = $('[data-plan-select-all]');
+    if (sa) {
+      var vis = visibleTasksForSelect().length;
+      var label = (n >= vis && vis > 0) ? 'Clear' : 'Select all';
+      sa.textContent = label;
+      sa.setAttribute('aria-label', label === 'Clear' ? 'Clear selection' : 'Select all visible tasks');
+    }
+  }
+
+  function selectAllVisible() {
+    visibleTasksForSelect().forEach(function (t) { selected[t.id] = true; });
+    renderTasks();
+    updateBulkBar();
   }
 
   function enterSelect() {
@@ -854,10 +1057,21 @@
 
   $('#plan-select-mode').addEventListener('click', enterSelect);
   $('#plan-bulk-cancel').addEventListener('click', exitSelect);
+  $('[data-plan-select-all]').addEventListener('click', function () {
+    var vis = visibleTasksForSelect().length;
+    if (selectedIds().length >= vis && vis > 0) {
+      selected = {};
+      renderTasks();
+      updateBulkBar();
+    } else {
+      selectAllVisible();
+    }
+  });
 
   $('#plan-bulk-complete').addEventListener('click', function () {
-    selectedIds().forEach(function (id) { var t = taskById(id); if (t) t.done = true; });
-    toast('TASKS COMPLETED');
+    var ids = selectedIds();
+    if (!ids.length) return;
+    completeTasks(ids);
     exitSelect();
   });
 
@@ -904,13 +1118,28 @@
 
   function positionPicker() {
     if (!pickerEl || !pickerTrigger) return;
-    if (window.innerWidth < 480) { pickerEl.style.top = ''; pickerEl.style.left = ''; return; }
+    if (window.innerWidth < 480) {
+      pickerEl.style.top = '';
+      pickerEl.style.left = '';
+      pickerEl.style.bottom = '';
+      return;
+    }
+    var margin = 8;
+    var gap = 6;
     var r = pickerTrigger.getBoundingClientRect();
     var w = pickerEl.offsetWidth || 280;
-    var left = Math.min(Math.max(8, r.right - w), window.innerWidth - w - 8);
-    var top = r.bottom + 6;
+    var h = pickerEl.offsetHeight || 200;
+    var left = Math.min(Math.max(margin, r.right - w), window.innerWidth - w - margin);
+    var top;
+    if (r.bottom + h + gap > window.innerHeight - margin) {
+      top = r.top - h - gap;
+    } else {
+      top = r.bottom + gap;
+    }
+    top = Math.max(margin, Math.min(top, window.innerHeight - h - margin));
     pickerEl.style.left = left + 'px';
     pickerEl.style.top = top + 'px';
+    pickerEl.style.bottom = '';
   }
 
   function teardownPicker() {
@@ -1031,6 +1260,19 @@
     setPrio(pill.getAttribute('data-prio'));
   });
 
+  function syncDateTrigger(input) {
+    if (!input) return;
+    var btn = input.previousElementSibling;
+    if (!btn || !btn.hasAttribute('data-date-trigger')) return;
+    var label = btn.querySelector('.form-input-trigger-value');
+    if (!label) return;
+    if (input.value) {
+      input.dispatchEvent(new Event('change', { bubbles: false }));
+    } else {
+      label.textContent = '';
+    }
+  }
+
   function openTaskModal(id) {
     editingTaskId = id || null;
     var task = id ? taskById(id) : null;
@@ -1038,6 +1280,7 @@
     $('#plan-task-save').textContent = task ? 'Save changes' : 'Save task';
     taskLabel.value = task ? task.label : '';
     taskDue.value = task && task.due ? task.due : '';
+    syncDateTrigger(taskDue);
     taskSub.value = task && task.subEvent ? task.subEvent : '';
     setPrio(task ? task.priority : 'med');
     taskNotes.value = task && task.notes ? task.notes : '';
@@ -1285,6 +1528,7 @@
     expVendor.value = exp ? (exp.vendor || '') : '';
     if (!expSubWrap.hidden) expSub.value = exp && exp.subEvent ? exp.subEvent : '';
     expDate.value = exp && exp.date ? exp.date : TODAY;
+    syncDateTrigger(expDate);
     expNotes.value = exp ? (exp.notes || '') : '';
     setFormError(expAmount, expAmtErr, false);
     window.evenzi.openModal('plan-expense-modal');
@@ -1339,6 +1583,8 @@
   /* ════════════════ init ════════════════ */
   fillTypeSelect();
   fillSubEventSelects();
+  updateSortLabel();
+  updateFilterBadge();
   selectTab('checklist');
   setTaskView('list');
   render();

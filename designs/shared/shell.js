@@ -65,16 +65,47 @@
   var toast = document.getElementById('bc-toast');
   var toastText = document.getElementById('bc-toast-text');
   var toastTimer = null;
-  function showToast(msg) {
+  var toastActionBtn = null;
+
+  function clearToastAction() {
+    if (toastActionBtn) {
+      toastActionBtn.remove();
+      toastActionBtn = null;
+    }
+    if (toast) toast.classList.remove('is-actionable');
+  }
+
+  function showToast(msg, opts) {
     if (!toast) return;
+    opts = opts || {};
+    clearToastAction();
     toastText.textContent = msg;
+    var duration = opts.duration || (opts.actionLabel ? 5000 : 1800);
+    if (opts.actionLabel && typeof opts.onAction === 'function') {
+      toastActionBtn = document.createElement('button');
+      toastActionBtn.type = 'button';
+      toastActionBtn.className = 'bc-toast-action';
+      toastActionBtn.textContent = opts.actionLabel;
+      toastActionBtn.addEventListener('click', function () {
+        opts.onAction();
+        toast.classList.remove('is-show');
+        clearToastAction();
+        if (toastTimer) clearTimeout(toastTimer);
+      });
+      toast.appendChild(toastActionBtn);
+      toast.classList.add('is-actionable');
+    }
     toast.classList.add('is-show');
     if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ toast.classList.remove('is-show'); }, 1800);
+    toastTimer = setTimeout(function () {
+      toast.classList.remove('is-show');
+      clearToastAction();
+    }, duration);
   }
   /* Expose toast helper for page-specific scripts (auth.js, settings.js, etc.) */
   window.evenzi = window.evenzi || {};
   window.evenzi.showToast = showToast;
+  window.evenzi.toast = showToast;
 
   /* Back chip — demo toast (real route hop is the href) */
   var back = document.querySelector('[data-bc-back]');
@@ -1352,4 +1383,113 @@
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.focus();
   });
+})();
+
+/* ── Section-head info tip — delegated disclosure ──────────────
+   [data-info-tip] toggles its aria-describedby tip on tap/click;
+   hover (fine pointer) + focus reveal; Esc / outside-click / scroll close. */
+(function () {
+  var openBtn = null;
+  var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+  function getTip(btn) {
+    var id = btn.getAttribute('aria-describedby');
+    return id ? document.getElementById(id) : null;
+  }
+
+  function show(btn) {
+    var tip = getTip(btn);
+    if (!tip) return;
+    tip.hidden = false;
+    tip.classList.add('is-open');
+  }
+
+  function hide(btn) {
+    var tip = getTip(btn);
+    if (!tip) return;
+    tip.hidden = true;
+    tip.classList.remove('is-open');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+
+  function close() {
+    if (!openBtn) return;
+    var prev = openBtn;
+    hide(prev);
+    openBtn = null;
+    return prev;
+  }
+
+  function open(btn, pinned) {
+    if (openBtn && openBtn !== btn) hide(openBtn);
+    openBtn = btn;
+    show(btn);
+    btn.setAttribute('aria-expanded', pinned ? 'true' : 'false');
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('[data-info-tip]');
+    if (btn) {
+      e.stopPropagation();
+      if (openBtn === btn && btn.getAttribute('aria-expanded') === 'true') {
+        close();
+      } else {
+        open(btn, true);
+      }
+      return;
+    }
+    if (openBtn) close();
+  });
+
+  document.addEventListener('focusin', function (e) {
+    var btn = e.target.closest && e.target.closest('[data-info-tip]');
+    if (!btn) return;
+    if (openBtn && openBtn !== btn) hide(openBtn);
+    openBtn = btn;
+    show(btn);
+  });
+
+  document.addEventListener('focusout', function (e) {
+    var btn = e.target.closest && e.target.closest('[data-info-tip]');
+    if (!btn || btn.getAttribute('aria-expanded') === 'true') return;
+    var tip = getTip(btn);
+    if (tip && e.relatedTarget && (tip.contains(e.relatedTarget) || btn.contains(e.relatedTarget))) return;
+    if (openBtn === btn) {
+      hide(btn);
+      openBtn = null;
+    }
+  });
+
+  document.addEventListener('mouseenter', function (e) {
+    if (!finePointer.matches) return;
+    var btn = e.target.closest && e.target.closest('[data-info-tip]');
+    if (!btn) return;
+    if (openBtn && openBtn !== btn && openBtn.getAttribute('aria-expanded') !== 'true') hide(openBtn);
+    openBtn = btn;
+    show(btn);
+  }, true);
+
+  document.addEventListener('mouseout', function (e) {
+    if (!finePointer.matches) return;
+    var row = e.target.closest && e.target.closest('.section-head-titlerow');
+    if (!row) return;
+    var rel = e.relatedTarget;
+    if (rel && row.contains(rel)) return;
+    var btn = row.querySelector('[data-info-tip]');
+    if (!btn || btn.getAttribute('aria-expanded') === 'true') return;
+    if (openBtn === btn) {
+      hide(btn);
+      openBtn = null;
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || !openBtn) return;
+    var prev = close();
+    if (prev) prev.focus();
+  });
+
+  window.addEventListener('scroll', function () {
+    if (openBtn) close();
+  }, { passive: true });
 })();

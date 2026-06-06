@@ -39,74 +39,7 @@
 }
 .btn-pill-sm .material-symbols-outlined{font-size:16px}
 
-/* ── Website module sub-nav (P1-5: align active to shell nav-tab) ───── */
-.wb-tabs-wrap{
-  position:relative;
-  max-width:1440px;
-  margin:1.25rem auto 0;
-  padding:0 1.5rem;
-}
-@media (min-width:768px){
-  .wb-tabs-wrap{padding:0 2.5rem}
-}
-.wb-tabs{
-  display:flex;
-  gap:.5rem;
-  overflow-x:auto;
-  scrollbar-width:none;
-  padding:.3rem;
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:9999px;
-  box-shadow:var(--shadow-clay-pill);
-  -webkit-overflow-scrolling:touch;
-  scroll-snap-type:x mandatory;        /* P1-9 */
-  scroll-padding-inline:.3rem;
-}
-.wb-tabs::-webkit-scrollbar{display:none}
-.wb-tab{
-  display:inline-flex;
-  align-items:center;
-  gap:.5rem;
-  padding:.55rem 1rem;
-  border-radius:9999px;
-  font-size:.85rem;
-  font-weight:500;
-  color:var(--muted);
-  background:transparent;
-  white-space:nowrap;
-  transition:background .15s ease, color .15s ease;
-  text-decoration:none;
-  scroll-snap-align:start;             /* P1-9 */
-}
-.wb-tab .material-symbols-outlined{font-size:18px}
-@media (hover:hover) and (pointer:fine){
-  .wb-tab:hover{color:var(--ink);background:var(--brand-tint)}
-}
-.wb-tab:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-/* P1-5: brand-tint active, matches shell nav-tab convention */
-.wb-tab.is-active{
-  background:var(--brand-tint);
-  color:var(--brand);
-  font-weight:600;
-}
-.wb-tab.is-active .material-symbols-outlined{color:var(--brand)}
-
-/* P1-9: right-edge fade overlay to hint at overflow */
-.wb-tabs-wrap::after{
-  content:"";
-  position:absolute;
-  top:0;bottom:0;
-  right:1.5rem;
-  width:24px;
-  pointer-events:none;
-  background:linear-gradient(90deg, transparent 0%, var(--bg) 90%);
-  border-top-right-radius:9999px;
-  border-bottom-right-radius:9999px;
-}
-@media (min-width:768px){
-  .wb-tabs-wrap::after{right:2.5rem}
-}
+/* wb-tabs / wb-tab — shell.css (.pill-tabs alias, flat, no glow) */
 
 /* ── Page shell ─────────────────────────────────────────────────────── */
 .dp-shell{

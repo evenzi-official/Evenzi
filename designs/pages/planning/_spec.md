@@ -1,4 +1,6 @@
-# Spec — Planning (`planning`)  ·  SPEC_VERSION 2026-06-06.1
+# Spec — Planning (`planning`)  ·  SPEC_VERSION 2026-06-06.2
+
+> **⚠️ v2 REWORK (2026-06-06.2) — Tasks toolbar + compact header + polish.** Detailed build mandate: `_tasks-rework.md` (this folder). 13 changes: (A) modal field rhythm; compact header + (i) info-disclosure on BOTH tabs (website-clean pattern, shared `.section-head--compact`/`.section-head-info`/`.section-head-tip` shell primitive); tighten tab→head + head→card gaps; List/Timeline toggle → full width. (B) Tasks toolbar mirroring guests — search (`.form-input-search`), status chips All/To-do/Done/Overdue (`.dp-filter-chip`), Sort (Due/Priority/A–Z, List-only), Sub-event Filter (`openPicker`, supersedes the row-chip filter), Select relocated into the toolbar; all filters ANDed, even-spaced on mobile. (C) swipe-rail redesign (semantic tokens + icons, rounded, on-brand); Complete→toast+Undo (generic shell toast w/ action). (D) shell-wide: 16px inputs on mobile (no iOS zoom). All build-from `_tasks-rework.md`. The sections below remain the v1 source of truth; the v2 doc layers on top.
 
 > Build source of truth. Cursor builds **only** from this file. Filled by `/spec-kit` from the
 > feature overview + design system + council review. Overwritten on re-run (SPEC_VERSION bumps).

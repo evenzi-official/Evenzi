@@ -147,10 +147,17 @@
 
   <!-- Checklist panel → Tasks -->
   <section id="plan-panel-checklist" role="tabpanel" aria-labelledby="plan-tab-checklist" class="plan-panel reveal">
-    <header class="section-head">
+    <header class="section-head section-head--compact">
       <p class="section-head-eyebrow">Checklist</p>
-      <h2 class="section-head-title">Tasks</h2>
-      <p class="section-head-sub">Track what to do, when it's due, and which function it belongs to.</p>
+      <div class="section-head-titlerow">
+        <h2 class="section-head-title">Tasks</h2>
+        <button class="section-head-info" type="button" data-info-tip
+                aria-label="About Tasks"
+                aria-describedby="plan-check-tip" aria-expanded="false">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+        </button>
+        <span class="section-head-tip" id="plan-check-tip" role="tooltip" hidden>Track what to do, when it's due, and which function it belongs to.</span>
+      </div>
     </header>
 
     <div class="clay-card plan-tasks-card" id="plan-tasks-card">
@@ -162,15 +169,41 @@
         </div>
       </div>
 
-      <div class="plan-tasks-toolbar">
-        <div class="pill-tabs pill-tabs--sm plan-view-toggle" role="radiogroup" aria-label="Task view" id="plan-view-toggle">
-          <button type="button" role="radio" class="pill-tab is-active" id="plan-view-list" aria-checked="true" tabindex="0" data-plan-view="list">List</button>
-          <button type="button" role="radio" class="pill-tab" id="plan-view-timeline" aria-checked="false" tabindex="-1" data-plan-view="timeline">Timeline</button>
+      <div class="plan-toolbar">
+        <div class="form-input-search plan-search">
+          <span class="material-symbols-outlined" aria-hidden="true">search</span>
+          <input class="form-input" type="search" id="plan-search-input" placeholder="Search tasks…" aria-label="Search tasks" autocomplete="off" />
+          <button class="form-input-search-clear" type="button" aria-label="Clear search">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
         </div>
-        <button type="button" class="plan-select-btn" id="plan-select-mode" aria-label="Select tasks">
-          <span class="material-symbols-outlined" aria-hidden="true">checklist</span>
-          <span class="plan-select-label">Select</span>
-        </button>
+        <div class="plan-toolbar-actions">
+          <button type="button" class="btn-pill btn-pill-secondary gm-icon-btn plan-filter-btn" id="plan-filter-btn" aria-haspopup="true" aria-expanded="false" aria-label="Filter by sub-event">
+            <span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
+            <span class="gm-btn-label">Filter</span>
+            <span class="gm-filter-count" id="plan-filter-count" hidden>0</span>
+          </button>
+          <button type="button" class="btn-pill btn-pill-secondary gm-icon-btn plan-sort-btn" id="plan-sort-btn" aria-haspopup="true" aria-expanded="false" aria-label="Sort tasks">
+            <span class="material-symbols-outlined" aria-hidden="true">swap_vert</span>
+            <span class="gm-btn-label plan-sort-label">Due date</span>
+          </button>
+          <button type="button" class="btn-pill btn-pill-secondary gm-icon-btn plan-select-btn" id="plan-select-mode" aria-label="Select tasks">
+            <span class="material-symbols-outlined" aria-hidden="true">checklist</span>
+            <span class="gm-btn-label">Select</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="dp-filter-chips plan-status-chips" role="radiogroup" aria-label="Filter by status" id="plan-status-chips">
+        <button type="button" class="dp-filter-chip is-active" role="radio" aria-checked="true" tabindex="0" data-plan-status="all">All <span data-plan-chip="all">0</span></button>
+        <button type="button" class="dp-filter-chip" role="radio" aria-checked="false" tabindex="-1" data-plan-status="todo">To-do <span data-plan-chip="todo">0</span></button>
+        <button type="button" class="dp-filter-chip" role="radio" aria-checked="false" tabindex="-1" data-plan-status="done">Done <span data-plan-chip="done">0</span></button>
+        <button type="button" class="dp-filter-chip" role="radio" aria-checked="false" tabindex="-1" data-plan-status="overdue">Overdue <span data-plan-chip="overdue">0</span></button>
+      </div>
+
+      <div class="pill-tabs pill-tabs--sm plan-view-toggle" role="radiogroup" aria-label="Task view" id="plan-view-toggle">
+        <button type="button" role="radio" class="pill-tab is-active" id="plan-view-list" aria-checked="true" tabindex="0" data-plan-view="list">List</button>
+        <button type="button" role="radio" class="pill-tab" id="plan-view-timeline" aria-checked="false" tabindex="-1" data-plan-view="timeline">Timeline</button>
       </div>
 
       <div class="plan-alldone" id="plan-alldone" hidden role="status">
@@ -213,10 +246,17 @@
 
   <!-- Budget panel -->
   <section id="plan-panel-budget" role="tabpanel" aria-labelledby="plan-tab-budget" class="plan-panel reveal" hidden>
-    <header class="section-head">
+    <header class="section-head section-head--compact">
       <p class="section-head-eyebrow">Budget</p>
-      <h2 class="section-head-title">Spending tracker</h2>
-      <p class="section-head-sub">Set a total, log expenses, and see where the money goes.</p>
+      <div class="section-head-titlerow">
+        <h2 class="section-head-title">Spending tracker</h2>
+        <button class="section-head-info" type="button" data-info-tip
+                aria-label="About Spending tracker"
+                aria-describedby="plan-budget-tip" aria-expanded="false">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+        </button>
+        <span class="section-head-tip" id="plan-budget-tip" role="tooltip" hidden>Set a total, log expenses, and see where the money goes.</span>
+      </div>
     </header>
 
     <!-- Budget unset -->
@@ -368,8 +408,12 @@
         </p>
       </div>
       <div class="form-group">
-        <label class="form-label" for="plan-task-due">Due date <span class="form-label-opt">(optional)</span></label>
-        <input id="plan-task-due" name="due" type="date" class="form-input" />
+        <label class="form-label" id="plan-task-due-label" for="plan-task-due">Due date <span class="form-label-opt">(optional)</span></label>
+        <button type="button" class="form-input form-input-trigger" data-date-trigger aria-labelledby="plan-task-due-label">
+          <span class="form-input-trigger-value" data-placeholder="Pick a date"></span>
+          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+        </button>
+        <input id="plan-task-due" name="due" type="date" class="sr-only" tabindex="-1" aria-hidden="true" />
       </div>
       <div class="form-group" id="plan-task-subevent-wrap">
         <label class="form-label" for="plan-task-subevent">Sub-event</label>
@@ -479,8 +523,12 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label" for="plan-exp-date">Date</label>
-          <input id="plan-exp-date" name="date" type="date" class="form-input" />
+          <label class="form-label" id="plan-exp-date-label" for="plan-exp-date">Date</label>
+          <button type="button" class="form-input form-input-trigger" data-date-trigger aria-labelledby="plan-exp-date-label">
+            <span class="form-input-trigger-value" data-placeholder="Pick a date"></span>
+            <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          </button>
+          <input id="plan-exp-date" name="date" type="date" class="sr-only" tabindex="-1" aria-hidden="true" />
         </div>
         <div class="form-group">
           <label class="form-label" for="plan-exp-notes">Notes <span class="form-label-opt">(optional)</span></label>
@@ -513,6 +561,7 @@
 <!-- Bulk bar + Add FAB -->
 <div class="bulk-bar" id="plan-bulkbar" role="toolbar" aria-label="Bulk task actions" hidden>
   <span class="bulk-bar-count"><span id="plan-sel-count">0</span> selected</span>
+  <button type="button" class="bulk-bar-selectall" data-plan-select-all aria-label="Select all visible tasks">Select all</button>
   <span class="bulk-bar-div" aria-hidden="true"></span>
   <button type="button" class="bulk-bar-act" id="plan-bulk-complete" disabled>
     <span class="material-symbols-outlined" aria-hidden="true">check_circle</span><span class="bulk-bar-act-label">Complete</span>

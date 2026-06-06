@@ -4,11 +4,14 @@
    ════════════════════════════════════════════════════════════════════ */
 
 /* ── In-page pill tablist ──────────────────────────────────────────── */
-.plan-tabs-wrap{margin-bottom:1.5rem}
+.plan-tabs-wrap{margin-bottom:1rem}
 .plan-tabs .pill-tab{flex:1 1 0;justify-content:center;min-height:44px}
 
 /* ── Panels ────────────────────────────────────────────────────────── */
 .plan-panel[hidden]{display:none !important}
+/* (No .section-head override here — the heading is the alignment-neutral shell
+   template; it inherits the page column inset like every other page. Per-page
+   header overrides are forbidden — see .cursor/rules/evenzi-design.mdc.) */
 
 /* ── Tasks card ────────────────────────────────────────────────────── */
 .plan-tasks-card{padding:1.25rem 1rem 5.5rem}
@@ -38,23 +41,65 @@
   background:var(--brand);width:0%;
 }
 
-.plan-tasks-toolbar{
+/* ── Tasks toolbar (mirrors guests .gm-toolbar) ───────────────────── */
+.plan-toolbar{
+  display:flex;flex-direction:column;gap:.7rem;
+  margin-bottom:.85rem;
+}
+@media (min-width:768px){
+  .plan-toolbar{flex-direction:row;align-items:center;gap:.85rem}
+  .plan-toolbar-actions{flex-wrap:nowrap;flex-shrink:0}
+}
+.plan-search{flex:1 1 auto;min-width:0}
+.plan-toolbar-actions{
   display:flex;align-items:center;justify-content:space-between;
-  gap:.75rem;margin-bottom:1.35rem;margin-top:.15rem;flex-wrap:wrap;
+  gap:.5rem;width:100%;
 }
-.plan-view-toggle{width:100%;max-width:220px}
+@media (min-width:768px){
+  .plan-toolbar-actions{justify-content:flex-start;width:auto;flex-wrap:wrap}
+}
+@media (max-width:767px){
+  .plan-toolbar-actions .gm-icon-btn{
+    flex:1 1 0;justify-content:center;
+    padding-left:.8rem;padding-right:.8rem;
+  }
+}
+.plan-filter-btn.is-active{border-color:var(--brand);color:var(--brand)}
+.plan-sort-btn .material-symbols-outlined{font-size:18px}
+.plan-tasks-card.is-timeline .plan-sort-btn{display:none}
+.gm-filter-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;padding:0 5px;border-radius:9999px;
+  background:var(--brand);color:#fff;font-size:.66rem;font-weight:700;
+  font-variant-numeric:tabular-nums;
+}
+@media (max-width:560px){
+  .plan-toolbar-actions .gm-icon-btn .gm-btn-label{
+    position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;
+  }
+  .plan-toolbar-actions .gm-icon-btn{padding-left:.8rem;padding-right:.8rem;gap:0}
+}
+
+.plan-status-chips{
+  display:flex;justify-content:space-between;gap:.35rem;
+  margin-bottom:.85rem;overflow-x:visible;
+}
+@media (min-width:768px){
+  .plan-status-chips{justify-content:flex-start;gap:.4rem}
+}
+@media (max-width:767px){
+  .plan-status-chips .dp-filter-chip{
+    flex:1 1 0;text-align:center;padding-inline:.35rem;
+    font-size:.72rem;min-width:0;
+  }
+}
+[data-plan-chip="todo"]{color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+[data-plan-chip="done"]{color:var(--success-ink);font-weight:700;font-variant-numeric:tabular-nums}
+[data-plan-chip="overdue"]{color:var(--danger-ink);font-weight:700;font-variant-numeric:tabular-nums}
+[data-plan-chip="all"]{color:var(--brand);font-weight:700;font-variant-numeric:tabular-nums}
+
+.plan-view-toggle{width:100%;margin-bottom:1rem}
 .plan-view-toggle .pill-tab{flex:1;justify-content:center;min-height:40px}
-.plan-select-btn{
-  display:inline-flex;align-items:center;gap:.35rem;
-  min-height:44px;padding:.45rem .75rem;border-radius:9999px;
-  border:1px solid var(--line);background:var(--card);
-  color:var(--muted);font-weight:600;font-size:.78rem;cursor:pointer;
-}
-@media (hover:hover) and (pointer:fine){
-  .plan-select-btn:hover{border-color:var(--brand);color:var(--brand)}
-}
-.plan-select-btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-.plan-select-btn .material-symbols-outlined{font-size:18px}
 
 .plan-alldone{
   display:flex;align-items:center;gap:.5rem;
@@ -129,13 +174,9 @@
   display:inline-flex;align-items:center;gap:.2rem;
   padding:.12rem .45rem;border-radius:9999px;
   font-size:.66rem;font-weight:700;
-  background:var(--line-soft);color:var(--muted);border:0;cursor:pointer;
+  background:var(--line-soft);color:var(--muted);
   font-family:inherit;
 }
-.task-sub-chip[aria-pressed="true"]{
-  background:var(--brand-tint);color:var(--brand);border:1px solid color-mix(in oklab,var(--brand) 28%,transparent);
-}
-.task-sub-chip:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .task-sub-chip .material-symbols-outlined{font-size:13px}
 .task-prio{
   display:inline-flex;align-items:center;gap:.25rem;
@@ -171,16 +212,21 @@
 .plan-tasks-card.is-selecting .task-row-check{display:none}
 .plan-tasks-card.is-selecting .task-row-surface{cursor:pointer}
 
-.task-row-rail{flex:0 0 auto;display:flex;scroll-snap-align:end}
-.tr-swipe{
-  flex:0 0 auto;width:74px;border:0;cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;
-  color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:.66rem;
+.task-row-rail{
+  flex:0 0 auto;display:flex;scroll-snap-align:end;
+  border-radius:0 16px 16px 0;overflow:hidden;
 }
-.tr-swipe .material-symbols-outlined{font-size:20px}
-.tr-swipe-done{background:var(--success)}
-.tr-swipe-edit{background:var(--brand)}
-.tr-swipe-delete{background:var(--danger)}
+.tr-swipe{
+  flex:1 1 0;min-width:74px;border:0;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:.58rem;
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:.65rem .35rem;
+}
+.tr-swipe .material-symbols-outlined{font-size:22px}
+.tr-swipe-done{background:var(--success-tint);color:var(--success-ink)}
+.tr-swipe-edit{background:var(--line-soft);color:var(--ink)}
+.tr-swipe-delete{background:var(--danger-tint);color:var(--danger-ink)}
 @media (min-width:768px){
   .plan-task-list .task-row,.plan-agenda-group-list .task-row{display:block;overflow:visible}
   .task-row-rail{display:none}
@@ -261,7 +307,7 @@
 }
 
 /* ── Expense modal rework ──────────────────────────────────────────── */
-.plan-modal-block{display:flex;flex-direction:column;gap:.15rem}
+.plan-modal-block{display:flex;flex-direction:column;gap:.9rem}
 .plan-modal-block-title{
   font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
   color:var(--muted);margin:0 0 .5rem;

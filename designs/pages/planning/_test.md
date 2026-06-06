@@ -1,4 +1,6 @@
-# Test plan — Planning (`planning`)  ·  against SPEC_VERSION 2026-06-06.1
+# Test plan — Planning (`planning`)  ·  against SPEC_VERSION 2026-06-06.2
+
+> v2 rows (toolbar + compact header + polish) are in section **8** at the bottom; sections 1–7 still apply.
 
 > Test source of truth. Antigravity tests **only** from this file. Run every row; record PASS/FAIL in _findings.md by row ID.
 > REWORK pass: Checklist tab → task manager + pill section tabs. Budget tab unchanged (rows retained as regression checks).
@@ -91,6 +93,23 @@
 ### 7. Guest-surface & device (conditional + manual)
 - `7.whatsapp` — n/a (host-only page, no guest/OG surface).
 - `7.device` — Mobile real-device pass on a mid-tier Android with CPU throttle; TalkBack sanity on the pill tablist, view toggle, date bar, task modal; crore-scale ₹ fit at 360px. (manual — agent: skip and flag for human)
+
+### 8. v2 rework (toolbar + compact header + polish — SPEC_VERSION 2026-06-06.2)
+- `8.modalrhythm` — Task + Expense modal fields have clear breathing room between them (not cramped); `.plan-modal-block` blocks separated.
+- `8.headcompact` — BOTH tabs' headers are compact: eyebrow + title + an (i) info button; the long description is in the (i) tip, NOT in the header flow. Tab→head gap is tight (~1rem, not ~2.75rem). No 360px overflow.
+- `8.headtip` — (i) reveals the description on hover (desktop) AND keyboard-focus AND tap (mobile); Esc + outside-click close; `aria-describedby` links it; ≥44px hit area.
+- `8.togglewide` — List/Timeline toggle spans the full row width (each ~50%), matching the Checklist|Budget bar.
+- `8.search` — toolbar search filters the list/agenda by task name (case-insensitive); clear button works; applies in both views.
+- `8.statuschips` — All/To-do/Done/Overdue chips (radiogroup) filter correctly with live counts; default All; both views.
+- `8.sort` — Sort (Due/Priority/A–Z) re-orders the List; hidden/disabled in Timeline.
+- `8.subfilter` — Sub-event Filter (popover) filters tasks by function; active-count badge shows; the row sub-event chip no longer double-acts as a filter.
+- `8.selectreloc` — Select sits in the toolbar action row (with Filter/Sort); selection mode still works.
+- `8.filtercompose` — search ∧ status ∧ sub-event AND together; Sort orders the result; "· N shown" caption + live region reflect the filtered count.
+- `8.toolbareven` — at 360px the toolbar action row + status-chip row distribute evenly (no left-clump/dead space).
+- `8.swiperail` — swipe rail redesigned: icon+label per action (Complete/Edit/Delete), semantic-token tints (not vivid green/red/pink), equal-width, rounded to the card; rail still `aria-hidden`/`tabindex=-1` with focusable equivalents.
+- `8.toastundo` — marking a task done (checkbox / swipe-Complete / bulk) shows a toast "Task completed · Undo" ("N tasks completed · Undo" for bulk); Undo reverts within the window; toast is a polite live region; Undo is focusable; reduced-motion respected.
+- `8.nozoom` — focusing any form input on mobile (iOS) does NOT auto-zoom/shift the layout (inputs ≥16px <768px); no `maximum-scale`; modal sticky footer stays put with the keyboard open. (manual/real-device for the true iOS check.)
+- `8.noregress` — `git status` shows changes ONLY under `designs/pages/planning/*` + `designs/shared/shell.{css,js}`; nothing under `pages/guests/` or `pages/website/`; the shell-wide changes (16px inputs, generic toast action, compact-header primitive) don't break other pages.
 
 ## Definition of done
 Every non-manual row PASS (deferrals documented in _findings.md), no console errors, no source edits under `pages/guests/` or `pages/website/`, manual rows flagged for human.
