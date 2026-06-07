@@ -61,8 +61,8 @@ live DOM before recording; no boilerplate (real selector + measured value + repr
 viewports; skip known-benign (favicon 404, Tailwind CDN warning); href="#" are intentional.
 ## Matrix: smoke · click-everything · forms · responsive 360/390/414/768/1024/1440 · states ·
 keyboard/focus · a11y · dark/light · nav · stress (long/Devanagari/crore/empty) · design-standard · gaps.
-## Done: record findings; bump _status → REVIEW.  (Antigravity manual pass via CDP is unreliable —
-prefer Claude Playwright + founder phone for visual/interaction.)
+## Done: record findings; bump _status → REVIEW.  (Antigravity runs the full browser pass; Claude
+Playwright + founder phone remain good cross-checks for visual/interaction.)
 ```
 
 ### `_fix.md` (Claude → Cursor, on a REVIEW loop)
@@ -73,3 +73,26 @@ observed value · fix · verify-grep. Complete + correct. → bump _status → T
 ```
 
 > A whole-`designs/` sweep (all pages at once) reuses the `_test.md` template at repo level, written to a temp `_SWEEP.md` + findings to `_FINDINGS.md` — both deleted after triage; real fixes become `_fix.md` loops and the record lands in each `_page.md`.
+
+---
+
+## Filenames (reconciliation with `/spec-kit`)
+`/spec-kit <page>` spawns the **classic kit** — these ARE the templates above, by another name:
+| this doc | `/spec-kit` file |
+|---|---|
+| build-doc | `_spec.md` (build source) + `_cursor-prompt.md` (Cursor runbook) |
+| test-doc | `_test.md` (matrix) + `_antigravity-prompt.md` (runbook) + `_findings.md` (results) |
+| fix-doc | the fix-list at the top of `_review.md` (Cursor re-reads `_cursor-prompt.md`) |
+| baton | `_status.md` |
+Use whichever the page already has. **Don't keep both schemes on one page.**
+
+## Handoff discipline (the things that bit us — enforce)
+1. **Finalize before you trigger.** Don't run Cursor/Antigravity while a doc is still being edited — it grabs a half-written file and silently drops work. Doc is done → THEN trigger.
+2. **One tool per file at a time.** Don't run parallel agents that edit the same shared file (e.g. `shell.css`) — collisions/clobbers. Parallel is fine only on disjoint files.
+3. **STOP-check guards the worktree.** Every spawned doc asserts `_status` STAGE+version first; if it's wrong the tool HALTS (it can't self-fix — only the human can open the right folder).
+4. **"Done" ≠ verified.** A tool reporting success isn't proof — Claude verifies with evidence (grep for completeness, Playwright for *computed* values, not the tool's self-report). The review gate is load-bearing.
+
+## Step 6 — Finish (at DONE)
+1. **Fold** the page's outcome into `pages/<page>/_page.md` (status, what's built, decisions, deferred).
+2. **Delete** the spawned kit (`_spec/_test/_status/_cursor-prompt/_antigravity-prompt/_review/_findings`, any `_build/_fix/_SWEEP/_FINDINGS`) — the record now lives in `_page.md`. *(Manual today; `/spec-kit-review` doesn't auto-fold yet.)*
+3. **Integrate:** commit, then merge the feature branch → `Dev-Vibe` (per CLAUDE.md branching). `_page.md` + `_WORKFLOW.md` travel with it.
