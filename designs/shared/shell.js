@@ -167,7 +167,6 @@
       var s = tab.getAttribute('data-section');
       var active = s === section;
       tab.classList.toggle('is-active', active);
-      tab.setAttribute('aria-selected', active ? 'true' : 'false');
       if (active) tab.setAttribute('aria-current', 'page');
       else tab.removeAttribute('aria-current');
     });
@@ -204,9 +203,11 @@
       if (p.strong) msg.appendChild(el('strong', { text: p.strong }));
       if (p.plain)  msg.appendChild(document.createTextNode(p.plain));
     });
-    var body = el('div', null, [msg, el('p', { 'class': 'fn-notif-time', text: opts.time })]);
+    var bodyChildren = [msg, el('p', { 'class': 'fn-notif-time', text: opts.time })];
+    if (opts.unread) bodyChildren.push(el('span', { 'class': 'sr-only', text: 'Unread' }));
+    var body = el('div', null, bodyChildren);
     var iconWrap = el('span', { 'class': 'fn-notif-icon', 'aria-hidden': 'true' }, [icon(opts.icon)]);
-    var unread = el('span', { 'class': 'fn-notif-unread', 'aria-label': 'Unread' });
+    var unread = el('span', { 'class': 'fn-notif-unread', 'aria-hidden': 'true' });
     return el('li', { 'class': 'fn-notif-item' + (opts.unread ? ' is-unread' : '') }, [iconWrap, body, unread]);
   }
 
@@ -223,7 +224,7 @@
     el('p',      { 'class': 'fn-notif-title', text: 'Notifications' }),
     el('button', { 'class': 'fn-notif-mark-all', type: 'button', text: 'Mark all read' })
   ]);
-  var list = el('ul', { 'class': 'fn-notif-list' }, sample.map(notifItem));
+  var list = el('ul', { 'class': 'fn-notif-list', tabindex: '0', 'aria-label': 'Notifications list' }, sample.map(notifItem));
   var viewAll = el('a', { 'class': 'fn-notif-view-all', href: '#' });
   viewAll.appendChild(document.createTextNode('View all notifications'));
   viewAll.appendChild(icon('arrow_forward'));

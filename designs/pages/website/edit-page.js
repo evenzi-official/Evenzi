@@ -469,7 +469,7 @@
     var ic = el('span', { cls: 'modal-confirm-icon is-cautionary', attrs: { 'aria-hidden': 'true' }, kids: [icon('delete')] });
     var h = el('h2', { cls: 'modal-confirm-title', text: 'Remove this section?', attrs: { id: 'ep-rs-h' } });
     var p = el('p', { cls: 'modal-confirm-text', kids: [document.createTextNode('This removes '), el('strong', { attrs: { id: 'ep-rs-name' }, text: 'the section' }), document.createTextNode(' from the page. You can add it again later.')] });
-    var actions = el('footer', { cls: 'modal-actions', kids: [
+    var actions = el('div', { cls: 'modal-actions', kids: [
       el('button', { cls: 'btn-pill btn-pill-secondary', attrs: { type: 'button', 'data-modal-close': '' }, text: 'Cancel' }),
       el('button', { cls: 'btn-pill btn-pill-primary', attrs: { type: 'button', 'data-ep-remove-confirm': '' }, text: 'Remove section' })
     ] });
@@ -556,7 +556,7 @@
       el('button', { cls: 'modal-close', attrs: { type: 'button', 'data-modal-close': '', 'aria-label': 'Close' }, kids: [icon('close')] })
     ] });
     var grid = el('div', { cls: 'modal-picker-body', attrs: { id: 'ep-as-grid', role: 'radiogroup', 'aria-label': 'Section type' } });
-    var actions = el('footer', { cls: 'modal-actions', kids: [
+    var actions = el('div', { cls: 'modal-actions', kids: [
       el('button', { cls: 'btn-pill btn-pill-secondary', attrs: { type: 'button', 'data-modal-close': '' }, text: 'Cancel' }),
       el('button', { cls: 'btn-pill btn-pill-primary', attrs: { type: 'button', 'data-ep-addsection-confirm': '', disabled: 'disabled' }, text: 'Add section' })
     ] });

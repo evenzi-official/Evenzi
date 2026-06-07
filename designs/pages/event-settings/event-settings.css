@@ -12,6 +12,7 @@
 .es-shell{
   max-width:1280px;width:100%;margin:0 auto;
   padding:1.25rem 1.25rem 4rem;
+  min-width:0;overflow-x:clip;
 }
 @media (min-width:768px){
   .es-shell{
@@ -29,6 +30,7 @@
   .es-side{
     flex-direction:row;
     overflow-x:auto;
+    max-width:100%;min-width:0;
     padding-bottom:.5rem;
     margin-bottom:1.25rem;
     scrollbar-width:none;
@@ -348,13 +350,26 @@
 /* ── Plan cards (Plan & Billing) ────────────────────── */
 .es-plans-grid{
   display:grid;grid-template-columns:1fr;gap:1rem;
+  min-width:0;
 }
-@media (min-width:640px){
-  .es-plans-grid{grid-template-columns:repeat(3, 1fr);gap:1.25rem}
+/* Full-width mobile: allow 2-up only when there is no sidebar column */
+@media (min-width:640px) and (max-width:767px){
+  .es-plans-grid{grid-template-columns:repeat(2, minmax(0, 1fr));gap:1.25rem}
+}
+/* Sidebar layout narrows content — stay single-column until the shell is wide enough */
+@media (min-width:768px) and (max-width:1023px){
+  .es-plans-grid{grid-template-columns:1fr;gap:1rem}
+}
+@media (min-width:1024px){
+  .es-plans-grid{grid-template-columns:repeat(2, minmax(0, 1fr));gap:1.25rem}
+}
+@media (min-width:1280px){
+  .es-plans-grid{grid-template-columns:repeat(3, minmax(0, 1fr))}
 }
 .es-plan-card{
   position:relative;
   display:flex;flex-direction:column;gap:.85rem;
+  min-width:0;
   padding:1.5rem 1.25rem;
   background:var(--card);
   border:1px solid var(--line);border-radius:20px;

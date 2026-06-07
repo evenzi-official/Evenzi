@@ -410,13 +410,13 @@
 
       <div class="gm-edit-only gm-invite-state" id="gm-f-invite" hidden></div>
 
-      <footer class="modal-actions">
+      <div class="modal-actions">
         <button type="button" class="btn-pill btn-pill-danger gm-edit-only gm-remove-btn" id="gm-f-remove" data-gm-remove hidden>
           <span class="material-symbols-outlined" aria-hidden="true">person_remove</span> Remove
         </button>
         <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
         <button type="submit" class="btn-pill btn-pill-primary" id="gm-f-save">Save guest</button>
-      </footer>
+      </div>
     </form>
   </div>
 </div>
@@ -454,10 +454,10 @@
       <span>I confirm I have these guests' consent to add their contact details to Evenzi.</span>
     </label>
 
-    <footer class="modal-actions">
+    <div class="modal-actions">
       <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
       <button type="button" class="btn-pill btn-pill-primary" id="gm-import-confirm" data-gm-import-confirm disabled>Import guests</button>
-    </footer>
+    </div>
   </div>
 </div>
 
@@ -471,12 +471,12 @@
     <h2 class="modal-confirm-title" id="gm-send-h">Send WhatsApp invitations?</h2>
     <p class="modal-confirm-text" id="gm-send-text">Each guest gets a personal RSVP link on WhatsApp. We'll only message guests who haven't been invited yet.</p>
     <span class="modal-confirm-url" id="gm-send-count-line">0 guests will be invited</span>
-    <footer class="modal-actions">
+    <div class="modal-actions">
       <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
       <button type="button" class="btn-pill btn-pill-primary" id="gm-send-confirm" data-gm-send-confirm>
         <span class="material-symbols-outlined" aria-hidden="true">send</span> Send invitations
       </button>
-    </footer>
+    </div>
   </div>
 </div>
 
@@ -489,10 +489,10 @@
     <span class="modal-confirm-icon is-cautionary" aria-hidden="true"><span class="material-symbols-outlined">person_remove</span></span>
     <h2 class="modal-confirm-title" id="gm-remove-h">Remove this guest?</h2>
     <p class="modal-confirm-text">Remove <strong id="gm-remove-name">this guest</strong> from your list. Their RSVP, if any, will be discarded. You can add them again later.</p>
-    <footer class="modal-actions">
+    <div class="modal-actions">
       <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
       <button type="button" class="btn-pill btn-pill-primary" id="gm-remove-confirm" data-gm-remove-confirm>Remove guest</button>
-    </footer>
+    </div>
   </div>
 </div>
 
@@ -513,9 +513,9 @@
       <button type="button" class="btn-pill btn-pill-secondary" data-gm-tagman-add>Add</button>
     </div>
     <ul class="gm-tagman-list" id="gm-tagman-list" aria-label="Tags"></ul>
-    <footer class="modal-actions">
+    <div class="modal-actions">
       <button type="button" class="btn-pill btn-pill-primary" data-modal-close>Done</button>
-    </footer>
+    </div>
   </div>
 </div>
 
