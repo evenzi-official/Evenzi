@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Evenzi · General settings · Vibrant Union</title>
@@ -70,7 +72,7 @@
 <main class="es-shell reveal">
 
   <!-- Sidebar -->
-  <aside class="es-side" aria-label="Event settings sections">
+  <nav class="es-side" aria-label="Event settings">
     <div class="es-event-head">
       <p class="es-event-eyebrow">Event</p>
       <p class="es-event-title">Vibrant Union</p>
@@ -79,31 +81,33 @@
         Back to event
       </a>
     </div>
-    <a class="es-side-link" data-es-page="general" href="general.html">
-      <span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span>
-      General
-    </a>
-    <a class="es-side-link" data-es-page="website" href="website.html">
-      <span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span>
-      Website
-    </a>
-    <a class="es-side-link" data-es-page="admins" href="admins.html">
-      <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
-      Admins
-    </a>
-    <a class="es-side-link" data-es-page="guest-list" href="guest-list.html">
-      <span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span>
-      Guest list
-    </a>
-    <a class="es-side-link" data-es-page="registry" href="registry.html">
-      <span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span>
-      Registry
-    </a>
-    <a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html">
-      <span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span>
-      Plan &amp; billing
-    </a>
-  </aside>
+    <ul class="es-side-list">
+      <li><a class="es-side-link" data-es-page="general" href="general.html">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span>
+        General
+      </a></li>
+      <li><a class="es-side-link" data-es-page="website" href="website.html">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span>
+        Website
+      </a></li>
+      <li><a class="es-side-link" data-es-page="admins" href="admins.html">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+        Admins
+      </a></li>
+      <li><a class="es-side-link" data-es-page="guest-list" href="guest-list.html">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span>
+        Guest list
+      </a></li>
+      <li><a class="es-side-link" data-es-page="registry" href="registry.html">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span>
+        Registry
+      </a></li>
+      <li><a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span>
+        Plan &amp; billing
+      </a></li>
+    </ul>
+  </nav>
 
   <!-- Content panel -->
   <div class="es-content">
@@ -232,7 +236,7 @@
         </h2>
         <p class="es-section-sub">Once you delete this event there's no going back. All RSVPs, photos, and registry data go with it.</p>
       </header>
-      <div class="es-toggle-row" style="background:transparent;border-color:color-mix(in oklab,#ef4444 20%,var(--line))">
+      <div class="es-toggle-row is-danger">
         <div class="es-toggle-body">
           <span class="es-toggle-title">Delete this event</span>
           <span class="es-toggle-desc">This action is permanent and cannot be undone.</span>
@@ -256,6 +260,20 @@
 </main>
 
 <!-- ────────────────────── TOAST ────────────────────── -->
+<div class="modal-scrim" id="es-delete-modal" data-modal aria-hidden="true">
+  <div class="modal-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="es-delete-title">
+    <div class="modal-confirm-icon is-cautionary">
+      <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+    </div>
+    <h3 class="modal-confirm-title" id="es-delete-title">Delete this event?</h3>
+    <p class="modal-confirm-text" id="es-delete-text">This cannot be undone. All RSVPs, photos, and registry data will be permanently removed.</p>
+    <footer class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-danger" id="es-delete-confirm">Delete event</button>
+    </footer>
+  </div>
+</div>
+
 <div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
   <span class="bc-live" aria-hidden="true"></span>
   <span id="bc-toast-text">SAVED</span>

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Evenzi · Guest list settings · Vibrant Union</title>
@@ -62,7 +64,7 @@
 
 <main class="es-shell reveal">
 
-  <aside class="es-side" aria-label="Event settings sections">
+  <nav class="es-side" aria-label="Event settings">
     <div class="es-event-head">
       <p class="es-event-eyebrow">Event</p>
       <p class="es-event-title">Vibrant Union</p>
@@ -70,13 +72,15 @@
         <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span> Back to event
       </a>
     </div>
-    <a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a>
-    <a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a>
-    <a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a>
-    <a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a>
-    <a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a>
-    <a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a>
-  </aside>
+    <ul class="es-side-list">
+      <li><a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a></li>
+      <li><a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a></li>
+      <li><a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a></li>
+      <li><a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a></li>
+      <li><a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a></li>
+      <li><a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a></li>
+    </ul>
+  </nav>
 
   <div class="es-content">
     <header class="es-content-head">
@@ -134,7 +138,7 @@
           <span class="es-toggle-title">Cap of plus-ones per invite</span>
           <span class="es-toggle-desc">Hard limit on extra guests per primary invitee.</span>
         </div>
-        <div class="form-input form-input-group" style="max-width:200px">
+        <div class="form-input form-input-group es-guest-cap">
           <input id="es-plus-one-cap" type="number" min="0" max="10" value="2" inputmode="numeric" class="form-input-field" autocomplete="off"/>
           <span class="form-input-suffix" aria-hidden="true">plus-ones</span>
         </div>

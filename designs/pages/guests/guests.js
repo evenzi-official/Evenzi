@@ -213,7 +213,7 @@
     $('[data-gm-rate]').textContent = rate;
     $('[data-gm-responded]').textContent = responded;
     $('[data-gm-total]').textContent = c.total;
-    $('[data-gm-rate-fill]').style.width = rate + '%';
+    $('[data-gm-rate-fill]').style.setProperty('width', rate + '%');
 
     var un = uninvitedCount();
     var sendBtn = $('.gm-send-btn');

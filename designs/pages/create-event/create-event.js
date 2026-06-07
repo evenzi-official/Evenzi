@@ -279,6 +279,10 @@
         if (n > 0) contBtn.removeAttribute('aria-disabled');
         else contBtn.setAttribute('aria-disabled', 'true');
       }
+      var continueHint = document.getElementById('cc-continue-hint');
+      if (continueHint) {
+        continueHint.textContent = n === 0 ? 'Select at least one celebration to continue' : '';
+      }
     }
     document.querySelectorAll('.cc-celebration-card[data-cc-celebration]').forEach(function (card) {
       var id = card.getAttribute('data-cc-celebration');
@@ -287,6 +291,19 @@
       card.classList.toggle('is-selected', isOn);
     });
     refreshCount();
+
+    var searchInput = document.querySelector('.cc-search-row input');
+    if (searchInput) {
+      searchInput.addEventListener('input', function () {
+        var q = searchInput.value.trim().toLowerCase();
+        document.querySelectorAll('.cc-celebration-card[data-cc-celebration]').forEach(function (card) {
+          var nameEl = card.querySelector('.cc-celebration-name');
+          var descEl = card.querySelector('.cc-celebration-desc');
+          var text = ((nameEl && nameEl.textContent) || '') + ' ' + ((descEl && descEl.textContent) || '');
+          card.hidden = !!(q && text.toLowerCase().indexOf(q) === -1);
+        });
+      });
+    }
 
     /* Refresh-resilience: built-in cards are restored above, but injected
        custom ceremonies and the time/venue chip values are not. Rebuild

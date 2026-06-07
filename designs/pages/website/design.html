@@ -13,6 +13,8 @@
 <meta name="apple-mobile-web-app-title" content="Evenzi" />
 <meta name="application-name" content="Evenzi" />
 <link rel="manifest" href="../../manifest.webmanifest" />
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -218,9 +220,9 @@
 
         <button type="button" class="dp-palette-tile is-selected" role="radio" aria-checked="true" data-palette="brand-red">
           <span class="dp-palette-swatches" aria-hidden="true">
-            <span style="background:#BB0020"></span>
-            <span style="background:#FDF7F4"></span>
-            <span style="background:#5B1820"></span>
+            <span class="dp-pal-swatch--brand-red-primary"></span>
+            <span class="dp-pal-swatch--brand-red-surface"></span>
+            <span class="dp-pal-swatch--brand-red-ink"></span>
           </span>
           <span class="dp-palette-name">Brand Red</span>
           <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
@@ -228,9 +230,9 @@
 
         <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="blush">
           <span class="dp-palette-swatches" aria-hidden="true">
-            <span style="background:#C97B7B"></span>
-            <span style="background:#FBF4F2"></span>
-            <span style="background:#4A2C2C"></span>
+            <span class="dp-pal-swatch--blush-primary"></span>
+            <span class="dp-pal-swatch--blush-surface"></span>
+            <span class="dp-pal-swatch--blush-ink"></span>
           </span>
           <span class="dp-palette-name">Blush</span>
           <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
@@ -238,9 +240,9 @@
 
         <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="ivory">
           <span class="dp-palette-swatches" aria-hidden="true">
-            <span style="background:#6B4A2B"></span>
-            <span style="background:#FAF6EE"></span>
-            <span style="background:#2C1F12"></span>
+            <span class="dp-pal-swatch--ivory-primary"></span>
+            <span class="dp-pal-swatch--ivory-surface"></span>
+            <span class="dp-pal-swatch--ivory-ink"></span>
           </span>
           <span class="dp-palette-name">Ivory</span>
           <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
@@ -248,9 +250,9 @@
 
         <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="sage">
           <span class="dp-palette-swatches" aria-hidden="true">
-            <span style="background:#5A7A5A"></span>
-            <span style="background:#F2F6EF"></span>
-            <span style="background:#2D3D2D"></span>
+            <span class="dp-pal-swatch--sage-primary"></span>
+            <span class="dp-pal-swatch--sage-surface"></span>
+            <span class="dp-pal-swatch--sage-ink"></span>
           </span>
           <span class="dp-palette-name">Sage</span>
           <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
@@ -258,9 +260,9 @@
 
         <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="midnight">
           <span class="dp-palette-swatches" aria-hidden="true">
-            <span style="background:#6B5BA9"></span>
-            <span style="background:#F4F4F8"></span>
-            <span style="background:#1A1F2E"></span>
+            <span class="dp-pal-swatch--midnight-primary"></span>
+            <span class="dp-pal-swatch--midnight-surface"></span>
+            <span class="dp-pal-swatch--midnight-ink"></span>
           </span>
           <span class="dp-palette-name">Midnight</span>
           <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
@@ -268,9 +270,9 @@
 
         <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="sunset">
           <span class="dp-palette-swatches" aria-hidden="true">
-            <span style="background:#D97755"></span>
-            <span style="background:#FFF4EC"></span>
-            <span style="background:#4A2818"></span>
+            <span class="dp-pal-swatch--sunset-primary"></span>
+            <span class="dp-pal-swatch--sunset-surface"></span>
+            <span class="dp-pal-swatch--sunset-ink"></span>
           </span>
           <span class="dp-palette-name">Sunset</span>
           <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
@@ -278,9 +280,9 @@
 
         <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="ocean">
           <span class="dp-palette-swatches" aria-hidden="true">
-            <span style="background:#2A6F8E"></span>
-            <span style="background:#EFF6F9"></span>
-            <span style="background:#133545"></span>
+            <span class="dp-pal-swatch--ocean-primary"></span>
+            <span class="dp-pal-swatch--ocean-surface"></span>
+            <span class="dp-pal-swatch--ocean-ink"></span>
           </span>
           <span class="dp-palette-name">Ocean</span>
           <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
@@ -288,9 +290,9 @@
 
         <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="marigold">
           <span class="dp-palette-swatches" aria-hidden="true">
-            <span style="background:#D9892E"></span>
-            <span style="background:#FFF8EC"></span>
-            <span style="background:#4A3015"></span>
+            <span class="dp-pal-swatch--marigold-primary"></span>
+            <span class="dp-pal-swatch--marigold-surface"></span>
+            <span class="dp-pal-swatch--marigold-ink"></span>
           </span>
           <span class="dp-palette-name">Marigold</span>
           <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>

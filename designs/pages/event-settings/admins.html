@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Evenzi · Manage admins · Vibrant Union</title>
@@ -62,7 +64,7 @@
 
 <main class="es-shell reveal">
 
-  <aside class="es-side" aria-label="Event settings sections">
+  <nav class="es-side" aria-label="Event settings">
     <div class="es-event-head">
       <p class="es-event-eyebrow">Event</p>
       <p class="es-event-title">Vibrant Union</p>
@@ -70,13 +72,15 @@
         <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span> Back to event
       </a>
     </div>
-    <a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a>
-    <a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a>
-    <a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a>
-    <a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a>
-    <a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a>
-    <a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a>
-  </aside>
+    <ul class="es-side-list">
+      <li><a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a></li>
+      <li><a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a></li>
+      <li><a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a></li>
+      <li><a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a></li>
+      <li><a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a></li>
+      <li><a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a></li>
+    </ul>
+  </nav>
 
   <div class="es-content">
     <header class="es-content-head">
@@ -111,38 +115,38 @@
         <span class="es-admin-status">Active</span>
       </div>
       <div class="es-admin-row">
-        <span class="es-admin-avatar" aria-hidden="true" style="background:color-mix(in oklab,var(--brand) 30%,var(--brand-tint))">SJ</span>
+        <span class="es-admin-avatar es-admin-avatar--sj" aria-hidden="true">SJ</span>
         <div class="es-admin-body">
           <span class="es-admin-name">Sarah Jenkins</span>
           <span class="es-admin-email">sarah@vibrantunion.com</span>
         </div>
         <span class="es-admin-role">Co-host</span>
         <span class="es-admin-status">Active</span>
-        <button type="button" class="fn-icon-btn" aria-label="Edit Sarah's role">
+        <button type="button" class="fn-icon-btn" aria-disabled="true" title="Coming soon" tabindex="-1" aria-label="Edit Sarah's role — coming soon">
           <span aria-hidden="true" class="material-symbols-outlined">more_horiz</span>
         </button>
       </div>
       <div class="es-admin-row">
-        <span class="es-admin-avatar" aria-hidden="true" style="background:color-mix(in oklab,var(--brand) 22%,var(--brand-tint))">MR</span>
+        <span class="es-admin-avatar es-admin-avatar--mr" aria-hidden="true">MR</span>
         <div class="es-admin-body">
           <span class="es-admin-name">Michael Roberts</span>
           <span class="es-admin-email">michael.r@example.com</span>
         </div>
         <span class="es-admin-role">Photographer</span>
         <span class="es-admin-status">Active</span>
-        <button type="button" class="fn-icon-btn" aria-label="Edit Michael's role">
+        <button type="button" class="fn-icon-btn" aria-disabled="true" title="Coming soon" tabindex="-1" aria-label="Edit Michael's role — coming soon">
           <span aria-hidden="true" class="material-symbols-outlined">more_horiz</span>
         </button>
       </div>
       <div class="es-admin-row">
-        <span class="es-admin-avatar" aria-hidden="true" style="background:color-mix(in oklab,var(--brand) 18%,var(--brand-tint))">EK</span>
+        <span class="es-admin-avatar es-admin-avatar--ek" aria-hidden="true">EK</span>
         <div class="es-admin-body">
           <span class="es-admin-name">Elena Kaspavov</span>
           <span class="es-admin-email">elena.k@plannersco.in</span>
         </div>
         <span class="es-admin-role">Planner</span>
         <span class="es-admin-status is-pending">Pending invite</span>
-        <button type="button" class="fn-icon-btn" aria-label="Resend Elena's invite">
+        <button type="button" class="fn-icon-btn" aria-disabled="true" title="Coming soon" tabindex="-1" aria-label="Resend Elena's invite — coming soon">
           <span aria-hidden="true" class="material-symbols-outlined">more_horiz</span>
         </button>
       </div>
@@ -169,6 +173,28 @@
     </footer>
   </div>
 </main>
+
+<div class="modal-scrim" id="es-cohost-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="es-cohost-title">
+    <header class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="es-cohost-title">Invite a co-host</h2>
+        <p class="modal-sub">They'll get an email invite to help manage this event.</p>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </header>
+    <div class="form-group">
+      <label class="form-label" for="es-cohost-email">Email address</label>
+      <input id="es-cohost-email" type="email" class="form-input" autocomplete="email" placeholder="name@example.com" />
+    </div>
+    <footer class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="es-cohost-confirm">Send invite</button>
+    </footer>
+  </div>
+</div>
 
 <div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
   <span class="bc-live" aria-hidden="true"></span>

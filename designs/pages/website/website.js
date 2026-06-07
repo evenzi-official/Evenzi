@@ -174,7 +174,7 @@
     /* ── Publish confirm modal — celebratory affirmative ── */
     '<div class="modal-scrim" id="wb-publish-confirm" data-modal aria-hidden="true">',
     '  <div class="modal-card lg-glass-card modal-confirm-affirmative" role="dialog" aria-modal="true" aria-labelledby="wb-pubconf-h" aria-describedby="wb-pubconf-list">',
-    '    <button class="modal-close" type="button" data-modal-close aria-label="Close" style="position:absolute;top:1rem;right:1rem">',
+    '    <button class="modal-close modal-close--abs" type="button" data-modal-close aria-label="Close">',
     '      <span class="material-symbols-outlined" aria-hidden="true">close</span>',
     '    </button>',
     '    <span class="modal-confirm-icon" aria-hidden="true">',
@@ -202,7 +202,7 @@
     /* ── Discard / template-reset confirm — now uses .modal-confirm-cautionary ── */
     '<div class="modal-scrim" id="wb-discard-confirm" data-modal aria-hidden="true">',
     '  <div class="modal-card lg-glass-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="wb-discard-h">',
-    '    <button class="modal-close" type="button" data-modal-close aria-label="Close" style="position:absolute;top:1rem;right:1rem">',
+    '    <button class="modal-close modal-close--abs" type="button" data-modal-close aria-label="Close">',
     '      <span class="material-symbols-outlined" aria-hidden="true">close</span>',
     '    </button>',
     '    <span class="modal-confirm-icon is-cautionary" aria-hidden="true">',
@@ -252,7 +252,7 @@
     /* ── Remove-page confirm — cautionary ── */
     '<div class="modal-scrim" id="wb-removepage-confirm" data-modal aria-hidden="true">',
     '  <div class="modal-card lg-glass-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="wb-removepage-h">',
-    '    <button class="modal-close" type="button" data-modal-close aria-label="Close" style="position:absolute;top:1rem;right:1rem">',
+    '    <button class="modal-close modal-close--abs" type="button" data-modal-close aria-label="Close">',
     '      <span class="material-symbols-outlined" aria-hidden="true">close</span>',
     '    </button>',
     '    <span class="modal-confirm-icon is-cautionary" aria-hidden="true">',
@@ -1001,7 +1001,7 @@
     const bar = card.querySelector('.dp-gs-bar');
     if (doneEl) doneEl.textContent = String(doneCount);
     if (totalEl) totalEl.textContent = String(total);
-    if (bar) bar.style.setProperty('--p', total ? (doneCount / total * 100) + '%' : '0%');
+    if (bar) bar.dataset.p = String(total ? (doneCount / total * 100) : 0);
     const allDone = total > 0 && doneCount === total;
     card.setAttribute('data-gs-state', allDone ? 'all-done' : 'in-progress');
     const banner = card.querySelector('.dp-gs-done-banner');

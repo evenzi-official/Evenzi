@@ -13,6 +13,8 @@
 <meta name="apple-mobile-web-app-title" content="Evenzi" />
 <meta name="application-name" content="Evenzi" />
 <link rel="manifest" href="../../manifest.webmanifest" />
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -81,11 +83,11 @@
 
     <!-- CENTER: tabs -->
     <div class="nav-tabs inline-flex" role="tablist" aria-label="Primary view">
-      <a href="event-control.html" role="tab" aria-selected="true" aria-current="page" class="nav-tab is-active" aria-label="Dashboard">
+      <a href="event-control.html" aria-current="page" class="nav-tab is-active" aria-label="Dashboard">
         <span aria-hidden="true" class="material-symbols-outlined icon-fill">dashboard</span>
         <span class="nav-tab-label">Dashboard</span>
       </a>
-      <a href="../website/overview.html" role="tab" aria-selected="false" class="nav-tab" aria-label="Website">
+      <a href="../website/overview.html" class="nav-tab" aria-label="Website">
         <span aria-hidden="true" class="material-symbols-outlined">language</span>
         <span class="nav-tab-label">Website</span>
       </a>
@@ -138,42 +140,42 @@
   <div class="hero-bg" aria-hidden="true">
     <div class="hero-bg-img" id="hero-bg-img"></div>
     <div class="hero-bg-overlay"></div>
-    <span class="hero-particle" style="left:8%;top:18%;--p-x:18px;--p-y:-30px;--p-dur:9s;--p-delay:0s"></span>
-    <span class="hero-particle" style="left:22%;top:72%;--p-x:-22px;--p-y:-22px;--p-dur:11s;--p-delay:1.4s"></span>
-    <span class="hero-particle" style="left:55%;top:14%;--p-x:14px;--p-y:24px;--p-dur:8s;--p-delay:.8s"></span>
-    <span class="hero-particle" style="left:78%;top:62%;--p-x:-18px;--p-y:-20px;--p-dur:12s;--p-delay:2s"></span>
-    <span class="hero-particle" style="left:88%;top:24%;--p-x:-12px;--p-y:18px;--p-dur:10s;--p-delay:.4s"></span>
-    <span class="hero-particle" style="left:42%;top:84%;--p-x:24px;--p-y:-18px;--p-dur:13s;--p-delay:1.2s"></span>
+    <span class="hero-particle"></span>
+    <span class="hero-particle"></span>
+    <span class="hero-particle"></span>
+    <span class="hero-particle"></span>
+    <span class="hero-particle"></span>
+    <span class="hero-particle"></span>
   </div>
 
   <!-- Mandala centerpiece (parallaxes opposite to bg) -->
   <svg class="hero-mandala" id="hero-mandala" viewBox="0 0 320 320" fill="none" aria-hidden="true">
     <g class="hm-spin" transform-origin="160 160">
-      <circle cx="160" cy="160" r="135" stroke="#dc1f2e" stroke-opacity=".25" stroke-width="1.5" stroke-dasharray="2 6"/>
-      <circle cx="160" cy="160" r="100" stroke="#dc1f2e" stroke-opacity=".35" stroke-width="1.5"/>
+      <circle cx="160" cy="160" r="135" class="hm-stroke-brand-25" stroke-width="1.5" stroke-dasharray="2 6"/>
+      <circle cx="160" cy="160" r="100" class="hm-stroke-brand-35" stroke-width="1.5"/>
     </g>
     <g transform="translate(160 160)">
-      <g fill="#dc1f2e" fill-opacity=".75">
+      <g class="hm-fill-brand">
         <ellipse cx="0" cy="-65" rx="14" ry="36"/>
         <ellipse cx="0" cy="65"  rx="14" ry="36"/>
         <ellipse cx="-65" cy="0" rx="36" ry="14"/>
         <ellipse cx="65"  cy="0" rx="36" ry="14"/>
       </g>
-      <g fill="#fff" fill-opacity=".7">
+      <g class="hm-fill-white">
         <ellipse transform="rotate(45)"  cx="0" cy="-65" rx="10" ry="28"/>
         <ellipse transform="rotate(45)"  cx="0" cy="65"  rx="10" ry="28"/>
         <ellipse transform="rotate(-45)" cx="0" cy="-65" rx="10" ry="28"/>
         <ellipse transform="rotate(-45)" cx="0" cy="65"  rx="10" ry="28"/>
       </g>
-      <path d="M0 6 C-14 -10 -28 0 -16 14 C-8 22 0 28 0 28 C0 28 8 22 16 14 C28 0 14 -10 0 6Z" fill="#dc1f2e"/>
+      <path d="M0 6 C-14 -10 -28 0 -16 14 C-8 22 0 28 0 28 C0 28 8 22 16 14 C28 0 14 -10 0 6Z" class="hm-fill-brand-solid"/>
     </g>
   </svg>
 
   <!-- Foreground -->
-  <div class="hero-content max-w-[1440px] mx-auto px-6 md:px-10" id="hero-content">
+  <div class="hero-content page-band" id="hero-content">
 
     <!-- BREADCRUMB on the hero (sticky below nav) -->
-    <div class="mb-7 md:mb-9 sticky z-20" style="top:5.5rem">
+    <div class="mb-7 md:mb-9 sticky z-20 ec-sticky-subnav">
       <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
         <a href="../../index.html" class="bc-back" aria-label="Back to dashboard" data-bc-back>
           <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
@@ -192,7 +194,7 @@
 
         <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
         <button type="button" class="bc-copy" aria-label="Copy breadcrumb path" data-bc-copy>
-          <span aria-hidden="true" class="material-symbols-outlined" style="font-size:15px">content_copy</span>
+          <span aria-hidden="true" class="material-symbols-outlined icon-sm-15">content_copy</span>
         </button>
       </nav>
     </div>
@@ -208,7 +210,7 @@
         <div class="flex flex-wrap items-stretch gap-3" id="hero-meta">
           <span class="hero-meta-chip">
             <span aria-hidden="true" class="hero-meta-icon">
-              <span class="material-symbols-outlined icon-fill" style="font-size:18px">location_on</span>
+              <span class="material-symbols-outlined icon-fill icon-sm-18">location_on</span>
             </span>
             <span class="hero-meta-text">
               <span class="hero-meta-label">Venue</span>
@@ -217,7 +219,7 @@
           </span>
           <span class="hero-meta-chip">
             <span aria-hidden="true" class="hero-meta-icon">
-              <span class="material-symbols-outlined icon-fill" style="font-size:18px">calendar_today</span>
+              <span class="material-symbols-outlined icon-fill icon-sm-18">calendar_today</span>
             </span>
             <span class="hero-meta-text">
               <span class="hero-meta-label">Date</span>
@@ -241,7 +243,7 @@
         <div class="flex items-center justify-between gap-3 mb-4">
           <div class="flex items-center gap-2 min-w-0">
             <span aria-hidden="true" class="w-8 h-8 rounded-full bg-brand text-white inline-flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-base icon-fill" style="font-size:16px">auto_awesome</span>
+              <span class="material-symbols-outlined text-base icon-fill icon-sm-16">auto_awesome</span>
             </span>
             <span class="font-display font-bold text-sm text-ink truncate">Quick actions</span>
           </div>
@@ -250,22 +252,22 @@
 
         <div class="grid grid-cols-2 gap-2.5 mb-4">
           <button type="button" class="qa-tile text-left" data-qa="invite">
-            <span aria-hidden="true" class="qa-tile-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">forward_to_inbox</span></span>
+            <span aria-hidden="true" class="qa-tile-icon"><span class="material-symbols-outlined icon-fill icon-sm-18">forward_to_inbox</span></span>
             <p class="font-display font-bold text-sm text-ink leading-tight">Send invites</p>
             <p class="text-[11px] text-muted">12 unsent</p>
           </button>
           <button type="button" class="qa-tile text-left" data-qa="rsvp">
-            <span aria-hidden="true" class="qa-tile-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">how_to_reg</span></span>
+            <span aria-hidden="true" class="qa-tile-icon"><span class="material-symbols-outlined icon-fill icon-sm-18">how_to_reg</span></span>
             <p class="font-display font-bold text-sm text-ink leading-tight">Track RSVPs</p>
             <p class="text-[11px] text-muted">154 confirmed</p>
           </button>
           <button type="button" class="qa-tile text-left" data-qa="budget">
-            <span aria-hidden="true" class="qa-tile-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">payments</span></span>
+            <span aria-hidden="true" class="qa-tile-icon"><span class="material-symbols-outlined icon-fill icon-sm-18">payments</span></span>
             <p class="font-display font-bold text-sm text-ink leading-tight">Manage budget</p>
             <p class="text-[11px] text-muted">52% used</p>
           </button>
           <button type="button" class="qa-tile text-left" data-qa="timeline">
-            <span aria-hidden="true" class="qa-tile-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">checklist_rtl</span></span>
+            <span aria-hidden="true" class="qa-tile-icon"><span class="material-symbols-outlined icon-fill icon-sm-18">checklist_rtl</span></span>
             <p class="font-display font-bold text-sm text-ink leading-tight">Plan timeline</p>
             <p class="text-[11px] text-muted">8 of 24 done</p>
           </button>
@@ -296,7 +298,7 @@
         <div class="min-w-0 w-full">
           <p class="text-[10px] font-display font-bold tracking-[0.25em] text-muted uppercase">RSVP rate</p>
           <p class="font-display font-bold text-2xl text-ink leading-none mt-0.5" data-count="62" data-suffix="%">0%</p>
-          <div class="w-full h-1 rounded-full overflow-hidden mt-1.5" style="background:var(--line)"><div class="h-full bg-brand pf-bar rounded-full" data-fill="62" style="width:0%"></div></div>
+          <div class="ec-progress-track"><div class="ec-progress-fill pf-bar" data-fill="62"></div></div>
         </div>
       </div>
       <!-- Budget -->
@@ -307,7 +309,7 @@
         <div class="min-w-0 w-full">
           <p class="text-[10px] font-display font-bold tracking-[0.25em] text-muted uppercase">Budget used</p>
           <p class="font-display font-bold text-2xl text-ink leading-none mt-0.5">₹4.2L</p>
-          <div class="w-full h-1 rounded-full overflow-hidden mt-1.5" style="background:var(--line)"><div class="h-full bg-brand pf-bar rounded-full" data-fill="52" style="width:0%"></div></div>
+          <div class="ec-progress-track"><div class="ec-progress-fill pf-bar" data-fill="52"></div></div>
         </div>
       </div>
     </div>
@@ -316,7 +318,7 @@
     <div class="text-center hero-scroll-cue">
       <a href="#journey" class="inline-flex flex-col items-center gap-1 text-muted hover:text-brand transition-colors group">
         <span class="text-[10px] font-display font-bold tracking-[0.3em] uppercase">Scroll · Our journey</span>
-        <span aria-hidden="true" class="material-symbols-outlined" style="font-size:18px">expand_more</span>
+        <span aria-hidden="true" class="material-symbols-outlined icon-sm-18">expand_more</span>
       </a>
     </div>
     </div>
@@ -325,9 +327,9 @@
 </section>
 
 <!-- ────────────────────── TIMELINE SNAPSHOT (active-focus roadmap) ────────────────────── -->
-<section id="journey" class="snap reveal max-w-[1440px] mx-auto px-6 md:px-10 pt-20 md:pt-24">
+<section id="journey" class="snap reveal page-band pt-20 md:pt-24">
   <article class="clay-card p-7 md:p-10 relative overflow-hidden">
-    <div aria-hidden="true" class="absolute -top-32 -right-32 w-72 h-72 rounded-full" style="background:radial-gradient(circle,var(--brand-tint-2),transparent 70%)"></div>
+    <div aria-hidden="true" class="absolute -top-32 -right-32 w-72 h-72 rounded-full ec-deco-glow-tr"></div>
 
     <!-- HEADER: title + circular progress meter -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 relative">
@@ -355,14 +357,14 @@
     </div>
 
     <!-- ACTIVE MILESTONE SPOTLIGHT -->
-    <div class="rounded-3xl p-6 md:p-8 mb-10 relative overflow-hidden" style="background:var(--brand-tint);border:1px solid var(--brand-tint-2)">
-      <div aria-hidden="true" class="absolute -bottom-20 -left-20 w-56 h-56 rounded-full" style="background:radial-gradient(circle,var(--brand-tint-2),transparent 70%)"></div>
+    <div class="rounded-3xl p-6 md:p-8 mb-10 relative overflow-hidden ec-milestone-spotlight">
+      <div aria-hidden="true" class="absolute -bottom-20 -left-20 w-56 h-56 rounded-full ec-deco-glow-bl"></div>
 
       <div class="grid md:grid-cols-[auto_1fr_auto] gap-5 md:gap-7 items-center relative">
         <!-- Big icon badge -->
         <div class="relative w-20 h-20 md:w-24 md:h-24 shrink-0">
           <span aria-hidden="true" class="absolute inset-0 rounded-2xl bg-brand animate-pulse opacity-30"></span>
-          <div class="relative w-full h-full rounded-2xl bg-brand text-white flex items-center justify-center" style="box-shadow:var(--shadow-clay-pill)">
+          <div class="relative w-full h-full rounded-2xl bg-brand text-white flex items-center justify-center ec-clay-pill-shadow">
             <span aria-hidden="true" class="material-symbols-outlined text-4xl icon-fill">back_hand</span>
           </div>
         </div>
@@ -382,8 +384,8 @@
 
           <!-- Mini sub-progress -->
           <div class="flex items-center gap-3 mt-5">
-            <div class="flex-1 h-1.5 rounded-full overflow-hidden max-w-[280px]" style="background:var(--line)">
-              <div class="h-full bg-brand pf-bar rounded-full" data-fill="70" style="width:0%"></div>
+            <div class="ec-progress-track ec-progress-track--md">
+              <div class="ec-progress-fill pf-bar" data-fill="70"></div>
             </div>
             <span class="text-xs font-display font-bold text-ink">70% ready</span>
           </div>
@@ -406,16 +408,16 @@
 
       <div class="roadmap-strip relative pt-3 pb-2">
         <!-- bg track -->
-        <div aria-hidden="true" class="roadmap-strip-track absolute left-3 right-3 top-[22px] h-[3px] rounded-full" style="background:var(--line)"></div>
+        <div aria-hidden="true" class="roadmap-strip-track absolute left-3 right-3 top-[22px] h-[3px] rounded-full"></div>
         <!-- progress fill (covers the held function → the next one's centre) -->
-        <div aria-hidden="true" class="roadmap-strip-track absolute left-3 top-[22px] h-[3px] rounded-full" style="background:var(--brand);width:calc((1.5/6) * (100% - 24px))"></div>
+        <div aria-hidden="true" class="roadmap-strip-track roadmap-strip-fill absolute left-3 top-[22px] h-[3px] rounded-full"></div>
 
         <!-- 6 sub-event dots — the wedding's functions (add/remove via Manage sub-events) -->
         <ol class="relative grid grid-cols-6 gap-1 md:gap-2">
 
           <!-- 1: held -->
           <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full bg-brand text-white flex items-center justify-center transition-transform hover:scale-105" style="box-shadow:var(--shadow-clay-pill)" aria-label="Pre-wedding shoot, held">
+            <button class="ec-roadmap-dot ec-roadmap-dot--held" aria-label="Pre-wedding shoot, held">
               <span aria-hidden="true" class="material-symbols-outlined text-base icon-fill">check</span>
             </button>
             <p class="mt-3 text-[11px] font-display font-bold text-ink leading-tight">Pre-wedding<br/>shoot</p>
@@ -424,7 +426,7 @@
 
           <!-- 2: next up (current focus) -->
           <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full bg-brand text-white flex items-center justify-center transition-transform hover:scale-105 ring-4 ring-offset-2" style="--tw-ring-color:var(--brand-tint-2);--tw-ring-offset-color:var(--card);box-shadow:var(--shadow-clay-pill)" aria-label="Mehendi, next up">
+            <button class="ec-roadmap-dot ec-roadmap-dot--next" aria-label="Mehendi, next up">
               <span aria-hidden="true" class="absolute inset-0 rounded-full bg-brand animate-pulse opacity-50"></span>
               <span aria-hidden="true" class="material-symbols-outlined text-base icon-fill relative">back_hand</span>
             </button>
@@ -434,7 +436,7 @@
 
           <!-- 3: upcoming -->
           <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full flex items-center justify-center transition-transform hover:scale-105 border-2" style="background:var(--card);border-color:var(--line)" aria-label="Haldi, scheduled">
+            <button class="ec-roadmap-dot ec-roadmap-dot--upcoming" aria-label="Haldi, scheduled">
               <span aria-hidden="true" class="material-symbols-outlined text-base text-muted-soft">spa</span>
             </button>
             <p class="mt-3 text-[11px] font-display font-bold text-muted leading-tight">Haldi</p>
@@ -443,7 +445,7 @@
 
           <!-- 4: upcoming -->
           <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full flex items-center justify-center transition-transform hover:scale-105 border-2" style="background:var(--card);border-color:var(--line)" aria-label="Sangeet, scheduled">
+            <button class="ec-roadmap-dot ec-roadmap-dot--upcoming" aria-label="Sangeet, scheduled">
               <span aria-hidden="true" class="material-symbols-outlined text-base text-muted-soft">music_note</span>
             </button>
             <p class="mt-3 text-[11px] font-display font-bold text-muted leading-tight">Sangeet</p>
@@ -452,7 +454,7 @@
 
           <!-- 5: upcoming (the big day) -->
           <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full flex items-center justify-center transition-transform hover:scale-105 border-2" style="background:var(--card);border-color:var(--brand)" aria-label="Wedding ceremony, scheduled">
+            <button class="ec-roadmap-dot ec-roadmap-dot--wedding" aria-label="Wedding ceremony, scheduled">
               <span aria-hidden="true" class="material-symbols-outlined text-base text-brand icon-fill">favorite</span>
             </button>
             <p class="mt-3 text-[11px] font-display font-bold text-brand leading-tight">Wedding<br/>ceremony</p>
@@ -461,7 +463,7 @@
 
           <!-- 6: upcoming -->
           <li class="flex flex-col items-center text-center">
-            <button class="relative w-11 h-11 rounded-full flex items-center justify-center transition-transform hover:scale-105 border-2" style="background:var(--card);border-color:var(--line)" aria-label="Reception, scheduled">
+            <button class="ec-roadmap-dot ec-roadmap-dot--upcoming" aria-label="Reception, scheduled">
               <span aria-hidden="true" class="material-symbols-outlined text-base text-muted-soft">celebration</span>
             </button>
             <p class="mt-3 text-[11px] font-display font-bold text-muted leading-tight">Reception</p>
@@ -475,7 +477,7 @@
 </section>
 
 <!-- ────────────────────── FEATURE BENTO ────────────────────── -->
-<section id="tools" class="snap reveal max-w-[1440px] mx-auto px-6 md:px-10 pt-20 md:pt-24">
+<section id="tools" class="snap reveal page-band pt-20 md:pt-24">
   <div class="flex items-end justify-between gap-4 mb-8">
     <div>
       <p class="text-xs font-display font-bold tracking-[0.35em] text-brand mb-2">ALL TOOLS, ONE TAP AWAY</p>
@@ -550,7 +552,7 @@
       <p class="text-muted text-sm leading-relaxed mb-6">Your public wedding site — preview, customise, share with guests.</p>
       <div class="flex items-center gap-2 flex-wrap">
         <span class="clay-pill bg-brand text-white px-3 h-8 inline-flex items-center gap-1.5 font-display font-bold text-xs tracking-wide">
-          <span aria-hidden="true" class="w-1.5 h-1.5 rounded-full animate-pulse" style="background:#fff"></span>
+          <span aria-hidden="true" class="w-1.5 h-1.5 rounded-full animate-pulse ec-live-dot"></span>
           LIVE
         </span>
         <span class="clay-pill bg-cream-soft text-ink-soft px-3 h-8 inline-flex items-center font-display font-bold text-xs tracking-wide">PREVIEW</span>
@@ -561,7 +563,7 @@
 </section>
 
 <!-- ────────────────────── TIMELINE + ACTIVITY ────────────────────── -->
-<section class="reveal max-w-[1440px] mx-auto px-6 md:px-10 mt-16">
+<section class="reveal page-band mt-16">
   <div class="grid grid-cols-12 gap-6">
 
     <!-- Up next timeline -->
@@ -573,7 +575,7 @@
         </div>
         <a href="#" class="font-display font-semibold text-sm text-brand hover:underline whitespace-nowrap">Full checklist →</a>
       </div>
-      <ul class="scrollable-list pr-2 list-none m-0 p-0" style="display:flex;flex-direction:column;gap:2px">
+      <ul class="scrollable-list ec-checklist-list pr-2 list-none m-0 p-0">
         <li>
           <label class="checklist-row">
             <input type="checkbox" aria-label="Mark complete: floral arrangements"/>
@@ -698,7 +700,7 @@
       </div>
       <ol class="relative pl-7 space-y-6 scrollable-list pr-2 before:content-[''] before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-line">
         <li class="relative">
-          <span aria-hidden="true" class="absolute -left-7 top-1.5 w-5 h-5 rounded-full bg-brand" style="box-shadow:0 0 0 4px var(--brand-tint-2)"></span>
+          <span aria-hidden="true" class="absolute -left-7 top-1.5 w-5 h-5 rounded-full bg-brand ec-activity-dot-primary"></span>
           <p class="font-display font-bold text-ink">New RSVP received</p>
           <p class="text-sm text-muted">Karthik &amp; Ananya confirmed for the Reception.</p>
           <p class="text-[10px] font-bold tracking-widest text-muted-soft uppercase mt-1">2 hours ago</p>
@@ -746,7 +748,7 @@
 </section>
 
 <!-- ────────────────────── FOOTER ────────────────────── -->
-<footer class="max-w-[1440px] mx-auto px-6 md:px-10 mt-20 pt-10 pb-10 border-t border-line">
+<footer class="page-band mt-20 pt-10 pb-10 border-t border-line">
   <div class="flex flex-col md:flex-row items-center justify-between gap-6">
     <div class="flex items-center gap-3">
       <span aria-hidden="true" class="w-9 h-9 rounded-full bg-brand text-white inline-flex items-center justify-center font-display font-bold">E</span>
@@ -772,106 +774,6 @@
 </div>
 
 <script src="../../shared/shell.js"></script>
-<script>
-
-  /* ── Hero parallax: bg follows mouse, mandala counter-parallaxes ── */
-  (function () {
-    var hero = document.getElementById('hero');
-    if (!hero) return;
-    var bg = document.getElementById('hero-bg-img');
-    var mandala = document.getElementById('hero-mandala');
-    var content = document.getElementById('hero-content');
-    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
-    var rafId = null;
-    var targetX = 0, targetY = 0, currentX = 0, currentY = 0;
-    function update() {
-      currentX += (targetX - currentX) * 0.08;
-      currentY += (targetY - currentY) * 0.08;
-      if (bg) bg.style.transform = 'translate(' + (currentX * 24).toFixed(2) + 'px,' + (currentY * 24).toFixed(2) + 'px) scale(1.06)';
-      if (mandala) mandala.style.transform = 'translate(calc(-50% + ' + (currentX * -32).toFixed(2) + 'px), calc(-50% + ' + (currentY * -32).toFixed(2) + 'px))';
-      if (content) content.style.transform = 'translate(' + (currentX * -8).toFixed(2) + 'px,' + (currentY * -8).toFixed(2) + 'px)';
-      if (Math.abs(targetX - currentX) > 0.001 || Math.abs(targetY - currentY) > 0.001) {
-        rafId = requestAnimationFrame(update);
-      } else {
-        rafId = null;
-      }
-    }
-    hero.addEventListener('mousemove', function (e) {
-      var rect = hero.getBoundingClientRect();
-      targetX = (e.clientX - rect.left) / rect.width - 0.5;
-      targetY = (e.clientY - rect.top) / rect.height - 0.5;
-      if (!rafId) rafId = requestAnimationFrame(update);
-    });
-    hero.addEventListener('mouseleave', function () {
-      targetX = 0; targetY = 0;
-      if (!rafId) rafId = requestAnimationFrame(update);
-    });
-    /* Touch — tilt by device orientation if available */
-    if (window.DeviceOrientationEvent) {
-      window.addEventListener('deviceorientation', function (e) {
-        if (e.gamma == null || e.beta == null) return;
-        targetX = Math.max(-0.5, Math.min(0.5, e.gamma / 60));
-        targetY = Math.max(-0.5, Math.min(0.5, (e.beta - 45) / 60));
-        if (!rafId) rafId = requestAnimationFrame(update);
-      });
-    }
-  })();
-
-  /* ── Quick-action card: tile + composer toasts ─────── */
-  (function () {
-    var tiles = document.querySelectorAll('.qa-tile[data-qa]');
-    tiles.forEach(function (t) {
-      t.addEventListener('click', function () {
-        var label = t.querySelector('.font-display').textContent.trim();
-        var toast = document.getElementById('bc-toast');
-        var toastText = document.getElementById('bc-toast-text');
-        if (!toast) return;
-        toastText.textContent = 'OPEN: ' + label.toUpperCase();
-        toast.classList.add('is-show');
-        setTimeout(function(){ toast.classList.remove('is-show'); }, 1600);
-      });
-    });
-    var form = document.getElementById('qa-composer');
-    if (form) {
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var input = form.querySelector('input');
-        if (!input || !input.value.trim()) return;
-        var msg = input.value.trim();
-        var toast = document.getElementById('bc-toast');
-        var toastText = document.getElementById('bc-toast-text');
-        if (toast) {
-          toastText.textContent = 'SENT TO CO-PLANNERS';
-          toast.classList.add('is-show');
-          setTimeout(function(){ toast.classList.remove('is-show'); }, 1800);
-        }
-        input.value = '';
-      });
-    }
-  })();
-
-  /* ── Circular journey ring fills from 0 → target on view ────── */
-  (function () {
-    var ring = document.querySelector('svg circle[stroke-dasharray]');
-    if (!ring) return;
-    var targetOffset = parseFloat(ring.getAttribute('stroke-dashoffset')) || 0;
-    ring.style.transition = 'stroke-dashoffset 1.6s cubic-bezier(.2,.8,.2,1)';
-    ring.setAttribute('stroke-dashoffset', '276.46'); // start empty
-    if (!('IntersectionObserver' in window)) {
-      ring.setAttribute('stroke-dashoffset', targetOffset);
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting) {
-        requestAnimationFrame(function () {
-          ring.setAttribute('stroke-dashoffset', targetOffset);
-        });
-        io.disconnect();
-      }
-    }, { threshold: 0.4 });
-    io.observe(ring);
-  })();
-</script>
+<script src="event-control.js"></script>
 </body>
 </html>

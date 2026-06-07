@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Evenzi · Plan &amp; billing · Vibrant Union</title>
@@ -62,7 +64,7 @@
 
 <main class="es-shell reveal">
 
-  <aside class="es-side" aria-label="Event settings sections">
+  <nav class="es-side" aria-label="Event settings">
     <div class="es-event-head">
       <p class="es-event-eyebrow">Event</p>
       <p class="es-event-title">Vibrant Union</p>
@@ -70,13 +72,15 @@
         <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span> Back to event
       </a>
     </div>
-    <a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a>
-    <a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a>
-    <a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a>
-    <a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a>
-    <a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a>
-    <a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a>
-  </aside>
+    <ul class="es-side-list">
+      <li><a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a></li>
+      <li><a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a></li>
+      <li><a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a></li>
+      <li><a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a></li>
+      <li><a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a></li>
+      <li><a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a></li>
+    </ul>
+  </nav>
 
   <div class="es-content">
     <header class="es-content-head">
@@ -95,20 +99,20 @@
         </h2>
         <span class="es-section-tag">Active</span>
       </header>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
-        <div style="display:flex;flex-direction:column;gap:.25rem;min-width:0">
-          <p style="font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;color:var(--ink);margin:0">Free plan</p>
-          <p class="es-section-sub" style="margin:0">Includes core event website, 50 guests, photo album.</p>
+      <div class="es-plan-header">
+        <div class="es-plan-header-body">
+          <p class="es-plan-name">Free plan</p>
+          <p class="es-section-sub">Includes core event website, 50 guests, photo album.</p>
         </div>
-        <p style="font-family:'Poppins',sans-serif;font-weight:800;font-size:2rem;color:var(--ink);margin:0;letter-spacing:-.02em">
-          ₹0<span style="font-size:13px;font-weight:600;color:var(--muted);letter-spacing:0">/event</span>
+        <p class="es-plan-header-price">
+          ₹0<span class="es-plan-header-unit">/event</span>
         </p>
       </div>
     </section>
 
     <!-- Available plans -->
-    <section class="es-section" style="padding:0;background:transparent;border:0">
-      <header class="es-section-head" style="padding:0 .5rem">
+    <section class="es-section es-section--bare">
+      <header class="es-section-head es-section-head--flush">
         <h2 class="es-section-title">
           <span aria-hidden="true" class="material-symbols-outlined icon-fill">workspace_premium</span>
           Available programs
@@ -119,7 +123,7 @@
       <div class="es-plans-grid">
         <!-- Free -->
         <article class="es-plan-card is-current">
-          <span class="es-plan-tag" style="background:var(--ink);color:var(--card)">Current</span>
+          <span class="es-plan-tag es-plan-tag--ink">Current</span>
           <h3 class="es-plan-name">Free</h3>
           <p class="es-plan-price">₹0<span class="es-plan-price-unit">/event</span></p>
           <p class="es-plan-desc">Perfect for small private events.</p>

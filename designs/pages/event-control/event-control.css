@@ -123,3 +123,90 @@ body[data-page="event-control"]{scroll-snap-type:y proximity}
 /* card fills its cell; the pill row pins to the bottom for an even rhythm */
 .bento-grid > .tool-card{height:100%;display:flex;flex-direction:column}
 .bento-grid > .tool-card > *:last-child{margin-top:auto}
+
+/* ── Icon size utilities ─────────────────────────────── */
+.icon-sm-15{font-size:15px}
+.icon-sm-16{font-size:16px}
+.icon-sm-18{font-size:18px}
+
+/* ── Sticky breadcrumb offset (below floating nav) ───── */
+.ec-sticky-subnav{top:5.5rem}
+
+/* ── Hero particles — position via nth-of-type ───────── */
+.hero-bg .hero-particle:nth-of-type(1){left:8%;top:18%;--p-x:18px;--p-y:-30px;--p-dur:9s;--p-delay:0s}
+.hero-bg .hero-particle:nth-of-type(2){left:22%;top:72%;--p-x:-22px;--p-y:-22px;--p-dur:11s;--p-delay:1.4s}
+.hero-bg .hero-particle:nth-of-type(3){left:55%;top:14%;--p-x:14px;--p-y:24px;--p-dur:8s;--p-delay:.8s}
+.hero-bg .hero-particle:nth-of-type(4){left:78%;top:62%;--p-x:-18px;--p-y:-20px;--p-dur:12s;--p-delay:2s}
+.hero-bg .hero-particle:nth-of-type(5){left:88%;top:24%;--p-x:-12px;--p-y:18px;--p-dur:10s;--p-delay:.4s}
+.hero-bg .hero-particle:nth-of-type(6){left:42%;top:84%;--p-x:24px;--p-y:-18px;--p-dur:13s;--p-delay:1.2s}
+
+/* ── Mandala SVG — token-based brand strokes/fills ───── */
+.hero-mandala .hm-stroke-brand{stroke:var(--brand)}
+.hero-mandala .hm-stroke-brand-25{stroke:var(--brand);stroke-opacity:.25}
+.hero-mandala .hm-stroke-brand-35{stroke:var(--brand);stroke-opacity:.35}
+.hero-mandala .hm-fill-brand{fill:var(--brand);fill-opacity:.75}
+.hero-mandala .hm-fill-white{fill:#fff;fill-opacity:.7}
+.hero-mandala .hm-fill-brand-solid{fill:var(--brand)}
+
+/* ── Progress bars (shell.js animates .pf-bar[data-fill]) ─ */
+.ec-progress-track{
+  width:100%;height:4px;border-radius:9999px;overflow:hidden;
+  margin-top:.375rem;background:var(--line);
+}
+.ec-progress-track--md{
+  flex:1 1 auto;max-width:280px;height:6px;margin-top:0;
+}
+.ec-progress-fill{
+  display:block;height:100%;border-radius:9999px;
+  background:var(--brand);width:0%;
+}
+
+/* ── Decorative gradients & spotlight surfaces ───────── */
+.ec-deco-glow-tr{
+  background:radial-gradient(circle,var(--brand-tint-2),transparent 70%);
+}
+.ec-deco-glow-bl{
+  background:radial-gradient(circle,var(--brand-tint-2),transparent 70%);
+}
+.ec-milestone-spotlight{
+  background:var(--brand-tint);
+  border:1px solid var(--brand-tint-2);
+}
+.ec-clay-pill-shadow{box-shadow:var(--shadow-clay-pill)}
+
+/* ── Roadmap strip track + fill ──────────────────────── */
+.roadmap-strip-track{background:var(--line)}
+.roadmap-strip-fill{
+  background:var(--brand);
+  width:calc((1.5 / 6) * (100% - 24px));
+}
+
+/* ── Roadmap milestone dots ──────────────────────────── */
+.ec-roadmap-dot{
+  position:relative;width:2.75rem;height:2.75rem;border-radius:9999px;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .15s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  .ec-roadmap-dot:hover{transform:scale(1.05)}
+}
+.ec-roadmap-dot--held,
+.ec-roadmap-dot--next{
+  background:var(--brand);color:#fff;
+  box-shadow:var(--shadow-clay-pill);
+}
+.ec-roadmap-dot--next{
+  box-shadow:var(--shadow-clay-pill),0 0 0 4px var(--brand-tint-2);
+  outline:2px solid var(--card);outline-offset:2px;
+}
+.ec-roadmap-dot--upcoming{
+  background:var(--card);border:2px solid var(--line);
+}
+.ec-roadmap-dot--wedding{
+  background:var(--card);border:2px solid var(--brand);
+}
+
+/* ── Live status dot, checklist list, activity marker ─── */
+.ec-live-dot{background:#fff}
+.ec-checklist-list{display:flex;flex-direction:column;gap:2px}
+.ec-activity-dot-primary{box-shadow:0 0 0 4px var(--brand-tint-2)}

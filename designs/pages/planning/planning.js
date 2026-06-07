@@ -219,6 +219,7 @@
   var alldoneEl = $('#plan-alldone');
   var taskListEl = $('#plan-task-list');
   var tasksEmptyEl = $('#plan-tasks-empty');
+  var filterEmptyEl = $('#plan-filter-empty');
   var listBody = $('#plan-view-list-body');
   var timelineBody = $('#plan-view-timeline-body');
   var agendaEl = $('#plan-agenda');
@@ -632,9 +633,11 @@
     meta.appendChild(dueChip);
 
     if (EVENT_SUBEVENTS.length) {
+      var subLabel = subEventLabel(task.subEvent);
       meta.appendChild(el('span', {
-        class: 'task-sub-chip guest-assign-chip'
-      }, [icon('event'), subEventLabel(task.subEvent)]));
+        class: 'task-sub-chip',
+        'aria-label': 'Sub-event: ' + subLabel
+      }, [icon('celebration'), subLabel]));
     }
 
     if (task.priority === 'high' || task.priority === 'low') {
@@ -707,9 +710,14 @@
     var rows = visibleTasks();
     updateStatusChips();
     renderProgress(rows.length);
-    tasksEmptyEl.hidden = tasks.length > 0;
+    var hasTasks = tasks.length > 0;
+    var filteredEmpty = hasTasks && rows.length === 0;
+    tasksEmptyEl.hidden = hasTasks;
+    if (filterEmptyEl) filterEmptyEl.hidden = !filteredEmpty;
     taskListEl.textContent = '';
-    rows.forEach(function (t) { taskListEl.appendChild(createTaskRow(t)); });
+    if (!filteredEmpty) {
+      rows.forEach(function (t) { taskListEl.appendChild(createTaskRow(t)); });
+    }
   }
 
   function renderDatebar() {
@@ -1113,7 +1121,17 @@
       var opt = e.target.closest('[data-val]');
       if (opt) commitPick(opt.getAttribute('data-val'));
     });
-    document.addEventListener('keydown', onPickerEsc, true);
+    document.addEventListener('keydown', onPickerKeydown, true);
+    var focusables = getPickerFocusables();
+    var initial = focusables.filter(function (b) { return b.getAttribute('aria-checked') === 'true'; })[0] || focusables[0];
+    if (initial) initial.focus();
+  }
+
+  function getPickerFocusables() {
+    if (!pickerEl) return [];
+    return Array.prototype.slice.call(
+      pickerEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    ).filter(function (n) { return !n.disabled && n.offsetParent !== null; });
   }
 
   function positionPicker() {
@@ -1144,7 +1162,7 @@
 
   function teardownPicker() {
     if (!pickerEl) return;
-    document.removeEventListener('keydown', onPickerEsc, true);
+    document.removeEventListener('keydown', onPickerKeydown, true);
     if (pickerScrim) pickerScrim.remove();
     pickerEl.remove();
     pickerEl = pickerScrim = null;
@@ -1171,8 +1189,20 @@
     }
   }
 
-  function onPickerEsc(e) {
-    if (e.key === 'Escape') { e.preventDefault(); closePicker(); }
+  function onPickerKeydown(e) {
+    if (e.key === 'Escape') { e.preventDefault(); closePicker(); return; }
+    if (e.key !== 'Tab' || !pickerEl) return;
+    var items = getPickerFocusables();
+    if (!items.length) return;
+    var first = items[0];
+    var last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
   }
 
   $('#plan-bulk-date').addEventListener('click', function () {
@@ -1188,11 +1218,29 @@
       ],
       current: '',
       onPick: function (val) {
-        selectedIds().forEach(function (id) {
+        var ids = selectedIds();
+        var snapshot = ids.map(function (id) {
+          var t = taskById(id);
+          return t ? { id: id, due: t.due } : null;
+        }).filter(Boolean);
+        ids.forEach(function (id) {
           var t = taskById(id);
           if (t) t.due = val || null;
         });
-        toast('DATES UPDATED');
+        renderTasks();
+        var n = ids.length;
+        var msg = n === 1 ? 'Due date updated' : n + ' due dates updated';
+        announce(msg);
+        toast(msg, {
+          actionLabel: 'Undo',
+          onAction: function () {
+            snapshot.forEach(function (s) {
+              var t = taskById(s.id);
+              if (t) t.due = s.due;
+            });
+            renderTasks();
+          }
+        });
         exitSelect();
       }
     });
@@ -1208,11 +1256,29 @@
       options: opts,
       current: '',
       onPick: function (val) {
-        selectedIds().forEach(function (id) {
+        var ids = selectedIds();
+        var snapshot = ids.map(function (id) {
+          var t = taskById(id);
+          return t ? { id: id, subEvent: t.subEvent } : null;
+        }).filter(Boolean);
+        ids.forEach(function (id) {
           var t = taskById(id);
           if (t) t.subEvent = val || null;
         });
-        toast('SUB-EVENTS UPDATED');
+        renderTasks();
+        var n = ids.length;
+        var msg = n === 1 ? 'Sub-event assigned' : n + ' sub-events assigned';
+        announce(msg);
+        toast(msg, {
+          actionLabel: 'Undo',
+          onAction: function () {
+            snapshot.forEach(function (s) {
+              var t = taskById(s.id);
+              if (t) t.subEvent = s.subEvent;
+            });
+            renderTasks();
+          }
+        });
         exitSelect();
       }
     });
@@ -1405,9 +1471,11 @@
     setFormError(budgetInput, budgetErr, false);
     var btn = $('#plan-budget-save');
     btn.classList.add('is-loading');
+    btn.setAttribute('aria-busy', 'true');
     setTimeout(function () {
       budget = amt;
       btn.classList.remove('is-loading');
+      btn.setAttribute('aria-busy', 'false');
       window.evenzi.closeModal('plan-budget-modal');
       renderBudget();
       toast('BUDGET SAVED');
@@ -1553,6 +1621,7 @@
     setFormError(expAmount, expAmtErr, false);
     var btn = $('#plan-exp-save');
     btn.classList.add('is-loading');
+    btn.setAttribute('aria-busy', 'true');
     setTimeout(function () {
       var wasEdit = !!editingExpenseId;
       var payload = {
@@ -1574,6 +1643,7 @@
       }
       editingExpenseId = null;
       btn.classList.remove('is-loading');
+      btn.setAttribute('aria-busy', 'false');
       window.evenzi.closeModal('plan-expense-modal');
       renderBudget();
       toast(wasEdit ? 'EXPENSE UPDATED' : 'EXPENSE ADDED');

@@ -13,6 +13,8 @@
 <meta name="apple-mobile-web-app-title" content="Evenzi" />
 <meta name="application-name" content="Evenzi" />
 <link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -81,7 +83,7 @@
 </nav>
 
 <!-- ────────────────────── PAGE BODY ────────────────────── -->
-<main class="max-w-[1440px] mx-auto px-6 md:px-10 pt-10 md:pt-14 pb-20">
+<main class="page-band pt-10 md:pt-14 pb-20">
 
   <!-- Welcome header -->
   <header class="reveal">
@@ -94,11 +96,11 @@
     <div class="filter-row">
       <div class="nav-tabs inline-flex" role="radiogroup" aria-label="Ownership filter">
         <button type="button" role="radio" data-set-ownership="my" class="nav-tab is-active" aria-checked="true">
-          <span aria-hidden="true" class="material-symbols-outlined icon-fill" style="font-size:14px">home_pin</span>
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill dash-filter-icon">home_pin</span>
           <span>My events</span>
         </button>
         <button type="button" role="radio" data-set-ownership="collab" class="nav-tab" aria-checked="false">
-          <span aria-hidden="true" class="material-symbols-outlined" style="font-size:14px">groups</span>
+          <span aria-hidden="true" class="material-symbols-outlined dash-filter-icon">groups</span>
           <span>Collaborations</span>
         </button>
       </div>
@@ -137,21 +139,21 @@
 
         <div class="fec-meta">
           <span class="hero-meta-chip">
-            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">location_on</span></span>
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">location_on</span></span>
             <span class="hero-meta-text">
               <span class="hero-meta-label">Venue</span>
               <span class="hero-meta-value">Rajasthan Heritage Palace</span>
             </span>
           </span>
           <span class="hero-meta-chip">
-            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">calendar_month</span></span>
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">calendar_month</span></span>
             <span class="hero-meta-text">
               <span class="hero-meta-label">Date</span>
               <span class="hero-meta-value">Sat · Dec 22, 2025</span>
             </span>
           </span>
           <span class="hero-meta-chip">
-            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">groups</span></span>
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">groups</span></span>
             <span class="hero-meta-text">
               <span class="hero-meta-label">Guests</span>
               <span class="hero-meta-value">184 confirmed</span>
@@ -164,7 +166,7 @@
             <span class="fec-progress-label">Planning progress</span>
             <span class="fec-progress-val">68% · 12 of 18 tasks done</span>
           </div>
-          <div class="fec-progress-track"><span class="fec-progress-fill" style="width:68%"></span></div>
+          <div class="fec-progress-track"><span class="fec-progress-fill fec-progress-fill--68"></span></div>
         </div>
 
         <div class="fec-bottom">
@@ -257,7 +259,7 @@
     <article class="featured-event-card">
       <div class="fec-cover" aria-hidden="true">
         <span class="fec-cover-tag fec-status-done">
-          <span aria-hidden="true" class="material-symbols-outlined" style="font-size:13px">check_circle</span>
+          <span aria-hidden="true" class="material-symbols-outlined fec-cover-tag-icon">check_circle</span>
           Completed
         </span>
       </div>
@@ -275,21 +277,21 @@
 
         <div class="fec-meta">
           <span class="hero-meta-chip">
-            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">location_on</span></span>
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">location_on</span></span>
             <span class="hero-meta-text">
               <span class="hero-meta-label">Venue</span>
               <span class="hero-meta-value">The Grand Ballroom, Mumbai</span>
             </span>
           </span>
           <span class="hero-meta-chip">
-            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">calendar_month</span></span>
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">calendar_month</span></span>
             <span class="hero-meta-text">
               <span class="hero-meta-label">Date</span>
               <span class="hero-meta-value">Wed · Feb 14, 2024</span>
             </span>
           </span>
           <span class="hero-meta-chip">
-            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">groups</span></span>
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">groups</span></span>
             <span class="hero-meta-text">
               <span class="hero-meta-label">Final attendance</span>
               <span class="hero-meta-value">242 guests</span>
@@ -394,21 +396,21 @@
 
         <div class="fec-meta">
           <span class="hero-meta-chip">
-            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">location_on</span></span>
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">location_on</span></span>
             <span class="hero-meta-text">
               <span class="hero-meta-label">Venue</span>
               <span class="hero-meta-value">The Grand Ballroom, Mumbai</span>
             </span>
           </span>
           <span class="hero-meta-chip">
-            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">calendar_month</span></span>
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">calendar_month</span></span>
             <span class="hero-meta-text">
               <span class="hero-meta-label">Date</span>
               <span class="hero-meta-value">Sat · Nov 15, 2025</span>
             </span>
           </span>
           <span class="hero-meta-chip">
-            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">groups</span></span>
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">groups</span></span>
             <span class="hero-meta-text">
               <span class="hero-meta-label">Guests</span>
               <span class="hero-meta-value">280 invited</span>
@@ -421,7 +423,7 @@
             <span class="fec-progress-label">Budget used</span>
             <span class="fec-progress-val">62% · ₹3.1L of ₹5L</span>
           </div>
-          <div class="fec-progress-track"><span class="fec-progress-fill" style="width:62%"></span></div>
+          <div class="fec-progress-track"><span class="fec-progress-fill fec-progress-fill--62"></span></div>
         </div>
 
         <div class="fec-bottom">
@@ -464,8 +466,8 @@
         <div class="cec-bottom">
           <div class="flex items-center gap-2">
             <div class="avatar-stack">
-              <span class="avatar-stack-item" style="font-size:9px">JD</span>
-              <span class="avatar-stack-item" style="font-size:9px">AL</span>
+              <span class="avatar-stack-item avatar-stack-item--sm">JD</span>
+              <span class="avatar-stack-item avatar-stack-item--sm">AL</span>
             </div>
           </div>
           <span class="cec-action">
@@ -478,7 +480,7 @@
 
     <!-- Empty CTA: Join with code -->
     <a href="#" class="empty-cta-card">
-      <span aria-hidden="true" class="empty-cta-icon" style="background:var(--card);color:var(--brand);border:1px solid var(--brand-tint-2)">
+      <span aria-hidden="true" class="empty-cta-icon empty-cta-icon--join">
         <span class="material-symbols-outlined">key</span>
       </span>
       <span class="empty-cta-title">Join with code</span>
@@ -501,7 +503,7 @@
 </main>
 
 <!-- ────────────────────── FOOTER ────────────────────── -->
-<footer class="max-w-[1440px] mx-auto px-6 md:px-10 mt-20 pt-10 pb-10 border-t border-line">
+<footer class="page-band mt-20 pt-10 pb-10 border-t border-line">
   <div class="flex flex-col md:flex-row items-center justify-between gap-6">
     <div class="flex items-center gap-3">
       <span aria-hidden="true" class="w-9 h-9 shrink-0 rounded-full bg-brand text-white inline-flex items-center justify-center font-display font-bold">E</span>
@@ -525,29 +527,6 @@
 </div>
 
 <script src="shared/shell.js"></script>
-<script>
-  /* Filter pill toggle — updates body[data-ownership] / body[data-time] */
-  (function () {
-    var titleEl = document.getElementById('dash-title');
-    function setActive(group, value) {
-      document.body.dataset[group === 'ownership' ? 'ownership' : 'time'] = value;
-      var attr = group === 'ownership' ? 'data-set-ownership' : 'data-set-time';
-      document.querySelectorAll('[' + attr + ']').forEach(function (el) {
-        var match = el.getAttribute(attr) === value;
-        el.classList.toggle('is-active', match);
-        el.setAttribute('aria-checked', match ? 'true' : 'false');
-      });
-      if (group === 'ownership' && titleEl) {
-        titleEl.textContent = value === 'collab' ? 'Event Collaborations' : 'Your Events';
-      }
-    }
-    document.querySelectorAll('[data-set-ownership]').forEach(function (b) {
-      b.addEventListener('click', function (e) { e.preventDefault(); setActive('ownership', b.dataset.setOwnership); });
-    });
-    document.querySelectorAll('[data-set-time]').forEach(function (b) {
-      b.addEventListener('click', function (e) { e.preventDefault(); setActive('time', b.dataset.setTime); });
-    });
-  })();
-</script>
+<script src="index.js"></script>
 </body>
 </html>

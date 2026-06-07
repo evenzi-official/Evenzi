@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Evenzi · Website settings · Vibrant Union</title>
@@ -62,7 +64,7 @@
 
 <main class="es-shell reveal">
 
-  <aside class="es-side" aria-label="Event settings sections">
+  <nav class="es-side" aria-label="Event settings">
     <div class="es-event-head">
       <p class="es-event-eyebrow">Event</p>
       <p class="es-event-title">Vibrant Union</p>
@@ -71,25 +73,15 @@
         Back to event
       </a>
     </div>
-    <a class="es-side-link" data-es-page="general" href="general.html">
-      <span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General
-    </a>
-    <a class="es-side-link" data-es-page="website" href="website.html">
-      <span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website
-    </a>
-    <a class="es-side-link" data-es-page="admins" href="admins.html">
-      <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins
-    </a>
-    <a class="es-side-link" data-es-page="guest-list" href="guest-list.html">
-      <span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list
-    </a>
-    <a class="es-side-link" data-es-page="registry" href="registry.html">
-      <span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry
-    </a>
-    <a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html">
-      <span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing
-    </a>
-  </aside>
+    <ul class="es-side-list">
+      <li><a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a></li>
+      <li><a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a></li>
+      <li><a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a></li>
+      <li><a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a></li>
+      <li><a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a></li>
+      <li><a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a></li>
+    </ul>
+  </nav>
 
   <div class="es-content">
     <header class="es-content-head">
@@ -111,7 +103,7 @@
     </header>
 
     <!-- Countdown banner -->
-    <section class="es-section" style="background:color-mix(in oklab,var(--brand-tint) 50%,var(--card));border-color:var(--brand-tint-2)">
+    <section class="es-section es-section--highlight">
       <header class="es-section-head">
         <h2 class="es-section-title">
           <span aria-hidden="true" class="material-symbols-outlined icon-fill">schedule</span>
@@ -141,7 +133,7 @@
           <span class="toggle-switch-thumb" aria-hidden="true"></span>
         </button>
       </div>
-      <div class="form-group" style="margin-top:.85rem">
+      <div class="form-group es-field-spaced">
         <label class="form-label" for="es-site-password">Website password</label>
         <input id="es-site-password" type="text" class="form-input" value="welcome2026" maxlength="40" autocomplete="off"/>
         <p class="form-helper">Tip — use a short word your families can remember. Avoid personal info.</p>
@@ -242,7 +234,7 @@
           <span class="toggle-switch-thumb" aria-hidden="true"></span>
         </button>
       </div>
-      <div class="form-group" style="margin-top:.85rem">
+      <div class="form-group es-field-spaced">
         <label class="form-label" for="es-banner-text">Banner text</label>
         <textarea id="es-banner-text" class="form-textarea" maxlength="160" placeholder="e.g. Outdoor ceremony — please bring sunglasses ☀️"></textarea>
         <p class="form-helper">Keep it under 160 characters for clean mobile rendering.</p>
@@ -258,7 +250,7 @@
         </h2>
         <p class="es-section-sub">Temporarily hide the public website. RSVPs, photos, and admin views stay accessible.</p>
       </header>
-      <div class="es-toggle-row" style="background:transparent;border-color:color-mix(in oklab,#ef4444 20%,var(--line))">
+      <div class="es-toggle-row is-danger">
         <div class="es-toggle-body">
           <span class="es-toggle-title">Make site visible only to admins</span>
           <span class="es-toggle-desc">Hide your event page from anyone without admin access.</span>

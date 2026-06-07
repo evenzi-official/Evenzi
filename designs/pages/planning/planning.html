@@ -13,6 +13,8 @@
 <meta name="apple-mobile-web-app-title" content="Evenzi" />
 <meta name="application-name" content="Evenzi" />
 <link rel="manifest" href="../../manifest.webmanifest" />
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -54,12 +56,12 @@
         <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
       </span>
     </a>
-    <div class="nav-tabs inline-flex" role="tablist" aria-label="Primary view">
-      <a href="../event-control/event-control.html" role="tab" data-section="dashboard" class="nav-tab" aria-label="Dashboard">
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../event-control/event-control.html" data-section="dashboard" class="nav-tab" aria-label="Dashboard">
         <span aria-hidden="true" class="material-symbols-outlined icon-fill">dashboard</span>
         <span class="nav-tab-label">Dashboard</span>
       </a>
-      <a href="../website/overview.html" role="tab" data-section="website" class="nav-tab" aria-label="Website">
+      <a href="../website/overview.html" data-section="website" class="nav-tab" aria-label="Website">
         <span aria-hidden="true" class="material-symbols-outlined">language</span>
         <span class="nav-tab-label">Website</span>
       </a>
@@ -124,7 +126,7 @@
   </nav>
 </div>
 
-<main class="max-w-[1440px] mx-auto px-6 md:px-10 pt-10 pb-24">
+<main class="page-band pt-10 pb-24">
   <header class="mb-10 reveal">
     <p class="text-[11px] font-bold tracking-[0.22em] text-brand uppercase mb-2">Section</p>
     <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-ink leading-[1.05]">Planning</h1>
@@ -216,6 +218,10 @@
         <div class="plan-empty" id="plan-tasks-empty" hidden>
           <p class="plan-empty-title">No tasks yet</p>
           <p class="plan-empty-sub">Tap the + button to add your first task.</p>
+        </div>
+        <div class="plan-empty" id="plan-filter-empty" hidden>
+          <p class="plan-empty-title">No tasks match</p>
+          <p class="plan-empty-sub">Try a different search or filter.</p>
         </div>
         <ul class="plan-task-list" id="plan-task-list" role="list" aria-label="Task list"></ul>
       </div>
@@ -333,7 +339,7 @@
   </section>
 </main>
 
-<footer class="max-w-[1440px] mx-auto px-6 md:px-10 mt-20 pt-10 pb-10 border-t border-line">
+<footer class="page-band mt-20 pt-10 pb-10 border-t border-line">
   <div class="flex flex-col md:flex-row items-center justify-between gap-6">
     <div class="flex items-center gap-3">
       <span aria-hidden="true" class="w-9 h-9 shrink-0 rounded-full bg-brand text-white inline-flex items-center justify-center font-display font-bold">E</span>
@@ -382,7 +388,7 @@
       </div>
       <footer class="modal-actions">
         <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
-        <button type="submit" class="btn-pill btn-pill-primary" id="plan-budget-save">Save budget</button>
+        <button type="submit" class="btn-pill btn-pill-primary" id="plan-budget-save">Save budget<span class="btn-pill-spinner" aria-hidden="true"></span></button>
       </footer>
     </form>
   </div>
@@ -537,7 +543,7 @@
       </div>
       <footer class="modal-actions plan-expense-footer">
         <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
-        <button type="submit" class="btn-pill btn-pill-primary" id="plan-exp-save">Save expense</button>
+        <button type="submit" class="btn-pill btn-pill-primary" id="plan-exp-save">Save expense<span class="btn-pill-spinner" aria-hidden="true"></span></button>
       </footer>
     </form>
   </div>

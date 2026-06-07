@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Evenzi · Registry settings · Vibrant Union</title>
@@ -62,7 +64,7 @@
 
 <main class="es-shell reveal">
 
-  <aside class="es-side" aria-label="Event settings sections">
+  <nav class="es-side" aria-label="Event settings">
     <div class="es-event-head">
       <p class="es-event-eyebrow">Event</p>
       <p class="es-event-title">Vibrant Union</p>
@@ -70,13 +72,15 @@
         <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span> Back to event
       </a>
     </div>
-    <a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a>
-    <a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a>
-    <a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a>
-    <a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a>
-    <a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a>
-    <a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a>
-  </aside>
+    <ul class="es-side-list">
+      <li><a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a></li>
+      <li><a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a></li>
+      <li><a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a></li>
+      <li><a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a></li>
+      <li><a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a></li>
+      <li><a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a></li>
+    </ul>
+  </nav>
 
   <div class="es-content">
     <header class="es-content-head">
@@ -94,7 +98,7 @@
     </header>
 
     <div class="es-registry-grid">
-      <div style="display:flex;flex-direction:column;gap:1.5rem">
+      <div class="es-registry-stack">
 
         <section class="es-section">
           <header class="es-section-head">
@@ -113,7 +117,7 @@
             <input id="es-registry-label" type="text" class="form-input" value="View our registry" maxlength="40" autocomplete="off"/>
             <p class="form-helper">This is what guests see on your event page.</p>
           </div>
-          <button type="button" class="btn-pill btn-pill-primary" style="align-self:flex-start" data-es-save data-es-save-toast="REGISTRY LINK ADDED">
+          <button type="button" class="btn-pill btn-pill-primary es-btn-self" data-es-save data-es-save-toast="REGISTRY LINK ADDED">
             <span aria-hidden="true" class="material-symbols-outlined">add_link</span>
             Add link
             <span aria-hidden="true" class="btn-pill-spinner"></span>
@@ -145,7 +149,7 @@
               <textarea id="es-fund-message" class="form-textarea" maxlength="200" placeholder="Your gift helps us create memories that last a lifetime."></textarea>
             </div>
           </div>
-          <button type="button" class="btn-pill btn-pill-primary" style="align-self:flex-start" data-es-save data-es-save-toast="CASH FUND CREATED">
+          <button type="button" class="btn-pill btn-pill-primary es-btn-self" data-es-save data-es-save-toast="CASH FUND CREATED">
             <span aria-hidden="true" class="material-symbols-outlined">add</span>
             Create fund
             <span aria-hidden="true" class="btn-pill-spinner"></span>
@@ -158,11 +162,11 @@
         <p class="es-preview-eyebrow">Guest view preview</p>
         <p class="es-preview-title">Registry section</p>
         <p class="es-preview-body">This is what your guests will see on the event website's <strong>Registry</strong> tab.</p>
-        <div style="width:100%;padding:1.25rem;border-radius:14px;background:var(--line-soft);display:flex;flex-direction:column;gap:.75rem;align-items:center">
-          <span class="material-symbols-outlined icon-fill" style="font-size:32px;color:var(--brand)">redeem</span>
-          <p style="font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;letter-spacing:.04em;color:var(--ink);margin:0;text-align:center">
+        <div class="es-preview-box">
+          <span class="material-symbols-outlined icon-fill" aria-hidden="true">redeem</span>
+          <p>
             Empty preview<br/>
-            <span style="color:var(--muted);font-weight:500">Save a registry above to populate</span>
+            <span class="es-preview-muted">Save a registry above to populate</span>
           </p>
         </div>
       </div>

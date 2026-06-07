@@ -13,6 +13,8 @@
 <meta name="apple-mobile-web-app-title" content="Evenzi" />
 <meta name="application-name" content="Evenzi" />
 <link rel="manifest" href="../../manifest.webmanifest" />
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -57,12 +59,12 @@
       </span>
     </a>
 
-    <div class="nav-tabs inline-flex" role="tablist" aria-label="Primary view">
-      <a href="../event-control/event-control.html" role="tab" data-section="dashboard" class="nav-tab" aria-label="Dashboard">
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../event-control/event-control.html" data-section="dashboard" class="nav-tab" aria-label="Dashboard">
         <span aria-hidden="true" class="material-symbols-outlined icon-fill">dashboard</span>
         <span class="nav-tab-label">Dashboard</span>
       </a>
-      <a href="../website/overview.html" role="tab" data-section="website" class="nav-tab" aria-label="Website">
+      <a href="../website/overview.html" data-section="website" class="nav-tab" aria-label="Website">
         <span aria-hidden="true" class="material-symbols-outlined">language</span>
         <span class="nav-tab-label">Website</span>
       </a>
@@ -155,7 +157,7 @@
       <div class="min-w-0 w-full">
         <p id="gm-rate-label" class="gm-rate-cap">RSVP response rate</p>
         <p class="gm-rate-num"><span data-gm-rate>0</span>%</p>
-        <div class="pf-bar gm-rate-bar"><span data-gm-rate-fill style="width:0%"></span></div>
+        <div class="pf-bar gm-rate-bar"><span data-gm-rate-fill></span></div>
         <p class="gm-rate-sub"><span data-gm-responded>0</span> of <span data-gm-total>0</span> responded</p>
       </div>
     </div>
@@ -354,14 +356,14 @@
     </header>
     <form id="gm-guest-form" novalidate>
       <div class="form-group">
-        <label class="form-label" for="gm-f-name">Full name <span aria-hidden="true" style="color:var(--brand)">*</span></label>
+        <label class="form-label" for="gm-f-name">Full name <span aria-hidden="true" class="req-mark">*</span></label>
         <input id="gm-f-name" name="name" type="text" class="form-input" autocomplete="name" required />
         <p class="form-error" id="gm-err-name" role="alert" hidden>
           <span class="material-symbols-outlined" aria-hidden="true">error</span> Please enter a name.
         </p>
       </div>
       <div class="form-group">
-        <label class="form-label" for="gm-f-phone">Mobile number <span aria-hidden="true" style="color:var(--brand)">*</span></label>
+        <label class="form-label" for="gm-f-phone">Mobile number <span aria-hidden="true" class="req-mark">*</span></label>
         <div class="form-input form-input-group">
           <span class="form-input-prefix" aria-hidden="true">+91</span>
           <input id="gm-f-phone" name="phone" type="tel" class="form-input-field" inputmode="numeric" autocomplete="tel" maxlength="10" placeholder="98765 43210" required />
@@ -462,7 +464,7 @@
 <!-- Send invitations confirm -->
 <div class="modal-scrim" id="gm-send-modal" data-modal aria-hidden="true">
   <div class="modal-card lg-glass-card modal-confirm-affirmative" role="dialog" aria-modal="true" aria-labelledby="gm-send-h" aria-describedby="gm-send-text">
-    <button class="modal-close" type="button" data-modal-close aria-label="Close" style="position:absolute;top:1rem;right:1rem">
+    <button class="modal-close modal-close--corner" type="button" data-modal-close aria-label="Close">
       <span class="material-symbols-outlined" aria-hidden="true">close</span>
     </button>
     <span class="modal-confirm-icon" aria-hidden="true"><span class="material-symbols-outlined">send</span></span>
@@ -481,7 +483,7 @@
 <!-- Remove guest confirm -->
 <div class="modal-scrim" id="gm-remove-modal" data-modal aria-hidden="true">
   <div class="modal-card lg-glass-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="gm-remove-h">
-    <button class="modal-close" type="button" data-modal-close aria-label="Close" style="position:absolute;top:1rem;right:1rem">
+    <button class="modal-close modal-close--corner" type="button" data-modal-close aria-label="Close">
       <span class="material-symbols-outlined" aria-hidden="true">close</span>
     </button>
     <span class="modal-confirm-icon is-cautionary" aria-hidden="true"><span class="material-symbols-outlined">person_remove</span></span>

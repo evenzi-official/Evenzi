@@ -70,7 +70,7 @@
 .oj-vis{display:none;align-items:center;gap:.5rem;cursor:pointer;margin-right:.25rem}
 @media (min-width:768px){.oj-vis{display:inline-flex}}
 .oj-vis-label{font-family:'Poppins',sans-serif;font-weight:700;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-@media (hover:hover) and (pointer:fine){.oj-del:hover{color:#e5484d;border-color:color-mix(in oklab,#e5484d 40%,var(--line))}}
+@media (hover:hover) and (pointer:fine){.oj-del:hover{color:var(--danger);border-color:color-mix(in oklab,var(--danger) 40%,var(--line))}}
 
 /* Empty state */
 .oj-empty{

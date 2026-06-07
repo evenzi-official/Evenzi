@@ -187,8 +187,9 @@
 }
 .task-prio--high .task-prio-dot{background:var(--danger)}
 .task-prio--low .task-prio-dot{background:var(--muted-soft)}
-.task-prio-label{display:none}
-@media (min-width:768px){.task-prio-label{display:inline}}
+.task-prio-label{display:inline}
+.task-prio--high .task-prio-label{color:var(--danger-ink)}
+.task-prio--low .task-prio-label{color:var(--muted)}
 
 .task-status-badge{grid-area:badge;align-self:center}
 .task-status-badge--todo{
@@ -556,32 +557,4 @@
 @media (prefers-reduced-motion:reduce){
   .plan-progress-fill,
   .budget-bar-fill{transition:none}
-}
-
-/* ── Bulk picker (reuses guests gm-setter pattern) ─────────────────── */
-.gm-setter-scrim{position:fixed;inset:0;z-index:70;background:transparent}
-@media (max-width:479px){.gm-setter-scrim{background:rgba(0,0,0,.45)}}
-.gm-setter{
-  position:fixed;z-index:72;width:min(280px,calc(100vw - 2rem));
-  background:var(--card);border:1px solid var(--line);
-  border-radius:18px;box-shadow:var(--shadow-clay-hover);padding:.85rem;
-}
-.gm-setter-title{font-size:.8rem;color:var(--muted);margin:0 0 .55rem;padding:0 .15rem}
-.gm-setter-opts{display:flex;flex-direction:column;gap:.3rem}
-.gm-setter-opt{
-  display:flex;align-items:center;gap:.7rem;width:100%;min-height:46px;
-  padding:.55rem .75rem;border-radius:12px;border:1px solid var(--line);
-  background:var(--card);color:var(--ink);font-family:'Poppins',sans-serif;
-  font-weight:600;font-size:.9rem;cursor:pointer;text-align:left;
-}
-.gm-setter-opt .material-symbols-outlined{font-size:20px;flex-shrink:0;color:var(--muted-soft)}
-.gm-setter-opt .gm-setter-check{margin-left:auto;color:var(--brand);opacity:0}
-.gm-setter-opt[aria-checked="true"] .gm-setter-check{opacity:1}
-.gm-setter-opt:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-@media (max-width:479px){
-  .gm-setter{
-    left:0;right:0;bottom:0;top:auto !important;width:100%;
-    border-radius:20px 20px 0 0;border-bottom:0;
-    padding:1rem 1rem calc(1rem + env(safe-area-inset-bottom,0px));
-  }
 }

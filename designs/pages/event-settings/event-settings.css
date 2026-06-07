@@ -71,6 +71,17 @@
 }
 .es-event-back .material-symbols-outlined{font-size:14px}
 
+/* Sidebar nav list */
+.es-side-list{
+  display:flex;flex-direction:column;gap:.35rem;
+  list-style:none;margin:0;padding:0;
+}
+@media (max-width:767px){
+  .es-side-list{
+    flex-direction:row;flex-shrink:0;
+  }
+}
+
 /* Sidebar nav links */
 .es-side-link{
   display:inline-flex;align-items:center;gap:.7rem;
@@ -164,13 +175,64 @@
 
 /* Danger variant for the "Danger Zone" section on General */
 .es-section.is-danger{
-  border-color:color-mix(in oklab,#ef4444 30%,var(--line));
-  background:color-mix(in oklab,#ef4444 4%,var(--card));
+  border-color:color-mix(in oklab,var(--danger) 30%,var(--line));
+  background:color-mix(in oklab,var(--danger) 4%,var(--card));
 }
-.es-section.is-danger .es-section-title{color:#dc2626}
-.dark .es-section.is-danger .es-section-title{color:#fca5a5}
-.es-section.is-danger .es-section-title .material-symbols-outlined{color:#dc2626}
-.dark .es-section.is-danger .es-section-title .material-symbols-outlined{color:#fca5a5}
+.es-section.is-danger .es-section-title{color:var(--danger-ink)}
+.es-section.is-danger .es-section-title .material-symbols-outlined{color:var(--danger)}
+.es-toggle-row.is-danger{
+  background:transparent;
+  border-color:color-mix(in oklab,var(--danger) 20%,var(--line));
+}
+.es-section--highlight{
+  background:color-mix(in oklab,var(--brand-tint) 50%,var(--card));
+  border-color:var(--brand-tint-2);
+}
+.es-field-spaced{margin-top:.85rem}
+.es-registry-stack{display:flex;flex-direction:column;gap:1.5rem}
+.es-btn-self{align-self:flex-start}
+.es-preview-box{
+  width:100%;padding:1.25rem;border-radius:14px;
+  background:var(--line-soft);
+  display:flex;flex-direction:column;gap:.75rem;align-items:center;
+}
+.es-preview-box .material-symbols-outlined{font-size:32px;color:var(--brand)}
+.es-preview-box p{
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;
+  letter-spacing:.04em;color:var(--ink);margin:0;text-align:center;
+}
+.es-preview-box .es-preview-muted{color:var(--muted);font-weight:500}
+.es-plan-header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;flex-wrap:wrap;
+}
+.es-plan-header-body{display:flex;flex-direction:column;gap:.25rem;min-width:0}
+.es-plan-header-price{
+  font-family:'Poppins',sans-serif;font-weight:800;font-size:2rem;
+  color:var(--ink);margin:0;letter-spacing:-.02em;
+}
+.es-plan-header-unit{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:0}
+.es-section--bare{padding:0;background:transparent;border:0}
+.es-section-head--flush{padding:0 .5rem}
+.es-plan-tag--ink{background:var(--ink);color:var(--card)}
+.es-guest-cap{max-width:200px}
+.es-admin-avatar--sj{background:color-mix(in oklab,var(--brand) 30%,var(--brand-tint))}
+.es-admin-avatar--mr{background:color-mix(in oklab,var(--brand) 22%,var(--brand-tint))}
+.es-admin-avatar--ek{background:color-mix(in oklab,var(--brand) 18%,var(--brand-tint))}
+.cc-review-edit{
+  display:inline-flex;align-items:center;gap:.25rem;
+  min-height:44px;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--brand);text-decoration:none;
+  padding:.5rem .85rem;border-radius:9999px;
+  transition:background-color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .cc-review-edit:hover{background:var(--brand-tint)}
+}
+.cc-review-edit:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.cc-review-edit .material-symbols-outlined{font-size:13px}
 
 /* ── Form layouts inside sections ─────────────────── */
 .es-field-grid{
@@ -228,8 +290,8 @@
   font-family:'Poppins',sans-serif;font-weight:500;font-size:11px;
   letter-spacing:.04em;color:var(--muted);
 }
-.es-page-status.is-published{color:#10b981}
-.dark .es-page-status.is-published{color:#34d399}
+.es-page-status.is-published{color:var(--success-ink)}
+.dark .es-page-status.is-published{color:var(--success)}
 .es-page-row .btn-pill{flex-shrink:0}
 
 /* ── Admins table (Admins page) ─────────────────────── */
@@ -275,9 +337,9 @@
 }
 .es-admin-status::before{
   content:'';width:6px;height:6px;border-radius:9999px;
-  background:#10b981;
+  background:var(--success);
 }
-.es-admin-status.is-pending::before{background:#f59e0b}
+.es-admin-status.is-pending::before{background:var(--warning)}
 @media (max-width:640px){
   .es-admin-row{flex-wrap:wrap}
   .es-admin-role,.es-admin-status{margin-left:auto}

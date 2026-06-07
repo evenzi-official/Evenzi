@@ -168,7 +168,12 @@ h1,h2,h3,.font-display{font-family:'Poppins',sans-serif;letter-spacing:-0.02em}
   box-shadow:var(--shadow-clay);
   transition:transform .25s ease-out,box-shadow .25s ease-out,background-color .3s ease;
 }
-@media (hover:hover) and (pointer:fine){.clay-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}}
+@media (hover:hover) and (pointer:fine){
+  a.clay-card:hover,
+  button.clay-card:hover,
+  .clay-card:has(.stretched-link):hover,
+  .clay-card.is-interactive:hover{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}
+}
 .clay-pill{border-radius:9999px;box-shadow:var(--shadow-clay-pill)}
 a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:8px}
 
@@ -3092,6 +3097,10 @@ body.no-scroll{overflow:hidden}
   .modal-close:hover{background:var(--line-soft);color:var(--ink)}
 }
 .modal-close:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.modal-close--abs,.modal-close--corner{position:absolute;top:1rem;right:1rem}
+.req-mark{color:var(--brand)}
+.modal-confirm-affirmative.modal-card,
+.modal-confirm-cautionary.modal-card{position:relative}
 
 /* Modal section — labelled block within a modal body */
 .modal-section{padding:.85rem 0;border-top:1px solid var(--line-soft)}
@@ -3468,7 +3477,12 @@ body.no-scroll{overflow:hidden}
 
 /* iOS Safari auto-zooms inputs below 16px — fix font-size on mobile */
 @media (max-width:767px){
-  .form-input,.form-input-field,select.form-input,textarea.form-input{font-size:16px}
+  input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=button]):not([type=submit]):not([type=reset]):not([type=image]),
+  select,
+  textarea,
+  .form-textarea,
+  .wb-wa-textarea,
+  .cc-search-row input{font-size:16px}
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -3653,6 +3667,10 @@ body.no-scroll{overflow:hidden}
   max-width:1440px;
   margin:1.25rem auto 0;
   padding:0 1.5rem;
+  min-width:0;
+}
+@media (max-width:767px){
+  .wb-tabs-wrap{max-width:100%;overflow:hidden}
 }
 @media (min-width:768px){
   .wb-tabs-wrap{padding:0 2.5rem}
@@ -3680,6 +3698,8 @@ body.no-scroll{overflow:hidden}
   -webkit-overflow-scrolling:touch;
   scroll-snap-type:x mandatory;
   scroll-padding-inline:.3rem;
+  max-width:100%;
+  min-width:0;
 }
 .pill-tabs::-webkit-scrollbar,
 .wb-tabs::-webkit-scrollbar{display:none}
@@ -3791,3 +3811,66 @@ body.no-scroll{overflow:hidden}
   .bulk-bar-act,.gm-bulk-act{padding:.5rem .65rem;gap:0}
   .bulk-bar,.gm-bulkbar{gap:.35rem;padding-left:.7rem}
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   GM-SETTER — bottom sheet (<480) / anchored popover (≥480)
+   Shared picker surface (RSVP, filters, bulk assign/tag).
+   ════════════════════════════════════════════════════════════════════ */
+.gm-setter-scrim{
+  position:fixed;inset:0;z-index:70;background:transparent;   /* below .modal-scrim (80) */
+}
+@media (max-width:479px){.gm-setter-scrim{background:rgba(0,0,0,.45)}}
+.gm-setter{
+  position:fixed;z-index:72;            /* below .modal-scrim (80) */
+  width:min(280px,calc(100vw - 2rem));
+  background:var(--card);border:1px solid var(--line);
+  border-radius:18px;box-shadow:var(--shadow-clay-hover);
+  padding:.85rem;
+}
+.gm-setter-title{font-size:.8rem;color:var(--muted);margin:0 0 .55rem;padding:0 .15rem}
+/* multi-select variant (filter / bulk assign·tag) */
+.gm-setter-group{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-soft);margin:.55rem .25rem .25rem}
+.gm-setter-group:first-child{margin-top:0}
+.gm-setter-multi .gm-setter-opts{max-height:min(46vh,320px);overflow:auto}
+.gm-setter-foot{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--line-soft)}
+.gm-setter-clear{background:none;border:0;color:var(--muted);font-weight:600;font-size:.85rem;cursor:pointer;padding:.4rem .5rem;border-radius:8px}
+.gm-setter-clear:hover{color:var(--ink);background:var(--line-soft)}
+.gm-setter-clear:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.gm-setter-apply{padding:.45rem 1.15rem}
+.gm-setter-title strong{color:var(--ink);font-weight:700}
+.gm-setter-opts{display:flex;flex-direction:column;gap:.3rem}
+.gm-setter-opt{
+  display:flex;align-items:center;gap:.7rem;width:100%;
+  min-height:46px;padding:.55rem .75rem;border-radius:12px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:.9rem;
+  cursor:pointer;text-align:left;
+  transition:background .15s ease,border-color .15s ease;
+}
+.gm-setter-opt .material-symbols-outlined{font-size:20px;flex-shrink:0;color:var(--muted-soft)}
+.gm-setter-opt .gm-setter-check{margin-left:auto;color:var(--brand);opacity:0}
+.gm-setter-opt[aria-checked="true"] .gm-setter-check{opacity:1}
+@media (hover:hover) and (pointer:fine){
+  .gm-setter-opt:hover{background:var(--line-soft)}
+}
+.gm-setter-opt:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.gm-setter-opt[data-val="confirmed"][aria-checked="true"]{background:var(--success-tint);border-color:var(--success-rim);color:var(--success-ink)}
+.gm-setter-opt[data-val="declined"][aria-checked="true"]{background:var(--danger-tint);border-color:var(--danger-rim);color:var(--danger-ink)}
+.gm-setter-opt[data-val="maybe"][aria-checked="true"]{background:var(--warning-tint);border-color:var(--warning-rim);color:var(--warning-ink)}
+.gm-setter-opt[data-val="pending"][aria-checked="true"]{background:color-mix(in oklab,var(--muted) 12%,var(--card));border-color:var(--line);color:var(--ink-soft)}
+.gm-setter-opt[data-val="confirmed"][aria-checked="true"] .material-symbols-outlined{color:var(--success)}
+.gm-setter-opt[data-val="declined"][aria-checked="true"] .material-symbols-outlined{color:var(--danger)}
+.gm-setter-opt[data-val="maybe"][aria-checked="true"] .material-symbols-outlined{color:var(--warning)}
+
+/* bottom-sheet presentation on small phones */
+@media (max-width:479px){
+  .gm-setter{
+    left:0;right:0;bottom:0;top:auto !important;width:100%;
+    border-radius:20px 20px 0 0;border-bottom:0;
+    padding:1rem 1rem calc(1rem + env(safe-area-inset-bottom,0px));
+    animation:gm-sheet-up .22s cubic-bezier(.2,.7,.2,1);
+  }
+  .gm-setter-title{font-size:.85rem;text-align:center;margin-bottom:.7rem}
+}
+@keyframes gm-sheet-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@media (prefers-reduced-motion: reduce){.gm-setter{animation:none}}

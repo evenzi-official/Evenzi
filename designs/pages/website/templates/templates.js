@@ -77,7 +77,7 @@
   var CONFIRM_MODAL_HTML =
     '<div class="modal-scrim" id="tpl-apply-confirm" data-modal aria-hidden="true">' +
     '  <div class="modal-card lg-glass-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="tpl-apply-confirm-h">' +
-    '    <button class="modal-close" type="button" data-modal-close aria-label="Close" style="position:absolute;top:1rem;right:1rem">' +
+    '    <button class="modal-close modal-close--abs" type="button" data-modal-close aria-label="Close">' +
     '      <span class="material-symbols-outlined" aria-hidden="true">close</span>' +
     '    </button>' +
     '    <div class="modal-confirm-icon is-cautionary">' +

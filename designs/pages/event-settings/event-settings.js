@@ -52,12 +52,20 @@
     }, 900);
   });
 
-  /* Danger-zone delete-event guard (cosmetic confirm) */
+  /* Danger-zone delete-event confirm */
   document.addEventListener('click', function (e) {
     var btn = e.target.closest && e.target.closest('[data-es-delete]');
     if (!btn) return;
-    toast('CONFIRM DELETE — TYPE THE EVENT NAME');
+    if (window.evenzi && window.evenzi.openModal) window.evenzi.openModal('es-delete-modal');
   });
+
+  var deleteConfirm = document.getElementById('es-delete-confirm');
+  if (deleteConfirm) {
+    deleteConfirm.addEventListener('click', function () {
+      if (window.evenzi && window.evenzi.closeModal) window.evenzi.closeModal('es-delete-modal');
+      toast('EVENT DELETED');
+    });
+  }
 
   /* "Take Website Offline" / "View Live Site" stubs */
   document.addEventListener('click', function (e) {
@@ -74,10 +82,18 @@
     if (live) toast('OPENING LIVE SITE');
   });
 
-  /* "Add Co-Host" stub */
+  /* Add co-host confirm modal */
   document.addEventListener('click', function (e) {
     var btn = e.target.closest && e.target.closest('[data-es-add-admin]');
     if (!btn) return;
-    toast('INVITE CO-HOST DIALOG');
+    if (window.evenzi && window.evenzi.openModal) window.evenzi.openModal('es-cohost-modal');
   });
+
+  var cohostConfirm = document.getElementById('es-cohost-confirm');
+  if (cohostConfirm) {
+    cohostConfirm.addEventListener('click', function () {
+      if (window.evenzi && window.evenzi.closeModal) window.evenzi.closeModal('es-cohost-modal');
+      toast('CO-HOST INVITE SENT');
+    });
+  }
 })();
