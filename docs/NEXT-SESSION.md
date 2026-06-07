@@ -4,6 +4,18 @@
 
 ---
 
+## Recently Landed (2026-06-07 — Planning Tasks v2 + QA hardening + workflow consolidation)
+
+Large design-path/infra session on branch `claude/affectionate-ramanujan-60170b` (9 commits, **not yet merged to Dev-Vibe**). Full report: `docs/session-reports/2026-06-07-session-report.md`.
+
+- **Planning Tasks v2 → DONE** (toolbar, List⇄Timeline, swipe rail, toast/undo, custom calendar, expense-type rework) + **global `.section-head` template fix** (one rule, all pages).
+- **QA cycle closed** (4 fix loops): iOS input-zoom (incl. specificity bug), responsive overflow, inline-CSS/JS extraction, `.page-band`, nav `role=tab`, tokens, notif a11y, tool-rail labels, **17 broken links fixed** + favicon/manifest.
+- **Multi-editor pipeline hardened + documented** → `designs/_WORKFLOW.md` (handover system) + per-page `_page.md`; standing rules in `.cursor/rules` + `.agents/rules` + `docs/cursor/design-reviewer-mode.md`. Transient process docs removed.
+
+**Next:** merge this branch → Dev-Vibe; build **invitations + media** via `/spec-kit` (also proves the new-page path); `components.html` backfill of new shell primitives.
+
+---
+
 ## Recently Landed (2026-06-06 — Terse inline-chat mode + caveman eval)
 
 Config/infra session, no tickets. Full report: `docs/session-reports/2026-06-06-session-report.md`.
