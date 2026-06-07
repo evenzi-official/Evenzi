@@ -80,6 +80,11 @@
   --peach:         #1f2937;
   --peach-deep:    #374151;
   --brand:         #ee3f3a;
+  /* Solid brand fills that carry white text — dark #ee3f3a is 3.88:1 with #fff;
+     this shade hits AA ≥4.5:1 for nav-tab / btn-pill / tool-rail active states. */
+  --brand-solid:   #dd363a;
+  /* Brand text on --brand-tint — slightly brighter than --brand for ≥4.5:1 on tint. */
+  --brand-ink:     #ef4e3a;
   --brand-hover:   #ff5a55;
   --brand-tint:    rgba(238,63,58,0.10);
   --brand-tint-2:  rgba(238,63,58,0.18);
@@ -314,6 +319,7 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
   background:var(--brand);color:#fff;
   box-shadow:0 6px 14px -4px color-mix(in oklab,var(--brand) 60%,transparent),inset 0 1px 0 rgba(255,255,255,.18);
 }
+.dark .nav-tab.is-active{background:var(--brand-solid)}
 .nav-tab .material-symbols-outlined{font-size:18px;transition:transform .25s}
 @media (hover:hover) and (pointer:fine){.nav-tab:hover .material-symbols-outlined{transform:scale(1.06)}}
 
@@ -545,6 +551,7 @@ html{scroll-behavior:smooth}
   background:var(--brand);color:#fff;
   box-shadow:0 8px 18px -4px color-mix(in oklab,var(--brand) 65%,transparent),inset 0 1px 0 rgba(255,255,255,.18);
 }
+.dark .tr-btn.is-active{background:var(--brand-solid)}
 .tr-btn .material-symbols-outlined{font-size:22px;transition:transform .25s}
 @media (hover:hover) and (pointer:fine){.tr-btn:hover .material-symbols-outlined{transform:scale(1.05)}}
 .tr-btn::after{
@@ -976,6 +983,7 @@ html{scroll-behavior:smooth}
   background:var(--brand);color:#fff;
   box-shadow:var(--shadow-clay-pill);
 }
+.dark .btn-pill-primary{background:var(--brand-solid)}
 @media (hover:hover) and (pointer:fine){.btn-pill-primary:hover{background:var(--brand-hover);transform:translateY(-1px)}}
 .btn-pill-secondary{
   background:var(--cream-soft);color:var(--ink);
@@ -3417,6 +3425,7 @@ body.no-scroll{overflow:hidden}
   border-color:color-mix(in oklab,var(--brand) 28%,transparent);
   font-weight:600;
 }
+.dark .dp-filter-chip.is-active{color:var(--brand-ink)}
 
 /* ── Form helpers used inside modals (radio rows, password reveal) ──── */
 .modal-radio-row{
@@ -3730,10 +3739,16 @@ body.no-scroll{overflow:hidden}
 .wb-tab.is-active,.wb-tab[aria-selected="true"]{
   background:var(--brand-tint);color:var(--brand);font-weight:600;
 }
+.dark .pill-tab.is-active,.dark .pill-tab[aria-selected="true"],
+.dark .wb-tab.is-active,.dark .wb-tab[aria-selected="true"]{color:var(--brand-ink)}
 .pill-tab.is-active .material-symbols-outlined,
 .pill-tab[aria-selected="true"] .material-symbols-outlined,
 .wb-tab.is-active .material-symbols-outlined,
 .wb-tab[aria-selected="true"] .material-symbols-outlined{color:var(--brand)}
+.dark .pill-tab.is-active .material-symbols-outlined,
+.dark .pill-tab[aria-selected="true"] .material-symbols-outlined,
+.dark .wb-tab.is-active .material-symbols-outlined,
+.dark .wb-tab[aria-selected="true"] .material-symbols-outlined{color:var(--brand-ink)}
 .pill-tabs--sm .pill-tab{padding:.4rem .75rem;font-size:.78rem}
 .pill-tabs--sm .pill-tab .material-symbols-outlined{font-size:16px}
 

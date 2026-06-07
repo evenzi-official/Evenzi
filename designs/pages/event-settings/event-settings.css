@@ -110,6 +110,8 @@
   background:var(--brand);color:#fff;
   box-shadow:0 4px 12px -4px color-mix(in oklab,var(--brand) 50%,transparent);
 }
+.dark .es-side-link.is-active,
+.dark .es-side-link[aria-current="page"]{background:var(--brand-solid)}
 .es-side-link .material-symbols-outlined{font-size:18px;flex-shrink:0}
 @media (max-width:767px){
   .es-side-link .material-symbols-outlined{display:none}
