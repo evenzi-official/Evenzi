@@ -143,6 +143,21 @@ RUNNER_EMAIL_ON_ALERT=true              # Send email on budget alerts + approval
 
 > Features are built using the superpowers plugin workflow (brainstorm → plan → implement → review), guided by enriched agent prompts in `ai/agents/`.
 
+### Delegation Gate (BEFORE any development) — RULE
+
+**Before writing/building/testing anything, stop and route the work to the cheapest competent executor — default to delegating, reserve Claude's tokens for judgment.** Claude (the expensive context) should plan, diagnose, write specs/build-docs, review, and gate quality — not do mechanical building or testing that Cursor or Antigravity can do under supervision.
+
+| Executor | Owns | Use for |
+|---|---|---|
+| **Cursor** | building / implementation (from a Claude build-doc) | feature builds, migrations, mechanical multi-file edits |
+| **Antigravity** | automated testing | a11y / responsive / regression test passes |
+| **Claude (me)** | planning · spec & build-doc authoring · root-cause diagnosis · **review + quality gates** · small surgical fixes only when delegation overhead > the fix | judgment, not typing |
+
+- **The gate:** at the start of any dev task, ask "can Cursor build this / Antigravity test this under my review?" If yes → write the build-doc and delegate. Do it inline ONLY when it's trivial/surgical or needs live conversation context.
+- **When the executor isn't obvious, ASK the founder** before proceeding.
+- Claude always keeps the **review gate** — delegated work comes back for a Claude (Playwright/spec) review before it's considered done or pushed.
+- **Why:** save Claude token usage; maximize parallel throughput across editors.
+
 ### How It Works
 
 1. **Plan in ClickUp** — Create a feature task using templates from `docs/clickup/TEMPLATES.md` (see `docs/clickup/` for all ClickUp docs)
@@ -268,6 +283,14 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 ---
 
 ## Coding Conventions
+
+### Component Reuse (Reuse Before Create) — RULE
+
+**Before building any component, pattern, or primitive, search for an existing one that does the same JOB — by purpose, not by name.** If one exists, reuse it (as-is) or extend it via a modifier; **never fork a parallel component that duplicates an existing one's job.** (This is exactly how `.nav-tabs` and `.pill-tab` both came to exist as two controls for the same view-switcher — a defect later unified into `.seg`.)
+
+- **The catalog is the source of truth:** `designs/components.html` + `designs/shared/shell.css` for UI; `ai/` for agent/pipeline knowledge. Check it first and cite the primitive you're reusing.
+- **Keep the catalog current:** any new shared primitive MUST be added to `designs/components.html` in the same change. An uncataloged primitive can't be found, so the next person rebuilds it — which is the whole failure `components.html` exists to prevent. Catalog-backfill debt directly causes reinvention.
+- **A same-purpose duplicate is a review-blocking defect**, not polish. Three rungs only: reuse-as-is → modifier-extend → new (new only when nothing serves the purpose).
 
 ### Naming
 - **Directories:** kebab-case (`event-management`)

@@ -283,3 +283,6 @@ Be direct. Severity calls are load-bearing — don't pad P2s into P1s, don't sof
 ## Learnings
 
 <!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->
+
+### Catch same-PURPOSE component forks, not just same-name dupes (2026-06-08)
+The codebase grew TWO segmented controls for one job — `.nav-tabs` (compact) and `.pill-tab` (full-width) — because each review only checked for a same-NAMED existing component, never asked "does anything already do this JOB?". Result: two forks, inconsistent UI across dashboard/planning/website. **In every review, scan by purpose:** for each component ask "is there already a primitive in `components.html`/`shell.css` that serves this function (a toggle, a card, a chip, a tab)?" If yes and the build made a new one, flag it as a reuse-fidelity DEFECT and require consolidation, not a parallel class. Also flag any new shared primitive not added to `components.html` — uncataloged primitives are invisible to the next builder and guarantee reinvention (the root cause `components.html` exists to prevent).
