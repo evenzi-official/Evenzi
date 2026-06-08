@@ -1,18 +1,9 @@
 /* ════════════════════════════════════════════════════════════════════
    Evenzi · Event Settings shared script
-   Sidebar active-state sync (via body[data-es-page]) + Save toast.
+   Save toast + modal stubs. Sub-nav active state is static HTML + shell.js.
    ════════════════════════════════════════════════════════════════════ */
 
 (function () {
-  /* Sidebar active state */
-  var page = document.body.dataset.esPage || '';
-  document.querySelectorAll('.es-side-link[data-es-page]').forEach(function (a) {
-    var match = a.getAttribute('data-es-page') === page;
-    a.classList.toggle('is-active', match);
-    if (match) a.setAttribute('aria-current', 'page');
-    else a.removeAttribute('aria-current');
-  });
-
   function toast(msg) {
     if (window.evenzi && window.evenzi.showToast) window.evenzi.showToast(msg);
   }

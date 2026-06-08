@@ -1,121 +1,8 @@
 /* ════════════════════════════════════════════════════════════════════
    Evenzi · Event Settings (per-event admin)
    Shared by general/website/admins/guest-list/registry/plan-billing.
-   Uses the floating-nav top chrome + a new left vertical sidebar
-   listing the 6 sub-pages.
+   Chrome: standard shell (top nav + tool-rail + seg sub-nav) — see shell.css.
    ════════════════════════════════════════════════════════════════════ */
-
-/* ── Layout: sidebar + content split ──────────────────
-   Mobile: stack (sidebar above content as horizontal scroll of pills).
-   ≥768px: 240px sidebar + flex content panel.
-*/
-.es-shell{
-  max-width:1440px;width:100%;margin:0 auto;   /* match canonical .page-band / .bc-wrap band */
-  padding:1.25rem 1.5rem 4rem;                  /* horizontal insets match .page-band (px-6) */
-  min-width:0;overflow-x:clip;
-}
-@media (min-width:768px){
-  .es-shell{
-    display:grid;grid-template-columns:240px 1fr;gap:2rem;
-    padding:2rem 2.5rem 5rem;                   /* md:px-10 — aligns with breadcrumb + nav band */
-  }
-}
-
-/* ── Sidebar nav ──────────────────────────────────── */
-.es-side{
-  display:flex;flex-direction:column;gap:.35rem;
-  position:relative;
-}
-@media (max-width:767px){
-  .es-side{
-    flex-direction:row;
-    overflow-x:auto;
-    max-width:100%;min-width:0;
-    padding-bottom:.5rem;
-    margin-bottom:1.25rem;
-    scrollbar-width:none;
-    border-bottom:1px solid var(--line);
-  }
-  .es-side::-webkit-scrollbar{display:none}
-}
-
-/* Event header at the top of the sidebar (event name + back chip) */
-.es-event-head{
-  display:flex;flex-direction:column;gap:.25rem;
-  padding:1rem .85rem;
-  margin-bottom:.5rem;
-  border-radius:16px;
-  background:color-mix(in oklab,var(--brand-tint) 35%,var(--card));
-  border:1px solid var(--brand-tint-2);
-}
-@media (max-width:767px){
-  .es-event-head{display:none}
-}
-.es-event-eyebrow{
-  font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
-  letter-spacing:.22em;text-transform:uppercase;color:var(--brand);
-  margin:0;
-}
-.es-event-title{
-  font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;
-  color:var(--ink);letter-spacing:-.005em;line-height:1.25;
-  margin:0;
-}
-.es-event-back{
-  display:inline-flex;align-items:center;gap:.3rem;
-  margin-top:.35rem;
-  font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;
-  letter-spacing:.04em;color:var(--muted);text-decoration:none;
-  transition:color .2s;
-}
-@media (hover:hover) and (pointer:fine){
-  .es-event-back:hover{color:var(--brand)}
-}
-.es-event-back .material-symbols-outlined{font-size:14px}
-
-/* Sidebar nav list */
-.es-side-list{
-  display:flex;flex-direction:column;gap:.35rem;
-  list-style:none;margin:0;padding:0;
-}
-@media (max-width:767px){
-  .es-side-list{
-    flex-direction:row;flex-shrink:0;
-  }
-}
-
-/* Sidebar nav links */
-.es-side-link{
-  display:inline-flex;align-items:center;gap:.7rem;
-  padding:.7rem .85rem;border-radius:12px;
-  font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;
-  color:var(--muted);text-decoration:none;
-  flex-shrink:0;
-  transition:color .2s,background-color .2s,transform .2s;
-}
-@media (max-width:767px){
-  .es-side-link{
-    padding:.55rem .9rem;border-radius:9999px;
-    background:var(--line-soft);
-    font-size:12px;letter-spacing:.04em;
-    white-space:nowrap;
-  }
-}
-@media (hover:hover) and (pointer:fine){
-  .es-side-link:hover{color:var(--brand);background:var(--brand-tint)}
-}
-.es-side-link:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-.es-side-link.is-active,
-.es-side-link[aria-current="page"]{
-  background:var(--brand);color:#fff;
-  box-shadow:0 4px 12px -4px color-mix(in oklab,var(--brand) 50%,transparent);
-}
-.dark .es-side-link.is-active,
-.dark .es-side-link[aria-current="page"]{background:var(--brand-solid)}
-.es-side-link .material-symbols-outlined{font-size:18px;flex-shrink:0}
-@media (max-width:767px){
-  .es-side-link .material-symbols-outlined{display:none}
-}
 
 /* ── Content panel header ─────────────────────────── */
 .es-content{
@@ -354,15 +241,7 @@
   display:grid;grid-template-columns:1fr;gap:1rem;
   min-width:0;
 }
-/* Full-width mobile: allow 2-up only when there is no sidebar column */
-@media (min-width:640px) and (max-width:767px){
-  .es-plans-grid{grid-template-columns:repeat(2, minmax(0, 1fr));gap:1.25rem}
-}
-/* Sidebar layout narrows content — stay single-column until the shell is wide enough */
-@media (min-width:768px) and (max-width:1023px){
-  .es-plans-grid{grid-template-columns:1fr;gap:1rem}
-}
-@media (min-width:1024px){
+@media (min-width:640px){
   .es-plans-grid{grid-template-columns:repeat(2, minmax(0, 1fr));gap:1.25rem}
 }
 @media (min-width:1280px){

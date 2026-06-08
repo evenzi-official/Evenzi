@@ -5,7 +5,7 @@
 <link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Evenzi · Manage admins · Vibrant Union</title>
+<title>Evenzi · Manage admins · Anya & Kabir</title>
 <meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,16 +16,32 @@
 <link rel="stylesheet" href="../../shared/shell.css" />
 <link rel="stylesheet" href="event-settings.css" />
 </head>
-<body data-page="event-settings" data-es-page="admins" class="bg-bg text-ink min-h-screen">
+<body data-page="event-settings" data-section="dashboard" data-es-page="admins" class="bg-bg text-ink min-h-screen">
 
 <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
 
+<!-- ────────────────────── FLOATING TOP NAV ────────────────────── -->
 <nav class="floating-nav" aria-label="Main">
-  <div class="floating-nav-inner is-minimal">
+  <div class="floating-nav-inner">
     <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
       <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
     </a>
-    <span aria-hidden="true"></span>
+
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../event-control/event-control.html" data-section="dashboard" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="../website/overview.html" data-section="website" class="nav-tab" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+
     <div class="fn-actions">
       <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
         <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
@@ -40,6 +56,30 @@
     </div>
   </div>
 </nav>
+
+<!-- ────────────────────── FLOATING TOOL RAIL ────────────────────── -->
+<aside class="tool-rail" aria-label="Event tools">
+  <a href="../guests/guests.html" class="tr-btn" data-label="Guest management" data-page="guests" aria-label="Guest management">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+  </a>
+  <a href="../invitations/invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations" aria-label="Invitations">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
+  </a>
+  <a href="../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning" aria-label="Planning">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
+  </a>
+  <a href="../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media" aria-label="Media &amp; memories">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
+  </a>
+  <a href="general.html" class="tr-btn" data-label="Event settings" data-page="event-settings" aria-label="Event settings">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+  </a>
+  <span class="tr-divider" aria-hidden="true"></span>
+  <span class="tr-status" aria-hidden="true">
+    <span class="bc-live"></span>
+    LIVE
+  </span>
+</aside>
 
 <div class="bc-wrap reveal">
   <nav class="bc-shell" aria-label="Breadcrumb">
@@ -56,25 +96,17 @@
   </nav>
 </div>
 
-<main class="es-shell reveal">
-
-  <nav class="es-side" aria-label="Event settings">
-    <div class="es-event-head">
-      <p class="es-event-eyebrow">Event</p>
-      <p class="es-event-title">Vibrant Union</p>
-      <a class="es-event-back" href="../event-control/event-control.html">
-        <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span> Back to event
-      </a>
-    </div>
-    <ul class="es-side-list">
-      <li><a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a></li>
-      <li><a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a></li>
-      <li><a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a></li>
-      <li><a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a></li>
-      <li><a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a></li>
-      <li><a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a></li>
-    </ul>
+<div class="seg-wrap seg-wrap--page reveal">
+  <nav class="seg" aria-label="Event settings sections">
+    <a href="general.html" class="seg-item seg--page"><span class="material-symbols-outlined" aria-hidden="true">tune</span><span>General</span></a>
+    <a href="website.html" class="seg-item seg--page"><span class="material-symbols-outlined" aria-hidden="true">language</span><span>Website</span></a>
+    <a href="admins.html" class="seg-item seg--page is-active" aria-current="page"><span class="material-symbols-outlined" aria-hidden="true">groups</span><span>Admins</span></a>
+    <a href="guest-list.html" class="seg-item seg--page"><span class="material-symbols-outlined" aria-hidden="true">how_to_reg</span><span>Guest list</span></a>
+    <a href="registry.html" class="seg-item seg--page"><span class="material-symbols-outlined" aria-hidden="true">redeem</span><span>Registry</span></a>
+    <a href="plan-billing.html" class="seg-item seg--page"><span class="material-symbols-outlined" aria-hidden="true">credit_card</span><span>Plan &amp; billing</span></a>
   </nav>
+</div>
+<main class="page-band reveal pt-6 md:pt-8 pb-24">
 
   <div class="es-content">
     <header class="es-content-head">
