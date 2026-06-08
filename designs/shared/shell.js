@@ -1494,3 +1494,32 @@
     if (openBtn) close();
   }, { passive: true });
 })();
+
+/* ── .seg-wrap scroll-fade — gate ::after on overflow only ───────── */
+(function () {
+  function updateOverflow(wrap) {
+    var seg = wrap.querySelector('.seg');
+    if (!seg) return;
+    wrap.setAttribute('data-overflow', seg.scrollWidth > seg.clientWidth ? 'true' : 'false');
+  }
+  function initSegWraps() {
+    document.querySelectorAll('.seg-wrap').forEach(function (wrap) {
+      updateOverflow(wrap);
+      var seg = wrap.querySelector('.seg');
+      if (!seg) return;
+      if (typeof ResizeObserver !== 'undefined') {
+        var ro = new ResizeObserver(function () { updateOverflow(wrap); });
+        ro.observe(seg);
+      }
+      seg.addEventListener('scroll', function () { updateOverflow(wrap); }, { passive: true });
+    });
+  }
+  window.addEventListener('resize', function () {
+    document.querySelectorAll('.seg-wrap').forEach(updateOverflow);
+  }, { passive: true });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSegWraps);
+  } else {
+    initSegWraps();
+  }
+})();

@@ -55,7 +55,7 @@
 
     /* Tab toggle — Sign Up / Log In */
     function setMode(mode) {
-      var tabs = document.querySelectorAll('.auth-tabs .nav-tab');
+      var tabs = document.querySelectorAll('[data-auth-mode]');
       tabs.forEach(function (t) {
         var active = t.getAttribute('data-auth-mode') === mode;
         t.classList.toggle('is-active', active);
@@ -65,16 +65,16 @@
       if (leadEl)  leadEl.textContent  = COPY[mode].lead;
     }
     document.addEventListener('click', function (e) {
-      var tab = e.target.closest && e.target.closest('.auth-tabs .nav-tab[data-auth-mode]');
+      var tab = e.target.closest && e.target.closest('[data-auth-mode]');
       if (!tab) return;
       setMode(tab.getAttribute('data-auth-mode'));
     });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      var tab = e.target.closest && e.target.closest('.auth-tabs .nav-tab');
+      var tab = e.target.closest && e.target.closest('[data-auth-mode]');
       if (!tab) return;
       e.preventDefault();
-      var siblings = Array.prototype.slice.call(document.querySelectorAll('.auth-tabs .nav-tab'));
+      var siblings = Array.prototype.slice.call(document.querySelectorAll('[data-auth-mode]'));
       var idx = siblings.indexOf(tab);
       var next = e.key === 'ArrowLeft'
         ? siblings[(idx - 1 + siblings.length) % siblings.length]
@@ -93,7 +93,7 @@
     });
 
     /* Sync JS state to markup default on load — prevents desync if markup defaults change */
-    var initialTab = document.querySelector('.auth-tabs .nav-tab.is-active');
+    var initialTab = document.querySelector('[data-auth-mode].is-active');
     if (initialTab) setMode(initialTab.getAttribute('data-auth-mode'));
 
     /* Sanitize phone input to digits only as user types */

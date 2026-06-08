@@ -1,7 +1,7 @@
 /* ════════════════════════════════════════════════════════════════════
    Evenzi · Auth flow page styles
    Shared by auth.html · verify-otp.html · role-select.html.
-   Reusable primitives (.btn-google, .divider-or, .nav-tabs.auth-tabs,
+   Reusable primitives (.btn-google, .divider-or, .seg.seg--fill,
    .page-bg, .role-tag-soon, .radio-pill, .form-input, .clay-card,
    .btn-pill, .pin-input, .bc-toast) live in shell.css.
    ════════════════════════════════════════════════════════════════════ */
@@ -39,7 +39,7 @@
 }
 
 /* ── Auth-mode tabs (Sign Up / Log In) ──────────────── */
-/* See .nav-tabs.auth-tabs in shell.css for the modifier. Nothing extra here. */
+/* Auth mode-switch uses .seg.seg--fill in shell.css. Nothing extra here. */
 
 /* ── Phone field with +91 prefix — focus-forward enhancement ──
    The prefix is a non-interactive span; clicking it should focus the field.

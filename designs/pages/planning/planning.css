@@ -3,9 +3,8 @@
    Generic primitives live in shared/shell.css.
    ════════════════════════════════════════════════════════════════════ */
 
-/* ── In-page pill tablist ──────────────────────────────────────────── */
+/* ── In-page seg tablist ───────────────────────────────────────────── */
 .plan-tabs-wrap{margin-bottom:1rem}
-.plan-tabs .pill-tab{flex:1 1 0;justify-content:center;min-height:44px}
 
 /* ── Panels ────────────────────────────────────────────────────────── */
 .plan-panel[hidden]{display:none !important}
@@ -99,7 +98,6 @@
 [data-plan-chip="all"]{color:var(--brand);font-weight:700;font-variant-numeric:tabular-nums}
 
 .plan-view-toggle{width:100%;margin-bottom:1rem}
-.plan-view-toggle .pill-tab{flex:1;justify-content:center;min-height:40px}
 
 .plan-alldone{
   display:flex;align-items:center;gap:.5rem;

@@ -112,13 +112,13 @@
   </header>
 
   <!-- In-page tab bar (pill style) -->
-  <div class="plan-tabs-wrap pill-tabs-wrap reveal">
-    <div class="plan-tabs pill-tabs" role="tablist" aria-label="Planning views">
-      <button type="button" role="tab" id="plan-tab-checklist" class="pill-tab is-active" aria-selected="true" aria-controls="plan-panel-checklist" tabindex="0">
+  <div class="plan-tabs-wrap seg-wrap reveal">
+    <div class="plan-tabs seg seg--fill" role="tablist" aria-label="Planning views">
+      <button type="button" role="tab" id="plan-tab-checklist" class="seg-item is-active" aria-selected="true" aria-controls="plan-panel-checklist" tabindex="0">
         <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist</span>
         Checklist
       </button>
-      <button type="button" role="tab" id="plan-tab-budget" class="pill-tab" aria-selected="false" aria-controls="plan-panel-budget" tabindex="-1">
+      <button type="button" role="tab" id="plan-tab-budget" class="seg-item" aria-selected="false" aria-controls="plan-panel-budget" tabindex="-1">
         <span aria-hidden="true" class="material-symbols-outlined">account_balance_wallet</span>
         Budget
       </button>
@@ -181,9 +181,9 @@
         <button type="button" class="dp-filter-chip" role="radio" aria-checked="false" tabindex="-1" data-plan-status="overdue">Overdue <span data-plan-chip="overdue">0</span></button>
       </div>
 
-      <div class="pill-tabs pill-tabs--sm plan-view-toggle" role="radiogroup" aria-label="Task view" id="plan-view-toggle">
-        <button type="button" role="radio" class="pill-tab is-active" id="plan-view-list" aria-checked="true" tabindex="0" data-plan-view="list">List</button>
-        <button type="button" role="radio" class="pill-tab" id="plan-view-timeline" aria-checked="false" tabindex="-1" data-plan-view="timeline">Timeline</button>
+      <div class="seg seg--sm seg--fill plan-view-toggle" role="radiogroup" aria-label="Task view" id="plan-view-toggle">
+        <button type="button" role="radio" class="seg-item is-active" id="plan-view-list" aria-checked="true" tabindex="0" data-plan-view="list">List</button>
+        <button type="button" role="radio" class="seg-item" id="plan-view-timeline" aria-checked="false" tabindex="-1" data-plan-view="timeline">Timeline</button>
       </div>
 
       <div class="plan-alldone" id="plan-alldone" hidden role="status">

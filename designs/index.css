@@ -42,13 +42,13 @@
   margin-top:.5rem;
 }
 
-/* Filter row — two segmented pills using existing .nav-tabs from shell.css */
+/* Filter row — two .seg--fill view-switchers */
 .filter-row{
   display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;
   margin-top:1.5rem;
 }
-.filter-row .nav-tabs{padding:.25rem;background:color-mix(in oklab,var(--card) 90%,transparent)}
-.filter-row .nav-tab{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.filter-row .seg{padding:.25rem;background:color-mix(in oklab,var(--card) 90%,transparent)}
+.filter-row .seg-item{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
 
 /* ── EVENT GRID ───────────────────── */
 /* ── EVENT GRID ─────────────────────────────────────────────────

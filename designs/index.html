@@ -72,21 +72,21 @@
     <!-- Filter row: ownership + time. Two independent radiogroups (4 combos),
          not tabs — there are no tabpanels matching tabs 1:1. -->
     <div class="filter-row">
-      <div class="nav-tabs inline-flex" role="radiogroup" aria-label="Ownership filter">
-        <button type="button" role="radio" data-set-ownership="my" class="nav-tab is-active" aria-checked="true">
+      <div class="seg seg--fill" role="radiogroup" aria-label="Ownership filter">
+        <button type="button" role="radio" data-set-ownership="my" class="seg-item is-active" aria-checked="true">
           <span aria-hidden="true" class="material-symbols-outlined icon-fill dash-filter-icon">home_pin</span>
           <span>My events</span>
         </button>
-        <button type="button" role="radio" data-set-ownership="collab" class="nav-tab" aria-checked="false">
+        <button type="button" role="radio" data-set-ownership="collab" class="seg-item" aria-checked="false">
           <span aria-hidden="true" class="material-symbols-outlined dash-filter-icon">groups</span>
           <span>Collaborations</span>
         </button>
       </div>
-      <div class="nav-tabs inline-flex" role="radiogroup" aria-label="Time filter">
-        <button type="button" role="radio" data-set-time="active" class="nav-tab is-active" aria-checked="true">
+      <div class="seg seg--fill" role="radiogroup" aria-label="Time filter">
+        <button type="button" role="radio" data-set-time="active" class="seg-item is-active" aria-checked="true">
           <span>Active</span>
         </button>
-        <button type="button" role="radio" data-set-time="past" class="nav-tab" aria-checked="false">
+        <button type="button" role="radio" data-set-time="past" class="seg-item" aria-checked="false">
           <span>Past</span>
         </button>
       </div>

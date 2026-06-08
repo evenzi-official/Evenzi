@@ -274,14 +274,35 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
   box-shadow:0 6px 14px -4px color-mix(in oklab,var(--brand) 60%,transparent);
 }
 @media (hover:hover) and (pointer:fine){.fn-avatar:hover{transform:scale(1.06)}}
-/* Compact tabs inside the floating nav */
+/* .nav-tabs / .nav-tab — floating-nav route navigation ONLY (view-switchers use .seg) */
 .floating-nav .nav-tabs{
+  display:inline-flex;align-items:center;gap:.25rem;padding:.25rem;
   background:color-mix(in oklab,var(--bg) 35%,transparent);
+  backdrop-filter:blur(14px) saturate(140%);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+  border:1px solid var(--brand-tint-2);
+  border-radius:9999px;
   border-color:transparent;box-shadow:none;
-  padding:.25rem;
 }
-.floating-nav .nav-tab{padding:.45rem .9rem;font-size:12.5px}
-.floating-nav .nav-tab .material-symbols-outlined{font-size:16px}
+.floating-nav .nav-tab{
+  display:inline-flex;align-items:center;gap:.45rem;
+  padding:.45rem .9rem;border-radius:9999px;
+  background:transparent;border:0;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  color:var(--muted);text-decoration:none;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:-.005em;
+  transition:color .25s,background-color .25s,box-shadow .25s,transform .25s;
+}
+@media (hover:hover) and (pointer:fine){.floating-nav .nav-tab:hover{color:var(--brand);background:var(--brand-tint)}}
+.floating-nav .nav-tab.is-active,
+.floating-nav .nav-tab[aria-current="page"]{
+  background:var(--brand);color:#fff;
+  box-shadow:0 6px 14px -4px color-mix(in oklab,var(--brand) 60%,transparent),inset 0 1px 0 rgba(255,255,255,.18);
+}
+.dark .floating-nav .nav-tab.is-active,
+.dark .floating-nav .nav-tab[aria-current="page"]{background:var(--brand-solid)}
+.floating-nav .nav-tab .material-symbols-outlined{font-size:16px;transition:transform .25s}
+@media (hover:hover) and (pointer:fine){.floating-nav .nav-tab:hover .material-symbols-outlined{transform:scale(1.06)}}
 @media (max-width:768px){
   .floating-nav .nav-tab{padding:.5rem .55rem}
   .floating-nav .nav-tab-label{display:none}
@@ -294,34 +315,6 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
   .floating-nav-inner{padding:.35rem .45rem .35rem .9rem;gap:.5rem}
   .fn-logo{font-size:1.25rem}
 }
-/* Center segmented tabs */
-.nav-tabs{
-  display:inline-flex;align-items:center;gap:.25rem;padding:.3rem;
-  background:color-mix(in oklab,var(--card) 70%,transparent);
-  backdrop-filter:blur(14px) saturate(140%);
-  -webkit-backdrop-filter:blur(14px) saturate(140%);
-  border:1px solid var(--brand-tint-2);
-  border-radius:9999px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 22px -12px rgba(0,0,0,.35);
-}
-.nav-tab{
-  display:inline-flex;align-items:center;gap:.45rem;
-  padding:.55rem 1rem;border-radius:9999px;
-  /* Reset UA defaults so the rule is self-sufficient (don't rely on Tailwind preflight) */
-  background:transparent;border:0;cursor:pointer;
-  appearance:none;-webkit-appearance:none;
-  color:var(--muted);text-decoration:none;
-  font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;letter-spacing:-.005em;
-  transition:color .25s,background-color .25s,box-shadow .25s,transform .25s;
-}
-@media (hover:hover) and (pointer:fine){.nav-tab:hover{color:var(--brand);background:var(--brand-tint)}}
-.nav-tab.is-active{
-  background:var(--brand);color:#fff;
-  box-shadow:0 6px 14px -4px color-mix(in oklab,var(--brand) 60%,transparent),inset 0 1px 0 rgba(255,255,255,.18);
-}
-.dark .nav-tab.is-active{background:var(--brand-solid)}
-.nav-tab .material-symbols-outlined{font-size:18px;transition:transform .25s}
-@media (hover:hover) and (pointer:fine){.nav-tab:hover .material-symbols-outlined{transform:scale(1.06)}}
 
 /* ════════════════════════════════════════════════════════════════════
    PAGE-TEMPLATE WRAPPER for the breadcrumb — canonical spacing.
@@ -2105,7 +2098,7 @@ body.no-scroll{overflow:hidden}
    ════════════════════════════════════════════════════════════════════ */
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   .floating-nav-inner,
-  .nav-tabs,
+  .floating-nav .nav-tabs,
   .bc-shell,
   .tool-rail,
   .qa-card,
@@ -2123,11 +2116,11 @@ body.no-scroll{overflow:hidden}
 
 /* ════════════════════════════════════════════════════════════════════
    AUTH-FLOW PRIMITIVES
-   .btn-google · .divider-or · .nav-tabs.auth-tabs · .auth-bg · .role-tag-soon
+   .btn-google · .divider-or · .auth-bg · .role-tag-soon
    Used on auth.html / verify-otp.html / role-select.html. All four
    are generic enough to live in shell (OAuth button repeats, "or"
-   divider repeats, the auth-tabs modifier rebases nav-tabs for
-   in-card mode-switching, role-tag-soon for any "coming soon" pill).
+   divider repeats, role-tag-soon for any "coming soon" pill).
+   Auth mode-switch uses .seg.seg--fill (see SEGMENTED CONTROL block).
    ════════════════════════════════════════════════════════════════════ */
 
 /* Google OAuth button — official 4-color G, no recoloring. */
@@ -2166,34 +2159,6 @@ body.no-scroll{overflow:hidden}
 .divider-or::after{
   content:'';flex:1;height:1px;
   background:var(--brand-tint-2);
-}
-
-/* .auth-tabs — in-card variant of .nav-tabs.
-   Full-width, larger touch targets, no backdrop-blur (parent card is opaque).
-   Inactive hover quieter so it doesn't compete with the active state. */
-.nav-tabs.auth-tabs{
-  display:flex;width:100%;
-  padding:.3rem;
-  backdrop-filter:none;-webkit-backdrop-filter:none;
-  /* Subtle brand-tinted track that works in both modes.
-     (Don't use --peach — it's a transparent red in light but a solid
-     blue-gray surface token in dark, producing a mismatched ring in dark.) */
-  background:color-mix(in oklab, var(--brand) 6%, var(--card));
-  border-color:var(--line);
-  /* Suppress the outer shadow inherited from base .nav-tabs — it reads
-     as a hard ring around the segmented control in dark mode. */
-  box-shadow:none;
-}
-.nav-tabs.auth-tabs .nav-tab{
-  flex:1;justify-content:center;
-  padding:.85rem 1rem;
-  min-height:44px;
-  font-size:14px;
-}
-@media (hover:hover) and (pointer:fine){
-  .nav-tabs.auth-tabs .nav-tab:not(.is-active):hover{
-    background:var(--line-soft);color:var(--ink);
-  }
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -3659,15 +3624,18 @@ body.no-scroll{overflow:hidden}
 .tag-chip-x:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
 
 /* ════════════════════════════════════════════════════════════════════
-   PILL TABS — segmented sub-nav (promoted from website .wb-tab*)
-   .wb-tabs* aliased to .pill-tabs*; website wrap keeps section-head
-   container rhythm (standalone, outside a padded main).
+   SEGMENTED CONTROL (.seg) — canonical view-switcher
+   Two track looks (both intentional):
+     default / scrollable → plain --card track
+     .seg--fill           → subtly tinted track (auth-tabs proven mix)
+   Floating-nav route tabs stay on .nav-tabs/.nav-tab (out of scope).
    ════════════════════════════════════════════════════════════════════ */
-.pill-tabs-wrap{
+.seg-wrap{
   position:relative;
   max-width:100%;
 }
-.pill-tabs-wrap::after{
+/* Scroll-fade only when content overflows — gated by shell.js [data-overflow] */
+.seg-wrap[data-overflow="true"]::after{
   content:"";
   position:absolute;top:0;bottom:0;right:0;
   width:24px;pointer-events:none;
@@ -3675,79 +3643,101 @@ body.no-scroll{overflow:hidden}
   border-top-right-radius:9999px;
   border-bottom-right-radius:9999px;
 }
-.wb-tabs-wrap{
-  position:relative;
+/* Website module sub-nav band rhythm (from legacy .wb-tabs-wrap) */
+.seg-wrap--page{
   max-width:1440px;
   margin:1.25rem auto 0;
   padding:0 1.5rem;
   min-width:0;
 }
 @media (max-width:767px){
-  .wb-tabs-wrap{max-width:100%;overflow:hidden}
+  .seg-wrap--page{max-width:100%;overflow:hidden}
 }
 @media (min-width:768px){
-  .wb-tabs-wrap{padding:0 2.5rem}
+  .seg-wrap--page{padding:0 2.5rem}
 }
-.wb-tabs-wrap::after{
-  content:"";
-  position:absolute;top:0;bottom:0;right:1.5rem;
-  width:24px;pointer-events:none;
-  background:linear-gradient(90deg, transparent 0%, var(--bg) 90%);
-  border-top-right-radius:9999px;
-  border-bottom-right-radius:9999px;
-}
+.seg-wrap--page[data-overflow="true"]::after{right:1.5rem}
 @media (min-width:768px){
-  .wb-tabs-wrap::after{right:2.5rem}
+  .seg-wrap--page[data-overflow="true"]::after{right:2.5rem}
 }
-.pill-tabs,
-.wb-tabs{
-  display:flex;gap:.5rem;
-  overflow-x:auto;scrollbar-width:none;
+.seg{
+  display:flex;gap:.25rem;
   padding:.3rem;
   background:var(--card);
   border:1px solid var(--line);
   border-radius:9999px;
-  box-shadow:none;
-  -webkit-overflow-scrolling:touch;
+  overflow-x:auto;
   scroll-snap-type:x mandatory;
+  -ms-overflow-style:none;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
   scroll-padding-inline:.3rem;
   max-width:100%;
   min-width:0;
 }
-.pill-tabs::-webkit-scrollbar,
-.wb-tabs::-webkit-scrollbar{display:none}
-.pill-tab,
-.wb-tab{
+.seg::-webkit-scrollbar{display:none}
+.seg-item{
   display:inline-flex;align-items:center;gap:.5rem;
   padding:.55rem 1rem;border-radius:9999px;
   font-size:.85rem;font-weight:500;color:var(--muted);
-  background:transparent;white-space:nowrap;
+  background:transparent;border:0;cursor:pointer;
+  white-space:nowrap;text-decoration:none;
+  font-family:inherit;
+  appearance:none;-webkit-appearance:none;
   transition:background .15s ease,color .15s ease;
-  text-decoration:none;border:0;cursor:pointer;
-  font-family:inherit;scroll-snap-align:start;
+  scroll-snap-align:start;
+  flex:0 0 auto;
+  min-height:40px;
 }
-.pill-tab .material-symbols-outlined,
-.wb-tab .material-symbols-outlined{font-size:18px}
+.seg-item .material-symbols-outlined{font-size:18px}
 @media (hover:hover) and (pointer:fine){
-  .pill-tab:hover,.wb-tab:hover{color:var(--ink);background:var(--brand-tint)}
+  .seg-item:hover{color:var(--ink);background:var(--brand-tint)}
 }
-.pill-tab:focus-visible,.wb-tab:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-.pill-tab.is-active,.pill-tab[aria-selected="true"],
-.wb-tab.is-active,.wb-tab[aria-selected="true"]{
+.seg-item:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.seg-item:disabled,
+.seg-item[aria-disabled="true"]{
+  color:var(--muted-soft);opacity:.5;cursor:not-allowed;
+}
+@media (hover:hover) and (pointer:fine){
+  .seg-item:disabled:hover,
+  .seg-item[aria-disabled="true"]:hover{color:var(--muted-soft);background:transparent}
+}
+.seg-item.is-active,
+.seg-item[aria-selected="true"],
+.seg-item[aria-checked="true"],
+.seg-item[aria-current="page"]{
   background:var(--brand-tint);color:var(--brand);font-weight:600;
 }
-.dark .pill-tab.is-active,.dark .pill-tab[aria-selected="true"],
-.dark .wb-tab.is-active,.dark .wb-tab[aria-selected="true"]{color:var(--brand-ink)}
-.pill-tab.is-active .material-symbols-outlined,
-.pill-tab[aria-selected="true"] .material-symbols-outlined,
-.wb-tab.is-active .material-symbols-outlined,
-.wb-tab[aria-selected="true"] .material-symbols-outlined{color:var(--brand)}
-.dark .pill-tab.is-active .material-symbols-outlined,
-.dark .pill-tab[aria-selected="true"] .material-symbols-outlined,
-.dark .wb-tab.is-active .material-symbols-outlined,
-.dark .wb-tab[aria-selected="true"] .material-symbols-outlined{color:var(--brand-ink)}
-.pill-tabs--sm .pill-tab{padding:.4rem .75rem;font-size:.78rem}
-.pill-tabs--sm .pill-tab .material-symbols-outlined{font-size:16px}
+.dark .seg-item.is-active,
+.dark .seg-item[aria-selected="true"],
+.dark .seg-item[aria-checked="true"],
+.dark .seg-item[aria-current="page"]{color:var(--brand-ink)}
+.seg-item.is-active .material-symbols-outlined,
+.seg-item[aria-selected="true"] .material-symbols-outlined,
+.seg-item[aria-checked="true"] .material-symbols-outlined,
+.seg-item[aria-current="page"] .material-symbols-outlined{color:var(--brand)}
+.dark .seg-item.is-active .material-symbols-outlined,
+.dark .seg-item[aria-selected="true"] .material-symbols-outlined,
+.dark .seg-item[aria-checked="true"] .material-symbols-outlined,
+.dark .seg-item[aria-current="page"] .material-symbols-outlined{color:var(--brand-ink)}
+/* .seg--page — anchor variant; signals nav links (no extra styling beyond .seg-item) */
+/* .seg--fill — even-split 2–3 options; tinted track; capped width on desktop */
+.seg.seg--fill{
+  width:100%;
+  overflow-x:visible;
+  scroll-snap-type:none;
+  background:color-mix(in oklab,var(--brand) 6%,var(--card));
+}
+@media (min-width:768px){
+  .seg.seg--fill{max-width:520px;margin-right:auto}
+}
+.seg.seg--fill .seg-item{
+  flex:1 1 0;
+  justify-content:center;
+  min-height:44px;
+}
+.seg.seg--sm .seg-item{padding:.4rem .75rem;font-size:.78rem}
+.seg.seg--sm .seg-item .material-symbols-outlined{font-size:16px}
 
 /* ════════════════════════════════════════════════════════════════════
    ADD FAB — floating primary action (promoted from guests .gm-add-fab)
