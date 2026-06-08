@@ -63,15 +63,15 @@
 <!-- ────────────────────── PAGE BODY ────────────────────── -->
 <main class="page-band pt-10 md:pt-14 pb-20">
 
-  <!-- Welcome header -->
-  <header class="reveal">
-    <p class="welcome-eyebrow">Welcome back, Abhijith</p>
-    <h1 class="welcome-h1" id="dash-title">Your Events</h1>
-    <p class="mt-3 text-base md:text-lg text-muted max-w-2xl">Everything you're hosting, planning and helping with — in one place.</p>
+  <header class="section-head reveal">
+    <p class="section-head-eyebrow">Welcome back, Abhijith</p>
+    <h1 class="section-head-title" id="dash-title">Your Events</h1>
+    <p class="section-head-sub">Everything you're hosting, planning and helping with — in one place.</p>
+  </header>
 
     <!-- Filter row: ownership + time. Two independent radiogroups (4 combos),
          not tabs — there are no tabpanels matching tabs 1:1. -->
-    <div class="filter-row">
+    <div class="filter-row reveal">
       <div class="seg seg--fill" role="radiogroup" aria-label="Ownership filter">
         <button type="button" role="radio" data-set-ownership="my" class="seg-item is-active" aria-checked="true">
           <span aria-hidden="true" class="material-symbols-outlined icon-fill dash-filter-icon">home_pin</span>
@@ -91,7 +91,6 @@
         </button>
       </div>
     </div>
-  </header>
 
   <!-- ════════════════════════════════════════════════════════════════════
        VIEW SECTIONS — only one visible at a time, driven by body[data-*]

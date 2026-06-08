@@ -21,12 +21,6 @@
    scope so sibling pages keep the shared 1.25rem rhythm.
    ════════════════════════════════════════════════════════════════════ */
 body[data-wb-page="edit"] .bc-wrap{padding-top:1rem}
-body[data-wb-page="edit"] .section-head{margin-top:.75rem}
-body[data-wb-page="edit"] .section-head-eyebrow{margin-bottom:.25rem}
-body[data-wb-page="edit"] .section-head-title{font-size:1.65rem;margin-bottom:.25rem}
-@media (min-width:768px){
-  body[data-wb-page="edit"] .section-head-title{font-size:2rem}
-}
 /* Module tabs removed from the editor — the Edit|Preview toggle now follows
    the title directly and needs its own top gap (mobile only; hidden ≥1024). */
 body[data-wb-page="edit"] .ep-view-toggle-wrap{margin-top:.85rem}

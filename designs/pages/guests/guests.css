@@ -118,36 +118,6 @@
 .gm-add-fab:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 @media (prefers-reduced-motion: reduce){.gm-add-fab{transition:none}}
 
-/* ── Bulk bar — floating bottom (Jira-style dark bar) ──────────────── */
-.gm-bulkbar[hidden]{display:none}
-.gm-bulkbar{
-  position:fixed;z-index:78;
-  left:50%;transform:translateX(-50%);
-  bottom:calc(5.75rem + env(safe-area-inset-bottom,0px));   /* above the floating dock */
-  display:flex;align-items:center;gap:.45rem;
-  padding:.45rem .5rem .45rem .9rem;border-radius:9999px;
-  background:var(--dark-card);box-shadow:0 14px 36px -8px rgba(0,0,0,.6);
-  max-width:min(440px,calc(100vw - 1.5rem));   /* don't exceed the dock edges */
-}
-.gm-bulk-count{font-weight:700;font-size:.82rem;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}
-.gm-bulk-selectall{background:none;border:0;color:#fff;opacity:.85;font-weight:600;font-size:.8rem;cursor:pointer;padding:.3rem .45rem;border-radius:8px;white-space:nowrap}
-.gm-bulk-selectall:hover{opacity:1;background:rgba(255,255,255,.12)}
-.gm-bulk-selectall:focus-visible{outline:2px solid #fff;outline-offset:1px}
-.gm-bulk-div{width:1px;height:20px;background:rgba(255,255,255,.22);flex-shrink:0}
-.gm-bulk-act{display:inline-flex;align-items:center;gap:.35rem;background:rgba(255,255,255,.1);border:0;color:#fff;font-weight:600;font-size:.8rem;cursor:pointer;padding:.45rem .7rem;border-radius:9999px;white-space:nowrap}
-.gm-bulk-act:hover{background:rgba(255,255,255,.2)}
-.gm-bulk-act[disabled]{opacity:.4;cursor:not-allowed}
-.gm-bulk-act .material-symbols-outlined{font-size:16px}
-.gm-bulk-act:focus-visible{outline:2px solid #fff;outline-offset:1px}
-.gm-bulk-cancel{width:32px;height:32px;border-radius:9999px;border:0;background:rgba(255,255,255,.12);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:.15rem}
-.gm-bulk-cancel:hover{background:rgba(255,255,255,.24)}
-.gm-bulk-cancel:focus-visible{outline:2px solid #fff;outline-offset:1px}
-@media (max-width:479px){
-  .gm-bulk-act-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-  .gm-bulk-act{padding:.5rem .65rem;gap:0}
-  .gm-bulkbar{gap:.35rem;padding-left:.7rem}
-}
-
 /* selection mode — the avatar cell becomes a checkbox target; the name block
    (a focusable button) becomes the keyboard checkbox (role=checkbox in JS) */
 .gm-list-card.is-selecting .guest-row{cursor:pointer}
