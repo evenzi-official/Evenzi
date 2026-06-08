@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Registry settings · Vibrant Union</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="event-settings.css" />
+</head>
+<body data-page="event-settings" data-es-page="registry" class="bg-bg text-ink min-h-screen">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner is-minimal">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+    </a>
+    <span aria-hidden="true"></span>
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb">
+    <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html">DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html">ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page"><span class="bc-dot" aria-hidden="true"></span> EVENT SETTINGS</li>
+    </ol>
+  </nav>
+</div>
+
+<main class="es-shell reveal">
+
+  <nav class="es-side" aria-label="Event settings">
+    <div class="es-event-head">
+      <p class="es-event-eyebrow">Event</p>
+      <p class="es-event-title">Vibrant Union</p>
+      <a class="es-event-back" href="../event-control/event-control.html">
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span> Back to event
+      </a>
+    </div>
+    <ul class="es-side-list">
+      <li><a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a></li>
+      <li><a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a></li>
+      <li><a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a></li>
+      <li><a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a></li>
+      <li><a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a></li>
+      <li><a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a></li>
+    </ul>
+  </nav>
+
+  <div class="es-content">
+    <header class="es-content-head">
+      <div>
+        <h1 class="es-content-title">Registry settings</h1>
+        <p class="es-content-lead">Add an external registry, set up a cash fund, or do both. Guests pick the option they prefer.</p>
+      </div>
+      <div class="es-content-actions">
+        <button type="button" class="btn-pill btn-pill-primary" data-es-save data-es-save-toast="REGISTRY SAVED">
+          <span aria-hidden="true" class="material-symbols-outlined">save</span>
+          Save
+          <span aria-hidden="true" class="btn-pill-spinner"></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="es-registry-grid">
+      <div class="es-registry-stack">
+
+        <section class="es-section">
+          <header class="es-section-head">
+            <h2 class="es-section-title">
+              <span aria-hidden="true" class="material-symbols-outlined icon-fill">link</span>
+              Link external registry
+            </h2>
+            <p class="es-section-sub">Already set up on Amazon, Zola, or another service? Paste your registry URL — we'll embed a button on your event website.</p>
+          </header>
+          <div class="form-group">
+            <label class="form-label" for="es-registry-url">Registry URL</label>
+            <input id="es-registry-url" type="url" class="form-input" placeholder="https://www.amazon.com/wedding/registry/..." autocomplete="off"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="es-registry-label">Button label</label>
+            <input id="es-registry-label" type="text" class="form-input" value="View our registry" maxlength="40" autocomplete="off"/>
+            <p class="form-helper">This is what guests see on your event page.</p>
+          </div>
+          <button type="button" class="btn-pill btn-pill-primary es-btn-self" data-es-save data-es-save-toast="REGISTRY LINK ADDED">
+            <span aria-hidden="true" class="material-symbols-outlined">add_link</span>
+            Add link
+            <span aria-hidden="true" class="btn-pill-spinner"></span>
+          </button>
+        </section>
+
+        <section class="es-section">
+          <header class="es-section-head">
+            <h2 class="es-section-title">
+              <span aria-hidden="true" class="material-symbols-outlined icon-fill">savings</span>
+              Create a cash fund
+            </h2>
+            <p class="es-section-sub">Let guests contribute directly to a goal — honeymoon, home, education. Payouts via UPI or bank transfer.</p>
+          </header>
+          <div class="es-field-grid">
+            <div class="form-group">
+              <label class="form-label" for="es-fund-name">Fund name</label>
+              <input id="es-fund-name" type="text" class="form-input" placeholder="e.g. Honeymoon Fund" maxlength="40" autocomplete="off"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="es-fund-goal">Goal (₹, optional)</label>
+              <div class="form-input form-input-group">
+                <span class="form-input-prefix" aria-hidden="true">₹</span>
+                <input id="es-fund-goal" type="number" min="0" inputmode="numeric" class="form-input-field" placeholder="200000" autocomplete="off"/>
+              </div>
+            </div>
+            <div class="form-group is-full">
+              <label class="form-label" for="es-fund-message">Message for guests</label>
+              <textarea id="es-fund-message" class="form-textarea" maxlength="200" placeholder="Your gift helps us create memories that last a lifetime."></textarea>
+            </div>
+          </div>
+          <button type="button" class="btn-pill btn-pill-primary es-btn-self" data-es-save data-es-save-toast="CASH FUND CREATED">
+            <span aria-hidden="true" class="material-symbols-outlined">add</span>
+            Create fund
+            <span aria-hidden="true" class="btn-pill-spinner"></span>
+          </button>
+        </section>
+      </div>
+
+      <!-- Guest View Preview side widget -->
+      <div class="es-preview-card">
+        <p class="es-preview-eyebrow">Guest view preview</p>
+        <p class="es-preview-title">Registry section</p>
+        <p class="es-preview-body">This is what your guests will see on the event website's <strong>Registry</strong> tab.</p>
+        <div class="es-preview-box">
+          <span class="material-symbols-outlined icon-fill" aria-hidden="true">redeem</span>
+          <p>
+            Empty preview<br/>
+            <span class="es-preview-muted">Save a registry above to populate</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <footer class="es-footer">
+      <span>© 2026 Evenzi · All rights reserved</span>
+      <div class="es-footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Help</a>
+      </div>
+    </footer>
+  </div>
+</main>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">SAVED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="event-settings.js"></script>
+</body>
+</html>

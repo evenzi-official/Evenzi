@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · General settings · Vibrant Union</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="event-settings.css" />
+</head>
+<body data-page="event-settings" data-es-page="general" class="bg-bg text-ink min-h-screen">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ────────────────────── FLOATING NAV (event-context) ────────────────────── -->
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner is-minimal">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+    </a>
+    <span aria-hidden="true"></span>
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ────────────────────── BREADCRUMB ────────────────────── -->
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event" data-bc-back data-bc-back-label="EVENT">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html" data-bc-link>ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        EVENT SETTINGS
+      </li>
+    </ol>
+  </nav>
+</div>
+
+<!-- ────────────────────── ES SHELL ────────────────────── -->
+<main class="es-shell reveal">
+
+  <!-- Sidebar -->
+  <nav class="es-side" aria-label="Event settings">
+    <div class="es-event-head">
+      <p class="es-event-eyebrow">Event</p>
+      <p class="es-event-title">Vibrant Union</p>
+      <a class="es-event-back" href="../event-control/event-control.html">
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+        Back to event
+      </a>
+    </div>
+    <ul class="es-side-list">
+      <li><a class="es-side-link" data-es-page="general" href="general.html">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span>
+        General
+      </a></li>
+      <li><a class="es-side-link" data-es-page="website" href="website.html">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span>
+        Website
+      </a></li>
+      <li><a class="es-side-link" data-es-page="admins" href="admins.html">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+        Admins
+      </a></li>
+      <li><a class="es-side-link" data-es-page="guest-list" href="guest-list.html">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span>
+        Guest list
+      </a></li>
+      <li><a class="es-side-link" data-es-page="registry" href="registry.html">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span>
+        Registry
+      </a></li>
+      <li><a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span>
+        Plan &amp; billing
+      </a></li>
+    </ul>
+  </nav>
+
+  <!-- Content panel -->
+  <div class="es-content">
+    <header class="es-content-head">
+      <div>
+        <h1 class="es-content-title">General settings</h1>
+        <p class="es-content-lead">Manage your event's core details and registration information.</p>
+      </div>
+      <div class="es-content-actions">
+        <button type="button" class="btn-pill btn-pill-primary" data-es-save data-es-save-toast="EVENT DETAILS SAVED">
+          <span aria-hidden="true" class="material-symbols-outlined">save</span>
+          Save changes
+          <span aria-hidden="true" class="btn-pill-spinner"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ─────── Event Identity ─────── -->
+    <section class="es-section">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">badge</span>
+          Event identity
+        </h2>
+        <p class="es-section-sub">The basics — visible to your guests across invites, the website, and the dashboard.</p>
+      </header>
+
+      <div class="es-field-grid">
+        <div class="form-group is-full">
+          <label class="form-label" for="es-event-name">Event name</label>
+          <input id="es-event-name" type="text" class="form-input" value="Anya &amp; Kabir's Wedding" autocomplete="off"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="es-partner-one">Partner one</label>
+          <input id="es-partner-one" type="text" class="form-input" value="Anya Singh" autocomplete="off"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="es-partner-two">Partner two</label>
+          <input id="es-partner-two" type="text" class="form-input" value="Kabir Mehta" autocomplete="off"/>
+        </div>
+        <div class="form-group">
+          <span class="form-label" id="es-event-date-label">Event date</span>
+          <button type="button" class="form-input form-input-trigger" data-date-trigger data-min-today aria-labelledby="es-event-date-label">
+            <span class="form-input-trigger-value" data-placeholder="Pick a date"></span>
+            <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          </button>
+          <input id="es-event-date" type="date" class="sr-only" tabindex="-1" aria-hidden="true" value="2026-12-22"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="es-event-type">Event type</label>
+          <div class="form-select">
+            <select id="es-event-type">
+              <option selected>Wedding</option>
+              <option disabled>Birthday — coming soon</option>
+              <option disabled>Anniversary — coming soon</option>
+              <option disabled>Corporate — coming soon</option>
+            </select>
+            <span aria-hidden="true" class="material-symbols-outlined form-select-chevron">expand_more</span>
+          </div>
+        </div>
+        <div class="form-group is-full">
+          <label class="form-label" for="es-event-tagline">Tagline (optional)</label>
+          <input id="es-event-tagline" type="text" class="form-input" placeholder="A few words about the celebration" maxlength="80"/>
+          <p class="form-helper">Shown under the event title on the public website and invites.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────── Event List Rules ─────── -->
+    <section class="es-section">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">visibility</span>
+          Event list rules
+        </h2>
+        <p class="es-section-sub">Choose how this event appears on your dashboard and to potential viewers.</p>
+      </header>
+
+      <div class="es-toggle-row">
+        <div class="es-toggle-body">
+          <span class="es-toggle-title">Show this event on my dashboard</span>
+          <span class="es-toggle-desc">Hide while you're still planning; turn back on when ready to share.</span>
+        </div>
+        <button type="button" class="toggle-switch" role="switch" aria-checked="true" aria-label="Show this event on my dashboard">
+          <span class="toggle-switch-thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="es-toggle-row">
+        <div class="es-toggle-body">
+          <span class="es-toggle-title">Allow ticket sales</span>
+          <span class="es-toggle-desc">Enable paid tickets and an integrated checkout on the public site.</span>
+        </div>
+        <button type="button" class="toggle-switch" role="switch" aria-checked="false" aria-label="Allow ticket sales">
+          <span class="toggle-switch-thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="es-toggle-row">
+        <div class="es-toggle-body">
+          <span class="es-toggle-title">Discoverable in Evenzi search</span>
+          <span class="es-toggle-desc">Let friends find your public page when they search Evenzi by name.</span>
+        </div>
+        <button type="button" class="toggle-switch" role="switch" aria-checked="false" aria-label="Discoverable in Evenzi search">
+          <span class="toggle-switch-thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ─────── Help card ─────── -->
+    <div class="es-help-card">
+      <div class="es-help-body">
+        <span class="es-help-title">Need help with these settings?</span>
+        <span class="es-help-desc">Our support team can walk you through anything that's not making sense.</span>
+      </div>
+      <button type="button" class="btn-pill btn-pill-secondary">
+        <span aria-hidden="true" class="material-symbols-outlined">support_agent</span>
+        Contact support
+      </button>
+    </div>
+
+    <!-- ─────── Danger Zone ─────── -->
+    <section class="es-section is-danger">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">warning</span>
+          Danger zone
+        </h2>
+        <p class="es-section-sub">Once you delete this event there's no going back. All RSVPs, photos, and registry data go with it.</p>
+      </header>
+      <div class="es-toggle-row is-danger">
+        <div class="es-toggle-body">
+          <span class="es-toggle-title">Delete this event</span>
+          <span class="es-toggle-desc">This action is permanent and cannot be undone.</span>
+        </div>
+        <button type="button" class="btn-pill btn-pill-danger" data-es-delete>
+          <span aria-hidden="true" class="material-symbols-outlined">delete</span>
+          Delete event
+        </button>
+      </div>
+    </section>
+
+    <footer class="es-footer">
+      <span>© 2026 Evenzi · All rights reserved</span>
+      <div class="es-footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Help</a>
+      </div>
+    </footer>
+  </div>
+</main>
+
+<!-- ────────────────────── TOAST ────────────────────── -->
+<div class="modal-scrim" id="es-delete-modal" data-modal aria-hidden="true">
+  <div class="modal-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="es-delete-title">
+    <div class="modal-confirm-icon is-cautionary">
+      <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+    </div>
+    <h3 class="modal-confirm-title" id="es-delete-title">Delete this event?</h3>
+    <p class="modal-confirm-text" id="es-delete-text">This cannot be undone. All RSVPs, photos, and registry data will be permanently removed.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-danger" id="es-delete-confirm">Delete event</button>
+    </div>
+  </div>
+</div>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">SAVED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="event-settings.js"></script>
+</body>
+</html>

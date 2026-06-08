@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Plan &amp; billing · Vibrant Union</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="event-settings.css" />
+</head>
+<body data-page="event-settings" data-es-page="plan-billing" class="bg-bg text-ink min-h-screen">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner is-minimal">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+    </a>
+    <span aria-hidden="true"></span>
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb">
+    <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html">DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html">ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page"><span class="bc-dot" aria-hidden="true"></span> EVENT SETTINGS</li>
+    </ol>
+  </nav>
+</div>
+
+<main class="es-shell reveal">
+
+  <nav class="es-side" aria-label="Event settings">
+    <div class="es-event-head">
+      <p class="es-event-eyebrow">Event</p>
+      <p class="es-event-title">Vibrant Union</p>
+      <a class="es-event-back" href="../event-control/event-control.html">
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span> Back to event
+      </a>
+    </div>
+    <ul class="es-side-list">
+      <li><a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a></li>
+      <li><a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a></li>
+      <li><a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a></li>
+      <li><a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a></li>
+      <li><a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a></li>
+      <li><a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a></li>
+    </ul>
+  </nav>
+
+  <div class="es-content">
+    <header class="es-content-head">
+      <div>
+        <h1 class="es-content-title">Plan &amp; billing</h1>
+        <p class="es-content-lead">Manage your event's subscription and unlock advanced planning + media features.</p>
+      </div>
+    </header>
+
+    <!-- Current plan -->
+    <section class="es-section">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">verified</span>
+          Current plan
+        </h2>
+        <span class="es-section-tag">Active</span>
+      </header>
+      <div class="es-plan-header">
+        <div class="es-plan-header-body">
+          <p class="es-plan-name">Free plan</p>
+          <p class="es-section-sub">Includes core event website, 50 guests, photo album.</p>
+        </div>
+        <p class="es-plan-header-price">
+          ₹0<span class="es-plan-header-unit">/event</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- Available plans -->
+    <section class="es-section es-section--bare">
+      <header class="es-section-head es-section-head--flush">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">workspace_premium</span>
+          Available programs
+        </h2>
+        <p class="es-section-sub">All prices are per-event. No recurring charges.</p>
+      </header>
+
+      <div class="es-plans-grid">
+        <!-- Free -->
+        <article class="es-plan-card is-current">
+          <span class="es-plan-tag es-plan-tag--ink">Current</span>
+          <h3 class="es-plan-name">Free</h3>
+          <p class="es-plan-price">₹0<span class="es-plan-price-unit">/event</span></p>
+          <p class="es-plan-desc">Perfect for small private events.</p>
+          <ul class="es-plan-perks">
+            <li><span aria-hidden="true" class="material-symbols-outlined icon-fill">check_circle</span> Up to 50 guests</li>
+            <li><span aria-hidden="true" class="material-symbols-outlined icon-fill">check_circle</span> Public event website</li>
+            <li><span aria-hidden="true" class="material-symbols-outlined icon-fill">check_circle</span> 200 photo uploads</li>
+            <li><span aria-hidden="true" class="material-symbols-outlined icon-fill">check_circle</span> Basic RSVP tools</li>
+          </ul>
+          <button type="button" class="btn-pill btn-pill-secondary" disabled aria-disabled="true">Current plan</button>
+        </article>
+
+        <!-- Premium -->
+        <article class="es-plan-card">
+          <h3 class="es-plan-name">Premium</h3>
+          <p class="es-plan-price">₹4,900<span class="es-plan-price-unit">/event</span></p>
+          <p class="es-plan-desc">For an unforgettable celebration.</p>
+          <ul class="es-plan-perks">
+            <li><span aria-hidden="true" class="material-symbols-outlined icon-fill">check_circle</span> Up to 500 guests</li>
+            <li><span aria-hidden="true" class="material-symbols-outlined icon-fill">check_circle</span> Custom domain support</li>
+            <li><span aria-hidden="true" class="material-symbols-outlined icon-fill">check_circle</span> Unlimited photo uploads</li>
+            <li><span aria-hidden="true" class="material-symbols-outlined icon-fill">check_circle</span> Priority support</li>
+          </ul>
+          <button type="button" class="btn-pill btn-pill-primary" data-es-upgrade="premium">
+            <span>Upgrade now</span>
+            <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+            <span aria-hidden="true" class="btn-pill-spinner"></span>
+          </button>
+        </article>
+
+        <!-- Elite -->
+        <article class="es-plan-card is-featured">
+          <span class="es-plan-tag">Most popular</span>
+          <h3 class="es-plan-name">Elite</h3>
+          <p class="es-plan-price">₹9,900<span class="es-plan-price-unit">/event</span></p>
+          <p class="es-plan-desc">The full Evenzi experience.</p>
+          <ul class="es-plan-perks">
+            <li><span aria-hidden="true" class="material-symbols-outlined icon-fill">check_circle</span> Unlimited guests</li>
+            <li><span aria-hidden="true" class="material-symbols-outlined icon-fill">check_circle</span> All Premium features</li>
+            <li><span aria-hidden="true" class="material-symbols-outlined icon-fill">check_circle</span> AI photo curation</li>
+            <li><span aria-hidden="true" class="material-symbols-outlined icon-fill">check_circle</span> Concierge-level support</li>
+          </ul>
+          <button type="button" class="btn-pill btn-pill-primary" data-es-upgrade="elite">
+            <span>Upgrade now</span>
+            <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+            <span aria-hidden="true" class="btn-pill-spinner"></span>
+          </button>
+        </article>
+      </div>
+    </section>
+
+    <div class="es-help-card">
+      <div class="es-help-body">
+        <span class="es-help-title">Questions about your plan?</span>
+        <span class="es-help-desc">Our support team can help you compare features and find the right plan for your celebration.</span>
+      </div>
+      <button type="button" class="btn-pill btn-pill-secondary">
+        <span aria-hidden="true" class="material-symbols-outlined">support_agent</span>
+        Contact support
+      </button>
+    </div>
+
+    <footer class="es-footer">
+      <span>© 2026 Evenzi · All rights reserved</span>
+      <div class="es-footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Help</a>
+      </div>
+    </footer>
+  </div>
+</main>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">SAVED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="event-settings.js"></script>
+</body>
+</html>

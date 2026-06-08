@@ -46,3 +46,10 @@ You are a product manager for Evenzi, a wedding/event planning SaaS platform bui
 - Always consider auth — which routes need protection?
 - Always specify RLS policies for new tables
 - Keep scope tight — don't gold-plate
+
+
+---
+
+## Learnings
+
+<!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="../../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../../apple-touch-icon.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Template · Garden Soft · Vibrant Union</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Garden Soft — two-column layout, soft serif, sage palette." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:wght@600;700&family=Lora:wght@500;600&family=Inter:wght@600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../../shared/shell.css" />
+<link rel="stylesheet" href="../website.css" />
+<link rel="stylesheet" href="templates.css" />
+</head>
+<body class="min-h-dvh bg-bg text-ink" data-page="website" data-section="website" data-wb-page="templates">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner">
+    <a href="../../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../../event-control/event-control.html" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="../overview.html" class="nav-tab is-active" aria-current="page" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<aside class="tool-rail" aria-label="Event tools">
+  <a href="../../guests/guests.html" class="tr-btn" data-label="Guest management" data-page="guests" aria-label="Guest management">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+  </a>
+  <a href="../../invitations/invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations" aria-label="Invitations">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
+  </a>
+  <a href="../../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning" aria-label="Planning">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
+  </a>
+  <a href="../../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media" aria-label="Media &amp; memories">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
+  </a>
+  <a href="../../event-settings/general.html" class="tr-btn" data-label="Event settings" data-page="event-settings" aria-label="Event settings">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+  </a>
+</aside>
+
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="index.html" class="bc-back" aria-label="Back to all templates" data-bc-back data-bc-back-label="TEMPLATES">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../../index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../../event-control/event-control.html" data-bc-link>ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="index.html" data-bc-link>TEMPLATES</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        GARDEN SOFT
+      </li>
+    </ol>
+    <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
+    <button type="button" class="bc-copy" aria-label="Copy page link" data-bc-copy data-bc-copy-path="https://evenzi.com/e/anya-kabir">
+      <span aria-hidden="true" class="material-symbols-outlined">content_copy</span>
+    </button>
+  </nav>
+</div>
+
+<header class="section-head reveal">
+  <p class="section-head-eyebrow">Website · Template</p>
+  <h1 class="section-head-title">Garden Soft</h1>
+  <p class="section-head-sub">Two-column layout, soft serif, sage palette. Natural, calm, and garden-fresh.</p>
+</header>
+
+<main class="bc-wrap reveal" id="wb-main">
+  <div class="tpl-detail" data-palette="sage" data-font="lora">
+
+    <div class="tpl-previews">
+
+      <div class="tpl-hero">
+        <div class="tpl-hero-screen" aria-hidden="true">
+          <div class="dp-preview-content">
+            <p class="dpp-eyebrow">Wedding of</p>
+            <h2 class="dpp-couple">Vidya &amp; Anshuman</h2>
+            <p class="dpp-date">Sat, 14 Feb 2026</p>
+            <p class="dpp-countdown">268 days · 4 hrs</p>
+            <span class="dpp-unlock">Unlock Guest Details</span>
+            <p class="dpp-foot">Open this link to RSVP</p>
+          </div>
+        </div>
+      </div>
+
+      <section class="tpl-mocks" aria-labelledby="tpl-mocks-h">
+        <h2 class="tpl-mocks-head" id="tpl-mocks-h">Across your pages</h2>
+        <div class="tpl-mock-grid">
+
+          <div class="tpl-page-mock">
+            <div class="tpl-page-mock-screen" aria-hidden="true">
+              <p class="tpl-mock-title">Vidya &amp; Anshuman</p>
+              <span class="tpl-mock-rule"></span>
+              <span class="tpl-mock-bar is-mid"></span>
+              <span class="tpl-mock-bar is-short"></span>
+              <div class="tpl-mock-pills">
+                <span class="tpl-mock-pill is-primary"></span>
+                <span class="tpl-mock-pill"></span>
+              </div>
+            </div>
+            <h3 class="tpl-page-mock-label">RSVP</h3>
+          </div>
+
+          <div class="tpl-page-mock">
+            <div class="tpl-page-mock-screen" aria-hidden="true">
+              <p class="tpl-mock-title">Vidya &amp; Anshuman</p>
+              <span class="tpl-mock-rule"></span>
+              <div class="tpl-mock-row"><span class="tpl-mock-dot"></span><span class="tpl-mock-bar is-mid"></span></div>
+              <div class="tpl-mock-row"><span class="tpl-mock-dot"></span><span class="tpl-mock-bar is-short"></span></div>
+              <div class="tpl-mock-row"><span class="tpl-mock-dot"></span><span class="tpl-mock-bar is-mid"></span></div>
+            </div>
+            <h3 class="tpl-page-mock-label">Schedule</h3>
+          </div>
+
+          <div class="tpl-page-mock">
+            <div class="tpl-page-mock-screen" aria-hidden="true">
+              <p class="tpl-mock-title">Vidya &amp; Anshuman</p>
+              <span class="tpl-mock-rule"></span>
+              <div class="tpl-mock-avatars">
+                <span class="tpl-mock-avatar"></span>
+                <span class="tpl-mock-avatar"></span>
+                <span class="tpl-mock-avatar"></span>
+              </div>
+              <span class="tpl-mock-bar is-mid"></span>
+              <span class="tpl-mock-bar is-short"></span>
+            </div>
+            <h3 class="tpl-page-mock-label">Wedding Party</h3>
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+    <aside class="tpl-aside" aria-label="Template details">
+      <div class="tpl-aside-card">
+        <p class="tpl-aside-name">Garden Soft</p>
+        <p class="tpl-aside-blurb">Two-column layout with a soft serif. The sage palette and Lora feel natural, calm, and garden-fresh.</p>
+
+        <div class="tpl-meta-row">
+          <span class="tpl-meta-label">Palette</span>
+          <span class="tpl-meta-value">
+            <span class="tpl-meta-swatches" aria-hidden="true">
+              <span class="dp-pal-swatch--sage-primary"></span>
+              <span class="dp-pal-swatch--sage-surface"></span>
+              <span class="dp-pal-swatch--sage-ink"></span>
+            </span>
+            Sage
+          </span>
+        </div>
+        <div class="tpl-meta-row">
+          <span class="tpl-meta-label">Heading font</span>
+          <span class="tpl-meta-value tpl-meta-value-font">Lora</span>
+        </div>
+
+        <p class="tpl-aside-bodynote">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+          Body text always stays in Poppins for clarity — only headings change.
+        </p>
+
+        <div class="tpl-aside-actions">
+          <button type="button" class="btn-pill btn-pill-primary btn-pill-lg" data-tpl-apply="garden-soft">
+            <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+            Apply this template
+          </button>
+          <a href="index.html" class="tpl-back-link">
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+            Back to all templates
+          </a>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <div class="tpl-detail-foot-spacer" aria-hidden="true"></div>
+</main>
+
+<div class="tpl-apply-bar" role="region" aria-label="Template action">
+  <div class="tpl-apply-bar-meta">
+    <span class="tpl-apply-bar-name">Garden Soft</span>
+    <span class="tpl-apply-bar-tag">Sage · Lora</span>
+  </div>
+  <button type="button" class="btn-pill btn-pill-primary" data-tpl-apply="garden-soft">
+    <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+    Apply
+  </button>
+</div>
+
+<footer class="dp-foot reveal">
+  <p>© 2026 Evenzi · Crafted with care</p>
+</footer>
+
+<button class="help-fab" type="button" aria-label="Need help?">
+  <span class="material-symbols-outlined" aria-hidden="true">help</span>
+</button>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text"></span>
+</div>
+
+<script src="../../../shared/shell.js" defer></script>
+<script src="../website.js" defer></script>
+<script src="templates.js" defer></script>
+</body>
+</html>

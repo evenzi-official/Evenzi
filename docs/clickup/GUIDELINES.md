@@ -40,7 +40,7 @@ Names must be specific — `Feature: Guest Management & RSVP`, not `Feature: New
 ## 3. Status Workflow
 
 ```
-backlog → to do → in progress → in review → approved → done
+backlog → to do → in progress → review → approved → done
 ```
 
 | Status | Meaning |
@@ -48,12 +48,16 @@ backlog → to do → in progress → in review → approved → done
 | **backlog** | Defined but not yet scheduled |
 | **to do** | Scheduled for current sprint |
 | **in progress** | Actively being worked on |
-| **in review** | Approval gate — user validates output |
+| **review** | Approval gate — user validates output (canonical name; do NOT use `in review`) |
 | **approved** | User approved, ready for next phase |
 | **done** | Fully complete, no further action |
 | **blocked** | Waiting on a dependency |
 
-**Revision flow:** `in review` → `in progress` (rework per feedback) → `in review`
+> ⚠️ The status is named **`review`** in this workspace, not `in review`. Passing `"in review"` to `clickup_update_task` returns `Status does not exist`.
+
+**Note on lists:** The **Backlog** list does not expose `done` or `review` statuses. Move a task to **Active Sprint** (`901614390914`) before transitioning to those statuses.
+
+**Revision flow:** `review` → `in progress` (rework per feedback) → `review`
 
 ---
 

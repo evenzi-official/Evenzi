@@ -1,0 +1,58 @@
+---
+description: Evenzi static-prototype design-system rules — applies when building or editing pages in designs/
+globs: designs/**
+alwaysApply: false
+---
+
+# Evenzi design-system rules (designs/ static prototypes)
+
+You are building static HTML/CSS/JS design prototypes in `designs/` (mobile-web target, ported to React later). These are NOT the Next.js app — the rest-of-repo TypeScript rules do not apply here.
+
+## Source of truth — read these first
+- `ai/agents/ui_ux_designer.md` — Evenzi UI/UX role book (two-user split, free-tier-feels-paid, WhatsApp-aware, reuse-before-create, content-length resilience, a11y floor, motion restraint).
+- `ai/agents/frontend_engineer.md` — frontend build standards.
+- `ai/system/agent_rules.md` — shared engineering standards.
+- `docs/BRAND-GUIDELINES.md` — brand source of truth (colors, type, Liquid Glass, clay radii, motion, dark/light tokens).
+- `designs/components.html` + `designs/shared/shell.css` — the component catalog. Reuse before creating.
+
+## Hard constraints (do not violate)
+- **Design tokens only** — colors/spacing/radii from `designs/shared/shell.css` variables + the vendored `designs/shared/tailwind.css` utility layer. Never hardcode hex/px you could pull from a token.
+- **No runtime third-party CDN for layout-critical CSS/JS.** Tailwind is **vendored locally** (`designs/shared/tailwind.css`, compiled via the pinned v3 CLI — see `designs/_build-tailwind-cdn-fix.md` / `designs/tailwind.config.js`). **Never reintroduce** `<script src="https://cdn.tailwindcss.com">` or any runtime CDN the layout depends on — when an ad-blocker / browser extension / offline blocks it, the page silently collapses to an unstyled dump (the CDN returns 200 + no console error, so console-clean QA and link-audits do NOT catch it). Every page links `shared/tailwind.css` **before** `shared/shell.css`. After changing utility-class usage anywhere in `designs/`, **regenerate** `shared/tailwind.css` (command in its header) and commit it. Do NOT add a per-page inline `<script>tailwind.config…</script>` — the config is the single committed `designs/tailwind.config.js`.
+- **No inline CSS or JS. Ever.** Generic → `designs/shared/shell.{css,js}`; page-specific → `designs/pages/<page>/<page>.{css,js}`.
+- **Reuse before create** — check the catalog first and cite the primitive. Three rungs: reuse-as-is / modifier-extend / new.
+- **Copy the canonical `<head>` + shared chrome** (scroll-progress, floating-nav, tool-rail, `.bc-wrap` breadcrumb) from a known-good sibling page (e.g. `designs/pages/guests/guests.html`). Set `<body data-page="<page>">` (+ `data-section` if under a nav tab) so `shell.js` drives active nav/tool-rail state.
+- **Mobile-first** — design at 360px first, scale up. Touch targets ≥44px. `env(safe-area-inset-*)` on fixed chrome. No hover-only interactions.
+- **Even distribution on mobile** — any horizontal row of repeated controls (toolbars, action-button rows, segmented controls, filter-chip rows, icon-button clusters) must **distribute evenly across the row on mobile** — `justify-content: space-between`/`space-evenly`, or equal `flex:1` widths — never clumped to one side with dead space. This applies to *everything* of that shape, especially <768px. Desktop may left-align/auto-size; mobile spreads to fill.
+- **No iOS input-zoom** — every focusable text/number input (`.form-input`, `.form-input-field`, `<select>`, `<textarea>`, search) must be **≥16px font-size on mobile** (e.g. `@media (max-width:767px){ … font-size:16px }`). Below 16px, iOS Safari auto-zooms and shifts the layout on focus. **Never** suppress it with `maximum-scale=1`/`user-scalable=no` (breaks pinch-zoom a11y) — fix the font-size. Fixed chrome (nav, modal footers, FAB) must stay put when the on-screen keyboard opens.
+- **Hover-guard** every `:hover` rule in `@media (hover:hover) and (pointer:fine)`. **Glass fallback** — any `backdrop-filter` needs an `@supports not (backdrop-filter: blur(1px))` solid fallback (max ~2 blurred surfaces/page). **Stretched-link** for clickable cards (never nest `<a>` in `<a>`).
+- **`.bc-wrap`** is the canonical page wrapper — do not override page width at module level. Dark mode (`.dark`) + semantic status tokens (`--success/--warning/--danger/--info`) are mandatory.
+- **Headings are the shared `.section-head` template — never re-inset or override it per-page.** `.section-head` is alignment-neutral: it owns ONLY vertical rhythm and inherits its horizontal alignment from the page content wrapper (`.page-band` / `.es-shell` / `.dp-shell` / the hand-rolled `max-w` column) so the heading lines up with sibling content on EVERY page. Do NOT give it `max-width`/`margin:auto`/`padding-inline`, and do NOT add page-local `.<page> .section-head{…}` overrides for alignment or spacing — if a heading looks wrong, fix `.section-head` in `shell.css` once (it fixes all pages). Same for eyebrow/title/sub spacing: change the shared rule, not a per-page copy. (This was a recurring per-page band-aid; it's now banned.)
+- **Load order is load-bearing** — `shell.css` before `<page>.css`, `shell.js` before `<page>.js`.
+- Tag top-level sections `class="reveal"` for scroll-in (shell.js auto-wires the IntersectionObserver).
+- **Restraint & reuse fidelity** — when a shared component already exists (`.pill-tabs`/`.pill-tab`, filter chips like `.gm-filter-btn`, `.guest-row` family, status badges), **match its exact treatment** — do NOT add extra glow, shadow, border, or motion beyond what the shell token gives it. "Make it pop" is not a goal; the shell's restraint IS the design. If two surfaces do the same job (e.g. a tab vs a filter chip), they should read as one family, not two. Decorative glow/shadow/`filter: drop-shadow` that isn't already a shell token is a defect, not polish.
+
+## Design self-review pass (MANDATORY before you set STAGE: TEST)
+A single agent grading its own build is weaker than independent review — so do this deliberately. After building, **re-read your output against this checklist and fix every gap before bumping the baton.** This is not optional; the downstream `/spec-kit-review` will catch what you skip and loop the page back to you.
+
+1. **Reuse fidelity** — every element either cites a catalog primitive (reuse-as-is / modifier-extend) or is justified as genuinely new. No re-invented version of an existing component. No glow/shadow/motion added beyond shell tokens (see Restraint above).
+2. **A11y floor** — visible `:focus-visible` on EVERY control; every input has a programmatic `<label>`; icons `aria-hidden` + labelled controls; single logical heading order; **status is never color-only** (overdue/priority/done = icon **+** text, not just a colored dot/tint); ≥44px targets; one `aria-live` region per announcement (no nesting a live region inside another).
+3. **States** — every interactive element renders default/hover(guarded)/active/focus/disabled/loading/error; every list has its empty state; no dead `href`.
+4. **Content-length resilience** — long names wrap (no clipped values); money is `tabular-nums` + en-IN; nothing breaks at the longest realistic content.
+5. **Responsive** — re-check 360 / 390 / 414 / 768 / 1024 / 1440: no horizontal overflow, no clipped content, modal → bottom-sheet <768 with a sticky footer.
+6. **Spacing rhythm** — consistent vertical scale; no cramped or orphaned gaps between stacked sections.
+7. **No-regress** — `git status` shows changes ONLY under the page folder + `designs/shared/shell.*`. You did NOT edit any OTHER page's files (promotions to shell must be alias-first).
+8. **Tokens & hygiene** — no inline CSS/JS; no hardcoded hex/px; no `innerHTML`; `prefers-reduced-motion` respected; load order intact.
+
+If a `_spec.md` / `_test.md` is present, the spec's reuse map + the test matrix are the authoritative version of this checklist — self-verify against the actual matrix rows.
+
+## Self-test pass (MANDATORY smoke-gate before you set STAGE: TEST)
+Don't hand an obviously-broken build downstream. After the design self-review, run a functional round on your OWN build, fix what fails, then bump the baton. This does NOT replace Antigravity's independent test or Claude's `/spec-kit-review` — both still run — it just stops you shipping breakage.
+
+1. **Serve + smoke** — run the page (the design server on :4000, e.g. `npx --yes live-server@^1.2.2 designs --port=4000 --no-browser`, or open it in a browser). Confirm it LOADS with **no console errors/warnings**, the themed surface renders (tokens loaded), `<body data-page>` is correct, and the chrome (nav / tool-rail / breadcrumb / footer) renders.
+2. **JS sanity** — `node --check <page>.js` passes; nothing throws on load.
+3. **Drive the matrix you can** — if a `_test.md` is present, run **section 1 (smoke) FIRST** — if any smoke row fails, STOP and fix before anything else. Then exercise the interaction rows you can trigger in a browser (tab/toggle switches, modal open/close + blank-submit error, add/edit/delete, filters, keyboard Tab/Esc/arrows) and eyeball the responsive widths (360→1440) in devtools.
+4. **Guardrails** — `git status` shows changes ONLY under the page folder + `designs/shared/shell.*` (no other page touched); no inline styles; no `new Date()` in any render path the spec forbids.
+5. **Fix every failure**, re-run, and note in your handoff what you self-tested (e.g. "self-tested: smoke + N interaction rows pass"). Do **not** write to `_findings.md` (that is Antigravity's authoritative record) and do **not** set `STAGE: REVIEW` (that is Antigravity's). When smoke + your verifiable rows are green, set `_status.md` → `STAGE: TEST`.
+
+## When a build kit is present
+If the page folder contains a `_cursor-prompt.md`, **follow it exactly** — it is the build runbook generated by `/spec-kit`. Build from `_spec.md` (its reuse map is authoritative). Then run the **Design self-review pass** AND the **Self-test pass** above. Only when both are green, update `_status.md` → `STAGE: TEST`.

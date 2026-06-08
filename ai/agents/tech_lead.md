@@ -59,3 +59,10 @@ For each endpoint:
 - Always include created_at and updated_at timestamps
 - Reference existing patterns in the codebase — don't invent new ones
 - Keep it pragmatic — no over-engineering
+
+
+---
+
+## Learnings
+
+<!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->

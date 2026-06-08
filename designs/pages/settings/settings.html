@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Settings</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Manage your Evenzi profile, security, and notification preferences." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<link rel="manifest" href="../../manifest.webmanifest" />
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="settings.css" />
+</head>
+<body data-page="settings" data-section="dashboard">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ────────────────────── SETTINGS NAV (no segmented tabs, no Create Event) ────────────────────── -->
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner is-minimal">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+
+    <span aria-hidden="true"></span><!-- center spacer -->
+
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <button aria-label="Settings" class="fn-icon-btn" aria-current="page">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ────────────────────── BREADCRUMB ────────────────────── -->
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="../../index.html" class="bc-back" aria-label="Back to dashboard" data-bc-back data-bc-back-label="DASHBOARD">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        SETTINGS
+      </li>
+    </ol>
+    <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
+    <button type="button" class="bc-copy" aria-label="Copy breadcrumb path" data-bc-copy data-bc-copy-path="evenzi://settings">
+      <span aria-hidden="true" class="material-symbols-outlined">content_copy</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ────────────────────── PAGE BODY ────────────────────── -->
+<main class="page-band pt-10 md:pt-14 pb-20">
+
+  <!-- Page header -->
+  <header class="reveal">
+    <p class="settings-eyebrow">Account</p>
+    <h1 class="settings-h1">Settings</h1>
+    <p class="settings-lead">Manage your profile, security, and how you'd like to be notified about events you host or collaborate on.</p>
+  </header>
+
+  <!-- ─────── PROFILE INFORMATION ─────── -->
+  <section class="settings-section reveal">
+    <header class="settings-section-head">
+      <h2 class="section-rule">
+        <span class="section-rule-bar" aria-hidden="true"></span>
+        Profile information
+      </h2>
+    </header>
+    <div class="clay-card settings-card-inner">
+      <div class="settings-profile">
+        <div class="settings-profile-fields">
+          <div class="form-group">
+            <label class="form-label" for="full-name">Full name</label>
+            <input id="full-name" type="text" class="form-input" value="Abhijith K" autocomplete="name"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="phone">Phone number</label>
+            <div class="form-input form-input-group">
+              <span class="form-input-prefix" aria-hidden="true">+91</span>
+              <input id="phone" type="tel" class="form-input-field" value="99999 99999" autocomplete="tel" inputmode="numeric"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email address</label>
+            <input id="email" type="email" class="form-input" value="mail2anish.kk@gmail.com" autocomplete="email"/>
+          </div>
+        </div>
+
+        <div class="settings-profile-avatar">
+          <div class="avatar-edit">
+            <span class="avatar-edit-img" aria-hidden="true">A</span>
+            <input type="file" id="avatar-upload" class="avatar-edit-input" accept="image/*"/>
+            <label for="avatar-upload" class="avatar-edit-btn" aria-label="Change avatar">
+              <span aria-hidden="true" class="material-symbols-outlined">photo_camera</span>
+            </label>
+          </div>
+          <p class="form-error" id="avatar-error" role="alert" hidden></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────── SECURITY ─────── -->
+  <section class="settings-section reveal">
+    <header class="settings-section-head">
+      <h2 class="section-rule">
+        <span class="section-rule-bar" aria-hidden="true"></span>
+        Security
+      </h2>
+    </header>
+    <div class="clay-card settings-card-inner">
+      <div class="settings-security">
+        <!-- Password fields -->
+        <div class="settings-security-fields">
+          <div class="form-group">
+            <label class="form-label" for="current-pw">Current password</label>
+            <div class="form-password">
+              <input id="current-pw" type="password" class="form-input" value="placeholder123" autocomplete="current-password"/>
+              <button type="button" class="form-password-toggle" aria-label="Show password" data-pw-toggle="current-pw">
+                <span aria-hidden="true" class="material-symbols-outlined">visibility</span>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-pw">New password</label>
+            <div class="form-password">
+              <input id="new-pw" type="password" class="form-input" placeholder="Enter new password" autocomplete="new-password"/>
+              <button type="button" class="form-password-toggle" aria-label="Show password" data-pw-toggle="new-pw">
+                <span aria-hidden="true" class="material-symbols-outlined">visibility</span>
+              </button>
+            </div>
+            <p class="form-helper">At least 8 characters with one number and one symbol.</p>
+          </div>
+          <div class="settings-security-actions">
+            <button type="button" class="btn-pill btn-pill-primary">
+              <span aria-hidden="true" class="material-symbols-outlined">lock_reset</span>
+              Update password
+            </button>
+          </div>
+        </div>
+
+        <!-- 2FA -->
+        <div class="settings-security-divider">
+          <h3 class="settings-2fa-title">Two-factor authentication</h3>
+          <p class="settings-2fa-desc">Add an extra layer of security to your account by requiring a verification code in addition to your password.</p>
+          <div class="settings-2fa-toggle-row">
+            <span class="settings-2fa-label">Enable 2FA</span>
+            <button type="button" class="toggle-switch" role="switch" aria-checked="false" aria-label="Enable two-factor authentication" data-toggle="2fa">
+              <span class="toggle-switch-thumb" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────── NOTIFICATION PREFERENCES ─────── -->
+  <section class="settings-section reveal">
+    <header class="settings-section-head">
+      <h2 class="section-rule">
+        <span class="section-rule-bar" aria-hidden="true"></span>
+        Notification preferences
+      </h2>
+    </header>
+    <div class="notif-prefs-grid">
+      <button type="button" class="choice-card is-active" aria-pressed="true" data-toggle-card>
+        <span class="choice-card-icon" aria-hidden="true">
+          <span class="material-symbols-outlined">mail</span>
+        </span>
+        <h3 class="choice-card-title">Email alerts</h3>
+        <p class="choice-card-desc">Detailed event reports and guest list updates delivered to your inbox.</p>
+        <span class="choice-card-state">
+          <span class="choice-card-dot" aria-hidden="true">
+            <span class="material-symbols-outlined">check</span>
+          </span>
+          <span data-state-text>Active</span>
+        </span>
+      </button>
+
+      <button type="button" class="choice-card is-active" aria-pressed="true" data-toggle-card>
+        <span class="choice-card-icon" aria-hidden="true">
+          <span class="material-symbols-outlined">notifications_active</span>
+        </span>
+        <h3 class="choice-card-title">Push notifications</h3>
+        <p class="choice-card-desc">Real-time alerts for incoming RSVPs, vendor messages, and approvals.</p>
+        <span class="choice-card-state">
+          <span class="choice-card-dot" aria-hidden="true">
+            <span class="material-symbols-outlined">check</span>
+          </span>
+          <span data-state-text>Active</span>
+        </span>
+      </button>
+
+      <button type="button" class="choice-card" aria-pressed="false" data-toggle-card>
+        <span class="choice-card-icon" aria-hidden="true">
+          <span class="material-symbols-outlined">sms</span>
+        </span>
+        <h3 class="choice-card-title">SMS alerts</h3>
+        <p class="choice-card-desc">Critical day-of-event timing reminders sent to your mobile.</p>
+        <span class="choice-card-state">
+          <span class="choice-card-dot" aria-hidden="true">
+            <span class="material-symbols-outlined">check</span>
+          </span>
+          <span data-state-text>Inactive</span>
+        </span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ─────── ACCOUNT (sign-out) ─────── -->
+  <section class="settings-section reveal">
+    <header class="settings-section-head">
+      <h2 class="section-rule">
+        <span class="section-rule-bar" aria-hidden="true"></span>
+        Account
+      </h2>
+    </header>
+    <div class="clay-card settings-card-inner">
+      <div class="settings-account">
+        <div class="settings-account-body">
+          <h3 class="settings-account-title">Sign out</h3>
+          <p class="settings-account-desc">You'll need to sign in again with your phone number or Google account to keep planning your events.</p>
+        </div>
+        <button type="button" class="btn-pill btn-pill-danger" id="logout-btn" data-logout>
+          <span aria-hidden="true" class="material-symbols-outlined">logout</span>
+          <span>Sign out</span>
+          <span aria-hidden="true" class="btn-pill-spinner"></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────── ACTION FOOTER ─────── -->
+  <div class="settings-actions reveal">
+    <button type="button" class="btn-pill btn-pill-secondary btn-pill-lg" data-discard>Discard changes</button>
+    <button type="button" class="btn-pill btn-pill-primary btn-pill-lg" id="save-btn" data-save>
+      <span>Save all settings</span>
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+      <span aria-hidden="true" class="btn-pill-spinner"></span>
+    </button>
+  </div>
+
+</main>
+
+<!-- ────────────────────── FOOTER ────────────────────── -->
+<footer class="page-band mt-20 pt-10 pb-10 border-t border-line">
+  <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="flex items-center gap-3">
+      <span aria-hidden="true" class="w-9 h-9 shrink-0 rounded-full bg-brand text-white inline-flex items-center justify-center font-display font-bold">E</span>
+      <p class="text-sm text-muted font-semibold">© 2026 Evenzi · Capture · Share · Cherish</p>
+    </div>
+    <div class="flex items-center gap-6 text-xs font-bold tracking-widest text-muted uppercase">
+      <a href="#" class="hover:text-brand transition-colors">Privacy</a>
+      <a href="#" class="hover:text-brand transition-colors">Terms</a>
+      <a href="#" class="hover:text-brand transition-colors">Help</a>
+    </div>
+  </div>
+</footer>
+
+<button aria-label="Open help center" class="help-fab">
+  <span aria-hidden="true" class="material-symbols-outlined icon-fill">support_agent</span>
+</button>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">PATH COPIED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="settings.js"></script>
+</body>
+</html>

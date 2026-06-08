@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Event Website · Edit Page · Vibrant Union</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Edit a page of your Evenzi invitation website — add, arrange, and edit sections." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="website.css" />
+<link rel="stylesheet" href="edit-page.css" />
+</head>
+<body class="min-h-dvh bg-bg text-ink" data-page="website" data-section="website" data-wb-page="edit">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ────────────────────── FLOATING TOP NAV ────────────────────── -->
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../event-control/event-control.html" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="overview.html" class="nav-tab is-active" aria-current="page" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ────────────────────── FLOATING TOOL RAIL ────────────────────── -->
+<aside class="tool-rail" aria-label="Event tools">
+  <a href="../guests/guests.html" class="tr-btn" data-label="Guest management" data-page="guests" aria-label="Guest management">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+  </a>
+  <a href="../invitations/invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations" aria-label="Invitations">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
+  </a>
+  <a href="../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning" aria-label="Planning">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
+  </a>
+  <a href="../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media" aria-label="Media &amp; memories">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
+  </a>
+  <a href="../event-settings/general.html" class="tr-btn" data-label="Event settings" data-page="event-settings" aria-label="Event settings">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+  </a>
+</aside>
+
+<!-- ────────────────────── BREADCRUMB ────────────────────── -->
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="overview.html" class="bc-back" aria-label="Back to all pages" data-bc-back data-bc-back-label="PAGES">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html" data-bc-link>ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        <span id="ep-bc-page">EDIT · STORY</span>
+      </li>
+    </ol>
+    <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
+    <button type="button" class="bc-copy" aria-label="Copy page link" data-bc-copy data-bc-copy-path="https://evenzi.com/e/anya-kabir">
+      <span aria-hidden="true" class="material-symbols-outlined">content_copy</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ────────────────────── SECTION HEAD ────────────────────── -->
+<header class="section-head reveal">
+  <p class="section-head-eyebrow">Website</p>
+  <h1 class="section-head-title" id="ep-title">Edit: Story</h1>
+</header>
+
+<!-- Module sub-nav (Overview/Design/…) intentionally omitted on the editor:
+     it's a focused sub-mode — the breadcrumb back-chip (← to the Pages list)
+     is the only navigation needed here. Removed 2026-06-02 per founder. -->
+
+<!-- ────────────────────── MOBILE EDIT | PREVIEW TOGGLE (hidden ≥1024) ────────────────────── -->
+<div class="ep-view-toggle-wrap reveal">
+  <div class="ep-view-toggle" role="radiogroup" aria-label="Editor view">
+    <button type="button" class="ep-view-btn is-active" role="radio" aria-checked="true" tabindex="0" data-ep-view-btn="edit">
+      <span class="material-symbols-outlined" aria-hidden="true">edit_note</span>
+      Edit
+    </button>
+    <button type="button" class="ep-view-btn" role="radio" aria-checked="false" tabindex="-1" data-ep-view-btn="preview">
+      <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+      Preview
+    </button>
+  </div>
+</div>
+
+<!-- ────────────────────── MAIN — SPLIT (reuses .dp-shell) ────────────────────── -->
+<main class="dp-shell reveal" id="wb-main" data-ep-view="edit">
+
+  <!-- LEFT — editor -->
+  <div class="dp-col-left">
+
+    <!-- Page meta bar — identity (name + tier + saved) | one control (visibility) + delete.
+         Tier is a read-only access label that rides WITH the name; "Show on website"
+         is the one editable control. Collapse-all moved to the section-control row below
+         (it acts on the sections, not the page). -->
+    <section class="clay-card dp-card ep-meta" aria-labelledby="ep-meta-h">
+      <div class="ep-meta-lead">
+        <h2 id="ep-meta-h" class="ep-meta-name">Story</h2>
+        <span class="dp-page-tier dp-tier-private" id="ep-meta-tier" title="Access tier — set when the page is created"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+        <span class="ep-saved" id="ep-saved" role="status" aria-live="polite">
+          <span class="material-symbols-outlined" aria-hidden="true">cloud_done</span>
+          <span class="ep-saved-txt">Saved</span>
+        </span>
+      </div>
+      <div class="ep-meta-actions">
+        <div class="ep-meta-vis">
+          <span class="ep-meta-vis-label" id="ep-vis-label">Show on website</span>
+          <button type="button" class="toggle-switch" role="switch" aria-checked="true" data-ep-page-vis aria-labelledby="ep-vis-label">
+            <span class="toggle-switch-thumb" aria-hidden="true"></span>
+          </button>
+        </div>
+        <button type="button" class="dp-icon-btn ep-meta-delete" data-ep-delete-page aria-label="Delete this page">
+          <span class="material-symbols-outlined" aria-hidden="true">delete_outline</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Section control row (chromeless — label row, NOT a card) -->
+    <div class="ep-section-bar" id="ep-section-bar" hidden>
+      <span class="ep-section-count" id="ep-section-count">0 sections</span>
+      <button type="button" class="ep-collapse-btn" data-ep-collapse-all aria-pressed="false">
+        <span class="material-symbols-outlined" aria-hidden="true">unfold_less</span>
+        <span data-ep-collapse-label>Collapse all</span>
+      </button>
+    </div>
+
+    <!-- Section list (injected by edit-page.js) -->
+    <ul class="dp-section-list" id="ep-sections" role="list" aria-label="Page sections"></ul>
+
+    <!-- Empty state (shown when 0 sections) -->
+    <div class="ep-empty" id="ep-empty" hidden>
+      <span class="material-symbols-outlined ep-empty-icon" aria-hidden="true">post_add</span>
+      <p class="ep-empty-title">No sections yet</p>
+      <p class="ep-empty-help">Add your first section to start building this page.</p>
+    </div>
+
+    <!-- Add section -->
+    <button class="ep-add-section" type="button" data-ep-add-section>
+      <span class="material-symbols-outlined" aria-hidden="true">add</span>
+      Add section
+    </button>
+  </div>
+
+  <!-- RIGHT — live preview -->
+  <aside class="dp-col-right" aria-label="Live preview">
+    <section class="clay-card dp-card ep-preview-card" id="preview" aria-labelledby="ep-prev-h">
+      <header class="dp-card-head">
+        <div>
+          <h2 id="ep-prev-h" class="dp-card-title">Preview</h2>
+          <p class="dp-card-sub">What guests see on this page</p>
+        </div>
+        <div class="device-toggle" role="radiogroup" aria-label="Preview device">
+          <button type="button" class="device-toggle-btn is-active" role="radio" aria-checked="true" data-device="mobile" aria-label="Mobile preview">
+            <span class="material-symbols-outlined" aria-hidden="true">smartphone</span>
+          </button>
+          <button type="button" class="device-toggle-btn" role="radio" aria-checked="false" data-device="desktop" aria-label="Desktop preview">
+            <span class="material-symbols-outlined" aria-hidden="true">desktop_windows</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="dp-preview-stage" data-device-stage="mobile">
+        <div class="dp-preview-frame is-page-scoped is-scrollable" data-palette="brand-red" data-font="poppins" role="img" aria-label="Live preview of this page (decorative — your fields are the source of truth)">
+          <div class="dp-preview-screen" aria-hidden="true">
+            <div class="dp-preview-content" id="ep-preview-content"></div>
+          </div>
+        </div>
+        <div class="dp-preview-caption">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+          Preview only — edit the fields on the left. Private pages unlock after phone match or password.
+        </div>
+      </div>
+    </section>
+  </aside>
+</main>
+
+<!-- ────────────────────── FOOTER ────────────────────── -->
+<footer class="dp-foot reveal">
+  <p>© 2026 Evenzi · Crafted with care</p>
+</footer>
+
+<!-- Help FAB -->
+<button class="help-fab" type="button" aria-label="Need help?">
+  <span class="material-symbols-outlined" aria-hidden="true">help</span>
+</button>
+
+<!-- Shell toast -->
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text"></span>
+</div>
+
+<script src="../../shared/shell.js" defer></script>
+<script src="website.js" defer></script>
+<script src="edit-page.js" defer></script>
+</body>
+</html>

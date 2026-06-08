@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Guest list settings · Vibrant Union</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="event-settings.css" />
+</head>
+<body data-page="event-settings" data-es-page="guest-list" class="bg-bg text-ink min-h-screen">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner is-minimal">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+    </a>
+    <span aria-hidden="true"></span>
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb">
+    <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html">DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html">ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page"><span class="bc-dot" aria-hidden="true"></span> EVENT SETTINGS</li>
+    </ol>
+  </nav>
+</div>
+
+<main class="es-shell reveal">
+
+  <nav class="es-side" aria-label="Event settings">
+    <div class="es-event-head">
+      <p class="es-event-eyebrow">Event</p>
+      <p class="es-event-title">Vibrant Union</p>
+      <a class="es-event-back" href="../event-control/event-control.html">
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span> Back to event
+      </a>
+    </div>
+    <ul class="es-side-list">
+      <li><a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a></li>
+      <li><a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a></li>
+      <li><a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a></li>
+      <li><a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a></li>
+      <li><a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a></li>
+      <li><a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a></li>
+    </ul>
+  </nav>
+
+  <div class="es-content">
+    <header class="es-content-head">
+      <div>
+        <h1 class="es-content-title">Guest list settings</h1>
+        <p class="es-content-lead">Configure global guest list preferences, RSVP rules, and communication defaults.</p>
+      </div>
+      <div class="es-content-actions">
+        <button type="button" class="btn-pill btn-pill-primary" data-es-save data-es-save-toast="GUEST LIST SETTINGS SAVED">
+          <span aria-hidden="true" class="material-symbols-outlined">save</span>
+          Save changes
+          <span aria-hidden="true" class="btn-pill-spinner"></span>
+        </button>
+      </div>
+    </header>
+
+    <section class="es-section">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings_suggest</span>
+          Global preferences
+        </h2>
+        <p class="es-section-sub">These rules apply to every guest you invite. Change them anytime — already-sent RSVPs aren't affected.</p>
+      </header>
+
+      <div class="es-toggle-row">
+        <div class="es-toggle-body">
+          <span class="es-toggle-title">Enable RSVP for all events</span>
+          <span class="es-toggle-desc">Whether attending is required or optional for invitees to respond.</span>
+        </div>
+        <button type="button" class="toggle-switch" role="switch" aria-checked="true" aria-label="Enable RSVP">
+          <span class="toggle-switch-thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="es-toggle-row">
+        <div class="es-toggle-body">
+          <span class="es-toggle-title">Allow # to add a plus-one</span>
+          <span class="es-toggle-desc">Guests can bring a companion subject to availability. Adjust the quota below.</span>
+        </div>
+        <button type="button" class="toggle-switch" role="switch" aria-checked="true" aria-label="Allow plus-ones">
+          <span class="toggle-switch-thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="es-toggle-row">
+        <div class="es-toggle-body">
+          <span class="es-toggle-title">Collect dietary-related notes</span>
+          <span class="es-toggle-desc">Ask guests to share allergies or food preferences during RSVP.</span>
+        </div>
+        <button type="button" class="toggle-switch" role="switch" aria-checked="true" aria-label="Collect dietary notes">
+          <span class="toggle-switch-thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="es-toggle-row">
+        <div class="es-toggle-body">
+          <span class="es-toggle-title">Cap of plus-ones per invite</span>
+          <span class="es-toggle-desc">Hard limit on extra guests per primary invitee.</span>
+        </div>
+        <div class="form-input form-input-group es-guest-cap">
+          <input id="es-plus-one-cap" type="number" min="0" max="10" value="2" inputmode="numeric" class="form-input-field" autocomplete="off"/>
+          <span class="form-input-suffix" aria-hidden="true">plus-ones</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="es-section">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">mail</span>
+          Default guest message
+        </h2>
+        <p class="es-section-sub">The greeting auto-attached to every new invite. Personalize per-guest from the invite editor.</p>
+      </header>
+      <div class="form-group">
+        <label class="form-label" for="es-default-msg">Default invitation message</label>
+        <textarea id="es-default-msg" class="form-textarea" maxlength="400" placeholder="We can't wait to celebrate with you! Tap the link to RSVP and view the schedule."></textarea>
+        <p class="form-helper">Keep it short and warm — the link to your event page does the heavy lifting.</p>
+      </div>
+    </section>
+
+    <div class="es-help-card">
+      <div class="es-help-body">
+        <span class="es-help-title">Need help with your guest list?</span>
+        <span class="es-help-desc">Our complete guide covers everything from CSV imports to managing multiple events RSVPs.</span>
+      </div>
+      <button type="button" class="btn-pill btn-pill-secondary">
+        <span aria-hidden="true" class="material-symbols-outlined">menu_book</span>
+        View the guide
+      </button>
+    </div>
+
+    <footer class="es-footer">
+      <span>© 2026 Evenzi · All rights reserved</span>
+      <div class="es-footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Help</a>
+      </div>
+    </footer>
+  </div>
+</main>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">SAVED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="event-settings.js"></script>
+</body>
+</html>

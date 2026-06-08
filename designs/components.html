@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Components</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Evenzi component library — every reusable element in all states." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="shared/tailwind.css" />
+<link rel="stylesheet" href="shared/shell.css" />
+<style>
+  /* Component primitives (.qa-tile, .stats-strip-card, .tool-card, .hero-pill,
+     .hero-meta-chip, etc.) live in shell.css — drop-in across all pages.
+     This file holds only showcase-specific styles below. */
+
+  /* ── SHOWCASE LAYOUT ───────────────────── */
+  .cs-section{padding-top:4rem;padding-bottom:1rem}
+  .cs-section-head{margin-bottom:2rem}
+  .cs-eyebrow{
+    font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+    letter-spacing:.32em;text-transform:uppercase;color:var(--brand);
+  }
+  .cs-h2{
+    font-family:'Poppins',sans-serif;font-weight:700;font-size:30px;
+    color:var(--ink);letter-spacing:-.02em;margin-top:.4rem;
+  }
+  .cs-h2-sub{color:var(--muted);font-size:14px;margin-top:.5rem;max-width:48rem}
+  .cs-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:1rem;
+  }
+  .cs-grid--wide{grid-template-columns:repeat(auto-fill,minmax(420px,1fr))}
+  .cs-grid--full{grid-template-columns:1fr}
+  .cs-component{
+    background:var(--card);border:1px solid var(--line);border-radius:20px;
+    padding:1rem 1rem 1.1rem;
+    display:flex;flex-direction:column;gap:.85rem;
+  }
+  .cs-label{
+    font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
+    letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+  }
+  .cs-label-name{color:var(--ink)}
+  .cs-stage{
+    flex:1;border:1px dashed var(--line);border-radius:14px;
+    padding:1.25rem;background:var(--bg);
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1rem;
+    min-height:96px;
+  }
+  .cs-stage--start{justify-content:flex-start}
+  .cs-stage--col{flex-direction:column;align-items:stretch}
+  .cs-stage--tall{min-height:240px}
+
+  /* color swatch tile */
+  .cs-swatch{
+    display:flex;flex-direction:column;gap:.35rem;
+    border:1px solid var(--line);border-radius:14px;
+    padding:.6rem;background:var(--card);
+  }
+  .cs-swatch-chip{
+    height:54px;border-radius:10px;border:1px solid var(--line);
+  }
+  .cs-swatch-name{
+    font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+    color:var(--ink);letter-spacing:-.005em;
+  }
+  .cs-swatch-token{
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:10px;
+    color:var(--muted);font-feature-settings:"tnum";
+  }
+
+  /* type sample */
+  .cs-type-row{
+    display:flex;align-items:baseline;justify-content:space-between;gap:1rem;
+    padding:.7rem 0;border-bottom:1px solid var(--line);
+  }
+  .cs-type-row:last-child{border-bottom:0}
+  .cs-type-meta{
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;
+    color:var(--muted);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;
+  }
+
+  /* misc demo helpers */
+  .cs-shadow-tile{
+    width:100%;height:80px;border-radius:14px;background:var(--card);
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+  }
+  .cs-radii-tile{
+    width:80px;height:80px;background:var(--brand-tint);border:1px solid var(--brand-tint-2);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;color:var(--brand);
+  }
+
+  /* small static-demo nav (so the live floating one isn't the only example) */
+  .cs-static-nav{position:relative;margin:0;top:0}
+
+  /* tool-rail static (horizontal) demo */
+  .cs-tool-rail-h{
+    position:relative;display:inline-flex;
+    background:var(--lg-bg-grad);
+    backdrop-filter:var(--lg-blur);-webkit-backdrop-filter:var(--lg-blur);
+    border:1px solid var(--lg-rim);border-radius:9999px;
+    box-shadow:inset 0 1px 0 var(--lg-inset-top),inset 0 -1px 1px var(--lg-inset-bottom),var(--lg-shadow);
+    padding:.4rem;gap:.3rem;
+  }
+  .cs-tool-rail-v{
+    position:relative;display:inline-flex;flex-direction:column;
+    background:var(--lg-bg-grad);
+    backdrop-filter:var(--lg-blur);-webkit-backdrop-filter:var(--lg-blur);
+    border:1px solid var(--lg-rim);border-radius:28px;
+    box-shadow:inset 0 1px 0 var(--lg-inset-top),inset 0 -1px 1px var(--lg-inset-bottom),var(--lg-shadow);
+    padding:.55rem;gap:.4rem;
+  }
+  /* Lock tooltip direction in showcase wrappers — independent of viewport
+     (otherwise the horizontal demo collides with the next button at ≥1400px) */
+  .cs-tool-rail-h .tr-btn::after{
+    bottom:calc(100% + 12px) !important;left:50% !important;top:auto !important;
+    transform:translateX(-50%) translateY(6px) !important;
+  }
+  .cs-tool-rail-h .tr-btn:hover::after,
+  .cs-tool-rail-h .tr-btn:focus-visible::after{
+    transform:translateX(-50%) translateY(0) !important;
+  }
+  .cs-tool-rail-v .tr-btn::after{
+    left:calc(100% + 14px) !important;top:50% !important;bottom:auto !important;
+    transform:translateY(-50%) translateX(-6px) !important;
+  }
+  .cs-tool-rail-v .tr-btn:hover::after,
+  .cs-tool-rail-v .tr-btn:focus-visible::after{
+    transform:translateY(-50%) translateX(0) !important;
+  }
+  /* Status pill sizing inside showcase wrappers — also lock per-wrapper */
+  .cs-tool-rail-v .tr-status{height:30px;width:46px;flex-direction:row}
+  .cs-tool-rail-h .tr-status{height:46px;min-width:42px}
+  .cs-tool-rail-v .tr-divider{height:1px;width:auto;margin:.2rem .35rem;align-self:stretch}
+  .cs-tool-rail-h .tr-divider{width:1px;height:auto;margin:.35rem .2rem;align-self:stretch}
+  /* override sticky/fixed positioning for static demos */
+  .cs-static .floating-nav{position:relative;top:0;margin:0;max-width:100%}
+  .cs-static .scroll-progress{position:relative;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+  .cs-static .scroll-progress::before{position:absolute;width:62%}
+
+  /* footer demo wrapper */
+  .cs-footer-demo{
+    border-top:1px solid var(--line);
+    padding:1.25rem;border-radius:14px;background:var(--card);
+  }
+
+  /* checklist demo container */
+  .cs-checklist-demo{display:flex;flex-direction:column;gap:.25rem;width:100%}
+
+  /* timeline demo */
+  .cs-timeline{position:relative;padding-left:1.75rem}
+  .cs-timeline::before{
+    content:'';position:absolute;left:.625rem;top:.5rem;bottom:.5rem;width:2px;background:var(--line);
+  }
+  .cs-tl-row{position:relative;padding-bottom:1rem}
+  .cs-tl-row:last-child{padding-bottom:0}
+  .cs-tl-dot{
+    position:absolute;left:-1.75rem;top:.35rem;
+    width:1.25rem;height:1.25rem;border-radius:9999px;
+  }
+
+  /* roadmap demo (4 dots compact) */
+  .cs-roadmap{position:relative;padding-top:.75rem;padding-bottom:.5rem;width:100%}
+  .cs-roadmap-track{position:absolute;left:.75rem;right:.75rem;top:1.4rem;height:3px;border-radius:9999px;background:var(--line)}
+  .cs-roadmap-fill{position:absolute;left:.75rem;top:1.4rem;height:3px;border-radius:9999px;background:var(--brand);width:42%}
+  .cs-roadmap-row{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:.25rem}
+  .cs-roadmap-dot{
+    width:2.5rem;height:2.5rem;border-radius:9999px;
+    display:flex;align-items:center;justify-content:center;margin:0 auto;
+  }
+
+  /* misc */
+  .cs-bg-tile{
+    position:relative;border:1px solid var(--line);border-radius:14px;
+    height:120px;overflow:hidden;
+  }
+
+  /* page eyebrow used inside cs-stage demos */
+  .cs-page-eyebrow{font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;letter-spacing:.22em;color:var(--brand);text-transform:uppercase}
+
+  /* Inline-code chip — used in tile descriptions to call out class names */
+  .cs-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--brand);background:var(--brand-tint);padding:1px 6px;border-radius:4px;font-size:.95em}
+
+  /* Showcase note text — non-uppercase explanatory copy under demos */
+  .cs-note{font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;color:var(--muted);max-width:32rem;letter-spacing:0;line-height:1.5;margin:0}
+</style>
+</head>
+<body data-page="components" data-section="dashboard">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ────────────────────── FLOATING TOP NAV (live, for theme toggle) ────────────────────── -->
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner">
+    <a href="index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+    <div class="nav-tabs inline-flex" role="tablist" aria-label="Primary view">
+      <a href="index.html" role="tab" data-section="dashboard" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="pages/website/overview.html" role="tab" data-section="website" class="nav-tab" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <button aria-label="Settings" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">settings</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<!-- breadcrumb -->
+<div class="max-w-[1440px] mx-auto px-6 md:px-10 pt-6 reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="index.html" class="bc-back" aria-label="Back to dashboard" data-bc-back data-bc-back-label="DASHBOARD">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        COMPONENTS
+      </li>
+    </ol>
+    <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
+    <button type="button" class="bc-copy" aria-label="Copy breadcrumb path" data-bc-copy data-bc-copy-path="evenzi://components">
+      <span aria-hidden="true" class="material-symbols-outlined" style="font-size:15px">content_copy</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ────────────────────── HEADER ────────────────────── -->
+<main class="max-w-[1440px] mx-auto px-6 md:px-10 pt-10 pb-24">
+  <header class="mb-2 reveal">
+    <p class="cs-page-eyebrow mb-2">Design system</p>
+    <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-ink leading-[1.05]">Components</h1>
+    <p class="mt-4 text-base md:text-lg text-muted max-w-3xl">Every reusable element on Evenzi, in every state. Toggle the sun/moon icon in the nav to compare light and dark. Hover items to see hover/active states.</p>
+  </header>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 1. FOUNDATIONS                                    -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="foundations">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">01 · Foundations</p>
+      <h2 class="cs-h2">Tokens</h2>
+      <p class="cs-h2-sub">Color, typography, radii and shadow primitives that every component is built from.</p>
+    </header>
+
+    <!-- Color palette -->
+    <article class="cs-component" style="margin-bottom:1rem">
+      <p class="cs-label"><span class="cs-label-name">F1</span> · Color tokens (current theme)</p>
+      <div class="cs-stage cs-stage--start" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.6rem;padding:.85rem">
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--brand)"></div><span class="cs-swatch-name">brand</span><span class="cs-swatch-token">--brand</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--brand-hover)"></div><span class="cs-swatch-name">brand-hover</span><span class="cs-swatch-token">--brand-hover</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--brand-tint)"></div><span class="cs-swatch-name">brand-tint</span><span class="cs-swatch-token">--brand-tint</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--brand-tint-2)"></div><span class="cs-swatch-name">brand-tint-2</span><span class="cs-swatch-token">--brand-tint-2</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--ink)"></div><span class="cs-swatch-name">ink</span><span class="cs-swatch-token">--ink</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--ink-soft)"></div><span class="cs-swatch-name">ink-soft</span><span class="cs-swatch-token">--ink-soft</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--muted)"></div><span class="cs-swatch-name">muted</span><span class="cs-swatch-token">--muted</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--muted-soft)"></div><span class="cs-swatch-name">muted-soft</span><span class="cs-swatch-token">--muted-soft</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--bg)"></div><span class="cs-swatch-name">bg</span><span class="cs-swatch-token">--bg</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--card)"></div><span class="cs-swatch-name">card</span><span class="cs-swatch-token">--card</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--line)"></div><span class="cs-swatch-name">line</span><span class="cs-swatch-token">--line</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--line-soft)"></div><span class="cs-swatch-name">line-soft</span><span class="cs-swatch-token">--line-soft</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--cream-soft)"></div><span class="cs-swatch-name">cream-soft</span><span class="cs-swatch-token">--cream-soft</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--peach)"></div><span class="cs-swatch-name">peach</span><span class="cs-swatch-token">--peach</span></div>
+        <div class="cs-swatch"><div class="cs-swatch-chip" style="background:var(--peach-deep)"></div><span class="cs-swatch-name">peach-deep</span><span class="cs-swatch-token">--peach-deep</span></div>
+      </div>
+    </article>
+
+    <!-- Typography -->
+    <article class="cs-component" style="margin-bottom:1rem">
+      <p class="cs-label"><span class="cs-label-name">F2</span> · Typography scale</p>
+      <div class="cs-stage cs-stage--col" style="padding:1rem">
+        <div class="cs-type-row"><span class="font-display font-bold" style="font-size:60px;line-height:1.05;letter-spacing:-.02em;color:var(--ink)">Display</span><span class="cs-type-meta">60 · Display / Hero h1</span></div>
+        <div class="cs-type-row"><span class="font-display font-bold" style="font-size:36px;line-height:1.1;letter-spacing:-.02em;color:var(--ink)">Heading 2</span><span class="cs-type-meta">36 · Section h2</span></div>
+        <div class="cs-type-row"><span class="font-display font-bold" style="font-size:24px;line-height:1.15;letter-spacing:-.01em;color:var(--ink)">Heading 3 · Card title</span><span class="cs-type-meta">24 · Card h3</span></div>
+        <div class="cs-type-row"><span class="font-display font-bold" style="font-size:18px;color:var(--ink)">Lead / large body</span><span class="cs-type-meta">18 · Lead</span></div>
+        <div class="cs-type-row"><span style="font-size:16px;color:var(--ink)">Body — the quick brown fox jumps over the lazy dog.</span><span class="cs-type-meta">16 · Body</span></div>
+        <div class="cs-type-row"><span style="font-size:14px;color:var(--muted)">Body small — supporting copy and metadata.</span><span class="cs-type-meta">14 · Body sm</span></div>
+        <div class="cs-type-row"><span class="font-display font-bold" style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--brand)">Eyebrow / Tag</span><span class="cs-type-meta">11 · Eyebrow</span></div>
+        <div class="cs-type-row"><span class="bc-mono" style="font-size:13px;color:var(--ink)">12:34:56 IST</span><span class="cs-type-meta">13 · Tabular mono</span></div>
+      </div>
+    </article>
+
+    <!-- Radii & shadows -->
+    <article class="cs-component">
+      <p class="cs-label"><span class="cs-label-name">F3</span> · Radii &amp; shadows</p>
+      <div class="cs-stage cs-stage--start" style="display:flex;gap:1rem;flex-wrap:wrap;padding:1.5rem">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem"><div class="cs-radii-tile" style="border-radius:9999px">9999</div><span class="cs-type-meta">pill</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem"><div class="cs-radii-tile" style="border-radius:32px">32</div><span class="cs-type-meta">clay-lg</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem"><div class="cs-radii-tile" style="border-radius:24px">24</div><span class="cs-type-meta">clay</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem"><div class="cs-radii-tile" style="border-radius:16px">16</div><span class="cs-type-meta">clay-sm</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem"><div class="cs-radii-tile" style="border-radius:12px">12</div><span class="cs-type-meta">control</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem"><div class="cs-radii-tile" style="border-radius:8px">8</div><span class="cs-type-meta">focus</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;flex:1;min-width:240px">
+          <div class="cs-shadow-tile" style="box-shadow:var(--shadow-clay)">shadow-clay</div>
+          <div class="cs-shadow-tile" style="box-shadow:var(--shadow-clay-hover)">shadow-clay-hover</div>
+          <div class="cs-shadow-tile" style="box-shadow:var(--shadow-clay-pill)">shadow-clay-pill</div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 2. SHELL / CHROME                                  -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="shell">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">02 · Shell / Chrome</p>
+      <h2 class="cs-h2">Top nav, breadcrumb, tool rail, footer, FAB, toast</h2>
+    </header>
+
+    <!-- S1 floating nav (static demo) -->
+    <article class="cs-component" style="margin-bottom:1rem">
+      <p class="cs-label"><span class="cs-label-name">S1</span> · Floating top nav</p>
+      <div class="cs-stage cs-stage--col cs-static" style="padding:1.25rem">
+        <nav class="floating-nav cs-static-nav" aria-label="Main demo">
+          <div class="floating-nav-inner">
+            <a href="#" class="fn-logo-link" aria-label="Evenzi home">
+              <span class="fn-logo">EVENZI</span>
+              <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+                <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+                <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+              </span>
+            </a>
+            <div class="nav-tabs inline-flex" role="tablist">
+              <a href="#" class="nav-tab is-active" aria-current="page">
+                <span aria-hidden="true" class="material-symbols-outlined icon-fill">dashboard</span>
+                <span class="nav-tab-label">Dashboard</span>
+              </a>
+              <a href="#" class="nav-tab">
+                <span aria-hidden="true" class="material-symbols-outlined">language</span>
+                <span class="nav-tab-label">Website</span>
+              </a>
+            </div>
+            <div class="fn-actions">
+              <button aria-label="Notifications" class="fn-icon-btn"><span class="material-symbols-outlined">notifications</span><span class="fn-dot"></span></button>
+              <button aria-label="Theme" class="fn-icon-btn"><span class="material-symbols-outlined">dark_mode</span></button>
+              <button aria-label="Settings" class="fn-icon-btn"><span class="material-symbols-outlined">settings</span></button>
+              <span class="fn-divider hidden sm:inline-block"></span>
+              <button class="fn-avatar">A</button>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </article>
+
+    <!-- S2 tool rail (vertical + horizontal) -->
+    <div class="cs-grid cs-grid--wide" style="margin-bottom:1rem">
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">S2a</span> · Tool rail · vertical (desktop)</p>
+        <div class="cs-stage cs-stage--tall" style="justify-content:center">
+          <div class="cs-tool-rail-v">
+            <a href="#" class="tr-btn is-active" data-label="Guests" aria-current="page" aria-label="Guests"><span class="material-symbols-outlined icon-fill">groups</span></a>
+            <a href="#" class="tr-btn" data-label="Invitations" aria-label="Invitations"><span class="material-symbols-outlined icon-fill">forward_to_inbox</span></a>
+            <a href="#" class="tr-btn" data-label="Planning" aria-label="Planning"><span class="material-symbols-outlined icon-fill">checklist_rtl</span></a>
+            <a href="#" class="tr-btn" data-label="Media" aria-label="Media"><span class="material-symbols-outlined icon-fill">photo_library</span></a>
+            <span class="tr-divider"></span>
+            <span class="tr-status"><span class="bc-live"></span>LIVE</span>
+          </div>
+        </div>
+      </article>
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">S2b</span> · Tool rail · horizontal (mobile dock)</p>
+        <div class="cs-stage">
+          <div class="cs-tool-rail-h">
+            <a href="#" class="tr-btn is-active" data-label="Guests" aria-current="page" aria-label="Guests"><span class="material-symbols-outlined icon-fill">groups</span></a>
+            <a href="#" class="tr-btn" data-label="Invitations" aria-label="Invitations"><span class="material-symbols-outlined icon-fill">forward_to_inbox</span></a>
+            <a href="#" class="tr-btn" data-label="Planning" aria-label="Planning"><span class="material-symbols-outlined icon-fill">checklist_rtl</span></a>
+            <a href="#" class="tr-btn" data-label="Media" aria-label="Media"><span class="material-symbols-outlined icon-fill">photo_library</span></a>
+            <span class="tr-divider"></span>
+            <span class="tr-status"><span class="bc-live"></span>LIVE</span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- S3 breadcrumb -->
+    <article class="cs-component" style="margin-bottom:1rem">
+      <p class="cs-label"><span class="cs-label-name">S3</span> · Breadcrumb</p>
+      <div class="cs-stage cs-stage--col" style="padding:1.5rem;gap:1rem">
+        <nav class="bc-shell" aria-label="Breadcrumb demo">
+          <a href="#" class="bc-back"><span class="material-symbols-outlined">arrow_back</span></a>
+          <ol class="bc-path">
+            <li><a href="#">DASHBOARD</a></li>
+            <li class="bc-sep"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+            <li><a href="#">ANYA &amp; KABIR</a></li>
+            <li class="bc-sep"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+            <li class="bc-active"><span class="bc-dot"></span>GUESTS</li>
+          </ol>
+          <span class="bc-divider hidden md:inline-block"></span>
+          <button class="bc-copy" aria-label="Copy"><span class="material-symbols-outlined" style="font-size:15px">content_copy</span></button>
+        </nav>
+      </div>
+    </article>
+
+    <div class="cs-grid cs-grid--wide">
+      <!-- S4 footer -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">S4</span> · Footer</p>
+        <div class="cs-stage cs-stage--col" style="padding:0">
+          <div class="cs-footer-demo">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div class="flex items-center gap-3">
+                <span class="w-9 h-9 rounded-full bg-brand text-white inline-flex items-center justify-center font-display font-bold">E</span>
+                <p class="text-sm text-muted font-semibold">© 2026 Evenzi · Capture · Share · Cherish</p>
+              </div>
+              <div class="flex items-center gap-6 text-xs font-bold tracking-widest text-muted uppercase">
+                <a href="#" class="hover:text-brand transition-colors">Privacy</a>
+                <a href="#" class="hover:text-brand transition-colors">Terms</a>
+                <a href="#" class="hover:text-brand transition-colors">Help</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- S5 + S6 + S7 -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">S5–7</span> · Help FAB · Scroll-progress · Toast</p>
+        <div class="cs-stage cs-stage--col" style="padding:1.5rem;gap:1.25rem">
+          <!-- FAB (static) -->
+          <div style="display:flex;align-items:center;gap:1rem">
+            <button aria-label="Help" class="help-fab" style="position:static;bottom:auto;right:auto">
+              <span class="material-symbols-outlined icon-fill">support_agent</span>
+            </button>
+            <span class="cs-type-meta">S5 · Help FAB · <code class="cs-code">.help-fab</code></span>
+          </div>
+          <!-- Scroll progress -->
+          <div class="cs-static" style="position:relative;width:100%;display:flex;align-items:center;gap:1rem">
+            <div class="scroll-progress" style="position:relative;height:4px;border-radius:2px;background:var(--line);overflow:hidden;flex:1">
+              <div style="position:absolute;left:0;top:0;bottom:0;width:62%;background:linear-gradient(90deg,transparent,var(--brand) 30%,var(--brand) 100%);box-shadow:0 0 10px var(--brand)"></div>
+            </div>
+            <span class="cs-type-meta">S6 · Scroll progress @ 62%</span>
+          </div>
+          <!-- Toast (static — overrides .bc-toast position to inline) -->
+          <div style="position:relative;display:flex;align-items:center;gap:1rem">
+            <span class="bc-toast is-show" style="position:relative;left:0;bottom:auto;transform:none">
+              <span class="bc-live"></span>
+              <span>PATH COPIED</span>
+            </span>
+            <span class="cs-type-meta">S7 · Toast (visible)</span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- S8 notification dropdown panel (static) -->
+    <article class="cs-component" style="margin-top:1rem">
+      <p class="cs-label"><span class="cs-label-name">S8</span> · Notification dropdown panel · auto-injected on every bell button</p>
+      <div class="cs-stage" style="padding:1.5rem;align-items:flex-start">
+        <div class="fn-notif-panel is-open" style="position:relative;top:auto;right:auto;width:340px;max-width:100%">
+          <div class="fn-notif-header">
+            <span class="fn-notif-title">Notifications</span>
+            <button class="fn-notif-mark-all" type="button">Mark all read</button>
+          </div>
+          <ul class="fn-notif-list" tabindex="0" aria-label="Notifications list" style="max-height:none">
+            <li class="fn-notif-item is-unread">
+              <span class="fn-notif-icon"><span class="material-symbols-outlined">how_to_reg</span></span>
+              <div>
+                <p class="fn-notif-text"><strong>Karthik &amp; Ananya</strong> confirmed for the Reception.</p>
+                <p class="fn-notif-time">2 hours ago</p>
+                <span class="sr-only">Unread</span>
+              </div>
+              <span class="fn-notif-unread" aria-hidden="true"></span>
+            </li>
+            <li class="fn-notif-item">
+              <span class="fn-notif-icon"><span class="material-symbols-outlined">forward_to_inbox</span></span>
+              <div>
+                <p class="fn-notif-text">Save-the-dates sent to <strong>156 guests</strong>.</p>
+                <p class="fn-notif-time">Yesterday</p>
+              </div>
+              <span class="fn-notif-unread" aria-hidden="true"></span>
+            </li>
+            <li class="fn-notif-item">
+              <span class="fn-notif-icon"><span class="material-symbols-outlined">payments</span></span>
+              <div>
+                <p class="fn-notif-text">Payment recorded — <strong>₹50,000</strong> to Heritage Palace.</p>
+                <p class="fn-notif-time">3 days ago</p>
+              </div>
+              <span class="fn-notif-unread" aria-hidden="true"></span>
+            </li>
+          </ul>
+          <div class="fn-notif-footer">
+            <a href="#" class="fn-notif-view-all">View all<span class="material-symbols-outlined">arrow_forward</span></a>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 3. SURFACES                                       -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="surfaces">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">03 · Surfaces</p>
+      <h2 class="cs-h2">Cards &amp; containers</h2>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <!-- C1 lg-glass-card -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">C1</span> · Liquid Glass Card</p>
+        <div class="cs-stage">
+          <div class="lg-glass-card p-6 w-full">
+            <p class="font-display font-bold text-lg text-ink">Liquid Glass Card</p>
+            <p class="text-sm text-muted mt-1">Translucent surface with rim, top highlight, ambient shadow.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- C2 clay-card -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">C2</span> · Clay Card · default + hover (hover me)</p>
+        <div class="cs-stage" style="gap:1rem">
+          <div class="clay-card p-5 w-44">
+            <p class="font-display font-bold text-sm text-ink">Default</p>
+            <p class="text-xs text-muted mt-1">Solid surface, claymorphism shadow.</p>
+          </div>
+          <div class="clay-card p-5 w-44" style="transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)">
+            <p class="font-display font-bold text-sm text-ink">Hover (lifted)</p>
+            <p class="text-xs text-muted mt-1">Hover state — lifts 3px, deeper shadow.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- C3 tool card -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">C3</span> · Tool Card (bento) · default + hover</p>
+        <div class="cs-stage" style="gap:1rem;align-items:stretch">
+          <a href="#" class="clay-card tool-card p-6 group cursor-pointer relative overflow-hidden" style="width:240px">
+            <span class="tool-card-num">01</span>
+            <div class="tool-card-icon mb-4"><span class="material-symbols-outlined icon-fill">groups</span></div>
+            <h3 class="font-display font-bold text-lg text-ink mb-1">Guests</h3>
+            <p class="text-muted text-xs leading-relaxed mb-3">Track RSVPs and families.</p>
+            <div class="flex items-center gap-2"><span class="clay-pill bg-brand-tint text-brand px-2.5 h-7 inline-flex items-center font-display font-bold text-[10px] tracking-wide">248</span></div>
+          </a>
+          <a href="#" class="clay-card tool-card p-6 group cursor-pointer relative overflow-hidden" style="width:240px;transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)">
+            <span class="tool-card-num">02</span>
+            <div class="tool-card-icon mb-4" style="background:var(--brand);color:#fff;transform:scale(1.04)"><span class="material-symbols-outlined icon-fill">forward_to_inbox</span></div>
+            <h3 class="font-display font-bold text-lg text-ink mb-1">Invitations</h3>
+            <p class="text-muted text-xs leading-relaxed mb-3">Hovered: icon flips to filled brand.</p>
+            <div class="flex items-center gap-2"><span class="clay-pill bg-brand-tint text-brand px-2.5 h-7 inline-flex items-center font-display font-bold text-[10px] tracking-wide">12 NEW</span></div>
+          </a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 4. PILLS / CHIPS                                  -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="pills">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">04 · Pills &amp; Chips</p>
+      <h2 class="cs-h2">Inline labels &amp; tags</h2>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">P1</span> · Clay Pill · 4 variants</p>
+        <div class="cs-stage" style="gap:.6rem">
+          <span class="clay-pill bg-brand-tint text-brand px-3 h-8 inline-flex items-center font-display font-bold text-xs tracking-wide">BRAND-TINT</span>
+          <span class="clay-pill bg-cream-soft text-ink-soft px-3 h-8 inline-flex items-center font-display font-bold text-xs tracking-wide">CREAM-SOFT</span>
+          <span class="clay-pill bg-brand text-white px-3 h-8 inline-flex items-center gap-1.5 font-display font-bold text-xs tracking-wide">
+            <span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background:#fff"></span>LIVE
+          </span>
+          <span class="clay-pill bg-card text-ink px-3 h-8 inline-flex items-center font-display font-bold text-xs tracking-wide" style="border:1px solid var(--line)">PREVIEW</span>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">P2</span> · Hero Pill · 3 variants</p>
+        <div class="cs-stage" style="gap:.6rem">
+          <span class="hero-pill"><span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span>Final preparations</span>
+          <span class="hero-pill">Owner</span>
+          <span class="hero-pill hero-pill-brand">63 days to go</span>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">P3</span> · Hero Meta Chip</p>
+        <div class="cs-stage" style="gap:.6rem">
+          <span class="hero-meta-chip">
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">location_on</span></span>
+            <span class="hero-meta-text"><span class="hero-meta-label">Venue</span><span class="hero-meta-value">Heritage Palace</span></span>
+          </span>
+          <span class="hero-meta-chip">
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">calendar_month</span></span>
+            <span class="hero-meta-text"><span class="hero-meta-label">Date</span><span class="hero-meta-value">Sat · Dec 22, 2025</span></span>
+          </span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 5. BUTTONS & CONTROLS                              -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="buttons">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">05 · Buttons &amp; Controls</p>
+      <h2 class="cs-h2">Tappable elements</h2>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <!-- B1 icon button -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B1</span> · Icon Button · default · hover · with dot</p>
+        <div class="cs-stage" style="gap:1rem">
+          <button class="fn-icon-btn" aria-label="Default"><span class="material-symbols-outlined">settings</span></button>
+          <button class="fn-icon-btn" aria-label="Hover" style="background:var(--brand-tint);color:var(--brand);transform:scale(1.05)"><span class="material-symbols-outlined">settings</span></button>
+          <button class="fn-icon-btn" aria-label="Notifications"><span class="material-symbols-outlined">notifications</span><span class="fn-dot"></span></button>
+        </div>
+      </article>
+
+      <!-- B2 btn-pill (canonical CTA) -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B2</span> · Pill Button · primary · secondary · large · with leading icon</p>
+        <div class="cs-stage cs-stage--col" style="padding:1.25rem;gap:1rem;align-items:flex-start">
+          <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:center">
+            <button type="button" class="btn-pill btn-pill-primary">SAVE EVENT<span class="material-symbols-outlined">arrow_forward</span></button>
+            <button type="button" class="btn-pill btn-pill-primary" style="background:var(--brand-hover);transform:translateY(-1px)">HOVER<span class="material-symbols-outlined">arrow_forward</span></button>
+            <button type="button" class="btn-pill btn-pill-primary" disabled>DISABLED<span class="material-symbols-outlined">arrow_forward</span></button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:center">
+            <button type="button" class="btn-pill btn-pill-primary"><span class="material-symbols-outlined">person_add</span>Add guest</button>
+            <button type="button" class="btn-pill btn-pill-secondary">CANCEL</button>
+            <button type="button" class="btn-pill btn-pill-secondary" style="background:var(--brand-tint);color:var(--brand);border-color:var(--brand-tint-2)">SECONDARY HOVER</button>
+          </div>
+          <button type="button" class="btn-pill btn-pill-primary btn-pill-lg" style="width:100%;justify-content:center">PUBLISH EVENT WEBSITE<span class="material-symbols-outlined">arrow_forward</span></button>
+          <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:center">
+            <button type="button" class="btn-pill btn-pill-primary is-loading" aria-busy="true">SAVING<span class="material-symbols-outlined">arrow_forward</span><span class="btn-pill-spinner" aria-hidden="true"></span></button>
+            <button type="button" class="btn-pill btn-pill-secondary is-loading" aria-busy="true">SYNCING<span class="btn-pill-spinner" aria-hidden="true"></span></button>
+          </div>
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Use <code class="cs-code">.btn-pill</code> for all CTAs. Composes with <code class="cs-code">.btn-pill-primary</code> / <code class="cs-code">.btn-pill-secondary</code> / <code class="cs-code">.btn-pill-lg</code>. For async actions add <code class="cs-code">.is-loading</code> + <code class="cs-code">aria-busy="true"</code> and include a <code class="cs-code">&lt;span class="btn-pill-spinner"&gt;</code> child. Reduced-motion swaps spin to opacity pulse.</p>
+        </div>
+      </article>
+
+      <!-- B3 quick action tile -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B3</span> · Quick Action Tile · default · hover</p>
+        <div class="cs-stage" style="gap:.75rem">
+          <button class="qa-tile text-left" style="width:160px">
+            <span class="qa-tile-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">forward_to_inbox</span></span>
+            <p class="font-display font-bold text-sm text-ink leading-tight">Send invites</p>
+            <p class="text-[11px] text-muted">12 unsent</p>
+          </button>
+          <button class="qa-tile text-left" style="width:160px;transform:translateY(-2px);border-color:var(--brand-tint-2);box-shadow:0 10px 22px -10px rgba(187,0,32,.18)">
+            <span class="qa-tile-icon"><span class="material-symbols-outlined icon-fill" style="font-size:18px">how_to_reg</span></span>
+            <p class="font-display font-bold text-sm text-ink leading-tight">Track RSVPs</p>
+            <p class="text-[11px] text-muted">154 confirmed</p>
+          </button>
+        </div>
+      </article>
+
+      <!-- B4 avatar -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B4</span> · Avatar Circle · default · hover · secondary</p>
+        <div class="cs-stage" style="gap:1rem">
+          <button class="fn-avatar" aria-label="Default avatar">A</button>
+          <button class="fn-avatar" style="transform:scale(1.06)" aria-label="Hover avatar">A</button>
+          <button class="fn-avatar" style="background:var(--brand-tint);color:var(--brand);box-shadow:none;border:1px solid var(--brand-tint-2)" aria-label="Secondary avatar">K</button>
+        </div>
+      </article>
+
+      <!-- B5 theme toggle -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B5</span> · Theme Toggle</p>
+        <div class="cs-stage" style="gap:1rem">
+          <button class="fn-icon-btn" aria-label="Toggle theme">
+            <span class="material-symbols-outlined theme-icon-light">dark_mode</span>
+            <span class="material-symbols-outlined theme-icon-dark">light_mode</span>
+          </button>
+          <span class="cs-type-meta">Click the one in the nav above to flip the whole page</span>
+        </div>
+      </article>
+
+      <!-- B6 notification dot -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B6</span> · Notification Dot</p>
+        <div class="cs-stage" style="gap:1rem">
+          <button class="fn-icon-btn" aria-label="Notifications"><span class="material-symbols-outlined">notifications</span><span class="fn-dot"></span></button>
+          <span class="cs-type-meta">Used on bell, channel chips, etc.</span>
+        </div>
+      </article>
+
+      <!-- B7 round-tick checkbox -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B7</span> · Round-tick Checkbox · unchecked · hover · checked</p>
+        <div class="cs-stage" style="gap:1.5rem">
+          <span class="w-6 h-6 rounded-lg border-2 border-muted-soft flex items-center justify-center"></span>
+          <span class="w-6 h-6 rounded-lg border-2 border-brand flex items-center justify-center"></span>
+          <span class="w-6 h-6 rounded-lg border-2 border-brand bg-brand flex items-center justify-center"><span class="material-symbols-outlined text-base text-white">check</span></span>
+        </div>
+      </article>
+
+      <!-- B8 toggle-switch -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B8</span> · Toggle Switch · on · off · disabled</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
+            <div>
+              <p style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;color:var(--ink);margin:0">Email me when guests RSVP</p>
+              <p class="form-helper" style="margin:.1rem 0 0">You'll get a daily digest at 9 AM.</p>
+            </div>
+            <button type="button" class="toggle-switch" role="switch" aria-checked="true" aria-label="Email RSVP notifications">
+              <span class="toggle-switch-thumb"></span>
+            </button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
+            <div>
+              <p style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;color:var(--ink);margin:0">Two-factor authentication</p>
+              <p class="form-helper" style="margin:.1rem 0 0">Recommended for accounts with payment info.</p>
+            </div>
+            <button type="button" class="toggle-switch" role="switch" aria-checked="false" aria-label="Two-factor authentication">
+              <span class="toggle-switch-thumb"></span>
+            </button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;opacity:.55">
+            <div>
+              <p style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;color:var(--ink);margin:0;display:inline-flex;align-items:center;gap:.4rem">WhatsApp delivery reports <span class="clay-pill bg-brand-tint text-brand" style="padding:1px 8px;font-size:9px;letter-spacing:.18em;font-weight:700">PRO</span></p>
+              <p class="form-helper" style="margin:.1rem 0 0">Available on the Curator and Pro plans.</p>
+            </div>
+            <button type="button" class="toggle-switch" role="switch" aria-checked="true" aria-label="WhatsApp reports" disabled style="cursor:not-allowed">
+              <span class="toggle-switch-thumb"></span>
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- B9 segmented control — used as a filter / view-mode toggle (radiogroup) -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B9</span> · Segmented Control · view-mode filter (no panels)</p>
+        <div class="cs-stage cs-stage--col" style="gap:.85rem;padding:1.25rem;align-items:flex-start">
+          <div class="nav-tabs inline-flex" role="radiogroup" aria-label="Event filter">
+            <button type="button" role="radio" class="nav-tab is-active" aria-checked="true">
+              <span aria-hidden="true" class="material-symbols-outlined icon-fill">event_available</span>
+              <span class="nav-tab-label">Active</span>
+            </button>
+            <button type="button" role="radio" class="nav-tab" aria-checked="false">
+              <span aria-hidden="true" class="material-symbols-outlined">history</span>
+              <span class="nav-tab-label">Past</span>
+            </button>
+            <button type="button" role="radio" class="nav-tab" aria-checked="false">
+              <span aria-hidden="true" class="material-symbols-outlined">archive</span>
+              <span class="nav-tab-label">Archived</span>
+            </button>
+          </div>
+          <p class="cs-note">
+            The <code class="cs-code">.nav-tabs</code> primitive is visual; pick the role to match the semantics. Use <code class="cs-code">role="tablist"</code> + <code class="cs-code">role="tab"</code> + <code class="cs-code">aria-selected</code> when each button maps to a <code class="cs-code">tabpanel</code> (the live nav at top of this page is one). Use <code class="cs-code">role="radiogroup"</code> + <code class="cs-code">role="radio"</code> + <code class="cs-code">aria-checked</code> for filters / view-mode toggles like this one — see FF8 for stacked variant.
+          </p>
+        </div>
+      </article>
+
+      <!-- B10 Google OAuth button -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B10</span> · Google OAuth button · default · hover · loading</p>
+        <div class="cs-stage cs-stage--col" style="gap:.85rem;padding:1.25rem;align-items:stretch;max-width:380px">
+          <button type="button" class="btn-google">
+            <svg class="btn-google-icon" viewBox="0 0 18 18" aria-hidden="true">
+              <path fill="#4285F4" d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+              <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+              <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+              <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+            </svg>
+            <span>Continue with Google</span>
+            <span class="btn-pill-spinner" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="btn-google is-loading" aria-busy="true">
+            <svg class="btn-google-icon" viewBox="0 0 18 18" aria-hidden="true">
+              <path fill="#4285F4" d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+              <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+              <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+              <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+            </svg>
+            <span>Continue with Google</span>
+            <span class="btn-pill-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Use <code class="cs-code">.btn-google</code> for OAuth sign-in surfaces. Inline 4-color "G" SVG (Google brand requires no recoloring). Same height as <code class="cs-code">.btn-pill-lg</code> (46px). Full-width by default. Loading state shares <code class="cs-code">.btn-pill-spinner</code> child + <code class="cs-code">.is-loading</code> + <code class="cs-code">aria-busy="true"</code>.</p>
+        </div>
+      </article>
+
+      <!-- B11 divider-or -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B11</span> · "or" divider · between two action paths</p>
+        <div class="cs-stage cs-stage--col" style="gap:.85rem;padding:1.25rem;align-items:stretch;max-width:380px">
+          <div class="divider-or"><span>or</span></div>
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Use <code class="cs-code">.divider-or</code> to separate two equal-weight action paths (e.g. OTP vs OAuth, email vs phone, etc.). Rule color <code class="cs-code">var(--brand-tint-2)</code> for AA contrast in dark mode.</p>
+        </div>
+      </article>
+
+      <!-- B12 auth-tabs (in-card segmented control) -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B12</span> · Auth tabs · <code class="cs-code">.nav-tabs.auth-tabs</code> · in-card 2-state segmented</p>
+        <div class="cs-stage cs-stage--col" style="gap:.85rem;padding:1.25rem;align-items:stretch;max-width:380px">
+          <div class="nav-tabs auth-tabs" role="radiogroup" aria-label="Auth mode demo">
+            <button type="button" role="radio" class="nav-tab" aria-checked="false">
+              <span class="nav-tab-label">Sign Up</span>
+            </button>
+            <button type="button" role="radio" class="nav-tab is-active" aria-checked="true">
+              <span class="nav-tab-label">Log In</span>
+            </button>
+          </div>
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0"><code class="cs-code">.auth-tabs</code> is a modifier on <code class="cs-code">.nav-tabs</code> tuned for in-card mode-switching — full-width, no backdrop blur (parent card is opaque), quieter inactive-hover so it doesn't compete with the active state. Semantics: <code class="cs-code">role="radiogroup"</code> + <code class="cs-code">role="radio"</code> + <code class="cs-code">aria-checked</code>. Reuse on any auth / mode-switch surface.</p>
+        </div>
+      </article>
+
+      <!-- B13 role-tag-soon -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">B13</span> · Coming-soon tag · <code class="cs-code">.role-tag-soon</code> · roadmap marker</p>
+        <div class="cs-stage" style="gap:.85rem;padding:1.25rem">
+          <span class="role-tag-soon">Coming soon</span>
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Small chip used inside radio-pills, cards, etc. to flag roadmap items that aren't live yet. Brand-tinted, AA contrast, tracked-out caps to match the eyebrow language.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 6. FORM FIELDS                                    -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="forms">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">06 · Form fields</p>
+      <h2 class="cs-h2">Inputs, selects, errors</h2>
+      <p class="cs-h2-sub">All form primitives compose from <code class="cs-code">.form-group</code> + <code class="cs-code">.form-label</code> + the field + optional <code class="cs-code">.form-helper</code> / <code class="cs-code">.form-error</code>. Labels are visible, never placeholder-only (a11y floor).</p>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <!-- F1 form-input states -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF1</span> · Text input · default · focus · error · disabled</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div class="form-group">
+            <label class="form-label" for="cs-f1-name">Event name</label>
+            <input id="cs-f1-name" class="form-input" type="text" placeholder="e.g., Anya &amp; Kabir's Wedding" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f1-focus">Event name <span style="color:var(--brand)">· focused</span></label>
+            <input id="cs-f1-focus" class="form-input" type="text" value="Anya &amp; Kabir's Wedding" style="border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-tint)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f1-err">Mobile number</label>
+            <input id="cs-f1-err" class="form-input" type="tel" value="98765" aria-invalid="true" aria-describedby="cs-f1-err-msg" />
+            <p id="cs-f1-err-msg" class="form-error" role="alert">
+              <span class="material-symbols-outlined">error</span>
+              Mobile number must be 10 digits
+            </p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f1-disabled">Phone (verified)</label>
+            <input id="cs-f1-disabled" class="form-input" type="tel" value="+91 9876543210" disabled />
+            <p class="form-helper">Locked once verified. <a href="#" style="color:var(--brand)">Contact support</a> to change.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- F2 form-password -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF2</span> · Password · with eye toggle</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div class="form-group">
+            <label class="form-label" for="cs-f2-pw">Password</label>
+            <div class="form-password">
+              <input id="cs-f2-pw" class="form-input" type="password" value="weddingseason26" />
+              <button type="button" class="form-password-toggle" aria-label="Show password" data-pw-toggle>
+                <span class="material-symbols-outlined">visibility</span>
+              </button>
+            </div>
+            <p class="form-helper">8+ characters, one number.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f2-pw-open">Password <span style="color:var(--brand)">· revealed</span></label>
+            <div class="form-password">
+              <input id="cs-f2-pw-open" class="form-input" type="text" value="weddingseason26" />
+              <button type="button" class="form-password-toggle" aria-label="Hide password" style="color:var(--brand);background:var(--brand-tint)">
+                <span class="material-symbols-outlined">visibility_off</span>
+              </button>
+            </div>
+            <p class="form-helper form-helper-success">
+              <span class="material-symbols-outlined">check_circle</span>
+              Strong password
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- F3 form-textarea -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF3</span> · Textarea · multi-line · clay-sm radius</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div class="form-group">
+            <label class="form-label" for="cs-f3-desc">Event description</label>
+            <textarea id="cs-f3-desc" class="form-textarea" rows="4" placeholder="Tell guests what to expect — dress code, schedule, parking, anything else they should know.">Three days of festivities at the Heritage Palace — Sangeet on Friday, Wedding ceremony Saturday morning, Reception in the evening. Dress code: Indian formal.</textarea>
+            <p class="form-helper">236 / 500 characters</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f3-err">Notes <span style="color:var(--brand)">· error</span></label>
+            <textarea id="cs-f3-err" class="form-textarea" rows="3" aria-invalid="true">A really long event name that goes on and on and ought to be shorter than this</textarea>
+            <p class="form-error" role="alert"><span class="material-symbols-outlined">error</span>Description is over the 500 character limit.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- F4 form-select -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF4</span> · Select · native picker · pill-styled trigger</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div class="form-group">
+            <label class="form-label" for="cs-f4-type">Event type</label>
+            <div class="form-select">
+              <select id="cs-f4-type">
+                <option>Wedding</option>
+                <option>Engagement</option>
+                <option>Anniversary</option>
+                <option>Birthday</option>
+                <option>Corporate</option>
+                <option>Other</option>
+              </select>
+              <span class="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f4-cat">Expense category</label>
+            <div class="form-select">
+              <select id="cs-f4-cat">
+                <option>Catering</option>
+                <option>Venue</option>
+                <option>Decor</option>
+                <option>Photography &amp; Video</option>
+                <option>Outfits &amp; Jewellery</option>
+                <option>Travel &amp; Stay</option>
+              </select>
+              <span class="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
+            </div>
+            <p class="form-helper">Used to group your spending in the budget tracker.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- F5 phone-input / form-input-group -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF5</span> · Input group · phone (+91) · currency (₹)</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div class="form-group">
+            <label class="form-label" for="cs-f5-phone">Phone</label>
+            <div class="form-input form-input-group">
+              <span class="form-input-prefix">+91</span>
+              <input id="cs-f5-phone" class="form-input-field" type="tel" inputmode="numeric" placeholder="9876543210" maxlength="10" />
+            </div>
+            <p class="form-helper">India only for now. More countries coming soon.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cs-f5-amt">Total budget</label>
+            <div class="form-input form-input-group">
+              <span class="form-input-prefix">₹</span>
+              <input id="cs-f5-amt" class="form-input-field" type="text" inputmode="numeric" value="15,00,000" />
+              <span class="form-input-suffix">INR</span>
+            </div>
+            <p class="form-helper">We'll group your spending against this in the planner.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- FF6 date · time · custom Evenzi pickers (replace native OS pickers) -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF6</span> · Date · time · custom Evenzi pickers (replace native)</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
+          <div class="form-group">
+            <span class="form-label" id="cs-f6-date-label">Event date</span>
+            <button type="button" class="form-input form-input-trigger" data-date-trigger aria-labelledby="cs-f6-date-label">
+              <span class="form-input-trigger-value" data-placeholder="Pick a date"></span>
+              <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+            </button>
+            <input type="date" class="sr-only" tabindex="-1" aria-hidden="true" value="2026-05-22" />
+          </div>
+          <div class="form-group">
+            <span class="form-label" id="cs-f6-time-label">Ceremony time</span>
+            <button type="button" class="form-input form-input-trigger" data-time-trigger aria-labelledby="cs-f6-time-label">
+              <span class="form-input-trigger-value" data-placeholder="Pick a time"></span>
+              <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+            </button>
+            <input type="time" class="sr-only" tabindex="-1" aria-hidden="true" value="14:30" />
+          </div>
+          <p class="cs-note">Tapping a trigger opens the custom <strong>Evenzi calendar / time picker</strong> — popover on desktop, bottom-sheet on mobile, full keyboard nav, dark-mode aware. The hidden <code class="cs-code">&lt;input type="date|time"&gt;</code> (concealed via <code class="cs-code">.sr-only</code>) stays the value store, so existing form logic is untouched. <code class="cs-code">data-native-date</code> / <code class="cs-code">data-native-time</code> opt back into the OS picker as a fallback.</p>
+        </div>
+      </article>
+
+      <!-- F7 pin-input / OTP -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF7</span> · OTP code · 6-cell, auto-advance</p>
+        <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:flex-start">
+          <p style="font-family:'Poppins',sans-serif;font-weight:500;font-size:13px;color:var(--muted);margin:0">Enter the 6-digit code sent to <strong style="color:var(--ink)">+91 9876543210</strong></p>
+          <div class="pin-input" data-len="6" role="group" aria-label="6-digit verification code">
+            <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " autocomplete="one-time-code" value="9" />
+            <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " value="8" />
+            <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " value="2" />
+            <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " value="" />
+            <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " value="" />
+            <input class="pin-input-cell" type="text" maxlength="1" inputmode="numeric" placeholder=" " value="" />
+          </div>
+          <button type="button" class="btn-pill btn-pill-secondary" style="margin-top:.25rem">Resend code</button>
+          <p class="form-helper" style="margin-top:0">Try pasting a 6-digit code — it'll distribute across the cells.</p>
+        </div>
+      </article>
+
+      <!-- F8 radio-pill-group -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF8</span> · Radio pill group · RSVP · Yes / No / Maybe</p>
+        <div class="cs-stage cs-stage--col" style="gap:.85rem;padding:1.25rem;align-items:stretch">
+          <span id="cs-f8-q" class="form-label">Will you be attending?</span>
+          <div class="radio-pill-group" role="radiogroup" aria-labelledby="cs-f8-q">
+            <button type="button" role="radio" aria-checked="true" class="radio-pill is-checked">
+              <span class="material-symbols-outlined icon-fill" aria-hidden="true">check_circle</span>
+              Yes, I'll be there
+            </button>
+            <button type="button" role="radio" aria-checked="false" class="radio-pill">
+              <span class="material-symbols-outlined icon-fill" aria-hidden="true">check_circle</span>
+              Maybe, will confirm soon
+            </button>
+            <button type="button" role="radio" aria-checked="false" class="radio-pill">
+              <span class="material-symbols-outlined icon-fill" aria-hidden="true">check_circle</span>
+              Sorry, can't make it
+            </button>
+          </div>
+          <p class="form-helper">Mutually exclusive — uses <code class="cs-code">role="radiogroup"</code> + <code class="cs-code">aria-checked</code>. Stacks on mobile, rows ≥480px.</p>
+        </div>
+      </article>
+
+      <!-- F9 form-error / form-helper-success -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">FF9</span> · Inline message · error · helper · success</p>
+        <div class="cs-stage cs-stage--col" style="gap:.75rem;padding:1.25rem;align-items:flex-start">
+          <p class="form-error" role="alert">
+            <span class="material-symbols-outlined">error</span>
+            Mobile number must be 10 digits
+          </p>
+          <p class="form-error" role="alert">
+            <span class="material-symbols-outlined">error</span>
+            We couldn't reach this number — check the country prefix.
+          </p>
+          <p class="form-helper">We'll only use this for RSVP delivery.</p>
+          <p class="form-helper form-helper-success">
+            <span class="material-symbols-outlined">check_circle</span>
+            OTP verified
+          </p>
+          <p class="form-helper form-helper-success">
+            <span class="material-symbols-outlined">check_circle</span>
+            Event saved as draft
+          </p>
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0;margin-top:.25rem">Color is never the only signal — every state pairs with an icon.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 7. AVATARS & PEOPLE                               -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="avatars">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">07 · Avatars &amp; people</p>
+      <h2 class="cs-h2">Identity surfaces</h2>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <!-- AV1 avatar-edit -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">AV1</span> · Avatar editor · initials · image · 96×96 · file-input pattern</p>
+        <div class="cs-stage" style="gap:2rem;padding:1.5rem;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem">
+            <div class="avatar-edit">
+              <div class="avatar-edit-img">A</div>
+              <button type="button" class="avatar-edit-btn" aria-label="Change profile photo">
+                <span class="material-symbols-outlined" aria-hidden="true">photo_camera</span>
+              </button>
+            </div>
+            <span class="cs-type-meta">Initials</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem">
+            <div class="avatar-edit">
+              <div class="avatar-edit-img" style="background:linear-gradient(135deg,var(--brand),var(--brand-hover))"></div>
+              <button type="button" class="avatar-edit-btn" aria-label="Change profile photo">
+                <span class="material-symbols-outlined" aria-hidden="true">photo_camera</span>
+              </button>
+            </div>
+            <span class="cs-type-meta">Photo</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem">
+            <div class="avatar-edit">
+              <div class="avatar-edit-img">B</div>
+              <input type="file" id="cs-avatar-upload" class="avatar-edit-input" accept="image/*"/>
+              <label for="cs-avatar-upload" class="avatar-edit-btn" aria-label="Change profile photo">
+                <span class="material-symbols-outlined" aria-hidden="true">photo_camera</span>
+              </label>
+            </div>
+            <span class="cs-type-meta">File-input</span>
+          </div>
+        </div>
+        <p class="cs-type-meta" style="text-transform:none;letter-spacing:0;padding:0 1.25rem 1.25rem">Use <code class="cs-code">&lt;label for&gt;</code> + visually-hidden <code class="cs-code">.avatar-edit-input</code> when the badge should open a file picker. Keyboard focus lands on the input and the ring shows on the label via <code class="cs-code">:focus-visible + .avatar-edit-btn</code>. shell.js handles the change event with a 5 MB cap.</p>
+      </article>
+
+      <!-- AV2 avatar-stack -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">AV2</span> · Avatar stack · 3 · 5 + overflow · 1 single</p>
+        <div class="cs-stage cs-stage--col" style="gap:1.25rem;padding:1.5rem;align-items:flex-start">
+          <div style="display:flex;align-items:center;gap:.85rem">
+            <div class="avatar-stack">
+              <span class="avatar-stack-item">A</span>
+              <span class="avatar-stack-item">K</span>
+              <span class="avatar-stack-item">I</span>
+            </div>
+            <span class="cs-type-meta" style="text-transform:none;letter-spacing:0">3 — Anya, Kabir, Ishani</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.85rem">
+            <div class="avatar-stack">
+              <span class="avatar-stack-item" style="background:var(--avatar-1)">A</span>
+              <span class="avatar-stack-item" style="background:var(--avatar-2)">K</span>
+              <span class="avatar-stack-item" style="background:var(--avatar-3)">I</span>
+              <span class="avatar-stack-item">R</span>
+              <span class="avatar-stack-item">M</span>
+              <span class="avatar-stack-overflow">+12</span>
+            </div>
+            <span class="cs-type-meta" style="text-transform:none;letter-spacing:0">5 + 12 more — RSVPed for the Reception</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.85rem">
+            <div class="avatar-stack">
+              <span class="avatar-stack-item">A</span>
+            </div>
+            <span class="cs-type-meta" style="text-transform:none;letter-spacing:0">1 single — assigned to Anya</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 8. DATA DISPLAY                                   -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="data">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">08 · Data Display</p>
+      <h2 class="cs-h2">Stats, charts, lists</h2>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <!-- D1 stats strip card -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">D1</span> · Stats Strip Card · count + count + bar</p>
+        <div class="cs-stage cs-stage--col" style="gap:.75rem;padding:1rem">
+          <div class="stats-strip-card flex items-center gap-4">
+            <span class="stat-icon"><span class="material-symbols-outlined icon-fill">groups</span></span>
+            <div class="min-w-0">
+              <p class="text-[10px] font-display font-bold tracking-[0.25em] text-muted uppercase">Guests</p>
+              <p class="font-display font-bold text-2xl text-ink leading-none mt-0.5">248</p>
+              <p class="text-[10px] text-muted-soft font-semibold mt-1">across 18 families</p>
+            </div>
+          </div>
+          <div class="stats-strip-card flex items-center gap-4">
+            <span class="stat-icon"><span class="material-symbols-outlined icon-fill">how_to_reg</span></span>
+            <div class="min-w-0 w-full">
+              <p class="text-[10px] font-display font-bold tracking-[0.25em] text-muted uppercase">RSVP rate</p>
+              <p class="font-display font-bold text-2xl text-ink leading-none mt-0.5">62%</p>
+              <div class="w-full h-1 rounded-full overflow-hidden mt-1.5" style="background:var(--line)"><div class="h-full bg-brand rounded-full" style="width:62%"></div></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- D2 progress ring -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">D2</span> · Circular Progress Ring</p>
+        <div class="cs-stage" style="gap:1.5rem">
+          <div class="relative w-24 h-24 shrink-0">
+            <svg class="w-24 h-24 -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
+              <circle cx="50" cy="50" r="44" stroke="var(--line)" stroke-width="8" fill="none"/>
+              <circle cx="50" cy="50" r="44" stroke="var(--brand)" stroke-width="8" fill="none" stroke-dasharray="276.46" stroke-dashoffset="158" stroke-linecap="round"/>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center"><span class="font-display font-bold text-xl text-ink leading-none">43%</span></div>
+          </div>
+          <div class="relative w-24 h-24 shrink-0">
+            <svg class="w-24 h-24 -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
+              <circle cx="50" cy="50" r="44" stroke="var(--line)" stroke-width="8" fill="none"/>
+              <circle cx="50" cy="50" r="44" stroke="var(--brand)" stroke-width="8" fill="none" stroke-dasharray="276.46" stroke-dashoffset="55" stroke-linecap="round"/>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center"><span class="font-display font-bold text-xl text-ink leading-none">80%</span></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- D3 linear progress bar -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">D3</span> · Linear Progress Bar · multiple fills</p>
+        <div class="cs-stage cs-stage--col" style="gap:.75rem;padding:1.25rem">
+          <div class="w-full">
+            <div class="flex items-center justify-between text-xs text-muted mb-1"><span>Catering</span><span class="font-bold text-ink">78%</span></div>
+            <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--line)"><div class="h-full bg-brand rounded-full" style="width:78%"></div></div>
+          </div>
+          <div class="w-full">
+            <div class="flex items-center justify-between text-xs text-muted mb-1"><span>Budget</span><span class="font-bold text-ink">52%</span></div>
+            <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--line)"><div class="h-full bg-brand rounded-full" style="width:52%"></div></div>
+          </div>
+          <div class="w-full">
+            <div class="flex items-center justify-between text-xs text-muted mb-1"><span>Attendance</span><span class="font-bold text-ink">24%</span></div>
+            <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--line)"><div class="h-full bg-brand rounded-full" style="width:24%"></div></div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- D4 roadmap (full width) -->
+    <article class="cs-component" style="margin-top:1rem">
+      <p class="cs-label"><span class="cs-label-name">D4</span> · Roadmap Dot Strip · completed · in-progress · upcoming · final</p>
+      <div class="cs-stage" style="padding:1.5rem">
+        <div class="cs-roadmap" style="max-width:480px">
+          <div class="cs-roadmap-track"></div>
+          <div class="cs-roadmap-fill"></div>
+          <ol class="cs-roadmap-row">
+            <li class="flex flex-col items-center text-center">
+              <button class="cs-roadmap-dot bg-brand text-white" style="box-shadow:var(--shadow-clay-pill)" aria-label="Done"><span class="material-symbols-outlined text-base icon-fill">check</span></button>
+              <p class="mt-2 text-[10px] font-display font-bold text-ink leading-tight">Save<br>the date</p>
+            </li>
+            <li class="flex flex-col items-center text-center">
+              <button class="cs-roadmap-dot bg-brand text-white relative ring-4 ring-offset-2" style="--tw-ring-color:var(--brand-tint-2);--tw-ring-offset-color:var(--card);box-shadow:var(--shadow-clay-pill)" aria-label="In progress">
+                <span class="absolute inset-0 rounded-full bg-brand animate-pulse opacity-50"></span>
+                <span class="material-symbols-outlined text-base icon-fill relative">restaurant</span>
+              </button>
+              <p class="mt-2 text-[10px] font-display font-bold text-brand leading-tight">Catering<br>Now</p>
+            </li>
+            <li class="flex flex-col items-center text-center">
+              <button class="cs-roadmap-dot border-2" style="background:var(--card);border-color:var(--line)" aria-label="Upcoming">
+                <span class="material-symbols-outlined text-base text-muted-soft">checkroom</span>
+              </button>
+              <p class="mt-2 text-[10px] font-display font-bold text-muted leading-tight">Outfit<br>fittings</p>
+            </li>
+            <li class="flex flex-col items-center text-center">
+              <button class="cs-roadmap-dot border-2" style="background:var(--card);border-color:var(--brand)" aria-label="Wedding day">
+                <span class="material-symbols-outlined text-base text-brand icon-fill">favorite</span>
+              </button>
+              <p class="mt-2 text-[10px] font-display font-bold text-brand leading-tight">Wedding<br>day</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </article>
+
+    <div class="cs-grid cs-grid--wide" style="margin-top:1rem">
+      <!-- D5 activity timeline -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">D5</span> · Activity Timeline · current · past · muted</p>
+        <div class="cs-stage cs-stage--col" style="padding:1.25rem">
+          <div class="cs-timeline">
+            <div class="cs-tl-row">
+              <span class="cs-tl-dot bg-brand" style="box-shadow:0 0 0 4px var(--brand-tint-2)"></span>
+              <p class="font-display font-bold text-ink text-sm leading-snug">New RSVP received</p>
+              <p class="text-xs text-muted leading-relaxed mt-0.5">Karthik &amp; Ananya confirmed for the Reception.</p>
+              <p class="text-[10px] font-bold tracking-[0.18em] text-muted-soft uppercase mt-2">2 hours ago</p>
+            </div>
+            <div class="cs-tl-row">
+              <span class="cs-tl-dot bg-card border-2 border-brand"></span>
+              <p class="font-display font-bold text-ink text-sm leading-snug">Payment recorded</p>
+              <p class="text-xs text-muted leading-relaxed mt-0.5">₹50,000 advance to Heritage Palace.</p>
+              <p class="text-[10px] font-bold tracking-[0.18em] text-muted-soft uppercase mt-2">Yesterday</p>
+            </div>
+            <div class="cs-tl-row opacity-70">
+              <span class="cs-tl-dot bg-card border-2 border-line"></span>
+              <p class="font-display font-bold text-ink text-sm leading-snug">Website updated</p>
+              <p class="text-xs text-muted leading-relaxed mt-0.5">Ishani added new photos to the Gallery.</p>
+              <p class="text-[10px] font-bold tracking-[0.18em] text-muted-soft uppercase mt-2">3 days ago</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- D6 checklist row -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">D6</span> · Checklist Row · default · urgent · checked</p>
+        <div class="cs-stage cs-stage--col" style="padding:.75rem">
+          <div style="display:flex;flex-direction:column;gap:2px;width:100%">
+            <label class="checklist-row">
+              <input type="checkbox" aria-label="Mark complete: catering menu"/>
+              <span class="checklist-check" aria-hidden="true">
+                <span class="material-symbols-outlined">check</span>
+              </span>
+              <span class="checklist-body">
+                <span class="checklist-title">Confirm Sangeet catering menu</span>
+                <span class="checklist-sub">Tadka Heritage · Vendor</span>
+              </span>
+              <span class="checklist-due is-urgent">
+                <span aria-hidden="true" class="material-symbols-outlined">schedule</span>
+                Oct 18
+              </span>
+            </label>
+            <label class="checklist-row">
+              <input type="checkbox" aria-label="Mark complete: photographer"/>
+              <span class="checklist-check" aria-hidden="true">
+                <span class="material-symbols-outlined">check</span>
+              </span>
+              <span class="checklist-body">
+                <span class="checklist-title">Brief photographer &amp; videographer</span>
+                <span class="checklist-sub">Shot list · Pre-wedding to reception</span>
+              </span>
+              <span class="checklist-due">Nov 02</span>
+            </label>
+            <label class="checklist-row">
+              <input type="checkbox" checked aria-label="Mark complete: save-the-dates"/>
+              <span class="checklist-check" aria-hidden="true">
+                <span class="material-symbols-outlined">check</span>
+              </span>
+              <span class="checklist-body">
+                <span class="checklist-title">Send save-the-dates</span>
+                <span class="checklist-sub">156 invitees · WhatsApp + email</span>
+              </span>
+              <span class="checklist-due">Done · Aug 28</span>
+            </label>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- D8 scrollable-list -->
+    <article class="cs-component" style="margin-top:1rem">
+      <p class="cs-label"><span class="cs-label-name">D8</span> · Scrollable list · mask-fade edges · custom thumb</p>
+      <div class="cs-stage cs-stage--col" style="padding:1rem">
+        <div class="lg-glass-card p-3 w-full">
+          <ul class="scrollable-list" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px">
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Confirm Sangeet catering menu</span><span class="checklist-sub">Tadka Heritage · Vendor</span></span><span class="checklist-due is-urgent"><span aria-hidden="true" class="material-symbols-outlined">schedule</span>Oct 18</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Brief photographer &amp; videographer</span><span class="checklist-sub">Shot list · Pre-wedding to reception</span></span><span class="checklist-due">Nov 02</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox" checked/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Send save-the-dates</span><span class="checklist-sub">156 invitees · WhatsApp + email</span></span><span class="checklist-due">Done · Aug 28</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Finalise mehndi artist booking</span><span class="checklist-sub">Heena Patel · 4 hours, 60 guests</span></span><span class="checklist-due">Oct 24</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Confirm hotel block for out-of-town family</span><span class="checklist-sub">Heritage Palace · 18 rooms</span></span><span class="checklist-due">Nov 10</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Approve invitation card design</span><span class="checklist-sub">Studio Ink · 3 variants pending</span></span><span class="checklist-due">Oct 12</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Wedding-day timeline draft</span><span class="checklist-sub">Share with both families</span></span><span class="checklist-due">Nov 18</span></label></li>
+            <li><label class="checklist-row"><input type="checkbox"/><span class="checklist-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span><span class="checklist-body"><span class="checklist-title">Final outfit fittings</span><span class="checklist-sub">All four — bride, groom, parents</span></span><span class="checklist-due">Dec 05</span></label></li>
+          </ul>
+        </div>
+        <p class="cs-type-meta" style="text-transform:none;letter-spacing:0;margin-top:.5rem">Top + bottom mask-fade. Brand-tinted scrollbar thumb on hover. Use anywhere a list might overflow inside a card.</p>
+      </div>
+    </article>
+
+    <!-- D7 active milestone spotlight -->
+    <article class="cs-component" style="margin-top:1rem">
+      <p class="cs-label"><span class="cs-label-name">D7</span> · Active Milestone Spotlight</p>
+      <div class="cs-stage" style="padding:1.25rem">
+        <div class="rounded-3xl p-6 md:p-8 relative overflow-hidden w-full" style="background:var(--brand-tint);border:1px solid var(--brand-tint-2)">
+          <div aria-hidden="true" class="absolute -bottom-20 -left-20 w-56 h-56 rounded-full" style="background:radial-gradient(circle,var(--brand-tint-2),transparent 70%)"></div>
+          <div class="grid md:grid-cols-[auto_1fr_auto] gap-5 md:gap-7 items-center relative">
+            <div class="relative w-20 h-20 shrink-0">
+              <span class="absolute inset-0 rounded-2xl bg-brand animate-pulse opacity-30"></span>
+              <div class="relative w-full h-full rounded-2xl bg-brand text-white flex items-center justify-center" style="box-shadow:var(--shadow-clay-pill)">
+                <span class="material-symbols-outlined text-3xl icon-fill">restaurant</span>
+              </div>
+            </div>
+            <div class="min-w-0">
+              <div class="inline-flex items-center gap-2 mb-2">
+                <span class="inline-flex items-center px-3 h-7 rounded-full bg-brand text-white font-display font-bold text-[10px] tracking-[0.25em]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-white mr-2 animate-pulse"></span>IN PROGRESS
+                </span>
+                <span class="text-xs font-bold tracking-widest text-muted uppercase">Oct 05, 2025</span>
+              </div>
+              <h3 class="font-display font-bold text-xl md:text-2xl text-ink tracking-[-0.02em] mb-1">Catering menu finalisation</h3>
+              <p class="text-sm text-muted">Awaiting final sign-off from Anya &amp; Kabir.</p>
+              <div class="flex items-center gap-3 mt-4">
+                <div class="flex-1 h-1.5 rounded-full overflow-hidden max-w-[280px]" style="background:var(--line)"><div class="h-full bg-brand rounded-full" style="width:78%"></div></div>
+                <span class="text-xs font-display font-bold text-ink">78%</span>
+              </div>
+            </div>
+            <a href="#" class="clay-pill bg-brand text-white font-display font-semibold text-sm tracking-wide px-5 h-11 inline-flex items-center gap-2 shrink-0 self-start md:self-center">VIEW<span class="material-symbols-outlined text-base">arrow_forward</span></a>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 9. SECTION / LAYOUT PRIMITIVES                    -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="layout">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">09 · Section &amp; Layout primitives</p>
+      <h2 class="cs-h2">Composition patterns</h2>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">L1</span> · Section Eyebrow + Heading</p>
+        <div class="cs-stage cs-stage--col" style="padding:1.5rem;align-items:flex-start">
+          <p class="text-xs font-display font-bold tracking-[0.35em] text-brand mb-2">UP NEXT</p>
+          <h3 class="font-display font-bold text-2xl text-ink tracking-[-0.01em]">Your timeline</h3>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">L2</span> · Page Header pattern</p>
+        <div class="cs-stage cs-stage--col" style="padding:1.5rem;align-items:flex-start">
+          <p class="text-[11px] font-bold tracking-[0.22em] text-brand uppercase mb-2">Section</p>
+          <h1 class="text-2xl font-display font-bold text-ink leading-[1.05]">Guest Management</h1>
+          <p class="mt-2 text-sm text-muted">Manage your invitee list, RSVPs, and sub-event attendance.</p>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">L4</span> · Section rule · brand-dash heading</p>
+        <div class="cs-stage cs-stage--col" style="padding:1.5rem;align-items:flex-start;gap:1.5rem">
+          <h2 class="section-rule">
+            <span class="section-rule-bar" aria-hidden="true"></span>
+            Profile information
+          </h2>
+          <h2 class="section-rule">
+            <span class="section-rule-bar" aria-hidden="true"></span>
+            Danger zone
+          </h2>
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">L1 (eyebrow) is for hero / page-top headings; L4 (section-rule) is for in-card sub-section anchors. Different roles — pair them, don't substitute.</p>
+        </div>
+      </article>
+    </div>
+
+    <!-- L3 (replaced) — empty-cta-card -->
+    <article class="cs-component" style="margin-top:1rem">
+      <p class="cs-label"><span class="cs-label-name">L3</span> · Empty CTA card · default + hover</p>
+      <div class="cs-stage" style="gap:1rem;padding:1rem;align-items:stretch">
+        <a href="#" class="empty-cta-card" style="flex:1;max-width:260px">
+          <span class="empty-cta-icon"><span class="material-symbols-outlined" aria-hidden="true">add</span></span>
+          <p class="empty-cta-title">Create your first event</p>
+          <p class="empty-cta-sub">Tap to start the 4-step Curator.</p>
+        </a>
+        <a href="#" class="empty-cta-card" style="flex:1;max-width:260px;border-color:var(--brand);background:var(--brand-tint);transform:translateY(-2px)">
+          <span class="empty-cta-icon"><span class="material-symbols-outlined" aria-hidden="true">add</span></span>
+          <p class="empty-cta-title">Create your first event</p>
+          <p class="empty-cta-sub">Tap to start the 4-step Curator.</p>
+        </a>
+      </div>
+    </article>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 10. DIALOGS                                       -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="dialogs">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">10 · Dialogs</p>
+      <h2 class="cs-h2">Modal &amp; bottom sheet</h2>
+      <p class="cs-h2-sub">Single component, two presentations. ≥768px → centered modal. &lt;768px → bottom sheet with drag handle. Static demos below force one variant each via <code class="cs-code">.modal-static</code>.</p>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <!-- DLG1 modal (centered) -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">DLG1</span> · Modal · centered, desktop ≥768px</p>
+        <div class="cs-stage" style="padding:1rem;min-height:280px">
+          <div class="modal-scrim modal-static" aria-hidden="true">
+            <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="cs-dlg1-title">
+              <h2 id="cs-dlg1-title" class="modal-title">Send WhatsApp invitation?</h2>
+              <p class="modal-body">142 guests will receive a message with the RSVP link. Delivery typically takes under a minute.</p>
+              <div class="modal-actions">
+                <button type="button" class="btn-pill btn-pill-secondary">CANCEL</button>
+                <button type="button" class="btn-pill btn-pill-primary">SEND <span class="material-symbols-outlined">arrow_forward</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- DLG2 bottom-sheet (mobile) -->
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">DLG2</span> · Bottom sheet · mobile &lt;768px · drag handle</p>
+        <div class="cs-stage" style="padding:1rem;min-height:280px;align-items:flex-end">
+          <div class="modal-scrim modal-static modal-static-sheet" aria-hidden="true">
+            <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="cs-dlg2-title">
+              <h2 id="cs-dlg2-title" class="modal-title">Delete event?</h2>
+              <p class="modal-body">"Anya &amp; Kabir's Wedding" and all its guest data will be permanently removed. This cannot be undone.</p>
+              <div class="modal-actions">
+                <button type="button" class="btn-pill btn-pill-secondary">CANCEL</button>
+                <button type="button" class="btn-pill btn-pill-primary">DELETE EVENT</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <article class="cs-component" style="margin-top:1rem">
+      <p class="cs-label">Live demo · click to open</p>
+      <div class="cs-stage cs-stage--col" style="padding:1.5rem;gap:1rem;align-items:flex-start">
+        <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Click to open a real modal — Esc, scrim click, or Cancel will dismiss it. Below 768px it slides up as a bottom sheet automatically (resize the window to test).</p>
+        <button type="button" class="btn-pill btn-pill-primary" data-modal-target="#cs-modal-live">
+          <span class="material-symbols-outlined">open_in_new</span>
+          Open dialog
+        </button>
+        <p class="form-helper" style="font-size:11px;margin-top:.25rem">Note: live modal target is rendered just before <code class="cs-code">&lt;/body&gt;</code> — modals must live outside any ancestor with <code class="cs-code">transform</code> or <code class="cs-code">filter</code> set, otherwise <code class="cs-code">position:fixed</code> is scoped to that ancestor (CSS containing-block rule).</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 11. BACKGROUND FLOURISHES                         -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="backgrounds">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">11 · Background flourishes</p>
+      <h2 class="cs-h2">Decorative layers</h2>
+    </header>
+
+    <div class="cs-grid">
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">BG1</span> · Dot Background</p>
+        <div class="cs-stage" style="padding:0">
+          <div class="cs-bg-tile dot-bg" style="background-color:var(--card)"></div>
+        </div>
+      </article>
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">BG2</span> · Featured gradient</p>
+        <div class="cs-stage" style="padding:0">
+          <div class="cs-bg-tile featured-bg"></div>
+        </div>
+      </article>
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">BG3</span> · Avatar gradients</p>
+        <div class="cs-stage" style="padding:1.25rem;gap:.75rem">
+          <span class="w-14 h-14 rounded-2xl avatar-grad-1"></span>
+          <span class="w-14 h-14 rounded-2xl avatar-grad-2"></span>
+          <span class="w-14 h-14 rounded-2xl avatar-grad-3"></span>
+        </div>
+      </article>
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">BG4</span> · Radial halo (in-card)</p>
+        <div class="cs-stage" style="padding:0">
+          <div class="cs-bg-tile" style="background:var(--card);position:relative">
+            <div class="absolute -top-12 -right-12 w-32 h-32 rounded-full" style="background:radial-gradient(circle,var(--brand-tint-2),transparent 70%)"></div>
+            <div class="absolute -bottom-12 -left-12 w-32 h-32 rounded-full" style="background:radial-gradient(circle,var(--brand-tint),transparent 70%)"></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 12. MOTION PATTERNS                               -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="motion">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">12 · Motion patterns</p>
+      <h2 class="cs-h2">Live demos</h2>
+      <p class="cs-h2-sub">Each tile animates on its own — scroll, hover, or click to trigger.</p>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">M1</span> · Scroll-reveal</p>
+        <div class="cs-stage" style="padding:1.5rem">
+          <div class="reveal" style="--reveal-delay:0ms">
+            <p class="text-sm text-ink">This block fades + slides in on viewport entry.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">M2</span> · Hover-lift</p>
+        <div class="cs-stage" style="padding:1.5rem">
+          <div class="clay-card p-5 w-44">
+            <p class="font-display font-bold text-sm text-ink">Hover me</p>
+            <p class="text-xs text-muted mt-1">Lifts on hover.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">M3</span> · Count-up numbers</p>
+        <div class="cs-stage" style="padding:1.5rem">
+          <p class="font-display font-bold text-3xl text-ink leading-none" data-count="248">0</p>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">M4</span> · Bar-fill animate</p>
+        <div class="cs-stage cs-stage--col" style="padding:1.5rem;gap:.5rem">
+          <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--line)"><div class="h-full bg-brand pf-bar rounded-full" data-fill="62" style="width:0%"></div></div>
+          <span class="cs-type-meta">data-fill="62"</span>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">M5</span> · Ripple click (use the breadcrumb above)</p>
+        <div class="cs-stage" style="padding:1.5rem">
+          <span class="cs-type-meta">Click any link in the breadcrumb at the top of this page.</span>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">M6</span> · Pulse</p>
+        <div class="cs-stage" style="gap:1.5rem">
+          <span class="bc-dot"></span>
+          <span class="bc-live"></span>
+          <span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
+          <span class="cs-type-meta">bc-dot · bc-live · animate-pulse</span>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<!-- ────────────────────── FOOTER ────────────────────── -->
+<footer class="max-w-[1440px] mx-auto px-6 md:px-10 mt-20 pt-10 pb-10 border-t border-line">
+  <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="flex items-center gap-3">
+      <span aria-hidden="true" class="w-9 h-9 shrink-0 rounded-full bg-brand text-white inline-flex items-center justify-center font-display font-bold">E</span>
+      <p class="text-sm text-muted font-semibold">© 2026 Evenzi · Capture · Share · Cherish</p>
+    </div>
+    <div class="flex items-center gap-6 text-xs font-bold tracking-widest text-muted uppercase">
+      <a href="#" class="hover:text-brand transition-colors">Privacy</a>
+      <a href="#" class="hover:text-brand transition-colors">Terms</a>
+      <a href="#" class="hover:text-brand transition-colors">Help</a>
+    </div>
+  </div>
+</footer>
+
+<button aria-label="Open help center" class="help-fab">
+  <span aria-hidden="true" class="material-symbols-outlined icon-fill">support_agent</span>
+</button>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">PATH COPIED</span>
+</div>
+
+<!-- Live modal target — lives at body level (outside any transformed ancestor)
+     so position:fixed resolves against the viewport. -->
+<div id="cs-modal-live" class="modal-scrim" data-modal>
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="cs-modal-live-title">
+    <h2 id="cs-modal-live-title" class="modal-title">Confirm payment</h2>
+    <p class="modal-body">₹50,000 will be marked as advance to <strong>Heritage Palace</strong>. The remaining balance will appear in your budget tracker.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>CANCEL</button>
+      <button type="button" class="btn-pill btn-pill-primary" data-modal-close>CONFIRM PAYMENT</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared/shell.js"></script>
+</body>
+</html>

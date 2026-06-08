@@ -141,3 +141,10 @@ For each file, output:
 ```
 
 Always include comments explaining *why* a configuration exists, not just what it does.
+
+
+---
+
+## Learnings
+
+<!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->

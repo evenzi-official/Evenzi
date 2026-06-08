@@ -44,3 +44,12 @@ next-env.d.ts
 
 # agent runner logs
 .runner/
+
+# claude code worktrees (transient per-session checkouts)
+.claude/worktrees/
+
+# Playwright MCP debug snapshots
+.playwright-mcp/
+
+# Ad-hoc debug screenshots at repo root
+/overview-*.png

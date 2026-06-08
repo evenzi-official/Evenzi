@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · You're all set</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="create-event.css" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+</head>
+<body data-page="create-event" data-step="success" class="page-bg page-shell">
+
+<header class="page-shell-header">
+  <a href="../../index.html" class="page-logo" aria-label="Evenzi home">Evenzi</a>
+  <span class="page-eyebrow" aria-hidden="true">Celebratory Curator</span>
+  <div class="page-shell-actions">
+    <button id="theme-toggle" type="button" class="page-theme-toggle" aria-label="Toggle dark mode">
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+    </button>
+  </div>
+</header>
+
+<main class="page-main">
+  <section class="clay-card cc-card cc-success-card" aria-labelledby="cc-success-title">
+    <span class="cc-success-burst" aria-hidden="true">
+      <span class="material-symbols-outlined icon-fill">check</span>
+    </span>
+    <h1 class="cc-success-title" id="cc-success-title">You're all set!</h1>
+    <p class="cc-success-lead" data-cc-greeting>Your event is curated and ready.</p>
+
+    <div class="cc-countdown" aria-live="polite">
+      <span class="cc-countdown-eyebrow" data-cc-countdown-eyebrow>The celebration</span>
+      <span class="cc-countdown-num" data-cc-countdown>—</span>
+      <span class="cc-countdown-label" data-cc-countdown-label>Days left</span>
+    </div>
+
+    <button type="button" class="btn-pill btn-pill-primary btn-pill-lg" data-cc-dashboard>
+      <span>Go to dashboard</span>
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+      <span aria-hidden="true" class="btn-pill-spinner"></span>
+    </button>
+  </section>
+</main>
+
+<footer class="page-shell-footer">
+  © 2026 Evenzi · Crafted with care
+</footer>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">SAVED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="create-event.js"></script>
+</body>
+</html>

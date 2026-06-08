@@ -37,7 +37,7 @@ Based on what the plan contains, select relevant reviewers. **Tech Lead always r
 | UI components, pages, client-side code | **Frontend Engineer** (`ai/agents/frontend_engineer.md`) | Component design, reusability, accessibility, responsive, design patterns |
 | API routes, auth logic, user data handling | **Security Expert** (`ai/agents/security_expert.md`) | Auth gaps, RLS coverage, input validation, data leaks, vulnerability patterns |
 | API endpoints, service layer | **Backend Engineer** (`ai/agents/backend_engineer.md`) | Route structure, error handling, validation, service extraction |
-| Test strategy mentioned | **QA Engineer** (`ai/agents/qa_engineer.md`) | Test coverage completeness, edge cases, testing approach |
+| Test strategy mentioned | **Test Engineer** (`ai/agents/test_engineer.md`) | Test plan completeness (AC → test cases mapping), sad-path catalogue coverage, tooling picks (Vitest/Playwright/axe), CI integration |
 
 **Typical feature plan:** Tech Lead + Frontend + Security + Data Modeller (4 agents)
 **Backend-only plan:** Tech Lead + Security + Backend + Data Modeller (4 agents)
@@ -95,10 +95,13 @@ For each selected agent, review the plan through their lens. Look for:
 - Is error handling consistent (try-catch, proper status codes)?
 - Is validation done before any DB operations?
 
-**QA Engineer perspective:**
-- Are test cases comprehensive (happy path, validation, auth, edge cases)?
-- Is the testing approach appropriate (unit vs integration)?
-- Are there untested scenarios or gaps?
+**Test Engineer perspective:**
+- Does every acceptance criterion map to at least one test case (with type + priority + target file)?
+- Is the sad-path catalogue applied (auth failures, RLS denials, validation, network errors, empty/over-limit states, third-party degradation)?
+- Are tooling picks correct for each layer (Vitest unit/integration, RTL component, Playwright E2E, axe a11y) — and are missing tools called out?
+- Are coverage targets per layer stated and justified?
+- Is CI integration defined (push / pre-merge / nightly)?
+- Will the plan produce a `docs/test-plans/<slug>.md` artifact?
 
 ### Step 5: Consolidate Findings
 

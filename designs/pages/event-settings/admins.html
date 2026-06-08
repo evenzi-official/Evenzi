@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Manage admins · Vibrant Union</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="event-settings.css" />
+</head>
+<body data-page="event-settings" data-es-page="admins" class="bg-bg text-ink min-h-screen">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner is-minimal">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+    </a>
+    <span aria-hidden="true"></span>
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb">
+    <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html">DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html">ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page"><span class="bc-dot" aria-hidden="true"></span> EVENT SETTINGS</li>
+    </ol>
+  </nav>
+</div>
+
+<main class="es-shell reveal">
+
+  <nav class="es-side" aria-label="Event settings">
+    <div class="es-event-head">
+      <p class="es-event-eyebrow">Event</p>
+      <p class="es-event-title">Vibrant Union</p>
+      <a class="es-event-back" href="../event-control/event-control.html">
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span> Back to event
+      </a>
+    </div>
+    <ul class="es-side-list">
+      <li><a class="es-side-link" data-es-page="general" href="general.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">tune</span> General</a></li>
+      <li><a class="es-side-link" data-es-page="website" href="website.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span> Website</a></li>
+      <li><a class="es-side-link" data-es-page="admins" href="admins.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span> Admins</a></li>
+      <li><a class="es-side-link" data-es-page="guest-list" href="guest-list.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">how_to_reg</span> Guest list</a></li>
+      <li><a class="es-side-link" data-es-page="registry" href="registry.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">redeem</span> Registry</a></li>
+      <li><a class="es-side-link" data-es-page="plan-billing" href="plan-billing.html"><span aria-hidden="true" class="material-symbols-outlined icon-fill">credit_card</span> Plan &amp; billing</a></li>
+    </ul>
+  </nav>
+
+  <div class="es-content">
+    <header class="es-content-head">
+      <div>
+        <h1 class="es-content-title">Manage admins</h1>
+        <p class="es-content-lead">Add co-hosts to help you manage your event, guest list, and photos. Each admin can be assigned a role with specific permissions.</p>
+      </div>
+      <div class="es-content-actions">
+        <button type="button" class="btn-pill btn-pill-primary" data-es-add-admin>
+          <span aria-hidden="true" class="material-symbols-outlined">person_add</span>
+          Add co-host
+        </button>
+      </div>
+    </header>
+
+    <section class="es-section">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+          Team admins
+        </h2>
+        <span class="es-section-tag">3 active</span>
+      </header>
+
+      <div class="es-admin-row">
+        <span class="es-admin-avatar" aria-hidden="true">A</span>
+        <div class="es-admin-body">
+          <span class="es-admin-name">Abhijith K</span>
+          <span class="es-admin-email">mail2anish.kk@gmail.com</span>
+        </div>
+        <span class="es-admin-role is-owner">Owner</span>
+        <span class="es-admin-status">Active</span>
+      </div>
+      <div class="es-admin-row">
+        <span class="es-admin-avatar es-admin-avatar--sj" aria-hidden="true">SJ</span>
+        <div class="es-admin-body">
+          <span class="es-admin-name">Sarah Jenkins</span>
+          <span class="es-admin-email">sarah@vibrantunion.com</span>
+        </div>
+        <span class="es-admin-role">Co-host</span>
+        <span class="es-admin-status">Active</span>
+        <button type="button" class="fn-icon-btn" aria-disabled="true" title="Coming soon" tabindex="-1" aria-label="Edit Sarah's role — coming soon">
+          <span aria-hidden="true" class="material-symbols-outlined">more_horiz</span>
+        </button>
+      </div>
+      <div class="es-admin-row">
+        <span class="es-admin-avatar es-admin-avatar--mr" aria-hidden="true">MR</span>
+        <div class="es-admin-body">
+          <span class="es-admin-name">Michael Roberts</span>
+          <span class="es-admin-email">michael.r@example.com</span>
+        </div>
+        <span class="es-admin-role">Photographer</span>
+        <span class="es-admin-status">Active</span>
+        <button type="button" class="fn-icon-btn" aria-disabled="true" title="Coming soon" tabindex="-1" aria-label="Edit Michael's role — coming soon">
+          <span aria-hidden="true" class="material-symbols-outlined">more_horiz</span>
+        </button>
+      </div>
+      <div class="es-admin-row">
+        <span class="es-admin-avatar es-admin-avatar--ek" aria-hidden="true">EK</span>
+        <div class="es-admin-body">
+          <span class="es-admin-name">Elena Kaspavov</span>
+          <span class="es-admin-email">elena.k@plannersco.in</span>
+        </div>
+        <span class="es-admin-role">Planner</span>
+        <span class="es-admin-status is-pending">Pending invite</span>
+        <button type="button" class="fn-icon-btn" aria-disabled="true" title="Coming soon" tabindex="-1" aria-label="Resend Elena's invite — coming soon">
+          <span aria-hidden="true" class="material-symbols-outlined">more_horiz</span>
+        </button>
+      </div>
+    </section>
+
+    <div class="es-help-card">
+      <div class="es-help-body">
+        <span class="es-help-title">Need help managing roles?</span>
+        <span class="es-help-desc">Our guide explains permissions for Owner, Co-host, and Planner — and what each can edit on your behalf.</span>
+      </div>
+      <button type="button" class="btn-pill btn-pill-secondary">
+        <span aria-hidden="true" class="material-symbols-outlined">menu_book</span>
+        Read the guide
+      </button>
+    </div>
+
+    <footer class="es-footer">
+      <span>© 2026 Evenzi · All rights reserved</span>
+      <div class="es-footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Help</a>
+      </div>
+    </footer>
+  </div>
+</main>
+
+<div class="modal-scrim" id="es-cohost-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="es-cohost-title">
+    <header class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="es-cohost-title">Invite a co-host</h2>
+        <p class="modal-sub">They'll get an email invite to help manage this event.</p>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </header>
+    <div class="form-group">
+      <label class="form-label" for="es-cohost-email">Email address</label>
+      <input id="es-cohost-email" type="email" class="form-input" autocomplete="email" placeholder="name@example.com" />
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="es-cohost-confirm">Send invite</button>
+    </div>
+  </div>
+</div>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">SAVED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="event-settings.js"></script>
+</body>
+</html>

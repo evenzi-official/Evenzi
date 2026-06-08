@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Event Website · Design · Vibrant Union</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Pick a template, palette, and heading font for your Evenzi invitation website." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<link rel="manifest" href="../../manifest.webmanifest" />
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<!-- 4 non-Poppins heading fonts — loaded only on the Design tab (where
+     they're picked) and on Preview/Live (where they render). Body stays
+     Poppins per plan Q5. -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:wght@600;700&family=Lora:wght@500;600&family=Inter:wght@600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="website.css" />
+</head>
+<body class="min-h-dvh bg-bg text-ink" data-page="website" data-section="website" data-wb-page="design">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ────────────────────── FLOATING TOP NAV ────────────────────── -->
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner">
+
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../event-control/event-control.html" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="overview.html" class="nav-tab is-active" aria-current="page" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+
+  </div>
+</nav>
+
+<!-- ────────────────────── FLOATING TOOL RAIL ────────────────────── -->
+<aside class="tool-rail" aria-label="Event tools">
+  <a href="../guests/guests.html" class="tr-btn" data-label="Guest management" data-page="guests" aria-label="Guest management">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+  </a>
+  <a href="../invitations/invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations" aria-label="Invitations">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
+  </a>
+  <a href="../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning" aria-label="Planning">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
+  </a>
+  <a href="../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media" aria-label="Media &amp; memories">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
+  </a>
+  <a href="../event-settings/general.html" class="tr-btn" data-label="Event settings" data-page="event-settings" aria-label="Event settings">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+  </a>
+</aside>
+
+<!-- ────────────────────── BREADCRUMB ────────────────────── -->
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event" data-bc-back data-bc-back-label="EVENT">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html" data-bc-link>ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        WEBSITE · DESIGN
+      </li>
+    </ol>
+    <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
+    <button type="button" class="bc-copy" aria-label="Copy page link" data-bc-copy data-bc-copy-path="https://evenzi.com/e/anya-kabir">
+      <span aria-hidden="true" class="material-symbols-outlined">content_copy</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ────────────────────── SECTION HEAD ────────────────────── -->
+<header class="section-head reveal">
+  <p class="section-head-eyebrow">Section</p>
+  <h1 class="section-head-title">Event Website</h1>
+  <p class="section-head-sub">Pick a template and customize the look. Body text stays Poppins for clarity — your headings define your style.</p>
+</header>
+
+<!-- ────────────────────── WEBSITE MODULE SUB-NAV ────────────────────── -->
+<div class="wb-tabs-wrap reveal">
+  <nav class="wb-tabs" aria-label="Website sections">
+    <a href="overview.html" class="wb-tab">
+      <span class="material-symbols-outlined" aria-hidden="true">tune</span>
+      <span>Overview</span>
+    </a>
+    <a href="design.html" class="wb-tab is-active" aria-current="page">
+      <span class="material-symbols-outlined" aria-hidden="true">palette</span>
+      <span>Design</span>
+    </a>
+    <a href="photos.html" class="wb-tab">
+      <span class="material-symbols-outlined" aria-hidden="true">photo_library</span>
+      <span>Photos</span>
+    </a>
+    <a href="card-templates.html" class="wb-tab">
+      <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+      <span>Card Templates</span>
+    </a>
+  </nav>
+</div>
+
+<!-- ────────────────────── MAIN GRID ────────────────────── -->
+<main class="dp-shell reveal" id="wb-main">
+
+  <!-- LEFT COLUMN — control sections (4 cards in order:
+       Template → Palette → Heading font → Cover & OG image) -->
+  <div class="dp-col-left">
+
+    <!-- §1 Template card -->
+    <section class="clay-card dp-card" id="template" aria-labelledby="dp-tpl-h">
+      <header class="dp-card-head">
+        <div>
+          <h2 id="dp-tpl-h" class="dp-card-title">Template</h2>
+          <p class="dp-card-sub">A bundled look — layout, hero, palette, and font.</p>
+        </div>
+      </header>
+
+      <article class="dp-current-template">
+        <div class="dp-current-template-thumb" aria-hidden="true">
+          <!-- Placeholder fallback (no thumbnail asset in MVP — designer
+               screenshots land in a later batch per plan §P2-3) -->
+          <div class="dp-thumb-fallback">
+            <span class="material-symbols-outlined">style</span>
+            <span class="dp-thumb-fallback-label">Bold Festive</span>
+          </div>
+        </div>
+        <div class="dp-current-template-meta">
+          <h3 class="dp-current-template-name" id="dp-tpl-current-name">Bold Festive</h3>
+          <p class="dp-current-template-blurb" id="dp-tpl-current-blurb">Magazine layout, full-bleed cover, brand-red palette, Poppins headings.</p>
+          <!-- Templates live on their own page (designs/pages/website/templates/).
+               Detail per template lets each one breathe and link-share. -->
+          <a href="templates/index.html" class="btn-pill btn-pill-secondary btn-pill-sm">
+            <span class="material-symbols-outlined" aria-hidden="true">palette</span>
+            Change template
+          </a>
+        </div>
+      </article>
+
+      <p class="dp-card-foot-note">Changing your template will reset your palette and heading font. We'll ask first.</p>
+    </section>
+
+    <!-- §2 Palette card -->
+    <section class="clay-card dp-card" id="palette" aria-labelledby="dp-pal-h">
+      <header class="dp-card-head">
+        <div>
+          <h2 id="dp-pal-h" class="dp-card-title">Palette</h2>
+          <p class="dp-card-sub">Pick a color story. Or stick with your template's default.</p>
+        </div>
+        <div class="dp-card-head-aux">
+          <button type="button" class="dp-reset-chip" data-dp-reset="palette" aria-label="Reset palette to template default">
+            <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+            <span>Reset to template default</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="dp-tile-grid-sm" role="radiogroup" aria-label="Palette">
+
+        <button type="button" class="dp-palette-tile is-selected" role="radio" aria-checked="true" data-palette="brand-red">
+          <span class="dp-palette-swatches" aria-hidden="true">
+            <span class="dp-pal-swatch--brand-red-primary"></span>
+            <span class="dp-pal-swatch--brand-red-surface"></span>
+            <span class="dp-pal-swatch--brand-red-ink"></span>
+          </span>
+          <span class="dp-palette-name">Brand Red</span>
+          <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+        <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="blush">
+          <span class="dp-palette-swatches" aria-hidden="true">
+            <span class="dp-pal-swatch--blush-primary"></span>
+            <span class="dp-pal-swatch--blush-surface"></span>
+            <span class="dp-pal-swatch--blush-ink"></span>
+          </span>
+          <span class="dp-palette-name">Blush</span>
+          <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+        <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="ivory">
+          <span class="dp-palette-swatches" aria-hidden="true">
+            <span class="dp-pal-swatch--ivory-primary"></span>
+            <span class="dp-pal-swatch--ivory-surface"></span>
+            <span class="dp-pal-swatch--ivory-ink"></span>
+          </span>
+          <span class="dp-palette-name">Ivory</span>
+          <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+        <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="sage">
+          <span class="dp-palette-swatches" aria-hidden="true">
+            <span class="dp-pal-swatch--sage-primary"></span>
+            <span class="dp-pal-swatch--sage-surface"></span>
+            <span class="dp-pal-swatch--sage-ink"></span>
+          </span>
+          <span class="dp-palette-name">Sage</span>
+          <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+        <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="midnight">
+          <span class="dp-palette-swatches" aria-hidden="true">
+            <span class="dp-pal-swatch--midnight-primary"></span>
+            <span class="dp-pal-swatch--midnight-surface"></span>
+            <span class="dp-pal-swatch--midnight-ink"></span>
+          </span>
+          <span class="dp-palette-name">Midnight</span>
+          <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+        <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="sunset">
+          <span class="dp-palette-swatches" aria-hidden="true">
+            <span class="dp-pal-swatch--sunset-primary"></span>
+            <span class="dp-pal-swatch--sunset-surface"></span>
+            <span class="dp-pal-swatch--sunset-ink"></span>
+          </span>
+          <span class="dp-palette-name">Sunset</span>
+          <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+        <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="ocean">
+          <span class="dp-palette-swatches" aria-hidden="true">
+            <span class="dp-pal-swatch--ocean-primary"></span>
+            <span class="dp-pal-swatch--ocean-surface"></span>
+            <span class="dp-pal-swatch--ocean-ink"></span>
+          </span>
+          <span class="dp-palette-name">Ocean</span>
+          <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+        <button type="button" class="dp-palette-tile" role="radio" aria-checked="false" data-palette="marigold">
+          <span class="dp-palette-swatches" aria-hidden="true">
+            <span class="dp-pal-swatch--marigold-primary"></span>
+            <span class="dp-pal-swatch--marigold-surface"></span>
+            <span class="dp-pal-swatch--marigold-ink"></span>
+          </span>
+          <span class="dp-palette-name">Marigold</span>
+          <span class="dp-palette-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- §3 Heading font card -->
+    <section class="clay-card dp-card" id="font" aria-labelledby="dp-font-h">
+      <header class="dp-card-head">
+        <div>
+          <h2 id="dp-font-h" class="dp-card-title">Heading font</h2>
+          <p class="dp-card-sub">Body text stays in Poppins. Headings define your style.</p>
+        </div>
+        <div class="dp-card-head-aux">
+          <button type="button" class="dp-reset-chip" data-dp-reset="font" aria-label="Reset font to template default">
+            <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+            <span>Reset to template default</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="dp-font-list" role="radiogroup" aria-label="Heading font">
+
+        <button type="button" class="dp-font-row is-selected" role="radio" aria-checked="true" data-font="poppins">
+          <span class="dp-font-preview">Vidya &amp; Anshuman</span>
+          <span class="dp-font-name">Poppins</span>
+          <span class="dp-font-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+        <button type="button" class="dp-font-row" role="radio" aria-checked="false" data-font="cormorant">
+          <span class="dp-font-preview">Vidya &amp; Anshuman</span>
+          <span class="dp-font-name">Cormorant Garamond</span>
+          <span class="dp-font-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+        <button type="button" class="dp-font-row" role="radio" aria-checked="false" data-font="playfair">
+          <span class="dp-font-preview">Vidya &amp; Anshuman</span>
+          <span class="dp-font-name">Playfair Display</span>
+          <span class="dp-font-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+        <button type="button" class="dp-font-row" role="radio" aria-checked="false" data-font="lora">
+          <span class="dp-font-preview">Vidya &amp; Anshuman</span>
+          <span class="dp-font-name">Lora</span>
+          <span class="dp-font-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+        <button type="button" class="dp-font-row" role="radio" aria-checked="false" data-font="inter">
+          <span class="dp-font-preview">Vidya &amp; Anshuman</span>
+          <span class="dp-font-name">Inter</span>
+          <span class="dp-font-check" aria-hidden="true"><span class="material-symbols-outlined">check_circle</span></span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- §4 Cover & social-share image card -->
+    <section class="clay-card dp-card" id="cover" aria-labelledby="dp-cov-h">
+      <header class="dp-card-head">
+        <div>
+          <h2 id="dp-cov-h" class="dp-card-title">Cover &amp; social-share image</h2>
+          <p class="dp-card-sub">Cover appears on the hero. Social-share is what WhatsApp and Instagram show.</p>
+        </div>
+        <div class="dp-card-head-aux">
+          <button type="button" class="dp-reset-chip" data-dp-reset="cover" aria-label="Reset cover to template default">
+            <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+            <span>Reset to template default</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Cover -->
+      <div class="dp-cover-block">
+        <!-- State: loaded (default). Swap [data-cover-state] to empty/pending/failed
+             via design.js. The dropzone/pending/failed bodies are kept inline so
+             they render correctly even if JS fails. -->
+        <div class="dp-cover-preview" data-cover-state="loaded" aria-label="Current cover image">
+          <img src="../../assets/hero-image.jpg" alt="Anya and Kabir, cover photo" />
+          <button type="button" class="dp-cover-replace" data-modal-target="#dp-cover-crop-modal" aria-label="Replace cover photo">
+            <span class="material-symbols-outlined" aria-hidden="true">add_photo_alternate</span>
+            Replace cover
+          </button>
+          <!-- Empty state body (rendered only when [data-cover-state="empty"]) -->
+          <div class="dp-cover-empty">
+            <span class="material-symbols-outlined" aria-hidden="true">add_photo_alternate</span>
+            <p class="dp-cover-empty-title">Add a cover photo</p>
+            <p class="dp-cover-empty-hint">Recommend 1600 × 900 · at least 500 KB</p>
+            <button type="button" class="btn-pill btn-pill-primary btn-pill-sm" data-modal-target="#dp-cover-crop-modal">
+              <span class="material-symbols-outlined" aria-hidden="true">upload</span>
+              Upload cover
+            </button>
+          </div>
+          <!-- Failed state body -->
+          <div class="dp-cover-failed">
+            <span class="material-symbols-outlined" aria-hidden="true">error</span>
+            <p class="dp-cover-failed-title">Couldn't load this cover.</p>
+            <button type="button" class="btn-pill btn-pill-secondary btn-pill-sm" data-dp-cover-retry>
+              <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+              Retry
+            </button>
+          </div>
+        </div>
+        <p class="dp-cover-meta">
+          <span class="material-symbols-outlined dp-cover-meta-icon" aria-hidden="true">photo</span>
+          JPG · 1600 × 900 · 480 KB
+        </p>
+      </div>
+
+      <hr class="section-rule" />
+
+      <!-- OG -->
+      <div class="dp-og-block">
+        <div class="dp-og-toggle-row">
+          <div class="dp-og-toggle-meta">
+            <span class="dp-og-toggle-label" id="dp-og-toggle-lbl">Use a custom social-share image</span>
+            <span class="dp-og-toggle-hint" id="dp-og-toggle-hint">Default: we crop your cover to 1.91:1.</span>
+          </div>
+          <button type="button" class="toggle-switch" role="switch" aria-checked="false" data-dp-toggle="og-custom" aria-labelledby="dp-og-toggle-lbl" aria-describedby="dp-og-toggle-hint">
+            <span class="toggle-switch-thumb" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <!-- Auto-derived preview (default state, visible) -->
+        <div class="dp-og-preview" id="dp-og-auto" data-dp-og-state="auto">
+          <img src="../../assets/hero-image.jpg" alt="Social share preview (auto-derived from cover)" />
+        </div>
+        <p class="dp-og-caption" id="dp-og-auto-caption">
+          <span class="material-symbols-outlined" aria-hidden="true">auto_awesome</span>
+          Auto-derived from your cover (1200 × 630)
+        </p>
+
+        <!-- Custom upload state (hidden by default) -->
+        <div class="dp-og-preview" id="dp-og-custom-preview" data-dp-og-state="custom" hidden>
+          <img src="../../assets/hero-image.jpg" alt="Custom social-share image" />
+          <button type="button" class="dp-cover-replace" data-modal-target="#dp-og-crop-modal" aria-label="Replace social-share image">
+            <span class="material-symbols-outlined" aria-hidden="true">add_photo_alternate</span>
+            Replace
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- RIGHT COLUMN — live preview (sticky on desktop, in-flow on mobile) -->
+  <aside class="dp-col-right" aria-label="Live preview">
+
+    <section class="clay-card dp-card" id="preview" aria-labelledby="dp-prev-h">
+      <header class="dp-card-head">
+        <div>
+          <h2 id="dp-prev-h" class="dp-card-title">Live preview</h2>
+          <p class="dp-card-sub">Updates as you tweak.</p>
+        </div>
+        <div class="device-toggle" role="radiogroup" aria-label="Preview device">
+          <button type="button" class="device-toggle-btn is-active" role="radio" aria-checked="true" data-device="mobile" aria-label="Mobile preview">
+            <span class="material-symbols-outlined" aria-hidden="true">smartphone</span>
+          </button>
+          <button type="button" class="device-toggle-btn" role="radio" aria-checked="false" data-device="desktop" aria-label="Desktop preview">
+            <span class="material-symbols-outlined" aria-hidden="true">desktop_windows</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="dp-preview-stage" data-device-stage="mobile">
+        <div class="dp-preview-frame is-controls-driven" id="dp-preview-frame" data-palette="brand-red" data-font="poppins" role="img" aria-label="Live preview of the public hero">
+          <div class="dp-preview-screen" aria-hidden="true">
+            <div class="dp-preview-content">
+              <p class="dpp-eyebrow">Wedding of</p>
+              <h3 class="dpp-couple">Vidya &amp; Anshuman</h3>
+              <p class="dpp-date">Sat, 14 Feb 2026</p>
+              <p class="dpp-countdown">268 days · 4 hrs</p>
+              <span class="dpp-unlock">Unlock Guest Details</span>
+              <p class="dpp-foot">Open this link to RSVP</p>
+            </div>
+          </div>
+        </div>
+        <div class="dp-preview-caption">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+          What guests see when they open your link. Private pages unlock after phone match or password.
+        </div>
+      </div>
+    </section>
+
+  </aside>
+</main>
+
+<!-- ────────────────────── DESIGN-TAB MODALS ──────────────────────
+     Cross-cutting modals (Share / Publish settings / Publish-confirm
+     / Discard) are injected by website.js — DO NOT paste markup back
+     here. These are the 3 Design-tab-specific modals.
+-->
+
+<!-- Template picker is now a separate page route (templates/index.html
+     + templates/<id>.html for each). Removed from this file 2026-05-26.
+     The .dp-template-card CSS, the [data-palette]/[data-font] selectors,
+     and the .modal-confirm-cautionary shell all remain — they'll be
+     reused by the gallery and detail pages when they land. -->
+
+<!-- ── Cover crop modal — .modal-image-crop shell · 16:9 ── -->
+<div class="modal-scrim" id="dp-cover-crop-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card modal-image-crop" role="dialog" aria-modal="true" aria-labelledby="dp-cov-modal-h">
+    <header class="modal-head">
+      <div class="modal-head-lead">
+        <h2 id="dp-cov-modal-h">Crop your cover photo</h2>
+        <p class="modal-sub">Aspect 16:9 — fills the public hero.</p>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </header>
+
+    <!-- Empty state: drop-zone -->
+    <div class="dp-dropzone" tabindex="0" role="button" data-dp-dropzone aria-label="Upload a cover photo">
+      <span class="dp-dropzone-icon" aria-hidden="true"><span class="material-symbols-outlined">add_photo_alternate</span></span>
+      <span class="dp-dropzone-title">Drop a photo here or tap to upload</span>
+      <span class="dp-dropzone-hint">JPG or PNG · recommend 1600 × 900 or larger</span>
+    </div>
+
+    <!-- Loaded state: crop stage + controls (stub UI, real crop in React port) -->
+    <div class="dp-crop-stage" data-crop-aspect="16:9" hidden>
+      <img src="../../assets/hero-image.jpg" alt="" />
+    </div>
+    <div class="dp-crop-controls" hidden>
+      <input type="range" class="dp-zoom-slider" min="1" max="3" step="0.05" value="1" aria-label="Zoom" />
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" data-dp-crop-apply="cover">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── OG crop modal — .modal-image-crop shell · 1.91:1 ── -->
+<div class="modal-scrim" id="dp-og-crop-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card modal-image-crop" role="dialog" aria-modal="true" aria-labelledby="dp-og-modal-h">
+    <header class="modal-head">
+      <div class="modal-head-lead">
+        <h2 id="dp-og-modal-h">Crop your social-share image</h2>
+        <p class="modal-sub">Aspect 1.91:1 — what WhatsApp and Instagram preview.</p>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </header>
+
+    <div class="dp-dropzone" tabindex="0" role="button" data-dp-dropzone aria-label="Upload a social-share image">
+      <span class="dp-dropzone-icon" aria-hidden="true"><span class="material-symbols-outlined">add_photo_alternate</span></span>
+      <span class="dp-dropzone-title">Drop a photo here or tap to upload</span>
+      <span class="dp-dropzone-hint">JPG or PNG · recommend 1200 × 630 or larger</span>
+    </div>
+
+    <div class="dp-crop-stage" data-crop-aspect="1.91:1" hidden>
+      <img src="../../assets/hero-image.jpg" alt="" />
+    </div>
+    <div class="dp-crop-controls" hidden>
+      <input type="range" class="dp-zoom-slider" min="1" max="3" step="0.05" value="1" aria-label="Zoom" />
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" data-dp-crop-apply="og">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────── MOBILE "JUMP TO PREVIEW" ANCHOR ──────────────────────
+     Toggled .is-visible by design.js when #preview leaves viewport on mobile.
+     Hidden on ≥1024px (preview is sticky-visible). -->
+<button type="button" class="dp-jump-preview" data-dp-jump-preview aria-label="Jump to live preview">
+  <span class="material-symbols-outlined" aria-hidden="true">arrow_downward</span>
+  See preview
+</button>
+
+<!-- ────────────────────── FOOTER ────────────────────── -->
+<footer class="dp-foot reveal">
+  <p>© 2026 Evenzi · Crafted with care</p>
+</footer>
+
+<!-- Help FAB -->
+<button class="help-fab" type="button" aria-label="Need help?">
+  <span class="material-symbols-outlined" aria-hidden="true">help</span>
+</button>
+
+<!-- Shell toast -->
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text"></span>
+</div>
+
+<script src="../../shared/shell.js" defer></script>
+<script src="website.js" defer></script>
+<script src="design.js" defer></script>
+</body>
+</html>

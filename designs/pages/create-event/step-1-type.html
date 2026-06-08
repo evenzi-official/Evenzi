@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Choose event type</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Choose the type of event you're planning. Evenzi tailors the planning surface to match." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="create-event.css" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+</head>
+<body data-page="create-event" data-step="type" class="page-bg page-shell">
+
+<header class="page-shell-header">
+  <a href="../../index.html" class="page-logo" aria-label="Evenzi home">Evenzi</a>
+  <span class="page-eyebrow" aria-hidden="true">Celebratory Curator</span>
+  <div class="page-shell-actions">
+    <button id="theme-toggle" type="button" class="page-theme-toggle" aria-label="Toggle dark mode">
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+    </button>
+    <a href="../../index.html" class="page-close" aria-label="Close wizard and return to dashboard">
+      <span aria-hidden="true" class="material-symbols-outlined">close</span>
+      <span class="page-close-label">Exit</span>
+    </a>
+  </div>
+</header>
+
+<div class="cc-stepper-row">
+  <ol class="cw-stepper" aria-label="Wizard progress">
+    <li class="cw-step is-active" aria-current="step">
+      <span class="cw-step-num">1</span>
+      <span class="cw-step-label">Selection</span>
+    </li>
+    <li class="cw-step-connector" aria-hidden="true"></li>
+    <li class="cw-step">
+      <span class="cw-step-num">2</span>
+      <span class="cw-step-label">Details</span>
+    </li>
+    <li class="cw-step-connector" aria-hidden="true"></li>
+    <li class="cw-step">
+      <span class="cw-step-num">3</span>
+      <span class="cw-step-label">Celebrations</span>
+    </li>
+    <li class="cw-step-connector" aria-hidden="true"></li>
+    <li class="cw-step">
+      <span class="cw-step-num">4</span>
+      <span class="cw-step-label">Review</span>
+    </li>
+  </ol>
+</div>
+
+<main class="page-main">
+  <section class="clay-card cc-card" aria-labelledby="cc-step1-title">
+    <header class="cc-card-head">
+      <p class="cc-card-eyebrow">
+        <span class="material-symbols-outlined icon-fill" aria-hidden="true">auto_awesome</span>
+        Start of your story
+      </p>
+      <h1 class="cc-card-title" id="cc-step1-title">What type of event are <em>you planning</em>?</h1>
+      <p class="cc-card-lead">Pick a type to unlock curated templates and expert planning tools tailored to your celebration.</p>
+    </header>
+
+    <div class="cc-type-grid" role="radiogroup" aria-label="Event type">
+      <button type="button" role="radio" aria-checked="false" class="cc-type-card" data-cc-type="wedding">
+        <span class="cc-type-icon" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">favorite</span>
+        </span>
+        <p class="cc-type-name">Wedding</p>
+        <p class="cc-type-desc">Full multi-ceremony planning, guest lists, and a public event page.</p>
+      </button>
+
+      <button type="button" role="radio" aria-checked="false" aria-disabled="true" class="cc-type-card" data-cc-type="birthday">
+        <span class="cc-type-tag" aria-hidden="true">Soon</span>
+        <span class="cc-type-icon" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">cake</span>
+        </span>
+        <p class="cc-type-name">Birthday</p>
+        <p class="cc-type-desc">Themed celebrations with guest tracking and shared memory albums.</p>
+      </button>
+
+      <button type="button" role="radio" aria-checked="false" aria-disabled="true" class="cc-type-card" data-cc-type="anniversary">
+        <span class="cc-type-tag" aria-hidden="true">Soon</span>
+        <span class="cc-type-icon" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">redeem</span>
+        </span>
+        <p class="cc-type-name">Anniversary</p>
+        <p class="cc-type-desc">Mark milestones together. Coordinate guests, venue, and keepsakes.</p>
+      </button>
+
+      <button type="button" role="radio" aria-checked="false" aria-disabled="true" class="cc-type-card" data-cc-type="corporate">
+        <span class="cc-type-tag" aria-hidden="true">Soon</span>
+        <span class="cc-type-icon" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">domain</span>
+        </span>
+        <p class="cc-type-name">Corporate</p>
+        <p class="cc-type-desc">Polished invites, RSVPs, attendance reporting, and a branded landing page.</p>
+      </button>
+    </div>
+
+    <p class="form-error" id="cc-type-err" role="alert" hidden></p>
+
+    <div class="cc-actions">
+      <a class="cc-back-btn" href="../../index.html" data-cc-back>
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+        Cancel
+      </a>
+      <button type="button" class="btn-pill btn-pill-primary btn-pill-lg" data-cc-continue disabled aria-disabled="true">
+        <span>Proceed to details</span>
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+        <span aria-hidden="true" class="btn-pill-spinner"></span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<footer class="page-shell-footer">
+  © 2026 Evenzi · Crafted with care
+</footer>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">SAVED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="create-event.js"></script>
+</body>
+</html>
