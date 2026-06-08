@@ -167,3 +167,6 @@ For each, produce a Test Plan first, then write the initial Playwright suite onc
 ## Learnings
 
 <!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->
+
+### Runtime-dependency failures are invisible to console-clean + link-audits — simulate them (2026-06-08)
+A page that loads a third-party runtime CDN for layout-critical CSS (Tailwind Play CDN was the case) passes every normal signal — the CDN returns HTTP 200 (no broken-link flag) and throws no console error (console-clean passes) — yet collapses to an unstyled vertical dump the instant the CDN is blocked by an ad-blocker / browser extension / offline. This shipped undetected across many sessions and only surfaced via founder environment drift (a content-blocker). **Lesson: a "looks right + console clean + no broken links" pass is NOT evidence of resilience.** For any external/runtime dependency, *actively trigger the failure* (block network / third-party requests, hard-reload) and confirm the page still holds. Layout-critical assets must be vendored locally, never CDN-loaded. (Now encoded as test-floor row + `_test.md` `1.resilience`.)

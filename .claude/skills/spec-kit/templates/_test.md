@@ -12,6 +12,7 @@
 - `1.styled` — Computed background is the themed surface, NOT the unstyled default (proves tokens/Tailwind config loaded).
 - `1.databody` — `<body>` carries `data-page` (and `data-section` if under a nav tab); active nav/tool-rail item is highlighted.
 - `1.chrome` — Floating-nav, tool-rail, and breadcrumb render and match sibling pages.
+- `1.resilience` — No runtime third-party CDN for layout-critical CSS/JS. **Actively simulate failure:** after first load, block the network / third-party requests and hard-reload — layout MUST hold (no collapse to unstyled flow). A loaded CDN is HTTP 200 + console-clean, so `1.smoke`/`1.styled` will NOT catch this — trigger the failure yourself. Layout-critical assets must be local/committed.
 
 ### 2. Component states
 {{STATE_CHECKS — every interactive element in all applicable states}}
