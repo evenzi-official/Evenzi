@@ -347,9 +347,6 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
 @media (min-width:768px){
   .bc-wrap{padding:1.5rem 2.5rem 0}    /* md:px-10 */
 }
-/* Module pages with a 1280px-capped grid (e.g. event-settings) can
-   override the max-width with .bc-wrap-narrow, but the spacing stays. */
-.bc-wrap-narrow{max-width:1280px}
 
 /* ── CANONICAL PAGE BAND ──────────────────────────────────────────────
    THE single source of truth for page-content width. Every top-level

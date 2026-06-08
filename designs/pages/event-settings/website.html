@@ -10,15 +10,9 @@
 <meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-<script>
-  tailwind.config = { darkMode:'class', theme:{ extend:{
-    colors:{ bg:'var(--bg)', card:'var(--card)', brand:'var(--brand)','brand-tint':'var(--brand-tint)','brand-tint-2':'var(--brand-tint-2)', ink:'var(--ink)','ink-soft':'var(--ink-soft)', muted:'var(--muted)','muted-soft':'var(--muted-soft)', line:'var(--line)' },
-    fontFamily:{ display:['Poppins','sans-serif'], body:['Poppins','sans-serif'] }
-  }}}
-</script>
+<link rel="stylesheet" href="../../shared/tailwind.css" />
 <link rel="stylesheet" href="../../shared/shell.css" />
 <link rel="stylesheet" href="event-settings.css" />
 </head>
@@ -47,7 +41,7 @@
   </div>
 </nav>
 
-<div class="bc-wrap bc-wrap-narrow reveal">
+<div class="bc-wrap reveal">
   <nav class="bc-shell" aria-label="Breadcrumb">
     <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event">
       <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
