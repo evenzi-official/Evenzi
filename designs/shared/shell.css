@@ -3775,7 +3775,7 @@ body.no-scroll{overflow:hidden}
   display:flex;align-items:center;gap:.45rem;
   padding:.45rem .5rem .45rem .9rem;border-radius:9999px;
   background:var(--dark-card);box-shadow:0 14px 36px -8px rgba(0,0,0,.6);
-  max-width:min(440px,calc(100vw - 1.5rem));
+  max-width:calc(100vw - 1.5rem);   /* size to content; cap only at viewport (no fixed 440 — it clipped the planning bar's actions). <680 icon-only; <420 drops select-all. */
 }
 .bulk-bar-count,.gm-bulk-count{
   font-weight:700;font-size:.82rem;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums;
@@ -3813,12 +3813,16 @@ body.no-scroll{overflow:hidden}
   .bulk-bar-cancel:hover,.gm-bulk-cancel:hover{background:rgba(255,255,255,.24)}
 }
 .bulk-bar-cancel:focus-visible,.gm-bulk-cancel:focus-visible{outline:2px solid #fff;outline-offset:1px}
-@media (max-width:479px){
+@media (max-width:679px){
   .bulk-bar-act-label,.gm-bulk-act-label{
     position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
   }
   .bulk-bar-act,.gm-bulk-act{padding:.5rem .65rem;gap:0}
   .bulk-bar,.gm-bulkbar{gap:.35rem;padding-left:.7rem}
+}
+@media (max-width:419px){
+  .bulk-bar-selectall,.gm-bulk-selectall,
+  .bulk-bar-div,.gm-bulk-div{display:none}
 }
 
 /* ════════════════════════════════════════════════════════════════════
