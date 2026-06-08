@@ -14,34 +14,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Evenzi" />
 <meta name="application-name" content="Evenzi" />
-<script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 <!-- 4 non-Poppins heading fonts — needed because the gallery cards render
      each template's couple name in its own heading font. -->
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:wght@600;700&family=Lora:wght@500;600&family=Inter:wght@600;700;800&display=swap" rel="stylesheet" />
-<script>
-  tailwind.config = {
-    darkMode: 'class',
-    theme: {
-      extend: {
-        colors: {
-          bg:'var(--bg)', card:'var(--card)',
-          cream:'var(--bg)','cream-soft':'var(--cream-soft)',
-          peach:'var(--peach)','peach-deep':'var(--peach-deep)',
-          'dark-card':'var(--dark-card)','dark-card-soft':'var(--dark-card-soft)',
-          brand:'var(--brand)','brand-hover':'var(--brand-hover)',
-          'brand-tint':'var(--brand-tint)','brand-tint-2':'var(--brand-tint-2)',
-          ink:'var(--ink)','ink-soft':'var(--ink-soft)',
-          muted:'var(--muted)','muted-soft':'var(--muted-soft)',
-          line:'var(--line)','line-soft':'var(--line-soft)',
-        },
-        fontFamily: { display:['Poppins','sans-serif'], body:['Poppins','sans-serif'] },
-        borderRadius: { 'clay':'24px','clay-sm':'16px','clay-lg':'32px' }
-      }
-    }
-  }
-</script>
+<link rel="stylesheet" href="../../../shared/tailwind.css" />
 <link rel="stylesheet" href="../../../shared/shell.css" />
 <link rel="stylesheet" href="../website.css" />
 <link rel="stylesheet" href="templates.css" />
