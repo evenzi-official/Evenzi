@@ -3686,7 +3686,7 @@ body.no-scroll{overflow:hidden}
   appearance:none;-webkit-appearance:none;
   transition:background .15s ease,color .15s ease;
   scroll-snap-align:start;
-  flex:0 0 auto;
+  flex:1 0 auto;            /* fill the track evenly when roomy; don't shrink below content → scrolls when too narrow (no dead space). .seg--fill overrides to 1 1 0. */
   min-height:40px;
 }
 .seg-item .material-symbols-outlined{font-size:18px}
