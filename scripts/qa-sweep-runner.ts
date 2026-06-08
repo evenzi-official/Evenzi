@@ -71,12 +71,12 @@ async function runPageTests(pagePath: string, browserContext: any): Promise<Page
   
   const page = await browserContext.newPage();
   const consoleErrors: string[] = [];
-  page.on('console', msg => {
+  page.on('console', (msg: import('@playwright/test').ConsoleMessage) => {
     if (msg.type() === 'error' && !msg.text().includes('favicon.ico') && !msg.text().includes('apple-touch-icon.png')) {
       consoleErrors.push(msg.text());
     }
   });
-  page.on('pageerror', error => {
+  page.on('pageerror', (error: Error) => {
     consoleErrors.push(error.message);
   });
 
@@ -172,7 +172,7 @@ async function runPageTests(pagePath: string, browserContext: any): Promise<Page
           if (!isHidden) {
             pageResult.findings.push({
               category: 'a11y', severity: 'P1', issue: v.id, viewport: vp.width,
-              selector: targetSelector, repro: 'Run axe check',
+              selector: String(targetSelector), repro: 'Run axe check',
               expectedActual: v.help, suggestedFix: v.helpUrl,
               evidence: node.failureSummary || 'Axe violation'
             });
