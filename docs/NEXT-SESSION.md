@@ -4,6 +4,22 @@
 
 ---
 
+## Recently Landed (2026-06-08 — Dashboard rescue + Tailwind vendored + design-system consistency sweep) — MERGED to Dev-Vibe
+
+Large design-path session. Full report: `docs/session-reports/2026-06-08-session-report.md`. All merged to `Dev-Vibe` → live UAT site (`evenzi-official.github.io/Evenzi`) rebuilt.
+
+- **Dashboard rescue:** `index.css` had been gutted 301→11 by `3be0595` (deleted card CSS) → unstyled. Restored.
+- **Tailwind runtime-CDN → vendored locally** (`shared/tailwind.css`, pinned v3 CLI) across all 26 pages — kills the "page collapses when an extension/offline blocks the CDN" fragility. Markup unchanged.
+- **Consistency sweep:** one canonical **`.seg`** segmented control (retired `.nav-tabs`-in-page/`.pill-tab`/`.wb-tab`/`.auth-tabs`); **event-settings** now uses the standard chrome (top nav + tool-rail + `.seg` sub-nav, no sidebar) on the 1440 band; **page-title heading** canonicalized to one `.section-head` in `.page-band` everywhere (killed 3 forked patterns); website "Vibrant Union"→"Anya & Kabir" + heading alignment; **bulk-bar** desktop clip + narrow responsive fixed; **components.html** backfilled to zero debt.
+- **New standing rules:** runtime-dependency-resilience test gate; reuse-before-create (by purpose) + keep components.html current; delegation gate (Cursor builds / Antigravity tests / Claude plans+reviews). In `CLAUDE.md` + `.cursor/rules` + `.agents/rules` + agent learnings.
+
+**Next:**
+- **Invitations + Media** are still placeholder "coming soon" — build via `/spec-kit`.
+- Deferred cosmetics: `fec-status-done` (dashboard Past tag color), `gm-edit-only` (guests hook); event-control hero's hand-rolled `<h2>` section dividers (tokenize later).
+- Optional: add the **undefined-class lint** as a permanent guard (find markup classes defined in no CSS — would have caught the dashboard regression).
+
+---
+
 ## Recently Landed (2026-06-07 — Planning Tasks v2 + QA hardening + workflow consolidation)
 
 Large design-path/infra session on branch `claude/affectionate-ramanujan-60170b` (9 commits, **not yet merged to Dev-Vibe**). Full report: `docs/session-reports/2026-06-07-session-report.md`.
