@@ -3,6 +3,7 @@
 import { HeroGeometric } from "@/components/ui/hero-geometric";
 import { TextScrollAnimation } from "@/components/ui/text-scroll-animation";
 import IntroAnimation from "@/components/ui/scroll-morph-hero";
+import { PageFooter } from "@/components/layout/PageFooter";
 
 function Nav() {
   const handleSignup = () => {
@@ -110,6 +111,7 @@ export default function Home() {
       />
       <TextScrollAnimation />
       <IntroAnimation />
+      <PageFooter />
     </div>
   );
 }

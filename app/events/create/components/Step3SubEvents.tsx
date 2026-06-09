@@ -12,16 +12,14 @@ export function Step3SubEvents(): React.JSX.Element {
   const [subEventTypes, setSubEventTypes] = useState<SubEventType[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
-  // Custom event input state
   const [showCustomInput, setShowCustomInput] = useState(false)
   const [customName, setCustomName] = useState('')
   const customInputRef = useRef<HTMLInputElement>(null)
 
-  // Fetch sub-event types and batch-set defaults once
   useEffect(() => {
     if (!eventType) return
-
     let cancelled = false
 
     async function fetchSubEvents(): Promise<void> {
@@ -33,26 +31,15 @@ export function Step3SubEvents(): React.JSX.Element {
         const json = await res.json()
         const data: SubEventType[] = json.subEventTypes ?? json
         if (cancelled) return
-
         setSubEventTypes(data)
-
-        // Batch default selection — dispatched once, only if nothing selected yet
         const defaults = data
           .filter((s) => s.isDefault)
-          .map((s) => ({
-            subEventTypeId: s.id,
-            customName: null,
-            name: s.name,
-            iconName: s.iconName,
-          }))
-
+          .map((s) => ({ subEventTypeId: s.id, customName: null, name: s.name, iconName: s.iconName }))
         if (defaults.length > 0) {
           dispatch({ type: 'SET_DEFAULT_SUB_EVENTS', payload: defaults })
         }
       } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Something went wrong')
-        }
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Something went wrong')
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -62,22 +49,12 @@ export function Step3SubEvents(): React.JSX.Element {
     return () => { cancelled = true }
   }, [eventType, dispatch])
 
-  // Focus custom input when it appears
   useEffect(() => {
-    if (showCustomInput) {
-      customInputRef.current?.focus()
-    }
+    if (showCustomInput) customInputRef.current?.focus()
   }, [showCustomInput])
 
   function handleToggle(sub: SubEventType): void {
-    dispatch({
-      type: 'TOGGLE_SUB_EVENT',
-      payload: {
-        subEventTypeId: sub.id,
-        name: sub.name,
-        iconName: sub.iconName,
-      },
-    })
+    dispatch({ type: 'TOGGLE_SUB_EVENT', payload: { subEventTypeId: sub.id, name: sub.name, iconName: sub.iconName } })
   }
 
   function handleAddCustom(): void {
@@ -100,104 +77,86 @@ export function Step3SubEvents(): React.JSX.Element {
   const isSelectedType = (id: string): boolean =>
     selectedSubEvents.some((se) => se.subEventTypeId === id)
 
-  // Custom sub-events: those with no subEventTypeId
   const customSubEvents = selectedSubEvents.filter((se) => se.subEventTypeId === null)
-
   const canContinue = selectedSubEvents.length > 0
+  const selectionCount = selectedSubEvents.length
+
+  const filteredSubEventTypes = searchQuery.trim()
+    ? subEventTypes.filter((s) => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : subEventTypes
 
   function handleContinue(): void {
     if (!canContinue) return
-    dispatch({ type: 'GO_TO_STEP', payload: totalSteps }) // Go to Review step
+    dispatch({ type: 'GO_TO_STEP', payload: totalSteps })
   }
 
   function handleBack(): void {
     dispatch({ type: 'GO_TO_STEP', payload: 2 })
   }
 
-  // --- Loading state ---
   if (loading) {
     return (
-      <div className="flex flex-col gap-6 px-4 sm:px-6 lg:px-8 py-6">
-        <div>
-          <h2
-            className="text-xl font-semibold mb-1"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            Sub-Event Selection
-          </h2>
-          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            Loading sub-events…
+      <section className="clay-card cc-card">
+        <div className="flex items-center justify-center gap-3 py-16">
+          <div
+            className="w-6 h-6 rounded-full border-2 animate-spin"
+            style={{ borderColor: 'var(--line)', borderTopColor: 'transparent' }}
+            role="status"
+            aria-label="Loading celebrations"
+          />
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: 'var(--muted)' }}>
+            Loading celebrations…
           </p>
         </div>
-        <div
-          className="grid grid-cols-2 sm:grid-cols-3 gap-3"
-          aria-busy="true"
-          aria-label="Loading sub-events"
-        >
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-24 rounded-xl animate-pulse"
-              style={{
-                background: 'var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-              }}
-            />
-          ))}
-        </div>
-      </div>
+      </section>
     )
   }
 
-  // --- Error state ---
   if (error) {
     return (
-      <div className="flex flex-col gap-6 px-4 sm:px-6 lg:px-8 py-6">
-        <div
-          className="p-4 rounded-xl"
-          role="alert"
-          style={{
-            background: 'var(--color-error-bg)',
-            border: '1px solid var(--color-error-border)',
-            borderRadius: 'var(--radius-md)',
-          }}
-        >
-          <p className="text-sm font-medium" style={{ color: 'var(--color-error)' }}>
-            {error}
-          </p>
+      <section className="clay-card cc-card">
+        <div className="flex flex-col items-center gap-4 py-12 text-center" role="alert">
+          <p style={{ fontSize: 14, color: 'var(--muted)' }}>{error}</p>
+          <button type="button" className="cc-back-btn" onClick={handleBack}>
+            <span aria-hidden="true" className="material-symbols-outlined">arrow_back</span>
+            Back
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={handleBack}
-          className="self-start text-sm underline"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
-          ← Back
-        </button>
-      </div>
+      </section>
     )
   }
 
-  // --- Main render ---
   return (
-    <div className="flex flex-col gap-6 px-4 sm:px-6 lg:px-8 py-6">
-      {/* Header */}
-      <div>
-        <h2
-          className="text-xl font-semibold mb-1"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
-          Sub-Event Selection
-        </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-          Select the sub-events you are hosting for the {eventType?.name?.toLowerCase() ?? 'event'}.
+    <section className="clay-card cc-card" aria-labelledby="cc-step3-title">
+      <header className="cc-card-head">
+        <p className="cc-card-eyebrow">
+          <span className="material-symbols-outlined icon-fill" aria-hidden="true">auto_awesome</span>
+          Shape the rhythm
         </p>
+        <h1 className="cc-card-title" id="cc-step3-title">
+          Curate your <em>celebrations</em>
+        </h1>
+        <p className="cc-card-lead">
+          Pick the ceremonies you&apos;d like to include. Each selection unlocks specific vendor &amp; aesthetic curators on your dashboard.
+        </p>
+      </header>
+
+      {/* Search */}
+      <div className="cc-search-row">
+        <span className="material-symbols-outlined" aria-hidden="true">search</span>
+        <input
+          type="search"
+          value={searchQuery}
+          placeholder="Search ceremonies, rituals, moments…"
+          aria-label="Search celebrations"
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
-      {/* Sub-event type grid */}
-      {subEventTypes.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {subEventTypes.map((sub) => (
+      {/* Celebration cards grid */}
+      {filteredSubEventTypes.length > 0 && (
+        <div className="cc-celebration-grid" role="group" aria-label="Wedding celebrations">
+          {filteredSubEventTypes.map((sub) => (
             <SubEventCard
               key={sub.id}
               id={sub.id}
@@ -210,169 +169,110 @@ export function Step3SubEvents(): React.JSX.Element {
         </div>
       )}
 
-      {/* Custom sub-events (already added) */}
+      {/* Custom sub-events already added */}
       {customSubEvents.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
-            Custom Events
-          </p>
-          <div className="flex flex-col gap-2">
-            {customSubEvents.map((ce, idx) => {
-              // Find absolute index in selectedSubEvents
-              const absoluteIndex = selectedSubEvents.indexOf(ce)
-              return (
-                <div
-                  key={idx}
-                  className="flex items-center justify-between px-4 py-3 rounded-xl"
-                  style={{
-                    background: 'var(--color-bg-card)',
-                    border: '2px solid var(--color-primary)',
-                    borderRadius: 'var(--radius-md)',
-                    boxShadow: 'var(--shadow-sm)',
-                  }}
+        <div className="cc-celebration-grid">
+          {customSubEvents.map((ce, idx) => {
+            const absoluteIndex = selectedSubEvents.indexOf(ce)
+            return (
+              <div
+                key={idx}
+                role="checkbox"
+                aria-checked="true"
+                className="cc-celebration-card"
+                style={{ cursor: 'default' }}
+              >
+                <button
+                  type="button"
+                  className="cc-celebration-check"
+                  aria-label={`Remove ${ce.name}`}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleRemoveCustom(absoluteIndex)}
                 >
-                  <span
-                    className="text-sm font-medium"
-                    style={{ color: 'var(--color-text-primary)' }}
-                  >
-                    {ce.name}
+                  <span className="material-symbols-outlined icon-fill">close</span>
+                </button>
+                <div className="cc-celebration-head">
+                  <span className="cc-celebration-icon" aria-hidden="true">
+                    <span className="material-symbols-outlined icon-fill">add_circle</span>
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveCustom(absoluteIndex)}
-                    aria-label={`Remove custom event: ${ce.name}`}
-                    className="ml-3 flex items-center justify-center w-6 h-6 rounded-full text-sm font-bold transition-opacity hover:opacity-70"
-                    style={{
-                      background: 'var(--color-error-bg)',
-                      color: 'var(--color-error)',
-                      borderRadius: 'var(--radius-full)',
-                    }}
-                  >
-                    ×
-                  </button>
+                  <div className="cc-celebration-body">
+                    <span className="cc-celebration-name">{ce.name}</span>
+                    <p className="cc-celebration-desc">Custom ceremony</p>
+                  </div>
                 </div>
-              )
-            })}
-          </div>
+              </div>
+            )
+          })}
         </div>
       )}
 
-      {/* Add Custom Event */}
-      <div>
-        {!showCustomInput ? (
-          <button
-            type="button"
-            onClick={() => setShowCustomInput(true)}
-            className="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-70"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
-            <span
-              className="flex items-center justify-center w-6 h-6 rounded-full text-base"
-              style={{
-                background: 'var(--color-border)',
-                borderRadius: 'var(--radius-full)',
-              }}
-              aria-hidden="true"
-            >
-              +
-            </span>
-            Add Custom Event
-          </button>
-        ) : (
-          <div className="flex flex-col gap-3">
-            <label
-              htmlFor="custom-sub-event-input"
-              className="text-sm font-medium"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              Custom Event Name
-            </label>
+      {/* Add custom button / inline form */}
+      {!showCustomInput ? (
+        <button type="button" className="cc-add-custom" onClick={() => setShowCustomInput(true)}>
+          <span aria-hidden="true" className="material-symbols-outlined">add</span>
+          Add a custom ceremony
+        </button>
+      ) : (
+        <div className="flex flex-col gap-3">
+          <div className="form-group">
+            <label className="form-label" htmlFor="cc-custom-name">Ceremony name</label>
             <input
-              id="custom-sub-event-input"
+              id="cc-custom-name"
               ref={customInputRef}
               type="text"
+              className="form-input"
               value={customName}
+              placeholder="e.g. Mehndi Night"
+              maxLength={80}
+              autoComplete="off"
               onChange={(e) => setCustomName(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleAddCustom()
                 if (e.key === 'Escape') handleCancelCustom()
               }}
-              placeholder="e.g. Mehndi Night"
-              maxLength={80}
-              className="w-full px-4 py-2.5 text-sm rounded-xl border outline-none transition-shadow focus:ring-2"
-              style={{
-                background: 'var(--color-bg-card)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                color: 'var(--color-text-primary)',
-              }}
             />
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleAddCustom}
-                disabled={!customName.trim()}
-                className="px-4 py-2 text-sm font-medium rounded-xl transition-opacity disabled:opacity-40"
-                style={{
-                  background: 'var(--color-primary)',
-                  color: '#ffffff',
-                  borderRadius: 'var(--radius-md)',
-                }}
-              >
-                Add
-              </button>
-              <button
-                type="button"
-                onClick={handleCancelCustom}
-                className="px-4 py-2 text-sm font-medium rounded-xl transition-opacity hover:opacity-70"
-                style={{
-                  background: 'var(--color-border)',
-                  color: 'var(--color-text-secondary)',
-                  borderRadius: 'var(--radius-md)',
-                }}
-              >
-                Cancel
-              </button>
-            </div>
           </div>
-        )}
-      </div>
-
-      {/* Validation hint */}
-      {!canContinue && (
-        <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-          Select at least one event to continue.
-        </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="btn-pill btn-pill-primary"
+              disabled={!customName.trim()}
+              onClick={handleAddCustom}
+            >
+              <span>Add</span>
+              <span aria-hidden="true" className="btn-pill-spinner" />
+            </button>
+            <button type="button" className="btn-pill btn-pill-secondary" onClick={handleCancelCustom}>
+              <span>Cancel</span>
+              <span aria-hidden="true" className="btn-pill-spinner" />
+            </button>
+          </div>
+        </div>
       )}
 
-      {/* Navigation */}
-      <div className="flex items-center justify-between pt-2">
-        <button
-          type="button"
-          onClick={handleBack}
-          className="px-5 py-2.5 text-sm font-medium rounded-xl transition-opacity hover:opacity-70"
-          style={{
-            background: 'var(--color-border)',
-            color: 'var(--color-text-secondary)',
-            borderRadius: 'var(--radius-md)',
-          }}
-        >
-          ← Back
+      {/* Selection count chip */}
+      <div className={`cc-selection-chip${selectionCount === 0 ? ' is-empty' : ''}`} role="status" aria-live="polite">
+        <span aria-hidden="true" className="cc-selection-dot" />
+        <span>{selectionCount === 0 ? '0 celebrations selected' : `${selectionCount} celebration${selectionCount === 1 ? '' : 's'} selected`}</span>
+      </div>
+
+      <div className="cc-actions">
+        <button type="button" className="cc-back-btn" onClick={handleBack}>
+          <span aria-hidden="true" className="material-symbols-outlined">arrow_back</span>
+          Back
         </button>
         <button
           type="button"
-          onClick={handleContinue}
+          className="btn-pill btn-pill-primary btn-pill-lg"
           disabled={!canContinue}
-          className="px-6 py-2.5 text-sm font-medium rounded-xl transition-opacity disabled:opacity-40"
-          style={{
-            background: 'var(--color-primary)',
-            color: '#ffffff',
-            borderRadius: 'var(--radius-md)',
-          }}
+          aria-disabled={!canContinue}
+          onClick={handleContinue}
         >
-          Continue →
+          <span>Proceed to review</span>
+          <span aria-hidden="true" className="material-symbols-outlined">arrow_forward</span>
+          <span aria-hidden="true" className="btn-pill-spinner" />
         </button>
       </div>
-    </div>
+    </section>
   )
 }

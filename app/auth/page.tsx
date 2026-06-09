@@ -396,12 +396,6 @@ export default function AuthPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="text-center mt-12">
-        <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
-          &copy; 2026 Evenzi. All rights reserved.
-        </p>
-      </footer>
     </div>
   );
 }

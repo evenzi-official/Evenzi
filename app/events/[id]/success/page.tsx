@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { PageFooter } from '@/components/layout/PageFooter'
 
 interface SuccessPageProps {
   params: Promise<{ id: string }>
@@ -157,20 +158,7 @@ export default async function EventSuccessPage({ params }: SuccessPageProps): Pr
         </div>
       </main>
 
-      {/* Footer */}
-      <footer
-        className="w-full border-t py-6"
-        style={{
-          background: 'var(--color-bg-card)',
-          borderColor: 'var(--color-border)',
-        }}
-      >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-          <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-            © 2026 Evenzi. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <PageFooter />
     </div>
   )
 }

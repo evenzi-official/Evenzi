@@ -59,7 +59,8 @@ export default async function HomePage() {
     createdAt: row.created_at,
   }));
 
-  const userDisplay = user.email ?? user.phone ?? "User";
+  const raw = user.email ?? user.phone ?? "User"
+  const userDisplay = raw.includes("@") ? (raw.split("@")[0] ?? raw) : raw
 
   return <EventsGrid events={events} userDisplay={userDisplay} />;
 }

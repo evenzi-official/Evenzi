@@ -1,13 +1,14 @@
 'use client'
 
 export const ICON_MAP: Record<string, string> = {
-  sparkles: '✨',
-  palette: '🎨',
-  music: '🎵',
-  heart: '💍',
-  utensils: '🍽️',
-  wine: '🍷',
-  coffee: '☕',
+  sparkles: 'auto_awesome',
+  palette: 'palette',
+  music: 'music_note',
+  heart: 'favorite',
+  utensils: 'restaurant',
+  wine: 'wine_bar',
+  coffee: 'local_cafe',
+  spa: 'spa',
 }
 
 interface SubEventCardProps {
@@ -18,63 +19,54 @@ interface SubEventCardProps {
   onToggle: () => void
 }
 
-export function SubEventCard({
-  id,
-  name,
-  iconName,
-  isSelected,
-  onToggle,
-}: SubEventCardProps): React.JSX.Element {
-  const emoji = iconName ? (ICON_MAP[iconName] ?? '✨') : '✨'
+export function SubEventCard({ name, iconName, isSelected, onToggle }: SubEventCardProps): React.JSX.Element {
+  const icon = iconName ? (ICON_MAP[iconName] ?? 'celebration') : 'celebration'
 
   return (
-    <button
-      type="button"
+    <div
+      role="checkbox"
+      aria-checked={isSelected}
+      tabIndex={0}
+      className="cc-celebration-card"
       onClick={onToggle}
-      aria-pressed={isSelected}
-      aria-label={`${isSelected ? 'Deselect' : 'Select'} ${name}`}
-      className="relative flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2"
-      style={{
-        background: isSelected ? 'var(--color-bg-card)' : 'var(--color-bg-card)',
-        border: isSelected
-          ? '2px solid var(--color-primary)'
-          : '2px solid var(--color-border)',
-        boxShadow: isSelected ? 'var(--shadow-md)' : 'var(--shadow-sm)',
-        borderRadius: 'var(--radius-md)',
-        cursor: 'pointer',
-        minWidth: '0',
-        width: '100%',
+      onKeyDown={(e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault()
+          onToggle()
+        }
       }}
     >
-      {/* Checkmark badge */}
-      {isSelected && (
-        <span
-          className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold"
-          style={{
-            background: 'var(--color-primary)',
-            color: '#ffffff',
-            borderRadius: 'var(--radius-full)',
-          }}
-          aria-hidden="true"
-        >
-          ✓
+      <span className="cc-celebration-check" aria-hidden="true">
+        <span className="material-symbols-outlined icon-fill">check</span>
+      </span>
+      <div className="cc-celebration-head">
+        <span className="cc-celebration-icon" aria-hidden="true">
+          <span className="material-symbols-outlined icon-fill">{icon}</span>
         </span>
-      )}
-
-      {/* Icon */}
-      <span className="text-3xl leading-none" aria-hidden="true">
-        {emoji}
-      </span>
-
-      {/* Name */}
-      <span
-        className="text-sm font-medium text-center leading-snug"
-        style={{
-          color: isSelected ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-        }}
-      >
-        {name}
-      </span>
-    </button>
+        <div className="cc-celebration-body">
+          <span className="cc-celebration-name">{name}</span>
+        </div>
+      </div>
+      <div className="cc-celebration-meta">
+        <button
+          type="button"
+          className="cc-meta-btn"
+          aria-label={`Set time for ${name}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span aria-hidden="true" className="material-symbols-outlined">schedule</span>
+          <span className="cc-meta-label">Set time</span>
+        </button>
+        <button
+          type="button"
+          className="cc-meta-btn"
+          aria-label={`Set venue for ${name}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span aria-hidden="true" className="material-symbols-outlined">place</span>
+          <span className="cc-meta-label">Set venue</span>
+        </button>
+      </div>
+    </div>
   )
 }
