@@ -89,12 +89,16 @@ If Abhijith ran the design path (5a.7 of start-evenzi-session), run this checkli
 git add <relevant files>
 git commit -m "docs: end-of-session update — <brief summary>"
 git push origin <current-branch>
+git fetch origin                          # both Abhijith and Dheeraj push — local Dev-Vibe may be stale
 git checkout Dev-Vibe
+git merge --ff-only origin/Dev-Vibe       # fast-forward local Dev-Vibe to remote BEFORE merging your work
 git merge <current-branch> --no-edit
 git push origin Dev-Vibe
 ```
 
-If merge conflicts: stop and ask Abhijith. **Never force push.**
+**Always `git fetch` + fast-forward local `Dev-Vibe` to `origin/Dev-Vibe` before merging your branch in.** Both people now push, so a stale local `Dev-Vibe` would either merge onto an old base or get the final `git push origin Dev-Vibe` rejected as non-fast-forward.
+
+If merge conflicts (or the `--ff-only` step fails because local Dev-Vibe diverged): stop and ask Abhijith. **Never force push.**
 
 #### 4a.9 Clean up worktree
 `ExitWorktree` with action `remove`. If it refuses (uncommitted changes), go back to 4a.8.

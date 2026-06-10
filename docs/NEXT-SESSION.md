@@ -4,6 +4,21 @@
 
 ---
 
+## Recently Landed (2026-06-09 — Dheeraj revamp promoted to Dev-Vibe-Testing + session-skill fetch rule)
+
+Ops/integration session (Abhijith). No ClickUp feature, no design path. Full report: `docs/session-reports/2026-06-09-session-report.md`.
+
+- **Promoted Dheeraj's `reavamp` (`a5d40f1`) to `Dev-Vibe-Testing`** via clean fast-forward (`b5e4804..a5d40f1`). The revamp is a large React build-out (53 files, +3,787/−1,696) converting the `designs/` prototypes into real Next.js: all `app/events/[id]/*` routes, rewritten 4-step create wizard, big `EventsGrid` rewrite, new `components/ui/*` + `components/layout/*` libraries, new `app/settings/page.tsx`. It was already on `Dev-Vibe` (Dheeraj pushed direct).
+- **Build sanity PASS** — `npm run build` is green (30 routes). The initial "Missing Supabase env" failure was just the fresh worktree lacking `.env.local`, **not** a regression; auth/home/settings/event pages correctly render as `ƒ (Dynamic)`. `designs/` rode along with the FF (harmless — outside the Next build path).
+- **Deep code review skipped by Abhijith's choice** — promotion gated on build sanity only. QA happens on the Testing branch next.
+- **New standing rule — fetch-first in both session skills:** now that both teammates push, `start-evenzi-session` Step 1 runs `git fetch --all --prune` before any branch check, and `end-evenzi-session` 4a.8 does `git fetch` + `git merge --ff-only origin/Dev-Vibe` before merging — prevents stale-ref reasoning and non-fast-forward push rejections.
+
+**Next:**
+- **QA the revamp on `Dev-Vibe-Testing`** (event pages, create wizard, dashboard, auth/role-selection, settings).
+- Optional process tightening: `.env.local.example` for fresh worktrees; land delegated frontend work on a feature branch (for a pre-merge review gate) rather than direct-to-`Dev-Vibe`.
+
+---
+
 ## Recently Landed (2026-06-08 — Dashboard rescue + Tailwind vendored + design-system consistency sweep) — MERGED to Dev-Vibe
 
 Large design-path session. Full report: `docs/session-reports/2026-06-08-session-report.md`. All merged to `Dev-Vibe` → live UAT site (`evenzi-official.github.io/Evenzi`) rebuilt.

@@ -19,9 +19,12 @@ See memory: `project_team_split.md`, `project_dheeraj_no_clickup.md`.
 
 ## Steps
 
-### 1. Verify worktree source branch
+### 1. Fetch remote, then verify worktree source branch
+
+**Always `git fetch` FIRST.** Both Abhijith and Dheeraj now push to remote, so local refs (`Dev-Vibe`, `Dev-Vibe-Testing`, feature branches) go stale between sessions. Fetching before any branch comparison/ancestry check avoids reasoning about an out-of-date tree and missing the other person's just-pushed work. Unconditional — runs on both the Abhijith and Dheeraj paths.
 
 ```bash
+git fetch --all --prune
 git merge-base --is-ancestor Dev-Vibe HEAD
 ```
 
