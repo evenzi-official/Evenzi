@@ -2065,6 +2065,44 @@
           </div>
         </div>
       </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">W5</span> · Photo tile · <code class="cs-code">.photo-tile</code> · select / cover badge / action chips · empty-state hook <code class="cs-code">[data-photos-state]</code> + <code class="cs-code">.photos-empty</code></p>
+        <div class="cs-stage cs-stage--col" style="padding:1rem;align-items:stretch">
+          <div class="dp-tile-grid">
+            <article class="dp-tile photo-tile is-selected">
+              <label class="photo-tile-select">
+                <input type="checkbox" checked aria-label="Select Mehendi ceremony" />
+                <span class="photo-tile-check"><span class="material-symbols-outlined" aria-hidden="true">check</span></span>
+              </label>
+              <button type="button" class="dp-tile-trigger" aria-label="View Mehendi ceremony full size">
+                <span class="dp-tile-thumb" style="background:var(--peach)"></span>
+              </button>
+              <span class="photo-tile-cover-badge"><span class="material-symbols-outlined" aria-hidden="true">star</span>Cover</span>
+            </article>
+            <article class="dp-tile photo-tile">
+              <label class="photo-tile-select">
+                <input type="checkbox" aria-label="Select Sangeet night" />
+                <span class="photo-tile-check"><span class="material-symbols-outlined" aria-hidden="true">check</span></span>
+              </label>
+              <button type="button" class="dp-tile-trigger" aria-label="View Sangeet night full size">
+                <span class="dp-tile-thumb" style="background:var(--brand-tint)"></span>
+              </button>
+              <div class="photo-tile-actions" style="opacity:1">
+                <button type="button" class="photo-tile-action" aria-label="Add Sangeet night to album"><span class="material-symbols-outlined" aria-hidden="true">library_add</span></button>
+                <button type="button" class="photo-tile-action" data-tile-danger aria-label="Remove Sangeet night"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button>
+              </div>
+            </article>
+          </div>
+          <div data-photos-state="empty" style="margin-top:1rem;border:1px dashed var(--line);border-radius:14px">
+            <div class="photos-empty" style="padding:1.5rem 1rem">
+              <span class="photos-empty-icon" aria-hidden="true"><span class="material-symbols-outlined">photo_library</span></span>
+              <p class="photos-empty-title">No photos yet</p>
+              <p class="photos-empty-help">Pair a <code class="cs-code">.dp-tile-grid</code> with a <code class="cs-code">.photos-empty</code> and toggle <code class="cs-code">data-photos-state</code> on the container.</p>
+            </div>
+          </div>
+        </div>
+      </article>
     </div>
   </section>
 

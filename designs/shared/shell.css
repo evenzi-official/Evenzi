@@ -3026,6 +3026,109 @@ body.no-scroll{overflow:hidden}
 }
 
 /* ════════════════════════════════════════════════════════════════════
+   PHOTO TILE — selectable gallery-photo chrome composed over .dp-tile.
+   Promoted 2026-06-12 from website.css's page-local .dp-photo-* family
+   (Media & Memories is the 2nd consumer — renamed to neutral .photo-tile
+   per the Media spec promote plan). Bulk selection chrome is the existing
+   shell .bulk-bar (B15) — do NOT fork a parallel bar.
+   Composition:
+     <article class="dp-tile photo-tile" data-photo-id="…">
+       <label class="photo-tile-select">
+         <input type="checkbox" aria-label="Select …">
+         <span class="photo-tile-check"><span class="material-symbols-outlined">check</span></span>
+       </label>
+       <button class="dp-tile-trigger" aria-label="View … full size">
+         <span class="dp-tile-thumb"><img src="…" alt="" loading="lazy"></span>
+       </button>
+       <span class="photo-tile-cover-badge"><span class="material-symbols-outlined">star</span>Cover</span>
+       <div class="photo-tile-actions">
+         <button class="photo-tile-action" aria-label="…"><span class="material-symbols-outlined">star</span></button>
+       </div>
+     </article>
+   Empty-state hook — ANY gallery container sets data-photos-state
+   ("empty" | "populated") and pairs .dp-tile-grid with a .photos-empty:
+     <section data-photos-state="empty">
+       <div class="dp-tile-grid">…</div>
+       <div class="photos-empty">…</div>
+     </section>
+   ════════════════════════════════════════════════════════════════════ */
+.photo-tile{position:relative}
+.photo-tile .dp-tile-thumb{aspect-ratio:1/1}
+.photo-tile-select{position:absolute;top:.5rem;left:.5rem;z-index:3;cursor:pointer}
+.photo-tile-select input{position:absolute;opacity:0;width:0;height:0}
+.photo-tile-check{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:9999px;
+  background:rgba(0,0,0,.45);border:1.5px solid rgba(255,255,255,.7);
+  color:transparent;backdrop-filter:blur(4px);
+  transition:background .15s,color .15s;
+}
+.photo-tile-check .material-symbols-outlined{font-size:16px}
+.photo-tile-select input:checked + .photo-tile-check{background:var(--brand);border-color:var(--brand);color:#fff}
+.photo-tile-select input:focus-visible + .photo-tile-check{outline:2px solid var(--brand);outline-offset:2px}
+.photo-tile-cover-badge{
+  position:absolute;top:.5rem;right:.5rem;z-index:3;
+  display:inline-flex;align-items:center;gap:.25rem;
+  padding:.2rem .5rem;border-radius:9999px;
+  background:var(--brand);color:#fff;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:9px;
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.photo-tile-cover-badge[hidden]{display:none}
+.photo-tile-cover-badge .material-symbols-outlined{font-size:13px}
+.photo-tile-actions{
+  position:absolute;bottom:.5rem;right:.5rem;z-index:3;
+  display:flex;gap:.35rem;
+  opacity:0;transition:opacity .15s;
+}
+@media (hover:hover) and (pointer:fine){
+  .photo-tile:hover .photo-tile-actions{opacity:1}
+}
+.photo-tile:focus-within .photo-tile-actions{opacity:1}
+@media (hover:none){.photo-tile-actions{opacity:1}}
+/* Dark translucent icon chip used over photo thumbs (tile actions, album
+   overflow). 32px visual, ≥44px hit area via the ::before extension. */
+.photo-tile-action{
+  position:relative;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:32px;height:32px;border-radius:10px;border:0;
+  background:rgba(0,0,0,.5);color:#fff;cursor:pointer;
+  backdrop-filter:blur(4px);
+  transition:background .15s ease;
+}
+.photo-tile-action::before{content:"";position:absolute;inset:-6px;border-radius:inherit}
+.photo-tile-action .material-symbols-outlined{font-size:18px}
+@media (hover:hover) and (pointer:fine){
+  .photo-tile-action:hover{background:rgba(0,0,0,.72)}
+  .photo-tile-action[data-tile-danger]:hover{background:var(--danger)}
+}
+.photo-tile-action:focus-visible{outline:2px solid #fff;outline-offset:2px}
+/* Glass fallback — solid chrome when backdrop-filter is unsupported */
+@supports not (backdrop-filter: blur(1px)){
+  .photo-tile-check{background:rgba(0,0,0,.62)}
+  .photo-tile-action{background:rgba(0,0,0,.68)}
+}
+@media (prefers-reduced-motion: reduce){
+  .photo-tile-check,.photo-tile-actions,.photo-tile-action{transition:none}
+}
+
+/* Shared gallery empty state — shown by the [data-photos-state] hook */
+[data-photos-state="empty"] .dp-tile-grid{display:none}
+.photos-empty{
+  display:none;flex-direction:column;align-items:center;text-align:center;
+  gap:.85rem;padding:3.5rem 1.5rem;
+}
+[data-photos-state="empty"] .photos-empty{display:flex}
+.photos-empty-icon{
+  width:64px;height:64px;border-radius:9999px;
+  background:var(--brand-tint);color:var(--brand);
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.photos-empty-icon .material-symbols-outlined{font-size:32px}
+.photos-empty-title{font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;color:var(--ink)}
+.photos-empty-help{font-size:13px;color:var(--muted);max-width:26rem}
+
+/* ════════════════════════════════════════════════════════════════════
    MODAL SHELL PRIMITIVES — composed inside .modal-scrim > .modal-card
    Built on the stacking-safe modal controller (window.evenzi.openModal).
    Four reusable shells:
