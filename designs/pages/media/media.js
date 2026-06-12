@@ -384,10 +384,98 @@
     return lb && lb.classList.contains('is-open');
   }
 
-  /* ── assign-to-album picker ─────────────────────────────────────────
-     Lands in promote step 3/3 — net-new behavior on the shell
-     .modal-picker-grid primitive (do NOT promote guests.js openPicker). */
-  function openAssign(mode, photoIds) { /* wired in step 3/3 */ }
+  /* ── assign-to-album picker (promote step 3/3) ──────────────────────
+     Net-new multi-select behavior on the shell .modal-picker-grid
+     primitive — deliberately NOT a promotion of guests.js openPicker
+     (that would drag its gm- coupling along, FE2).
+     mode 'add'    → every album is offered; apply ADDS the chosen
+                     album ids to each photo's albumIds.
+     mode 'remove' → only albums the selection is filed in are offered;
+                     apply REMOVES the chosen album ids (un-file only —
+                     photos stay in All Photos). */
+  var assign = { mode: 'add', photoIds: [], chosen: {} };
+
+  function assignableAlbums(mode, photoIds) {
+    if (mode === 'add') return state.albums.slice();
+    var present = {};
+    photoIds.forEach(function (id) {
+      var p = photoById(id);
+      if (p) p.albumIds.forEach(function (a) { present[a] = true; });
+    });
+    return state.albums.filter(function (a) { return present[a.id]; });
+  }
+
+  function openAssign(mode, photoIds) {
+    if (!photoIds || !photoIds.length) return;
+    assign.mode = mode;
+    assign.photoIds = photoIds.slice();
+    assign.chosen = {};
+    var n = photoIds.length;
+    var noun = n === 1 ? (photoById(photoIds[0]) || { name: 'this photo' }).name : n + ' photos';
+    $('md-assign-title').textContent = mode === 'add' ? 'Add to album' : 'Remove from album';
+    $('md-assign-sub').textContent = mode === 'add'
+      ? 'Choose albums for ' + noun + '. Pick as many as you like.'
+      : 'Choose which albums to take ' + noun + ' out of — they stay in All Photos.';
+    $('md-assign-apply').textContent = mode === 'add' ? 'Add' : 'Remove';
+    var albums = assignableAlbums(mode, photoIds);
+    var body = $('md-assign-body');
+    clear(body);
+    if (!albums.length) {
+      var none = el('p', 'modal-picker-tile-desc');
+      none.textContent = mode === 'remove'
+        ? "These photos aren't filed in any album yet."
+        : 'No albums yet — create one first.';
+      body.appendChild(none);
+    }
+    albums.forEach(function (a) {
+      var count = albumPhotos(a.id).length;
+      var tile = el('button', 'modal-picker-tile'); tile.type = 'button';
+      tile.setAttribute('data-assign-album', a.id);
+      tile.setAttribute('aria-pressed', 'false');
+      var icon = el('span', 'modal-picker-tile-icon'); icon.setAttribute('aria-hidden', 'true');
+      icon.appendChild(mi('photo_album'));
+      var name = el('span', 'modal-picker-tile-name'); name.textContent = a.name;
+      var desc = el('span', 'modal-picker-tile-desc');
+      desc.textContent = count + (count === 1 ? ' photo' : ' photos');
+      var check = el('span', 'modal-picker-tile-check'); check.setAttribute('aria-hidden', 'true');
+      check.appendChild(mi('check_circle'));
+      tile.appendChild(icon); tile.appendChild(name); tile.appendChild(desc); tile.appendChild(check);
+      body.appendChild(tile);
+    });
+    syncAssignApply();
+    openModal('md-assign-modal');
+  }
+  function syncAssignApply() {
+    $('md-assign-apply').disabled = Object.keys(assign.chosen).length === 0;
+  }
+  $('md-assign-body').addEventListener('click', function (e) {
+    var tile = e.target.closest && e.target.closest('[data-assign-album]');
+    if (!tile) return;
+    var id = tile.getAttribute('data-assign-album');
+    var on = !assign.chosen[id];
+    if (on) assign.chosen[id] = true; else delete assign.chosen[id];
+    tile.classList.toggle('is-selected', on);
+    tile.setAttribute('aria-pressed', on ? 'true' : 'false');
+    syncAssignApply();
+  });
+  $('md-assign-apply').addEventListener('click', function () {
+    var albumIds = Object.keys(assign.chosen);
+    if (!albumIds.length) return;
+    assign.photoIds.forEach(function (pid) {
+      var p = photoById(pid);
+      if (!p) return;
+      albumIds.forEach(function (aid) {
+        var i = p.albumIds.indexOf(aid);
+        if (assign.mode === 'add' && i === -1) p.albumIds.push(aid);
+        if (assign.mode === 'remove' && i !== -1) p.albumIds.splice(i, 1);
+      });
+    });
+    closeModal('md-assign-modal');
+    toast(assign.mode === 'add' ? 'ADDED TO ALBUM' : 'REMOVED FROM ALBUM');
+    renderAlbums();
+    if (state.filterAlbumId) renderGrid();
+    updateAllState();
+  });
 
   /* ── uploads (faked background upload + pre-flight guard) ───────────── */
   function preflight(files) {
