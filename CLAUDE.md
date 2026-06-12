@@ -359,10 +359,10 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 | Event Settings | P1 | Not Started | 20 |
 | User Settings | P1 | Not Started | 20 |
 | Planning Tools (Checklist + Budget) | P2 | Not Started | 15 |
-| Media & Memories (Photo Gallery) | P2 | Not Started | 25 |
+| Media & Memories (Photo Gallery) | P2 | Design prototype DONE (host dashboard — Photos/Videos/Albums, sort/filter, bulk, lightbox; `designs/pages/media/`) | 25 |
 | Digital Presence (Event Website) | P2 | Not Started | Partial |
 | Admin Module (Developer Panel) | P2 | Not Started | 15 |
-| Digital Invitations (WhatsApp) | P3 | Parked (depends on Digital Presence + Guest Mgmt) | 0 |
+| Digital Invitations (WhatsApp) | P3 | Design prototype DONE — **scope = invitation CARD designer** (personalizer; `designs/pages/invitations/`). WhatsApp send + status tracking stays in Guest Mgmt (see PORT-MAP / overview scope split). | 0 |
 | Support Chatbot (FAQ + Admin + Escalation) | P1 | Planned (Figma-blocked) | 30 |
 
 **Out of scope for MVP:** Vendor role, AI Photo Finder, real-time features, event discovery/search, analytics.

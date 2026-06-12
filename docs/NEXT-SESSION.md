@@ -4,6 +4,24 @@
 
 ---
 
+## Recently Landed (2026-06-13 — Media v2 · Skeletons · Invitations card designer · PORT-MAP)
+
+Large design-path + `/spec-kit` + infra session (Abhijith). No ClickUp tickets. Full report: `docs/session-reports/2026-06-13-session-report.md`. 10 commits on `claude/exciting-hodgkin-bf851a`.
+
+- **Media & Memories → full prototype + v2** (`designs/pages/media/`): built from a council kit; **Photos · Videos · Albums** `.seg` tabs; sort + filters (album/sub-event/date) + chips; **bulk Delete w/ confirm+undo** (founder override); **full Videos tab** (poster+play+duration, player, sort/filter, bulk); **albums hold both** photos+videos. Promote discipline (3 commits) moved `.photo-tile`/`.bulk-bar` into shell. **Font vendoring** (Poppins+Material Symbols → local `@font-face`, CDN dropped across pages).
+- **Skeleton loading — platform-wide foundation** (`shell.css`/`shell.js`/`components.html §14`): `.skeleton` primitive (tokens `--skel-*`, shimmer, reduced-motion fallback) + shapes + `window.evenzi.setLoading()` region-swap + 4 reusable templates. **Per-surface rollout deferred.**
+- **Invitations → card PERSONALIZER, DONE** (`designs/pages/invitations/`): council + a **stress-test reframe** (red-team + withjoy.com) turned a palette/font *designer* into a Joy-style personalizer — locked templates, **inline-on-card text edit**, upload-first, front-only, dark-mode-immune card, honest WhatsApp share (text+link). `/spec-kit-review` → 🟢 DONE (Antigravity 22 PASS/0 FAIL; its §6/§7 crash-SKIPs re-covered via Playwright incl. Devanagari/long-content; touch-target fix).
+- **`docs/PORT-MAP.md`** (Design→Next.js port map) brought into the repo + updated to 2026-06-13 (component library now exists, fonts vendored, `.seg`, skeleton, Invitations/Media). Canonical home = repo.
+
+**Next (carryover):**
+- **Skeleton rollout** into data-heavy surfaces (Dashboard cards, Media grids, Guests rows, Planning) — foundation ready.
+- **Vendoring debt:** 4 website display fonts + Invitations card fonts (Cormorant/Playfair/Lora/Inter) still CDN — vendor for export/offline (esp. Devanagari for the card PNG export).
+- **Shell-wide ≥44px touch targets** (`.btn-pill` 37px, `.seg-item` 40px) — only the Invitations CTA bar was fixed.
+- **Invitations React/export build:** real PNG render → Supabase Storage → hosted card URL; send/track stays in Guest Management.
+- **Antigravity reliability:** investigate the §6/§7 subagent crash before relying on it for the responsive/a11y matrix.
+
+---
+
 ## Recently Landed (2026-06-09 — Dheeraj revamp promoted to Dev-Vibe-Testing + session-skill fetch rule)
 
 Ops/integration session (Abhijith). No ClickUp feature, no design path. Full report: `docs/session-reports/2026-06-09-session-report.md`.
