@@ -2218,6 +2218,100 @@
       </article>
     </div>
   </section>
+
+  <!-- ────────────────────── SKELETON LOADING ────────────────────── -->
+  <section class="cs-section reveal" id="skeletons">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">14 · Skeleton loading</p>
+      <h2 class="cs-h2">Loading placeholders</h2>
+      <p class="cs-h2-sub">One token-driven primitive (<code class="cs-code">.skeleton</code> + <code class="cs-code">--skel-*</code>). Subtle shimmer; reduced-motion → opacity pulse. Compose the canonical templates below — don't hand-roll per page. Swap a region with <code class="cs-code">window.evenzi.setLoading(el, true|false)</code>.</p>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">SK1</span> · Shapes · <code class="cs-code">.skeleton</code> + <code class="cs-code">.skeleton-line</code> / <code class="cs-code">-circle</code> / <code class="cs-code">-pill</code> / <code class="cs-code">-thumb</code></p>
+        <div class="cs-stage cs-stage--col" style="padding:1.5rem;gap:1rem;align-items:stretch">
+          <div class="skeleton skeleton-line" style="width:80%"></div>
+          <div class="skeleton skeleton-line skeleton-line-sm" style="width:55%"></div>
+          <div class="flex items-center gap-3">
+            <div class="skeleton skeleton-circle" style="width:40px"></div>
+            <div class="skeleton skeleton-pill" style="width:90px"></div>
+            <div class="skeleton skeleton-thumb" style="width:48px"></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">SK2</span> · Region swap · <code class="cs-code">[aria-busy]</code> shows <code class="cs-code">[data-skeleton]</code>, hides <code class="cs-code">[data-content]</code></p>
+        <div class="cs-stage cs-stage--col" style="padding:1.5rem;gap:1rem;align-items:stretch">
+          <div id="cs-skel-demo" aria-busy="true">
+            <div data-skeleton class="skeleton-text-row">
+              <div class="skeleton skeleton-line skeleton-line-lg" style="width:70%"></div>
+              <div class="skeleton skeleton-line" style="width:95%"></div>
+              <div class="skeleton skeleton-line" style="width:85%"></div>
+            </div>
+            <div data-content>
+              <p class="font-display font-bold text-base text-ink">Anya &amp; Kabir’s Wedding</p>
+              <p class="text-sm text-muted mt-1">12 June 2026 · The Leela Palace, Bengaluru. Loaded content replaces the skeleton.</p>
+            </div>
+          </div>
+          <button type="button" class="btn-pill btn-pill-secondary self-start" onclick="(function(b){var e=document.getElementById('cs-skel-demo');var on=e.getAttribute('aria-busy')==='true';window.evenzi.setLoading(e,!on);b.querySelector('span:last-child').textContent=on?'Show loading':'Show loaded';})(this)">
+            <span class="material-symbols-outlined" aria-hidden="true">sync</span><span>Show loaded</span>
+          </button>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">SK3</span> · Template · Event card</p>
+        <div class="cs-stage" style="padding:1.5rem">
+          <div class="clay-card p-4 w-60">
+            <div class="skeleton skeleton-block" style="aspect-ratio:16/9;border-radius:12px"></div>
+            <div class="skeleton skeleton-line skeleton-line-lg mt-4" style="width:75%"></div>
+            <div class="skeleton skeleton-line skeleton-line-sm mt-3" style="width:50%"></div>
+            <div class="flex items-center gap-2 mt-4">
+              <div class="skeleton skeleton-pill" style="width:64px"></div>
+              <div class="skeleton skeleton-pill" style="width:48px"></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">SK4</span> · Template · Tile grid (photos / videos)</p>
+        <div class="cs-stage" style="padding:1.5rem">
+          <div class="grid grid-cols-3 gap-2 w-60">
+            <div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-thumb"></div>
+            <div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-thumb"></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">SK5</span> · Template · List row (guests / checklist)</p>
+        <div class="cs-stage cs-stage--col" style="padding:1.5rem;gap:.9rem;align-items:stretch">
+          <div class="flex items-center gap-3">
+            <div class="skeleton skeleton-circle" style="width:40px"></div>
+            <div class="flex-1"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line skeleton-line-sm mt-2" style="width:40%"></div></div>
+            <div class="skeleton skeleton-pill" style="width:56px"></div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="skeleton skeleton-circle" style="width:40px"></div>
+            <div class="flex-1"><div class="skeleton skeleton-line" style="width:70%"></div><div class="skeleton skeleton-line skeleton-line-sm mt-2" style="width:35%"></div></div>
+            <div class="skeleton skeleton-pill" style="width:56px"></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">SK6</span> · Template · Section head</p>
+        <div class="cs-stage cs-stage--col" style="padding:1.5rem;gap:.7rem;align-items:stretch">
+          <div class="skeleton skeleton-line skeleton-line-sm" style="width:30%"></div>
+          <div class="skeleton skeleton-line skeleton-line-lg" style="width:60%"></div>
+          <div class="skeleton skeleton-line skeleton-line-sm" style="width:80%"></div>
+        </div>
+      </article>
+    </div>
+  </section>
 </main>
 
 <!-- ────────────────────── FOOTER ────────────────────── -->

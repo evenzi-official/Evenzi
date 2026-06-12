@@ -1329,6 +1329,17 @@
   window.evenzi = window.evenzi || {};
   window.evenzi.openModal = openModal;
   window.evenzi.closeModal = closeModal;
+
+  /* Skeleton loading — toggle a region between its [data-skeleton] and
+     [data-content] children (see shell.css "SKELETON LOADING"). Pages call
+     window.evenzi.setLoading(elOrId, true) while fetching, false when ready. */
+  function setLoading(elOrId, on) {
+    var el = typeof elOrId === 'string' ? document.getElementById(elOrId) : elOrId;
+    if (!el) return;
+    if (on) el.setAttribute('aria-busy', 'true');
+    else el.removeAttribute('aria-busy');
+  }
+  window.evenzi.setLoading = setLoading;
 })();
 
 /* ── Avatar file-input change handler ──────────────

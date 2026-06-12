@@ -154,6 +154,8 @@
   --muted-soft:    #9ca3af;
   --line:          #e5e7eb;
   --line-soft:     #f3f4f6;
+  --skel-base:     #e7e9ed;   /* skeleton placeholder fill */
+  --skel-sheen:    #f4f6f8;   /* skeleton shimmer highlight */
   --dark-card:     #111827;
   --dark-card-soft:#1f2937;
   --shadow-clay:       0 8px 24px -8px rgba(17,24,39,.08), 0 2px 6px -2px rgba(0,0,0,.04), inset 0 1px 0 rgba(255,255,255,.7);
@@ -217,6 +219,8 @@
   --muted-soft:    #7a7a7a;
   --line:          #2a2a2a;
   --line-soft:     #1f1f1f;
+  --skel-base:     #232327;   /* skeleton placeholder fill (dark) */
+  --skel-sheen:    #303036;   /* skeleton shimmer highlight (dark) */
   --dark-card:     #1f2937;
   --dark-card-soft:#374151;
   --shadow-clay:       0 8px 24px -8px rgba(0,0,0,.55), 0 2px 6px -2px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
@@ -4161,3 +4165,54 @@ body.no-scroll{overflow:hidden}
 }
 @keyframes gm-sheet-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @media (prefers-reduced-motion: reduce){.gm-setter{animation:none}}
+
+/* ════════════════════════════════════════════════════════════════════
+   SKELETON LOADING — platform-wide placeholder system
+   ────────────────────────────────────────────────────────────────────
+   Primitive + shapes compose any loading state. Token-driven (--skel-*),
+   light + dark. Subtle left→right shimmer; reduced-motion → opacity pulse.
+
+   Two ways to use:
+   1. Drop `.skeleton`-shaped nodes directly (e.g. a list of `.skeleton-line`).
+   2. Wrap a region: set `aria-busy="true"` (+ optional `data-loading`) on a
+      container holding BOTH a `[data-skeleton]` block and a `[data-content]`
+      block — the skeleton shows + content hides while busy, and swaps on load.
+      Toggle from JS via window.evenzi.setLoading(el, true|false).
+   Canonical composed templates (event card / tile / list row / etc.) live in
+   designs/components.html — reuse those, don't hand-roll per page.
+   ════════════════════════════════════════════════════════════════════ */
+.skeleton{
+  position:relative;overflow:hidden;border-radius:8px;
+  background:var(--skel-base);
+}
+.skeleton::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(100deg,transparent 20%,var(--skel-sheen) 50%,transparent 80%);
+  background-size:200% 100%;
+  animation:skel-shimmer 1.3s ease-in-out infinite;
+}
+@keyframes skel-shimmer{0%{background-position:180% 0}100%{background-position:-180% 0}}
+
+/* shape modifiers */
+.skeleton-line{height:.85rem;border-radius:6px}
+.skeleton-line-sm{height:.65rem}
+.skeleton-line-lg{height:1.15rem}
+.skeleton-line + .skeleton-line{margin-top:.55rem}
+.skeleton-circle{border-radius:9999px;aspect-ratio:1}
+.skeleton-pill{height:2rem;border-radius:9999px}
+.skeleton-thumb{width:100%;aspect-ratio:1;border-radius:12px}   /* override aspect-ratio inline-free via util/class on the page */
+.skeleton-block{width:100%;border-radius:12px}
+.skeleton-text-row{display:flex;flex-direction:column;gap:.5rem}
+
+/* region swap: [aria-busy] shows the skeleton, hides the content */
+[data-skeleton]{display:none}
+[aria-busy="true"] > [data-skeleton],
+[data-loading="true"] > [data-skeleton]{display:block}
+[aria-busy="true"] > [data-content],
+[data-loading="true"] > [data-content]{display:none}
+
+@media (prefers-reduced-motion: reduce){
+  .skeleton::after{animation:none}
+  .skeleton{animation:skel-pulse 1.4s ease-in-out infinite}
+}
+@keyframes skel-pulse{0%,100%{opacity:1}50%{opacity:.55}}
