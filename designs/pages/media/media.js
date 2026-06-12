@@ -834,6 +834,40 @@
     if (id) deleteAlbum(id);
   });
 
+  /* ── sub-nav tabs (.seg role=tablist, in-page — same idiom as planning views +
+        website sub-nav). Roving tabindex; click + Arrow/Home/End. Panels toggle via
+        aria-controls + [hidden]. */
+  (function wireTabs() {
+    var tablist = document.querySelector('.seg[role="tablist"][aria-label="Media sections"]');
+    if (!tablist) return;
+    var tabs = Array.prototype.slice.call(tablist.querySelectorAll('[role="tab"]'));
+    function select(tab, focus) {
+      tabs.forEach(function (t) {
+        var on = t === tab;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.classList.toggle('is-active', on);
+        t.tabIndex = on ? 0 : -1;
+        var panel = document.getElementById(t.getAttribute('aria-controls'));
+        if (panel) panel.hidden = !on;
+      });
+      if (focus) tab.focus();
+    }
+    tablist.addEventListener('click', function (e) {
+      var tab = e.target.closest('[role="tab"]');
+      if (tab) select(tab, false);
+    });
+    tablist.addEventListener('keydown', function (e) {
+      var i = tabs.indexOf(document.activeElement);
+      if (i < 0) return;
+      var n = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') n = (i + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') n = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home') n = 0;
+      else if (e.key === 'End') n = tabs.length - 1;
+      if (n !== null) { e.preventDefault(); select(tabs[n], true); }
+    });
+  })();
+
   /* ── boot ───────────────────────────────────────────────────────────── */
   wireSentinel();
   renderAll();

@@ -127,82 +127,100 @@
     <div class="media-meter-cta" id="md-meter-cta"></div>
   </section>
 
-  <!-- ── Upload dropzone ─────────────────────────────────────────── -->
-  <section class="media-upload reveal" aria-labelledby="md-upload-h">
-    <h2 class="sr-only" id="md-upload-h">Upload photos</h2>
-    <button type="button" class="dp-dropzone dp-dropzone--multi" id="md-dropzone" aria-describedby="md-dropzone-hint">
-      <span class="dp-dropzone-icon" aria-hidden="true"><span class="material-symbols-outlined">add_photo_alternate</span></span>
-      <span class="dp-dropzone-title" id="md-dropzone-title">Drag photos here, or tap to browse</span>
-      <span class="dp-dropzone-sub" id="md-dropzone-sub" hidden>Upload your favourite moments — organize them into albums and relive the day.</span>
-      <span class="dp-dropzone-hint" id="md-dropzone-hint">JPG, PNG, HEIC · up to 10 MB each</span>
-    </button>
-    <label class="sr-only" for="md-file-input">Choose photos to upload</label>
-    <input type="file" id="md-file-input" class="media-file-input" multiple accept="image/jpeg,image/png,image/heic" />
-    <ul class="media-upload-progress" id="md-upload-list" role="list" aria-live="polite"></ul>
-  </section>
+  <!-- ── Sub-nav tabs (.seg in-page — same pattern as planning views + website sub-nav).
+        NB: .seg-wrap (NOT --page) because this sits INSIDE main.page-band; the --page
+        modifier's 2.5rem padding is for full-bleed placement and would double-inset here. -->
+  <div class="seg-wrap reveal">
+    <nav class="seg" role="tablist" aria-label="Media sections">
+      <button type="button" role="tab" id="md-tab-photos" class="seg-item seg--page is-active" aria-selected="true" aria-controls="md-panel-photos" tabindex="0">
+        <span class="material-symbols-outlined" aria-hidden="true">photo_library</span><span>Photos</span>
+      </button>
+      <button type="button" role="tab" id="md-tab-albums" class="seg-item seg--page" aria-selected="false" aria-controls="md-panel-albums" tabindex="-1">
+        <span class="material-symbols-outlined" aria-hidden="true">photo_album</span><span>Albums</span>
+      </button>
+      <button type="button" role="tab" id="md-tab-videos" class="seg-item seg--page" aria-selected="false" aria-controls="md-panel-videos" tabindex="-1">
+        <span class="material-symbols-outlined" aria-hidden="true">movie</span><span>Videos</span>
+        <span class="role-tag-soon">Soon</span>
+      </button>
+    </nav>
+  </div>
 
-  <!-- ── Recent uploads ──────────────────────────────────────────── -->
-  <section class="media-recent reveal" aria-labelledby="md-recent-h">
-    <header class="section-head section-head--compact">
-      <p class="section-head-eyebrow">Latest</p>
-      <h2 class="section-head-title" id="md-recent-h">Recent uploads</h2>
-    </header>
-    <div class="media-recent-scroller" id="md-recent-scroller">
-      <ul class="media-recent-strip" id="md-recent" role="list" aria-label="Recent uploads"></ul>
+  <!-- ════ Panel: Photos (Upload + Recent + All photos) ════ -->
+  <section id="md-panel-photos" role="tabpanel" aria-labelledby="md-tab-photos" class="media-panel reveal">
+
+    <!-- Upload dropzone -->
+    <div class="media-upload" aria-labelledby="md-upload-h">
+      <h2 class="sr-only" id="md-upload-h">Upload photos</h2>
+      <button type="button" class="dp-dropzone dp-dropzone--multi" id="md-dropzone" aria-describedby="md-dropzone-hint">
+        <span class="dp-dropzone-icon" aria-hidden="true"><span class="material-symbols-outlined">add_photo_alternate</span></span>
+        <span class="dp-dropzone-title" id="md-dropzone-title">Drag photos here, or tap to browse</span>
+        <span class="dp-dropzone-sub" id="md-dropzone-sub" hidden>Upload your favourite moments — organize them into albums and relive the day.</span>
+        <span class="dp-dropzone-hint" id="md-dropzone-hint">JPG, PNG, HEIC · up to 10 MB each</span>
+      </button>
+      <label class="sr-only" for="md-file-input">Choose photos to upload</label>
+      <input type="file" id="md-file-input" class="media-file-input" multiple accept="image/jpeg,image/png,image/heic" />
+      <ul class="media-upload-progress" id="md-upload-list" role="list" aria-live="polite"></ul>
     </div>
-    <p class="media-empty-copy" id="md-recent-empty">Your latest uploads will appear here.</p>
-  </section>
 
-  <!-- ── Albums ──────────────────────────────────────────────────── -->
-  <section class="media-albums reveal" aria-labelledby="md-albums-h">
-    <header class="section-head section-head--compact">
-      <p class="section-head-eyebrow">Organize</p>
-      <h2 class="section-head-title" id="md-albums-h">Albums</h2>
-    </header>
-    <p class="media-empty-copy media-preset-note" id="md-preset-note" hidden>These albums are ready and waiting — they'll appear as cards once they hold photos.</p>
-    <div class="dp-filter-chips media-preset-chips" id="md-preset-chips" aria-label="Albums waiting for photos" hidden></div>
-    <div class="dp-tile-grid media-albums-grid" id="md-albums-grid"></div>
-  </section>
-
-  <!-- ── All photos ──────────────────────────────────────────────── -->
-  <section class="clay-card media-all reveal" id="md-all" data-photos-state="empty" data-select-mode="off" aria-labelledby="md-all-h">
-    <header class="media-all-head">
-      <div class="media-all-lead">
-        <h2 class="media-all-title" id="md-all-h">All photos</h2>
-        <p class="media-all-sub" aria-live="polite"><span id="md-count">0</span> photos · everything you've uploaded, across every album.</p>
+    <!-- Recent uploads -->
+    <div class="media-recent" aria-labelledby="md-recent-h">
+      <header class="section-head section-head--compact">
+        <p class="section-head-eyebrow">Latest</p>
+        <h2 class="section-head-title" id="md-recent-h">Recent uploads</h2>
+      </header>
+      <div class="media-recent-scroller" id="md-recent-scroller">
+        <ul class="media-recent-strip" id="md-recent" role="list" aria-label="Recent uploads"></ul>
       </div>
-      <div class="media-all-aux">
-        <div class="dp-filter-chips media-active-filter" id="md-active-filter" hidden>
-          <button type="button" class="dp-filter-chip is-active" id="md-filter-clear">
-            <span id="md-filter-name">Album</span>
-            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      <p class="media-empty-copy" id="md-recent-empty">Your latest uploads will appear here.</p>
+    </div>
+
+    <!-- All photos -->
+    <div class="clay-card media-all" id="md-all" data-photos-state="empty" data-select-mode="off" aria-labelledby="md-all-h">
+      <header class="media-all-head">
+        <div class="media-all-lead">
+          <h2 class="media-all-title" id="md-all-h">All photos</h2>
+          <p class="media-all-sub" aria-live="polite"><span id="md-count">0</span> photos · everything you've uploaded, across every album.</p>
+        </div>
+        <div class="media-all-aux">
+          <div class="dp-filter-chips media-active-filter" id="md-active-filter" hidden>
+            <button type="button" class="dp-filter-chip is-active" id="md-filter-clear">
+              <span id="md-filter-name">Album</span>
+              <span class="material-symbols-outlined" aria-hidden="true">close</span>
+            </button>
+          </div>
+          <button type="button" class="btn-pill btn-pill-secondary" id="md-select-toggle" aria-pressed="false">
+            <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+            <span id="md-select-label">Select</span>
           </button>
         </div>
-        <button type="button" class="btn-pill btn-pill-secondary" id="md-select-toggle" aria-pressed="false">
-          <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
-          <span id="md-select-label">Select</span>
-        </button>
+      </header>
+      <div class="dp-tile-grid" id="md-grid" aria-label="All photos"></div>
+      <div class="photos-empty">
+        <span class="photos-empty-icon" aria-hidden="true"><span class="material-symbols-outlined">photo_library</span></span>
+        <p class="photos-empty-title">No photos yet</p>
+        <p class="photos-empty-help">Photos you upload will appear here — use the dropzone above to add your first ones.</p>
       </div>
-    </header>
-    <div class="dp-tile-grid" id="md-grid" aria-label="All photos"></div>
-    <div class="photos-empty">
-      <span class="photos-empty-icon" aria-hidden="true"><span class="material-symbols-outlined">photo_library</span></span>
-      <p class="photos-empty-title">No photos yet</p>
-      <p class="photos-empty-help">Photos you upload will appear here — use the dropzone above to add your first ones.</p>
+      <div class="media-load-sentinel" id="md-sentinel" aria-hidden="true" hidden></div>
     </div>
-    <div class="media-load-sentinel" id="md-sentinel" aria-hidden="true" hidden></div>
   </section>
 
-  <!-- ── Videos teaser (post-MVP) ────────────────────────────────── -->
-  <section class="media-videos reveal" aria-labelledby="md-videos-h">
-    <header class="section-head section-head--compact">
-      <p class="section-head-eyebrow">Roadmap</p>
-      <h2 class="section-head-title" id="md-videos-h">Videos</h2>
-    </header>
-    <div class="empty-cta-card" aria-disabled="true">
-      <span class="empty-cta-icon" aria-hidden="true"><span class="material-symbols-outlined">movie</span></span>
-      <p class="empty-cta-title">Videos — coming soon</p>
-      <p class="empty-cta-sub">Upload and share videos from your celebration. On the roadmap.</p>
+  <!-- ════ Panel: Albums ════ -->
+  <section id="md-panel-albums" role="tabpanel" aria-labelledby="md-tab-albums" class="media-panel reveal" hidden>
+    <div class="media-albums">
+      <p class="media-empty-copy media-preset-note" id="md-preset-note" hidden>These albums are ready and waiting — they'll appear as cards once they hold photos.</p>
+      <div class="dp-filter-chips media-preset-chips" id="md-preset-chips" aria-label="Albums waiting for photos" hidden></div>
+      <div class="dp-tile-grid media-albums-grid" id="md-albums-grid"></div>
+    </div>
+  </section>
+
+  <!-- ════ Panel: Videos (post-MVP teaser) ════ -->
+  <section id="md-panel-videos" role="tabpanel" aria-labelledby="md-tab-videos" class="media-panel reveal" hidden>
+    <div class="media-videos">
+      <div class="empty-cta-card" aria-disabled="true">
+        <span class="empty-cta-icon" aria-hidden="true"><span class="material-symbols-outlined">movie</span></span>
+        <p class="empty-cta-title">Videos — coming soon</p>
+        <p class="empty-cta-sub">Upload and share videos from your celebration. On the roadmap.</p>
+      </div>
     </div>
   </section>
 </main>
