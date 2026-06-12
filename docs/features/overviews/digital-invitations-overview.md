@@ -1,5 +1,7 @@
 # Evenzi Digital Invitations (WhatsApp) — Team Overview
 
+> **⚠️ Scope split (founder decision, 2026-06-12).** The **Invitations tool-rail page** is an **invitation CARD designer** (gallery → pick → customize → export PNG + share a card link), NOT the send hub this overview originally described. The **WhatsApp send + status tracking** flow below (Not Invited → Invited → RSVP Received, `wa.me` deep link) **stays in Guest Management**, where it is guest-list-scoped. The two connect via a **hosted card URL** (the WhatsApp message carries a link to the card — `wa.me` is text-only and cannot attach an image). Card designer kit + spec: `designs/pages/invitations/_spec.md`.
+
 **Status:** Not started. Part of Guest Management flow in Google Stitch.
 **Priority:** P3
 **Owner:** Abhijith (product), Dheeraj (engineering)
