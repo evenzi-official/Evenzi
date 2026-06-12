@@ -6,7 +6,7 @@
 <title>Evenzi · Media &amp; Memories</title>
 <meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
-<meta name="description" content="Anya & Kabir's Wedding · Media &amp; Memories on Evenzi." />
+<meta name="description" content="Upload, organize, and relive every moment — Anya &amp; Kabir's Wedding on Evenzi." />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -19,8 +19,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../../shared/tailwind.css" />
 <link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="media.css" />
 </head>
-<body data-page="media" data-section="dashboard">
+<body class="min-h-dvh bg-bg text-ink" data-page="media" data-section="dashboard">
 
 <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
 
@@ -98,24 +99,130 @@
     </ol>
     <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
     <button type="button" class="bc-copy" aria-label="Copy breadcrumb path" data-bc-copy data-bc-copy-path="evenzi://dashboard / anya-kabir / media">
-      <span aria-hidden="true" class="material-symbols-outlined" style="font-size:15px">content_copy</span>
+      <span aria-hidden="true" class="material-symbols-outlined">content_copy</span>
     </button>
   </nav>
 </div>
 
-<main class="page-band pt-10 pb-24">
+<main class="page-band pt-10 pb-24" id="md-main">
   <header class="section-head reveal">
     <p class="section-head-eyebrow">Section</p>
     <h1 class="section-head-title">Media &amp; Memories</h1>
-    <p class="section-head-sub">Photos, videos, and shared albums from across the celebration.</p>
+    <p class="section-head-sub">Upload, organize, and relive every moment from your celebration.</p>
   </header>
 
-  <div class="empty-cta-card reveal" role="status">
-    <span class="empty-cta-icon" aria-hidden="true"><span class="material-symbols-outlined">photo_library</span></span>
-    <p class="empty-cta-title">Coming soon</p>
-    <p class="empty-cta-sub">Photos, videos, and shared albums from across the celebration — this module is on the roadmap.</p>
-  </div>
+  <!-- ── Storage meter strip ─────────────────────────────────────── -->
+  <section class="clay-card media-storage-meter reveal" id="md-meter" data-meter-state="healthy" aria-labelledby="md-meter-h">
+    <div class="media-meter-lead">
+      <span class="media-meter-icon" aria-hidden="true"><span class="material-symbols-outlined" id="md-meter-icon">cloud_done</span></span>
+      <div class="media-meter-meta">
+        <h2 class="media-meter-title" id="md-meter-h">Storage</h2>
+        <p class="media-meter-text" id="md-meter-text">0 GB of 5 GB used</p>
+        <p class="media-meter-note" id="md-meter-note" hidden></p>
+      </div>
+    </div>
+    <div class="media-meter-track" id="md-meter-bar" role="progressbar" aria-labelledby="md-meter-h" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <span class="media-meter-fill" id="md-meter-fill"></span>
+    </div>
+    <div class="media-meter-cta" id="md-meter-cta"></div>
+  </section>
+
+  <!-- ── Upload dropzone ─────────────────────────────────────────── -->
+  <section class="media-upload reveal" aria-labelledby="md-upload-h">
+    <h2 class="sr-only" id="md-upload-h">Upload photos</h2>
+    <button type="button" class="dp-dropzone dp-dropzone--multi" id="md-dropzone" aria-describedby="md-dropzone-hint">
+      <span class="dp-dropzone-icon" aria-hidden="true"><span class="material-symbols-outlined">add_photo_alternate</span></span>
+      <span class="dp-dropzone-title" id="md-dropzone-title">Drag photos here, or tap to browse</span>
+      <span class="dp-dropzone-sub" id="md-dropzone-sub" hidden>Upload your favourite moments — organize them into albums and relive the day.</span>
+      <span class="dp-dropzone-hint" id="md-dropzone-hint">JPG, PNG, HEIC · up to 10 MB each</span>
+    </button>
+    <label class="sr-only" for="md-file-input">Choose photos to upload</label>
+    <input type="file" id="md-file-input" class="media-file-input" multiple accept="image/jpeg,image/png,image/heic" />
+    <ul class="media-upload-progress" id="md-upload-list" role="list" aria-live="polite"></ul>
+  </section>
+
+  <!-- ── Recent uploads ──────────────────────────────────────────── -->
+  <section class="media-recent reveal" aria-labelledby="md-recent-h">
+    <header class="section-head section-head--compact">
+      <p class="section-head-eyebrow">Latest</p>
+      <h2 class="section-head-title" id="md-recent-h">Recent uploads</h2>
+    </header>
+    <div class="media-recent-scroller" id="md-recent-scroller">
+      <ul class="media-recent-strip" id="md-recent" role="list" aria-label="Recent uploads"></ul>
+    </div>
+    <p class="media-empty-copy" id="md-recent-empty">Your latest uploads will appear here.</p>
+  </section>
+
+  <!-- ── Albums ──────────────────────────────────────────────────── -->
+  <section class="media-albums reveal" aria-labelledby="md-albums-h">
+    <header class="section-head section-head--compact">
+      <p class="section-head-eyebrow">Organize</p>
+      <h2 class="section-head-title" id="md-albums-h">Albums</h2>
+    </header>
+    <p class="media-empty-copy media-preset-note" id="md-preset-note" hidden>These albums are ready and waiting — they'll appear as cards once they hold photos.</p>
+    <div class="dp-filter-chips media-preset-chips" id="md-preset-chips" aria-label="Albums waiting for photos" hidden></div>
+    <div class="dp-tile-grid media-albums-grid" id="md-albums-grid"></div>
+  </section>
+
+  <!-- ── All photos ──────────────────────────────────────────────── -->
+  <section class="clay-card media-all reveal" id="md-all" data-photos-state="empty" data-select-mode="off" aria-labelledby="md-all-h">
+    <header class="media-all-head">
+      <div class="media-all-lead">
+        <h2 class="media-all-title" id="md-all-h">All photos</h2>
+        <p class="media-all-sub" aria-live="polite"><span id="md-count">0</span> photos · everything you've uploaded, across every album.</p>
+      </div>
+      <div class="media-all-aux">
+        <div class="dp-filter-chips media-active-filter" id="md-active-filter" hidden>
+          <button type="button" class="dp-filter-chip is-active" id="md-filter-clear">
+            <span id="md-filter-name">Album</span>
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        </div>
+        <button type="button" class="btn-pill btn-pill-secondary" id="md-select-toggle" aria-pressed="false">
+          <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+          <span id="md-select-label">Select</span>
+        </button>
+      </div>
+    </header>
+    <div class="dp-tile-grid" id="md-grid" aria-label="All photos"></div>
+    <div class="photos-empty">
+      <span class="photos-empty-icon" aria-hidden="true"><span class="material-symbols-outlined">photo_library</span></span>
+      <p class="photos-empty-title">No photos yet</p>
+      <p class="photos-empty-help">Photos you upload will appear here — use the dropzone above to add your first ones.</p>
+    </div>
+    <div class="media-load-sentinel" id="md-sentinel" aria-hidden="true" hidden></div>
+  </section>
+
+  <!-- ── Videos teaser (post-MVP) ────────────────────────────────── -->
+  <section class="media-videos reveal" aria-labelledby="md-videos-h">
+    <header class="section-head section-head--compact">
+      <p class="section-head-eyebrow">Roadmap</p>
+      <h2 class="section-head-title" id="md-videos-h">Videos</h2>
+    </header>
+    <div class="empty-cta-card" aria-disabled="true">
+      <span class="empty-cta-icon" aria-hidden="true"><span class="material-symbols-outlined">movie</span></span>
+      <p class="empty-cta-title">Videos — coming soon</p>
+      <p class="empty-cta-sub">Upload and share videos from your celebration. On the roadmap.</p>
+    </div>
+  </section>
 </main>
+
+<!-- Bulk action bar (shared shell .bulk-bar, B15) — {Add to album, Remove from album} ONLY -->
+<div class="bulk-bar" id="md-bulk" hidden>
+  <span class="bulk-bar-count" id="md-bulk-count">0 selected</span>
+  <span class="bulk-bar-div" aria-hidden="true"></span>
+  <button type="button" class="bulk-bar-act" id="md-bulk-add">
+    <span aria-hidden="true" class="material-symbols-outlined">library_add</span>
+    <span class="bulk-bar-act-label">Add to album</span>
+  </button>
+  <button type="button" class="bulk-bar-act" id="md-bulk-unfile">
+    <span aria-hidden="true" class="material-symbols-outlined">folder_off</span>
+    <span class="bulk-bar-act-label">Remove from album</span>
+  </button>
+  <button type="button" class="bulk-bar-cancel" id="md-bulk-clear" aria-label="Clear selection">
+    <span aria-hidden="true" class="material-symbols-outlined">close</span>
+  </button>
+</div>
 
 <footer class="page-band mt-20 pt-10 pb-10 border-t border-line">
   <div class="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -124,6 +231,7 @@
       <p class="text-sm text-muted font-semibold">© 2026 Evenzi · Capture · Share · Cherish</p>
     </div>
     <div class="flex items-center gap-6 text-xs font-bold tracking-widest text-muted uppercase">
+      <!-- Footer legal links are stubs across the prototype (explicit #) -->
       <a href="#" class="hover:text-brand transition-colors">Privacy</a>
       <a href="#" class="hover:text-brand transition-colors">Terms</a>
       <a href="#" class="hover:text-brand transition-colors">Help</a>
@@ -135,11 +243,148 @@
   <span aria-hidden="true" class="material-symbols-outlined icon-fill">support_agent</span>
 </button>
 
+<!-- ────────────────────── CREATE / RENAME ALBUM ────────────────────── -->
+<div class="modal-scrim" id="md-album-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="md-album-title">
+    <div class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="md-album-title">Create album</h2>
+        <p class="modal-sub" id="md-album-sub">Group photos so the day is easy to relive.</p>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Close">
+        <span aria-hidden="true" class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <form id="md-album-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="md-album-name">Album name <span class="req-mark" aria-hidden="true">*</span></label>
+        <input class="form-input" id="md-album-name" name="album-name" type="text" maxlength="90" placeholder="e.g. Haldi" />
+        <p class="form-error" id="md-album-error" hidden>
+          <span aria-hidden="true" class="material-symbols-outlined">error</span>
+          <span>Give your album a name.</span>
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+        <button type="submit" class="btn-pill btn-pill-primary" id="md-album-save">Create album</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ────────────────────── ALBUM OPTIONS (overflow) ────────────────────── -->
+<div class="modal-scrim" id="md-album-menu" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="md-album-menu-title">
+    <div class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="md-album-menu-title">Album options</h2>
+        <p class="modal-sub" id="md-album-menu-sub">Ceremony</p>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Close">
+        <span aria-hidden="true" class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="gm-setter-opts">
+      <button type="button" class="gm-setter-opt" id="md-album-rename">
+        <span aria-hidden="true" class="material-symbols-outlined">edit</span>
+        Rename album
+      </button>
+      <button type="button" class="gm-setter-opt" id="md-album-delete">
+        <span aria-hidden="true" class="material-symbols-outlined">folder_off</span>
+        Delete album
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────── ASSIGN-TO-ALBUM PICKER ────────────────────── -->
+<div class="modal-scrim" id="md-assign-modal" data-modal aria-hidden="true">
+  <div class="modal-card modal-picker-grid lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="md-assign-title">
+    <div class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="md-assign-title">Add to album</h2>
+        <p class="modal-sub" id="md-assign-sub">Choose albums for the selected photos.</p>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Close">
+        <span aria-hidden="true" class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-picker-body" id="md-assign-body"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="md-assign-apply" disabled>Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────── PHOTO LIGHTBOX ────────────────────── -->
+<div class="modal-scrim modal-scrim-deep" id="md-lightbox" data-modal aria-hidden="true">
+  <div class="modal-card modal-image-lightbox" role="dialog" aria-modal="true" aria-labelledby="md-lb-title">
+    <button class="modal-lightbox-close" type="button" data-modal-close aria-label="Close">
+      <span aria-hidden="true" class="material-symbols-outlined">close</span>
+    </button>
+    <img class="modal-lightbox-img" id="md-lb-img" src="" alt="" />
+    <div class="modal-lightbox-nav">
+      <button type="button" class="modal-lightbox-nav-btn modal-lightbox-nav-prev" id="md-lb-prev" aria-label="Previous photo">
+        <span aria-hidden="true" class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <button type="button" class="modal-lightbox-nav-btn modal-lightbox-nav-next" id="md-lb-next" aria-label="Next photo">
+        <span aria-hidden="true" class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+    <div class="modal-lightbox-bar">
+      <div class="modal-lightbox-meta">
+        <p class="modal-lightbox-title" id="md-lb-title">Photo</p>
+        <p class="modal-lightbox-sub" id="md-lb-sub">Uploaded</p>
+      </div>
+      <div class="modal-lightbox-actions">
+        <button type="button" class="btn-pill btn-pill-secondary" id="md-lb-cover">
+          <span aria-hidden="true" class="material-symbols-outlined">star</span>Set cover
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary" id="md-lb-assign">
+          <span aria-hidden="true" class="material-symbols-outlined">library_add</span>Add to album
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary" id="md-lb-remove">
+          <span aria-hidden="true" class="material-symbols-outlined">delete</span>Remove
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────── REMOVE-PHOTO CONFIRM (true delete) ────────────────────── -->
+<div class="modal-scrim" id="md-remove-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="md-remove-title">
+    <span class="modal-confirm-icon is-cautionary" aria-hidden="true"><span class="material-symbols-outlined">delete</span></span>
+    <h2 class="modal-confirm-title" id="md-remove-title">Remove this photo?</h2>
+    <p class="modal-confirm-text">It'll be permanently removed from your gallery. This can't be undone.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Keep it</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="md-remove-confirm">Remove photo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────── DELETE-ALBUM CONFIRM (reassuring) ────────────────────── -->
+<div class="modal-scrim" id="md-delete-album-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="md-del-album-title">
+    <span class="modal-confirm-icon is-cautionary" aria-hidden="true"><span class="material-symbols-outlined">folder_off</span></span>
+    <h2 class="modal-confirm-title" id="md-del-album-title">Remove this album?</h2>
+    <p class="modal-confirm-text">Your photos stay safe in All Photos — only the album is removed.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Keep album</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="md-del-album-confirm">Remove album</button>
+    </div>
+  </div>
+</div>
+
 <div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
   <span class="bc-live" aria-hidden="true"></span>
   <span id="bc-toast-text">PATH COPIED</span>
 </div>
 
-<script src="../../shared/shell.js"></script>
+<script src="../../shared/shell.js" defer></script>
+<script src="media.fixtures.js" defer></script>
+<script src="media.js" defer></script>
 </body>
 </html>

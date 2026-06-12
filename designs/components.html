@@ -1952,12 +1952,16 @@
       </article>
 
       <article class="cs-component">
-        <p class="cs-label"><span class="cs-label-name">DLG8</span> · Image lightbox · <code class="cs-code">.modal-image-lightbox</code></p>
+        <p class="cs-label"><span class="cs-label-name">DLG8</span> · Image lightbox · <code class="cs-code">.modal-image-lightbox</code> · prev/next <code class="cs-code">.modal-lightbox-nav</code></p>
         <div class="cs-stage" style="padding:1rem;min-height:280px;background:#111">
           <div class="modal-scrim modal-scrim-deep modal-static is-open" style="opacity:1;pointer-events:auto;position:relative;background:rgba(0,0,0,.85)" aria-hidden="true">
             <div class="modal-image-lightbox modal-card" role="dialog" aria-modal="true" style="position:relative">
               <button type="button" class="modal-lightbox-close" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
               <img class="modal-lightbox-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='260'%3E%3Crect fill='%23f3f4f6' width='400' height='260'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-family='sans-serif'%3EPhoto preview%3C/text%3E%3C/svg%3E" alt="Gallery photo preview" />
+              <div class="modal-lightbox-nav">
+                <button type="button" class="modal-lightbox-nav-btn modal-lightbox-nav-prev" aria-label="Previous photo" disabled><span class="material-symbols-outlined" aria-hidden="true">chevron_left</span></button>
+                <button type="button" class="modal-lightbox-nav-btn modal-lightbox-nav-next" aria-label="Next photo"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+              </div>
               <div class="modal-lightbox-bar">
                 <div class="modal-lightbox-meta">
                   <p class="modal-lightbox-title">Mehendi ceremony</p>
@@ -2051,12 +2055,17 @@
       </article>
 
       <article class="cs-component">
-        <p class="cs-label"><span class="cs-label-name">W4</span> · Drop zone · <code class="cs-code">.dp-dropzone</code> · page tier badges</p>
+        <p class="cs-label"><span class="cs-label-name">W4</span> · Drop zone · <code class="cs-code">.dp-dropzone</code> · multi-file <code class="cs-code">.dp-dropzone--multi</code> (page-level, drop-rejected + hero states) · page tier badges</p>
         <div class="cs-stage cs-stage--col" style="gap:1rem;padding:1.25rem;align-items:stretch">
           <button type="button" class="dp-dropzone">
             <span class="dp-dropzone-icon"><span class="material-symbols-outlined">upload</span></span>
             <span class="dp-dropzone-title">Drop photos here</span>
             <span class="dp-dropzone-hint">or tap to browse · JPG, PNG up to 10MB</span>
+          </button>
+          <button type="button" class="dp-dropzone dp-dropzone--multi is-rejected">
+            <span class="dp-dropzone-icon"><span class="material-symbols-outlined">add_photo_alternate</span></span>
+            <span class="dp-dropzone-title">Drag photos here, or tap to browse</span>
+            <span class="dp-dropzone-hint">JPG, PNG, HEIC · up to 10 MB each — shown in its drop-rejected state</span>
           </button>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap">
             <span class="dp-page-tier dp-tier-public">Public</span>
