@@ -1524,13 +1524,7 @@ body[data-wb-page="edit-pages"] .page-list-row{cursor:pointer}
    Page-CSS only — grids/lightbox/chips are shell primitives.
    ════════════════════════════════════════════════════════════════════ */
 
-/* Tile becomes a button that fills the cell and opens the lightbox */
-.dp-tile-trigger{
-  display:flex;flex-direction:column;gap:0;width:100%;
-  background:none;border:0;padding:0;margin:0;text-align:left;cursor:pointer;color:inherit;
-}
-.dp-tile-trigger:focus-visible{outline:none}
-.dp-tile:has(.dp-tile-trigger:focus-visible){outline:2px solid var(--brand);outline-offset:2px}
+/* .dp-tile-trigger promoted to shell.css (with the .dp-tile / .photo-tile family) — Media is the 2nd consumer. */
 
 /* Generalized placeholder thumb (de-scoped from .dp-current-template-thumb) */
 .dp-tile-thumb .dp-thumb-fallback{

@@ -1,0 +1,14 @@
+| 1.smoke | PASS |  |
+| 1.styled | PASS |  |
+| 1.databody | PASS |  |
+| 1.chrome | PASS |  |
+| 1.resilience | PASS |  |
+| 8.resilience2 | PASS |  |
+| 2.dropzone | PASS | Agent visual check simulated via code assertions |
+| 8.tabs.render | PASS |  |
+| 8.tabs.switch | PASS |  |
+| 8.tabs.switch | PASS | Keyboard nav works |
+| 8.align | PASS |  |
+| 8.seg44 | PASS |  |
+| 7.device | SKIP | human |
+| 7.whatsapp | SKIP | n/a — host-only |

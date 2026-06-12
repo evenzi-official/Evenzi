@@ -15,8 +15,6 @@
 <link rel="manifest" href="../../manifest.webmanifest" />
 <link rel="icon" href="../../favicon.ico" sizes="48x48" />
 <link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../../shared/tailwind.css" />
 <link rel="stylesheet" href="../../shared/shell.css" />
 <link rel="stylesheet" href="media.css" />
@@ -135,12 +133,11 @@
       <button type="button" role="tab" id="md-tab-photos" class="seg-item seg--page is-active" aria-selected="true" aria-controls="md-panel-photos" tabindex="0">
         <span class="material-symbols-outlined" aria-hidden="true">photo_library</span><span>Photos</span>
       </button>
-      <button type="button" role="tab" id="md-tab-albums" class="seg-item seg--page" aria-selected="false" aria-controls="md-panel-albums" tabindex="-1">
-        <span class="material-symbols-outlined" aria-hidden="true">photo_album</span><span>Albums</span>
-      </button>
       <button type="button" role="tab" id="md-tab-videos" class="seg-item seg--page" aria-selected="false" aria-controls="md-panel-videos" tabindex="-1">
         <span class="material-symbols-outlined" aria-hidden="true">movie</span><span>Videos</span>
-        <span class="role-tag-soon">Soon</span>
+      </button>
+      <button type="button" role="tab" id="md-tab-albums" class="seg-item seg--page" aria-selected="false" aria-controls="md-panel-albums" tabindex="-1">
+        <span class="material-symbols-outlined" aria-hidden="true">photo_album</span><span>Albums</span>
       </button>
     </nav>
   </div>
@@ -182,18 +179,34 @@
           <p class="media-all-sub" aria-live="polite"><span id="md-count">0</span> photos · everything you've uploaded, across every album.</p>
         </div>
         <div class="media-all-aux">
-          <div class="dp-filter-chips media-active-filter" id="md-active-filter" hidden>
-            <button type="button" class="dp-filter-chip is-active" id="md-filter-clear">
-              <span id="md-filter-name">Album</span>
-              <span class="material-symbols-outlined" aria-hidden="true">close</span>
-            </button>
-          </div>
           <button type="button" class="btn-pill btn-pill-secondary" id="md-select-toggle" aria-pressed="false">
             <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
             <span id="md-select-label">Select</span>
           </button>
         </div>
       </header>
+      <!-- Sort + filter toolbar (sort by date/name; filter by album, sub-event/function, date range) -->
+      <div class="media-toolbar" role="group" aria-label="Sort and filter photos">
+        <button type="button" class="btn-pill btn-pill-secondary media-tool" id="md-sort" aria-haspopup="dialog">
+          <span class="material-symbols-outlined" aria-hidden="true">swap_vert</span>
+          <span class="media-tool-label">Sort: <span id="md-sort-label">Newest</span></span>
+        </button>
+        <span class="media-toolbar-div" aria-hidden="true"></span>
+        <button type="button" class="btn-pill btn-pill-secondary media-tool" id="md-filter-album" aria-haspopup="dialog">
+          <span class="material-symbols-outlined" aria-hidden="true">photo_album</span>
+          <span class="media-tool-label">Album</span>
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary media-tool" id="md-filter-subevent" aria-haspopup="dialog">
+          <span class="material-symbols-outlined" aria-hidden="true">celebration</span>
+          <span class="media-tool-label">Function</span>
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary media-tool" id="md-filter-date" aria-haspopup="dialog">
+          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          <span class="media-tool-label">Dates</span>
+        </button>
+      </div>
+      <!-- Active-filter chips (removable) — JS-populated -->
+      <div class="dp-filter-chips media-active-filter" id="md-active-filter" hidden></div>
       <div class="dp-tile-grid" id="md-grid" aria-label="All photos"></div>
       <div class="photos-empty">
         <span class="photos-empty-icon" aria-hidden="true"><span class="material-symbols-outlined">photo_library</span></span>
@@ -213,14 +226,73 @@
     </div>
   </section>
 
-  <!-- ════ Panel: Videos (post-MVP teaser) ════ -->
+  <!-- ════ Panel: Videos (mirrors Photos — upload · recent · all-videos grid + player) ════ -->
   <section id="md-panel-videos" role="tabpanel" aria-labelledby="md-tab-videos" class="media-panel reveal" hidden>
-    <div class="media-videos">
-      <div class="empty-cta-card" aria-disabled="true">
-        <span class="empty-cta-icon" aria-hidden="true"><span class="material-symbols-outlined">movie</span></span>
-        <p class="empty-cta-title">Videos — coming soon</p>
-        <p class="empty-cta-sub">Upload and share videos from your celebration. On the roadmap.</p>
+
+    <!-- Video upload -->
+    <div class="media-upload" aria-labelledby="md-vupload-h">
+      <h2 class="sr-only" id="md-vupload-h">Upload videos</h2>
+      <button type="button" class="dp-dropzone dp-dropzone--multi" id="md-vdropzone" aria-describedby="md-vdropzone-hint">
+        <span class="dp-dropzone-icon" aria-hidden="true"><span class="material-symbols-outlined">video_call</span></span>
+        <span class="dp-dropzone-title" id="md-vdropzone-title">Drag videos here, or tap to browse</span>
+        <span class="dp-dropzone-sub" id="md-vdropzone-sub" hidden>Share clips from your celebration — relive the day in motion.</span>
+        <span class="dp-dropzone-hint" id="md-vdropzone-hint">MP4, MOV · up to 200 MB each</span>
+      </button>
+      <label class="sr-only" for="md-vfile-input">Choose videos to upload</label>
+      <input type="file" id="md-vfile-input" class="media-file-input" multiple accept="video/mp4,video/quicktime" />
+      <ul class="media-upload-progress" id="md-vupload-list" role="list" aria-live="polite"></ul>
+    </div>
+
+    <!-- Recent videos -->
+    <div class="media-recent" aria-labelledby="md-vrecent-h">
+      <header class="section-head section-head--compact">
+        <p class="section-head-eyebrow">Latest</p>
+        <h2 class="section-head-title" id="md-vrecent-h">Recent videos</h2>
+      </header>
+      <div class="media-recent-scroller" id="md-vrecent-scroller">
+        <ul class="media-recent-strip" id="md-vrecent" role="list" aria-label="Recent videos"></ul>
       </div>
+      <p class="media-empty-copy" id="md-vrecent-empty">Your latest videos will appear here.</p>
+    </div>
+
+    <!-- All videos -->
+    <div class="clay-card media-all" id="md-vall" data-photos-state="empty" data-select-mode="off" aria-labelledby="md-vall-h">
+      <header class="media-all-head">
+        <div class="media-all-lead">
+          <h2 class="media-all-title" id="md-vall-h">All videos</h2>
+          <p class="media-all-sub" aria-live="polite"><span id="md-vcount">0</span> videos · everything you've uploaded.</p>
+        </div>
+        <div class="media-all-aux">
+          <button type="button" class="btn-pill btn-pill-secondary" id="md-vselect-toggle" aria-pressed="false">
+            <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+            <span id="md-vselect-label">Select</span>
+          </button>
+        </div>
+      </header>
+      <div class="media-toolbar" role="group" aria-label="Sort and filter videos">
+        <button type="button" class="btn-pill btn-pill-secondary media-tool" id="md-vsort" aria-haspopup="dialog">
+          <span class="material-symbols-outlined" aria-hidden="true">swap_vert</span>
+          <span class="media-tool-label">Sort: <span id="md-vsort-label">Newest</span></span>
+        </button>
+        <span class="media-toolbar-div" aria-hidden="true"></span>
+        <button type="button" class="btn-pill btn-pill-secondary media-tool" id="md-vfilter-album" aria-haspopup="dialog">
+          <span class="material-symbols-outlined" aria-hidden="true">photo_album</span><span class="media-tool-label">Album</span>
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary media-tool" id="md-vfilter-subevent" aria-haspopup="dialog">
+          <span class="material-symbols-outlined" aria-hidden="true">celebration</span><span class="media-tool-label">Function</span>
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary media-tool" id="md-vfilter-date" aria-haspopup="dialog">
+          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span><span class="media-tool-label">Dates</span>
+        </button>
+      </div>
+      <div class="dp-filter-chips media-active-filter" id="md-vactive-filter" hidden></div>
+      <div class="dp-tile-grid" id="md-vgrid" aria-label="All videos"></div>
+      <div class="photos-empty">
+        <span class="photos-empty-icon" aria-hidden="true"><span class="material-symbols-outlined">movie</span></span>
+        <p class="photos-empty-title">No videos yet</p>
+        <p class="photos-empty-help">Upload clips from your celebration — they'll appear here.</p>
+      </div>
+      <div class="media-load-sentinel" id="md-vsentinel" aria-hidden="true" hidden></div>
     </div>
   </section>
 </main>
@@ -237,7 +309,32 @@
     <span aria-hidden="true" class="material-symbols-outlined">folder_off</span>
     <span class="bulk-bar-act-label">Remove from album</span>
   </button>
+  <button type="button" class="bulk-bar-act bulk-bar-act--danger" id="md-bulk-delete">
+    <span aria-hidden="true" class="material-symbols-outlined">delete</span>
+    <span class="bulk-bar-act-label">Delete</span>
+  </button>
   <button type="button" class="bulk-bar-cancel" id="md-bulk-clear" aria-label="Clear selection">
+    <span aria-hidden="true" class="material-symbols-outlined">close</span>
+  </button>
+</div>
+
+<!-- Bulk action bar — Videos -->
+<div class="bulk-bar" id="md-vbulk" hidden>
+  <span class="bulk-bar-count" id="md-vbulk-count">0 selected</span>
+  <span class="bulk-bar-div" aria-hidden="true"></span>
+  <button type="button" class="bulk-bar-act" id="md-vbulk-add">
+    <span aria-hidden="true" class="material-symbols-outlined">library_add</span>
+    <span class="bulk-bar-act-label">Add to album</span>
+  </button>
+  <button type="button" class="bulk-bar-act" id="md-vbulk-unfile">
+    <span aria-hidden="true" class="material-symbols-outlined">folder_off</span>
+    <span class="bulk-bar-act-label">Remove from album</span>
+  </button>
+  <button type="button" class="bulk-bar-act bulk-bar-act--danger" id="md-vbulk-delete">
+    <span aria-hidden="true" class="material-symbols-outlined">delete</span>
+    <span class="bulk-bar-act-label">Delete</span>
+  </button>
+  <button type="button" class="bulk-bar-cancel" id="md-vbulk-clear" aria-label="Clear selection">
     <span aria-hidden="true" class="material-symbols-outlined">close</span>
   </button>
 </div>
@@ -335,6 +432,64 @@
   </div>
 </div>
 
+<!-- ────────────────────── SORT / FILTER PICKER (single-select, reused for sort·album·function) ────────────────────── -->
+<div class="modal-scrim" id="md-filter-modal" data-modal aria-hidden="true">
+  <div class="modal-card modal-picker-grid lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="md-filter-title">
+    <div class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="md-filter-title">Filter</h2>
+        <p class="modal-sub" id="md-filter-modal-sub">Pick one.</p>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Close">
+        <span aria-hidden="true" class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-picker-body" id="md-filter-body" role="radiogroup" aria-labelledby="md-filter-title"></div>
+  </div>
+</div>
+
+<!-- ────────────────────── DATE-RANGE FILTER ────────────────────── -->
+<div class="modal-scrim" id="md-date-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="md-date-title">
+    <div class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="md-date-title">Filter by date</h2>
+        <p class="modal-sub">Show photos taken within a date range.</p>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Close">
+        <span aria-hidden="true" class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="media-date-fields">
+      <div class="form-group">
+        <label class="form-label" for="md-date-from">From</label>
+        <input class="form-input" id="md-date-from" type="date" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="md-date-to">To</label>
+        <input class="form-input" id="md-date-to" type="date" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" id="md-date-clear">Clear</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="md-date-apply">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────── BULK-DELETE CONFIRM (founder override — confirm + undo) ────────────────────── -->
+<div class="modal-scrim" id="md-bulk-delete-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="md-bulk-del-title">
+    <span class="modal-confirm-icon is-cautionary" aria-hidden="true"><span class="material-symbols-outlined">delete</span></span>
+    <h2 class="modal-confirm-title" id="md-bulk-del-title">Remove these photos?</h2>
+    <p class="modal-confirm-text" id="md-bulk-del-text">They'll be removed from your gallery. You can undo right after.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Keep them</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="md-bulk-del-confirm">Remove photos</button>
+    </div>
+  </div>
+</div>
+
 <!-- ────────────────────── PHOTO LIGHTBOX ────────────────────── -->
 <div class="modal-scrim modal-scrim-deep" id="md-lightbox" data-modal aria-hidden="true">
   <div class="modal-card modal-image-lightbox" role="dialog" aria-modal="true" aria-labelledby="md-lb-title">
@@ -363,6 +518,44 @@
           <span aria-hidden="true" class="material-symbols-outlined">library_add</span>Add to album
         </button>
         <button type="button" class="btn-pill btn-pill-secondary" id="md-lb-remove">
+          <span aria-hidden="true" class="material-symbols-outlined">delete</span>Remove
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────── VIDEO PLAYER LIGHTBOX ────────────────────── -->
+<div class="modal-scrim modal-scrim-deep" id="md-vlightbox" data-modal aria-hidden="true">
+  <div class="modal-card modal-image-lightbox" role="dialog" aria-modal="true" aria-labelledby="md-vlb-title">
+    <button class="modal-lightbox-close" type="button" data-modal-close aria-label="Close">
+      <span aria-hidden="true" class="material-symbols-outlined">close</span>
+    </button>
+    <div class="media-vplayer">
+      <img class="modal-lightbox-img" id="md-vlb-img" src="" alt="" />
+      <button type="button" class="media-vplay" id="md-vlb-play" aria-label="Play video">
+        <span aria-hidden="true" class="material-symbols-outlined">play_arrow</span>
+      </button>
+      <span class="media-vduration media-vduration--lg" id="md-vlb-duration" aria-hidden="true">0:00</span>
+    </div>
+    <div class="modal-lightbox-nav">
+      <button type="button" class="modal-lightbox-nav-btn modal-lightbox-nav-prev" id="md-vlb-prev" aria-label="Previous video">
+        <span aria-hidden="true" class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <button type="button" class="modal-lightbox-nav-btn modal-lightbox-nav-next" id="md-vlb-next" aria-label="Next video">
+        <span aria-hidden="true" class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+    <div class="modal-lightbox-bar">
+      <div class="modal-lightbox-meta">
+        <p class="modal-lightbox-title" id="md-vlb-title">Clip</p>
+        <p class="modal-lightbox-sub" id="md-vlb-sub">Uploaded</p>
+      </div>
+      <div class="modal-lightbox-actions">
+        <button type="button" class="btn-pill btn-pill-secondary" id="md-vlb-assign">
+          <span aria-hidden="true" class="material-symbols-outlined">library_add</span>Add to album
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary" id="md-vlb-remove">
           <span aria-hidden="true" class="material-symbols-outlined">delete</span>Remove
         </button>
       </div>

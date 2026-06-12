@@ -53,20 +53,64 @@ window.MEDIA_FIXTURES = (function () {
     { id: 'prewedding', name: 'Pre-Wedding', preset: true }
   ];
 
+  /* Sub-events = the wedding's functions/celebrations (distinct dimension from
+     albums, which are user groupings). Drawn from the event's Step-3 functions.
+     Each has a takenAt day so the date-range + sub-event filters have real data. */
+  var DAY = 86400000;
+  var EVENT_DAY0 = 1781067600000; /* 2026-06-10 (event week start) */
+  var subEvents = [
+    { id: 'haldi',     name: 'Haldi',     day: 0 },
+    { id: 'mehendi',   name: 'Mehendi',   day: 1 },
+    { id: 'sangeet',   name: 'Sangeet',   day: 2 },
+    { id: 'wedding',   name: 'Wedding',   day: 3 },
+    { id: 'reception', name: 'Reception', day: 4 }
+  ];
+
   /* Photo shape mirrors what website/photos consumes (single-entity model,
      TL1/FE6): website "Gallery photos" is the published:true subset of THIS
-     store — not a second upload pool. */
+     store — not a second upload pool. takenAt = when shot (drives date filter);
+     uploadedAt = when added (drives Newest sort + Recent strip). */
   var photos = [];
   if (seed === 'populated') {
     var BASE_MS = 1781240400000; /* fixed: 2026-06-12T10:30 IST — no new Date() */
     for (var i = 1; i <= 90; i++) {
+      var se = subEvents[(i - 1) % subEvents.length];
       photos.push({
         id: 'm-' + i,
         src: photoSVG(i),
         name: 'Photo ' + i,
         albumIds: [albums[(i - 1) % 6].id],
+        subEventId: se.id,
+        takenAt: EVENT_DAY0 + se.day * DAY + (i % 12) * 3600000, /* spread within the function's day */
         uploadedAt: BASE_MS - i * 5400000, /* every 90 min, newest = m-1 */
         published: i % 3 !== 0
+      });
+    }
+  }
+
+  /* Videos — mirror the photo shape + posterSVG + durationSec. Video upload is
+     "post-MVP" per the overview but founder pulled it into MVP; transcoding/
+     playback are still backend concerns (faked here with poster + a stub player). */
+  function durationLabel(sec) {
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m + ':' + (s < 10 ? '0' + s : '' + s);
+  }
+  var videos = [];
+  if (seed === 'populated') {
+    var VBASE = 1781236800000; /* 2026-06-12T09:30 IST */
+    for (var v = 1; v <= 12; v++) {
+      var vse = subEvents[(v - 1) % subEvents.length];
+      var dur = 18 + (v * 13) % 220;
+      videos.push({
+        id: 'v-' + v,
+        poster: photoSVG(v * 7),
+        name: 'Clip ' + v,
+        durationSec: dur,
+        duration: durationLabel(dur),
+        albumIds: [albums[(v - 1) % 6].id],
+        subEventId: vse.id,
+        takenAt: EVENT_DAY0 + vse.day * DAY + (v % 10) * 3600000,
+        uploadedAt: VBASE - v * 7200000
       });
     }
   }
@@ -82,8 +126,11 @@ window.MEDIA_FIXTURES = (function () {
   return {
     seed: seed,
     photos: photos,
+    videos: videos,
     albums: albums,
+    subEvents: subEvents,
     storage: storage,
-    photoSVG: photoSVG
+    photoSVG: photoSVG,
+    durationLabel: durationLabel
   };
 })();

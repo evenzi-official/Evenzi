@@ -70,5 +70,13 @@
 - `7.whatsapp` — n/a (host-only page, no guest/OG surface). Record `SKIP (n/a — host-only)`.
 - `7.device` — Mobile real-device pass on a mid-tier Android with CPU throttle; TalkBack sanity on dropzone + lightbox + bulk-bar. (manual — agent: skip and flag for human)
 
+### 8. R-final additions (tabs + alignment + cross-cutting fixes — test against the R-final build)
+- `8.tabs.render` — `.seg` tablist renders Photos / Albums / Videos(Soon); Photos active by default; reuses shell `.seg`/`.seg-item` (no forked control).
+- `8.tabs.switch` — Click each tab AND keyboard ArrowLeft/Right/Home/End switch panels: `aria-selected` + `is-active` + roving `tabindex` update; only the active `role=tabpanel` is visible (others `hidden`). Verify at 1440 and 768.
+- `8.tabs.panels` — Photos = Upload + Recent + All-photos; Albums = 6 presets + Create; Videos = coming-soon teaser. All `#md-*` flows still work after switching (dropzone, lightbox, bulk-bar, album create/rename/delete).
+- `8.align` — At 1440 / 768 / 360, the section title, Storage card, seg tab track, and dropzone all share the SAME left edge (≈40px desktop / ≈24px mobile). No block is inset more than the others (the `.seg-wrap--page` double-inset bug must NOT reappear).
+- `8.seg44` — `.seg-item` tab height ≥44px on mobile widths (after the shell `.seg-item` min-height fix). Re-check planning/website segs didn't regress.
+- `8.resilience2` — RE-RUN `1.resilience` after font vendoring: block ALL third-party/network requests (incl. `fonts.googleapis.com`) and hard-reload — text renders in Poppins (not a system fallback) and icons render as Material Symbols (not literal ligature text like "expand_more"). Fonts must be local/committed.
+
 ## Definition of done
-Every non-manual row PASS (deferrals documented in _findings.md), no console errors, manual rows flagged for human.
+Every non-manual row PASS (deferrals documented in _findings.md), no console errors, manual rows flagged for human. Section 8 (R-final) must pass in addition to 1–7.

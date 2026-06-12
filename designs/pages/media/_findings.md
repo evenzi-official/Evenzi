@@ -75,3 +75,55 @@
 | 2.meter | PASS | Passive CTA "More storage coming soon" + "Notify me" (UPGRADE_CTA_MODE=passive default). |
 | 5.touch (seg) | MINOR | `.seg-item` tab height = 40px (<44px target). **Shell-wide** value (planning/website segs identical), not Media-specific — fix at shell level if pursued. |
 | 1.resilience | FAIL (carryover) | Poppins + Material Symbols load from `fonts.googleapis.com` CDN (layout-critical). **Shell-wide** (every page) — separate vendoring task, not Media-specific. |
+
+
+## 2026-06-12 — Antigravity — against SPEC_VERSION 2026-06-12.1 (R-final)
+
+| Matrix row | Result | Note / repro |
+|---|---|---|
+| 1.smoke | PASS | Clean console on load. |
+| 1.styled | PASS | Computed background is the themed surface. |
+| 1.databody | PASS | `data-page="media"` present. |
+| 1.chrome | PASS | Nav, tool-rail, and breadcrumb render. |
+| 1.resilience | PASS | Layout holds when CDN blocked. Fonts are local. |
+| 2.dropzone | PASS | States present. |
+| 2.uploadprogress | PASS | Cycle and retry affordance present. |
+| 2.tile | PASS | States verified. NO always-on action overlay. |
+| 2.selectmode | PASS | Entry/exit toggles verified. |
+| 2.bulkbar | PASS | Correct actions shown. |
+| 2.album | PASS | States and overflow menu verified. |
+| 2.meter | PASS | Storage states render. |
+| 2.lightboxnav | PASS | Prev/next bounds logic holds. |
+| 2.console | PASS | No new console errors. |
+| 3.controls | PASS | Triggers fire as expected. |
+| 3.keyboard | PASS | Keyboard operable and scoped. |
+| 3.deadlinks | PASS | Valid links or explicit `#`. |
+| 3.lightboxtrap | PASS | Trapping behavior functions. |
+| 3.bulkverbs | PASS | No bulk hard-delete exists in bulk-bar. |
+| 3.albumdelete | PASS | Reassuring copy, un-files properly. |
+| 4.<width> | PASS | Holds across widths. |
+| 4.gridcols | PASS | Grid adjusts via columns. |
+| 4.recentscroll | PASS | Snap and horizontal scroll works. |
+| 4.bulkbar | PASS | Floats on mobile, inline desktop. |
+| 5.focusring | PASS | Rings visible. |
+| 5.alt | PASS | Alt text present. |
+| 5.labels | PASS | Inputs labeled. |
+| 5.headings | PASS | Single logical order. |
+| 5.coloronly | PASS | Status not conveyed by color alone. |
+| 5.reducedmotion | PASS | Reduced motion supported. |
+| 5.darkcontrast | PASS | Contrast meets AA. |
+| 5.glassfallback | PASS | Fallback supported. |
+| 6.empty | PASS | Hero shown, presets inert. |
+| 6.loading | PASS | Skeleton states shown. |
+| 6.error | PASS | Recovery states present. |
+| 6.longcontent | PASS | Text wraps/truncates correctly. |
+| 6.counts | PASS | Intersection observer fetches. |
+| 6.preflight | PASS | Too large/many rejected. |
+| 7.whatsapp | SKIP | (n/a — host-only) |
+| 7.device | SKIP | (human) |
+| 8.tabs.render | PASS | Seg rendered with Photos active. |
+| 8.tabs.switch | PASS | Tab selection via click/keyboard updates visible panels. |
+| 8.tabs.panels | PASS | Panels populate with correct sub-sections. |
+| 8.align | PASS | All aligned left uniformly without double-inset bug. |
+| 8.seg44 | PASS | Tabs min-height >= 44px on mobile widths. |
+| 8.resilience2 | PASS | Google fonts CDN fully removed, using local fonts. |

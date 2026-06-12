@@ -192,11 +192,81 @@
   .media-all-head{flex-direction:row;align-items:flex-start;justify-content:space-between}
 }
 .media-active-filter[hidden]{display:none}
+.media-active-filter{margin:0 0 1rem;flex-wrap:wrap;gap:.4rem}
 .media-active-filter .dp-filter-chip{
   display:inline-flex;align-items:center;gap:.3rem;
 }
 .media-active-filter .dp-filter-chip .material-symbols-outlined{font-size:15px}
-.media-all[data-photos-state="empty"] .media-all-aux{display:none}
+.media-clear-all{
+  background:none;border:0;cursor:pointer;padding:.2rem .35rem;
+  font-size:.78rem;font-weight:600;color:var(--muted);
+  text-decoration:underline;text-underline-offset:2px;
+}
+@media (hover:hover) and (pointer:fine){ .media-clear-all:hover{color:var(--brand)} }
+.media-clear-all:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:6px}
+
+/* ── Sort + filter toolbar ──────────────────────────────────────────── */
+.media-toolbar{
+  display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;
+  margin:0 0 1rem;
+}
+.media-toolbar-div{width:1px;height:22px;background:var(--line);flex:0 0 auto}
+.media-tool .material-symbols-outlined{font-size:17px}
+.media-tool.is-active{
+  background:var(--brand-tint);border-color:var(--brand);color:var(--brand);
+}
+@media (max-width:767px){
+  .media-toolbar{gap:.4rem}
+  .media-toolbar-div{display:none}
+  .media-tool{flex:1 1 auto;justify-content:center}
+}
+.media-all[data-photos-state="empty"] .media-all-aux,
+.media-all[data-photos-state="empty"] .media-toolbar{display:none}
+
+/* date-range filter modal fields */
+.media-date-fields{display:grid;gap:.85rem;margin:.4rem 0 1.1rem}
+@media (min-width:480px){ .media-date-fields{grid-template-columns:1fr 1fr} }
+
+/* Destructive bulk action (Delete) — reads on the dark .bulk-bar; tinted red,
+   distinct from the neutral Add/Remove-from-album actions. */
+.bulk-bar-act--danger{color:color-mix(in oklab, var(--danger) 65%, white)}
+@media (hover:hover) and (pointer:fine){
+  .bulk-bar-act--danger:hover{background:color-mix(in oklab, var(--danger) 32%, transparent);color:#fff}
+}
+
+/* ── Video tiles (poster + play badge + duration) — reuse .photo-tile chrome ── */
+.video-tile .dp-tile-thumb{position:relative}
+.media-vplay-badge{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:44px;height:44px;border-radius:9999px;pointer-events:none;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.5);color:#fff;
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+}
+.media-vplay-badge .material-symbols-outlined{font-size:26px}
+.media-vduration{
+  position:absolute;right:.4rem;bottom:.4rem;pointer-events:none;
+  padding:.05rem .3rem;border-radius:6px;
+  font-size:.68rem;font-weight:700;letter-spacing:.02em;
+  background:rgba(0,0,0,.72);color:#fff;
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .media-vplay-badge{background:rgba(0,0,0,.62)}
+}
+
+/* ── Video player lightbox stage ────────────────────────────────────── */
+.media-vplayer{position:relative;display:flex;align-items:center;justify-content:center;background:#000;border-radius:inherit;overflow:hidden}
+.media-vplayer .modal-lightbox-img{display:block;max-width:100%}
+.media-vplay{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:72px;height:72px;border-radius:9999px;border:0;cursor:pointer;
+  background:rgba(0,0,0,.55);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.media-vplay .material-symbols-outlined{font-size:40px}
+@media (hover:hover) and (pointer:fine){ .media-vplay:hover{background:var(--brand)} }
+.media-vplay:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.media-vduration--lg{right:.75rem;bottom:.75rem;font-size:.8rem;padding:.18rem .5rem}
 .media-load-sentinel{height:1px}
 .media-load-sentinel[hidden]{display:none}
 

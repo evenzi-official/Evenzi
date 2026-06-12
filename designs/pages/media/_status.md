@@ -5,7 +5,7 @@
      v1: REVIEW is the terminal state. /spec-kit-review (TODO A.2) owns REVIEW→DONE when built —
      a cold agent at REVIEW should stop and wait, not treat it as a failure. -->
 PAGE: media
-STAGE: BUILD (Cursor — R-final)
+STAGE: REVIEW
 SPEC_VERSION: 2026-06-12.1
-UPDATED: 2026-06-12 — Claude (post-review changes: tabs + alignment applied & verified; consolidated all open items into _cursor-final.md)
-NEXT: Cursor → read _cursor-final.md (supersedes _cursor-prompt.md + _cursor-followup.md) → apply font-vendoring + 44px seg + own the tab structure → bump to TEST for Antigravity
+UPDATED: 2026-06-12 — Antigravity
+NEXT: /spec-kit-review media
