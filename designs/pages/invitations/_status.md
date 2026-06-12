@@ -2,7 +2,7 @@
      /spec-kit writes SPEC then bumps to BUILD on Gate-2 approval; Cursor bumps BUILD→TEST;
      Antigravity bumps TEST→REVIEW; /spec-kit-review owns REVIEW→DONE. Keep to these lines. -->
 PAGE: invitations
-STAGE: TEST (Antigravity)
+STAGE: DONE
 SPEC_VERSION: 2026-06-12.2
-UPDATED: 2026-06-12 — Claude (built inline as a PERSONALIZER + upload-first + front-only; verified via Playwright; _spec/_test aligned to as-built. Cursor skipped.)
-NEXT: Antigravity → read _antigravity-prompt.md → run _test.md (SPEC_VERSION 2026-06-12.2) → /spec-kit-review invitations
+UPDATED: 2026-06-13 — /spec-kit-review (🟢 DONE: 22 PASS, 0 FAIL; Antigravity's 11 crash-SKIPs re-covered via Playwright; touch-target fix applied)
+NEXT: none — page complete. Carryover (React/export build): vendor card display fonts, real PNG export + hosted card URL, shell-wide ≥44px touch targets.

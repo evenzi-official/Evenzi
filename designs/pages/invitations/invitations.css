@@ -137,6 +137,7 @@
   padding:.85rem 0 calc(env(safe-area-inset-bottom,0px) + .85rem);
   background:linear-gradient(to top,var(--bg) 72%,transparent);
 }
+.inv-actionbar .btn-pill{min-height:44px}   /* primary CTAs ≥44px touch target */
 @media (max-width:560px){
   .inv-actionbar .btn-pill{flex:1 1 auto;justify-content:center}
   .inv-actionbar .btn-pill span:not(.material-symbols-outlined){font-size:.82rem}
