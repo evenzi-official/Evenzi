@@ -38,16 +38,16 @@
   }
 
   function iconBtn(glyph, attr, id, label) {
-    var b = el('button', 'dp-icon-btn-sm'); b.type = 'button'; b.setAttribute(attr, ''); b.setAttribute('data-photo-id', id); b.setAttribute('aria-label', label); b.appendChild(mi(glyph)); return b;
+    var b = el('button', 'photo-tile-action'); b.type = 'button'; b.setAttribute(attr, ''); b.setAttribute('data-photo-id', id); b.setAttribute('aria-label', label); b.appendChild(mi(glyph)); return b;
   }
 
   function buildTile(p) {
-    var art = el('article', 'dp-tile dp-tile-photo'); art.setAttribute('data-photo-id', p.id);
+    var art = el('article', 'dp-tile photo-tile'); art.setAttribute('data-photo-id', p.id);
     if (p.cover) art.setAttribute('data-cover', 'true');
 
-    var sel = el('label', 'dp-photo-select');
+    var sel = el('label', 'photo-tile-select');
     var cb = document.createElement('input'); cb.type = 'checkbox'; cb.setAttribute('data-photo-select', ''); cb.setAttribute('aria-label', 'Select ' + p.name);
-    var check = el('span', 'dp-photo-check'); check.appendChild(mi('check'));
+    var check = el('span', 'photo-tile-check'); check.appendChild(mi('check'));
     sel.appendChild(cb); sel.appendChild(check);
 
     var btn = el('button', 'dp-tile-trigger'); btn.type = 'button'; btn.setAttribute('data-ph-open', ''); btn.setAttribute('data-photo-id', p.id); btn.setAttribute('aria-label', 'View ' + p.name + ' full size');
@@ -55,17 +55,19 @@
     var img = document.createElement('img'); img.src = p.src; img.alt = ''; img.loading = 'lazy';
     thumb.appendChild(img); btn.appendChild(thumb);
 
-    var badge = el('span', 'dp-photo-cover-badge'); badge.appendChild(mi('star')); badge.appendChild(document.createTextNode('Cover')); if (!p.cover) badge.hidden = true;
+    var badge = el('span', 'photo-tile-cover-badge'); badge.appendChild(mi('star')); badge.appendChild(document.createTextNode('Cover')); if (!p.cover) badge.hidden = true;
 
-    var actions = el('div', 'dp-photo-actions');
+    var actions = el('div', 'photo-tile-actions');
     actions.appendChild(iconBtn('star', 'data-ph-cover', p.id, 'Set ' + p.name + ' as Gallery cover'));
-    actions.appendChild(iconBtn('delete', 'data-ph-remove', p.id, 'Remove ' + p.name));
+    var rmBtn = iconBtn('delete', 'data-ph-remove', p.id, 'Remove ' + p.name);
+    rmBtn.setAttribute('data-tile-danger', '');   /* shell danger-hover hook */
+    actions.appendChild(rmBtn);
 
     art.appendChild(sel); art.appendChild(btn); art.appendChild(badge); art.appendChild(actions);
     return art;
   }
 
-  function tiles() { return Array.prototype.slice.call(grid.querySelectorAll('.dp-tile-photo')); }
+  function tiles() { return Array.prototype.slice.call(grid.querySelectorAll('.photo-tile')); }
   function updateCount() {
     var n = tiles().length;
     if (countEl) countEl.textContent = n;
@@ -81,10 +83,10 @@
     tiles().forEach(function (t) {
       var isIt = t.getAttribute('data-photo-id') === id;
       if (isIt) t.setAttribute('data-cover', 'true'); else t.removeAttribute('data-cover');
-      var b = t.querySelector('.dp-photo-cover-badge'); if (b) b.hidden = !isIt;
+      var b = t.querySelector('.photo-tile-cover-badge'); if (b) b.hidden = !isIt;
     });
   }
-  function nameOf(id) { var t = grid.querySelector('.dp-tile-photo[data-photo-id="' + id + '"]'); return t ? (t.querySelector('.dp-tile-trigger') || {}).getAttribute('aria-label') : ''; }
+  function nameOf(id) { var t = grid.querySelector('.photo-tile[data-photo-id="' + id + '"]'); return t ? (t.querySelector('.dp-tile-trigger') || {}).getAttribute('aria-label') : ''; }
 
   /* seed 12 photos, first is cover */
   for (var i = 1; i <= 12; i++) grid.appendChild(buildTile({ id: 'p-' + i, name: 'Photo ' + i, src: photoSVG(i), cover: i === 1 }));
@@ -93,7 +95,7 @@
   /* delegated interactions */
   grid.addEventListener('change', function (e) {
     if (e.target.closest('[data-photo-select]')) {
-      var li = e.target.closest('.dp-tile-photo');
+      var li = e.target.closest('.photo-tile');
       if (li) li.classList.toggle('is-selected', e.target.checked);
       updateBulk();
     }
@@ -102,7 +104,7 @@
     var openBtn = e.target.closest('[data-ph-open]');
     if (openBtn) {
       var id = openBtn.getAttribute('data-photo-id');
-      var t = grid.querySelector('.dp-tile-photo[data-photo-id="' + id + '"]');
+      var t = grid.querySelector('.photo-tile[data-photo-id="' + id + '"]');
       lbCurrentId = id;
       lbImg.src = t.querySelector('img').src; lbImg.alt = nameOf(id);
       lbTitle.textContent = (nameOf(id) || 'Photo').replace('View ', '').replace(' full size', '');
@@ -112,13 +114,13 @@
     var cov = e.target.closest('[data-ph-cover]');
     if (cov) { setCover(cov.getAttribute('data-photo-id')); toast('GALLERY COVER UPDATED'); return; }
     var rm = e.target.closest('[data-ph-remove]');
-    if (rm) { var t2 = rm.closest('.dp-tile-photo'); if (t2) { t2.remove(); updateCount(); updateBulk(); toast('PHOTO REMOVED'); } return; }
+    if (rm) { var t2 = rm.closest('.photo-tile'); if (t2) { t2.remove(); updateCount(); updateBulk(); toast('PHOTO REMOVED'); } return; }
   });
 
   /* lightbox actions */
   if (lbCover) lbCover.addEventListener('click', function () { if (lbCurrentId) { setCover(lbCurrentId); toast('GALLERY COVER UPDATED'); } });
   if (lbRemove) lbRemove.addEventListener('click', function () {
-    if (lbCurrentId) { var t = grid.querySelector('.dp-tile-photo[data-photo-id="' + lbCurrentId + '"]'); if (t) { t.remove(); updateCount(); updateBulk(); toast('PHOTO REMOVED'); } close('ph-lightbox'); }
+    if (lbCurrentId) { var t = grid.querySelector('.photo-tile[data-photo-id="' + lbCurrentId + '"]'); if (t) { t.remove(); updateCount(); updateBulk(); toast('PHOTO REMOVED'); } close('ph-lightbox'); }
   });
 
   /* add (stub) */

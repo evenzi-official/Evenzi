@@ -158,24 +158,28 @@
 
     <div class="dp-tile-grid" id="ph-grid" aria-label="Gallery photos"></div>
 
-    <!-- Empty state -->
-    <div class="dp-photos-empty">
-      <span class="dp-photos-empty-icon" aria-hidden="true"><span class="material-symbols-outlined">photo_library</span></span>
-      <p class="dp-photos-empty-title">Add photos to your Gallery page</p>
-      <p class="dp-photos-empty-help">Upload your favourite moments — guests see them on your website after they unlock it. They'll sync with Media &amp; Memories when it launches.</p>
+    <!-- Empty state (shared shell .photos-empty, shown via [data-photos-state]) -->
+    <div class="photos-empty">
+      <span class="photos-empty-icon" aria-hidden="true"><span class="material-symbols-outlined">photo_library</span></span>
+      <p class="photos-empty-title">Add photos to your Gallery page</p>
+      <p class="photos-empty-help">Upload your favourite moments — guests see them on your website after they unlock it. They'll sync with Media &amp; Memories when it launches.</p>
       <button type="button" class="btn-pill btn-pill-primary" data-ph-add>
         <span aria-hidden="true" class="material-symbols-outlined">add_photo_alternate</span>
         Add photos
       </button>
     </div>
 
-    <!-- Bulk action bar -->
-    <div class="dp-bulk-bar" id="ph-bulk" hidden>
-      <span class="dp-bulk-count" id="ph-bulk-count">0 selected</span>
-      <div class="dp-bulk-actions">
-        <button type="button" class="btn-pill btn-pill-secondary" data-ph-clear>Clear</button>
-        <button type="button" class="btn-pill btn-pill-primary" data-ph-bulk-remove>Remove</button>
-      </div>
+    <!-- Bulk action bar (shared shell .bulk-bar, B15) -->
+    <div class="bulk-bar" id="ph-bulk" hidden>
+      <span class="bulk-bar-count" id="ph-bulk-count">0 selected</span>
+      <span class="bulk-bar-div" aria-hidden="true"></span>
+      <button type="button" class="bulk-bar-act" data-ph-bulk-remove>
+        <span aria-hidden="true" class="material-symbols-outlined">delete</span>
+        <span class="bulk-bar-act-label">Remove</span>
+      </button>
+      <button type="button" class="bulk-bar-cancel" data-ph-clear aria-label="Clear selection">
+        <span aria-hidden="true" class="material-symbols-outlined">close</span>
+      </button>
     </div>
   </section>
 </main>
