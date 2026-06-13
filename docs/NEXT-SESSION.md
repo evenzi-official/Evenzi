@@ -4,6 +4,21 @@
 
 ---
 
+## Recently Landed (2026-06-13b — Startup infrastructure credits)
+
+Infra/ops session (Abhijith). No code, no ClickUp tickets, no design path. Full report: `docs/session-reports/2026-06-13-startup-credits-session-report.md`. Live tracker: `docs/startup-credits-tracker.md`.
+
+- **Submitted 2 credit applications** (field-by-field, live): **Cloudflare for Startups Tier 3** ($10k — R2 cap $10k, Workers AI cap $50k; first-time-only; funds planned R2) and **Anthropic Startup Program** self-serve ($1k–$5k Claude credits). Decisions land at `abhijith.pramod@evenzii.com` — Cloudflare ~48h, Anthropic ~2–4 wks.
+- **Stood up reusable application assets:** domain mailbox `abhijith.pramod@evenzii.com` (clears the domain-email hard gate), public GitHub org `evenzi-official`, LinkedIn company page `linkedin.com/company/evenzi`.
+- **Verified all 5 shortlist programs** vs current June-2026 terms. Correction: **Twilio's evergreen startup credit grant is discontinued** (official) — only the ~$15 auto signup credit + the AI Searchlight 2026 *competition* (demo, deadline 2026-09-11) remain. `docs/startup-credits-2026.md` has this one stale fact; patch on a later pass.
+- **Deferred by decision:** AWS Activate Founders + Microsoft Founders Hub → apply when UAT/PROD usage begins (don't burn 12–24mo expiry pre-launch). Google for Startups ($350k) + NVIDIA Inception → gated on incorporation (in progress with CA).
+
+**Next (credits carryover):**
+- Watch the inbox for Cloudflare + Anthropic decisions; on Cloudflare approval, start moving photo/video/invite media to **R2**.
+- Apply AWS + Microsoft once UAT/PROD is live; start Google + NVIDIA once incorporated. Drafts ready in `docs/startup-credits-tracker.md`.
+
+---
+
 ## Recently Landed (2026-06-13 — Media v2 · Skeletons · Invitations card designer · PORT-MAP)
 
 Large design-path + `/spec-kit` + infra session (Abhijith). No ClickUp tickets. Full report: `docs/session-reports/2026-06-13-session-report.md`. 10 commits on `claude/exciting-hodgkin-bf851a`.
