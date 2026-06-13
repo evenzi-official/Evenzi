@@ -4,6 +4,21 @@
 
 ---
 
+## Recently Landed (2026-06-13c — Data model foundation + Supabase backend on DEV)
+
+Data-model architecture + Supabase backend session (Abhijith), teaching mode. Full report: `docs/session-reports/2026-06-13c-session-report.md`. ClickUp: `86d3bay3j` (under Infra: Platform & DevOps).
+
+- **CORE data model designed + applied to the dev DB.** Walked page-by-page from `designs/` prototypes, cross-validated by data-modeller / security / backend / tech-lead agents + Supabase advisors. New layout: `config.*` (catalogs) · `public.*` (live) · `auth.*` (Supabase). 7 migrations (`core_01`–`core_07`): 4 catalogs seeded, 6 live tables (`user_profiles`, `user_preferences`, `events`, `event_sub_events`, `event_collaborators`, `event_tasks`), functions/triggers (`set_updated_at`, signup `handle_new_user`, 2 guards), baseline owner-only RLS, 4 logins backfilled, advisor clean. Old test data backed up to `docs/data-model/_backups/`.
+- **Rolling docs:** `docs/data-model/DATA-MODEL.md` (one-and-all reference — tables, functions, RLS, decisions D1–D20, ER diagrams) + `docs/data-model/FE-INTEGRATION.md` (Dheeraj's FE kit) + `lib/supabase/database.types.ts` (generated types).
+- **Key decisions:** auth.users + user_profiles 1:1 (no app users table); EAV killed → `events.event_details` jsonb; owner vs creator split for vendor-on-behalf; plug-and-play via prefix-in-`public`; enablement/entitlements recorded as PLANNED; account deletion via admin-key cascade.
+
+**Next:**
+- ⚠️ **Expose the `config` schema** — Dashboard → Data API → Settings → Exposed schemas (the one non-SQL step; DB-level read access already verified).
+- ⚠️ **Dheeraj: update the app's Next.js queries** to the new schema per `FE-INTEGRATION.md` (deployed app still queries the old shapes).
+- **Continue page-by-page:** create-event wizard → Planning (finalize the two TBD names `event_checklists` / `event_tasks`) → Guests/Media/etc.
+
+---
+
 ## Recently Landed (2026-06-13b — Startup infrastructure credits)
 
 Infra/ops session (Abhijith). No code, no ClickUp tickets, no design path. Full report: `docs/session-reports/2026-06-13-startup-credits-session-report.md`. Live tracker: `docs/startup-credits-tracker.md`.
