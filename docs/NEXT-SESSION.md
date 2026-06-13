@@ -19,6 +19,18 @@ Infra/ops session (Abhijith). No code, no ClickUp tickets, no design path. Full 
 
 ---
 
+## Recently Landed (2026-06-13b — Cloudflare R2 foundation · ClickUp gap-analysis)
+
+Infra + PM session (Abhijith). Full report: `docs/session-reports/2026-06-13b-session-report.md`.
+
+- **Cloudflare R2 storage foundation — built + verified end-to-end.** Brainstorm → spec (`docs/superpowers/specs/2026-06-13-cloudflare-r2-storage-design.md`) → build → test. `lib/storage/{r2,keys,imageOptimize}.ts` (presigned direct-to-R2 upload, client WebP optimize w/ HEIC + keep-smaller guard, public/private buckets, signed URLs). Dev spike routes + `/dev/r2-test` sample page (dev-only middleware bypass). Both buckets created (`evenzi-public`/`evenzi-private`), CORS, r2.dev URL. Private + public round-trips pass. **Guide for Dheeraj: `docs/R2-STORAGE-GUIDE.md`.**
+- **ClickUp gap-analysis + alignment** (`docs/gap-analysis-2026-06-13.md`): aligned tickets with design/build reality — built the Digital Invitations card-designer tree, backfilled Event Settings + Media tickets, synced 58 status drifts, tag hygiene. New top-level **`Infra: Platform & DevOps`** parent (`86d3b7dnc`) with the R2 ticket tree.
+- **Support Chatbot un-blocked** — Figma dependency removed; build from design system.
+
+**Next session → Supabase data model + backend (SP-A):** design all remaining feature tables + relationships + RLS; finalize R2 **partitioning** (key namespaces, public/private per asset, cascade cleanup) alongside it; then per-feature backend (production `/api/storage/*` routes + first feature = Media). See Infra tickets `86d3b7drx` (prod routes), `86d3b7dtf` (public domain), `86d3b7dtj` (rotate token 🔐).
+
+---
+
 ## Recently Landed (2026-06-13 — Media v2 · Skeletons · Invitations card designer · PORT-MAP)
 
 Large design-path + `/spec-kit` + infra session (Abhijith). No ClickUp tickets. Full report: `docs/session-reports/2026-06-13-session-report.md`. 10 commits on `claude/exciting-hodgkin-bf851a`.
@@ -351,7 +363,7 @@ Full report: `docs/session-reports/2026-05-20-session-report.md`.
 - [x] **Event CRUD — 4-Step Wizard (XL — IN REVIEW)** — Spec done, 14 tasks implemented, 65 tests, E2E verified, revamp delivered, UI polish enhancement closed. Awaiting feature-level review.
 - [x] **Host Dashboard (M — IN REVIEW)** — Server component with real event cards, hero CTA, empty state. Awaiting review.
 - [ ] **Landing Section (L — IN PROGRESS)** — Subtask hierarchy in place (9 components). Static pages (Home, Layout, Legal) intentionally skip Backend Dev per JSON-config content architecture.
-- [x] **Support Chatbot (MVP — PLANNED, not implemented)** — Spec + plan + multi-agent review + ClickUp hierarchy done. Blocked on Figma. Feature task: `86d2n3jxv`. See spec `2026-04-14-chatbot-design.md` and plan `2026-04-14-chatbot-implementation.md`.
+- [x] **Support Chatbot (MVP — PLANNED, not implemented)** — Spec + plan + multi-agent review + ClickUp hierarchy done. Figma dependency removed (2026-06-13) — build UI from the design system. Feature task: `86d2n3jxv`. See spec `2026-04-14-chatbot-design.md` and plan `2026-04-14-chatbot-implementation.md`.
 - [ ] Event Management Hub (M — central navigation for event features)
 - [ ] Guest Management & RSVP (L)
 - [ ] Digital Invitations — WhatsApp (M)

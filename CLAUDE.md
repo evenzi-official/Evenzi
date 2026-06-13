@@ -363,7 +363,7 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 | Digital Presence (Event Website) | P2 | Not Started | Partial |
 | Admin Module (Developer Panel) | P2 | Not Started | 15 |
 | Digital Invitations (WhatsApp) | P3 | Design prototype DONE — **scope = invitation CARD designer** (personalizer; `designs/pages/invitations/`). WhatsApp send + status tracking stays in Guest Mgmt (see PORT-MAP / overview scope split). | 0 |
-| Support Chatbot (FAQ + Admin + Escalation) | P1 | Planned (Figma-blocked) | 30 |
+| Support Chatbot (FAQ + Admin + Escalation) | P1 | Planned (unblocked — build from design system) | 30 |
 
 **Out of scope for MVP:** Vendor role, AI Photo Finder, real-time features, event discovery/search, analytics.
 
