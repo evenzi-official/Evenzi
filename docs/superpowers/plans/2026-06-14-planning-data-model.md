@@ -199,9 +199,10 @@ create table public.event_expense_types (
   name text not null, icon_name text,
   is_custom boolean not null default false, source_slug text,
   enabled boolean not null default true, display_order int not null default 0,
-  created_at timestamptz not null default now(), updated_at timestamptz not null default now(),
-  unique (event_id, lower(name))
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );
+-- case-insensitive uniqueness needs a unique INDEX (a UNIQUE constraint can't take an expression)
+create unique index uq_event_expense_types_name on public.event_expense_types(event_id, lower(name));
 create index idx_event_expense_types_event on public.event_expense_types(event_id);
 
 create table public.event_expenses (

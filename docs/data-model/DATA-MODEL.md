@@ -6,11 +6,11 @@
 
 | | |
 |---|---|
-| **Version** | `2026-06-13.5` |
-| **Last updated** | 2026-06-13 |
-| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE). Enablement & entitlements + account deletion shapes recorded as **[PLANNED]**. |
+| **Version** | `2026-06-14.1` |
+| **Last updated** | 2026-06-14 |
+| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + the **Planning module** (Checklist/Tasks + Budget). Enablement & entitlements + account deletion shapes recorded as **[PLANNED]**. |
 | **Database** | Supabase Postgres — project `smjkbmkxweevqpvygabe` (ap-northeast-1) |
-| **Live DB status** | ✅ Built 2026-06-13 on the dev project (migrations `core_01`–`core_07`): catalogs seeded, 4 logins backfilled, baseline RLS on. ⚠️ Manual step pending: expose the `config` schema in *Dashboard → Project Settings → API → Exposed schemas*. The deployed app still queries the old shapes — its code must be updated. |
+| **Live DB status** | ✅ Built 2026-06-13 on the dev project (migrations `core_01`–`core_07`): catalogs seeded, 4 logins backfilled, baseline RLS on. ✅ Planning module applied 2026-06-14 (migrations `planning_01`–`planning_07`): new catalogs seeded, `event_tasks`/`event_checklists` extended, 4 new live tables + 3 `security_invoker` views + helper RPCs, owner-only RLS on, `get_advisors` (security + performance) reviewed clean. ⚠️ Manual step pending: expose the `config` schema in *Dashboard → Project Settings → API → Exposed schemas*. The deployed app still queries the old shapes — its code must be updated. |
 | **Tags** | **[NOW]** = part of the core slice we build first · **[PLANNED]** = shape locked, built when we reach that page (Admin / Billing / Settings) |
 
 ---
@@ -25,16 +25,17 @@
 6. [ER diagram — core slice](#er-diagram--core-slice)
 7. [Decision log](#decision-log)
 8. [Tables](#tables)
-9. [Functions](#functions)
-10. [Triggers](#triggers)
-11. [Security (row-level security)](#security-row-level-security)
-12. [Auth & login setup](#auth--login-setup)
-13. [File storage (images)](#file-storage-images)
-14. [Account deletion](#account-deletion)
-15. [Enablement & entitlements (PLANNED)](#enablement--entitlements-planned)
-16. [Derived (computed, never stored)](#derived-computed-never-stored)
-17. [Deferred / out of scope](#deferred--out-of-scope)
-18. [Build order](#build-order)
+9. [Views (derived)](#views-derived)
+10. [Functions](#functions)
+11. [Triggers](#triggers)
+12. [Security (row-level security)](#security-row-level-security)
+13. [Auth & login setup](#auth--login-setup)
+14. [File storage (images)](#file-storage-images)
+15. [Account deletion](#account-deletion)
+16. [Enablement & entitlements (PLANNED)](#enablement--entitlements-planned)
+17. [Derived (computed, never stored)](#derived-computed-never-stored)
+18. [Deferred / out of scope](#deferred--out-of-scope)
+19. [Build order](#build-order)
 
 ---
 
@@ -62,6 +63,8 @@ The doc is only useful if it stays true. On **every** database change — a tabl
 7. **Checked rule:** a module's tables may FK only to **core** (`public.events`, `auth.users`) or to `config.*` — **never to another module's tables.** This is what keeps modules plug-and-play. Enforce it in review (and ideally a CI check over `information_schema`).
 
 **Rule:** the database and this document change together, in the same PR.
+
+**Accepted advisor notices (Planning module, 2026-06-14):** `get_advisors` (security) is clean. `get_advisors` (performance) raised the usual **unindexed-FK** and **unused-index** notices for the new tables — **reviewed and ACCEPTED at MVP scale**, consistent with how CORE's equivalent notices were accepted: the hot query paths (per-event progress, breakdown group-by, status/sub-event/due filters) are already covered by the **composite indexes** we added, and the "unused index" notices are an **empty-table cold-start artifact** (no rows yet, so the planner hasn't used them). Re-review once tables carry real data.
 
 ---
 
@@ -140,18 +143,30 @@ erDiagram
     AUTH_USERS ||--o{ EVENTS : "owns (user_id)"
     AUTH_USERS ||--o{ EVENTS : "created (created_by)"
     AUTH_USERS |o--o{ EVENT_COLLABORATORS : "member (user_id, nullable)"
+    AUTH_USERS ||--o{ EVENT_TASK_ASSIGNEES : "assigned (user_id)"
 
     CONFIG_USER_TYPES ||--o{ USER_PROFILES : "role_slug"
     CONFIG_EVENT_TYPES ||--o{ CONFIG_EVENT_SUB_TYPES : "defines"
     CONFIG_EVENT_TYPES ||--o{ CONFIG_EVENT_CHECKLISTS : "defines"
     CONFIG_EVENT_TYPES ||--o{ EVENTS : "categorizes"
+    CONFIG_TASK_PRIORITIES |o--o{ CONFIG_EVENT_CHECKLISTS : "default_priority_slug"
+    CONFIG_TASK_PRIORITIES ||--o{ EVENT_TASKS : "priority_id"
+    CONFIG_TASK_STATUSES ||--o{ EVENT_TASKS : "status_id"
 
     EVENTS ||--o{ EVENT_SUB_EVENTS : "has"
     EVENTS ||--o{ EVENT_COLLABORATORS : "has"
     EVENTS ||--o{ EVENT_TASKS : "has"
+    EVENTS ||--|| EVENT_BUDGETS : "1:1 budget"
+    EVENTS ||--o{ EVENT_EXPENSE_TYPES : "has"
+    EVENTS ||--o{ EVENT_EXPENSES : "has"
+    EVENTS ||--o{ EVENT_TASK_ASSIGNEES : "has (guarded event_id)"
 
     CONFIG_EVENT_SUB_TYPES |o--o{ EVENT_SUB_EVENTS : "seeds (set null)"
     CONFIG_EVENT_CHECKLISTS |o--o{ EVENT_TASKS : "seeds (set null)"
+    EVENT_SUB_EVENTS |o--o{ EVENT_TASKS : "sub_event_id (set null)"
+    EVENT_SUB_EVENTS |o--o{ EVENT_EXPENSES : "sub_event_id (set null)"
+    EVENT_TASKS ||--o{ EVENT_TASK_ASSIGNEES : "has"
+    EVENT_EXPENSE_TYPES ||--o{ EVENT_EXPENSES : "expense_type_id (restrict)"
 
     EVENTS {
         uuid id PK
@@ -188,6 +203,12 @@ Newest first. Per-table rationale lives in each table's section.
 
 | # | Decision | Why |
 |---|---|---|
+| D26 | **Planning ships owner-only *inlined* RLS** in its creating migrations — the same `EXISTS(events.user_id = (select auth.uid()))` predicate the 4 live CORE child tables use — **not** `can_access_event()`. All event-children (old + new) convert to `can_access_event()` together in the later collaborator pass. | `can_access_event()` is still `[PLANNED]`/not live; referencing it fails or forks the access model into two predicates for one job (the `.nav-tabs`/`.pill-tab` defect class). Verified against live `pg_policies`. |
+| D25 | **Expense types = catalog → per-event copy.** `config.expense_types` (admin-CRUD, **deletable** — nothing hard-FKs it) seeds `public.event_expense_types` per event (`is_custom` flag, `source_slug` text provenance, **not** an FK); `public.event_expenses.expense_type_id` single-FKs the per-event table. | Template→instance (D5) avoids a polymorphic FK and lets the breakdown be one clean `group by`. Per-event editing is owned by Event Settings; admin manages the catalog defaults. A hard FK on `source_slug` would block admins retiring a catalog type. |
+| D24 | **Budget = `event_budgets` 1:1 (`event_id` PK), `total_amount` only.** Spent / Remaining / Over are **derived** via `security_invoker` views, never stored. | Storing aggregates drifts and needs a recompute trigger on every expense write (D5/D7). 1:1 via FK-as-PK matches `user_preferences` (D8). |
+| D23 | **Per-task assignees = `event_task_assignees`** join to `auth.users` (assignee must be **owner or active collaborator**), **no** denormalized contact, carries a trigger-guarded `event_id` for single-hop RLS. | Reuse existing identity (D3); modularity rule 7 forbids FK to another module's `event_collaborators`, and the owner isn't a collaborator row (D16). `event_id` keeps RLS consistent + fast across all event-children. |
+| D22 | **Task priority = `config.task_priorities`** catalog (low/med/high); `event_tasks.priority_id` NOT NULL, resolved **by slug** at write. `config.event_checklists` gains `default_priority_slug` as the copy source. | Founder wants priority with icon/label/admin control; templates need a priority to seed; slug-resolution (like `role_slug`, D3) survives a catalog re-seed. |
+| D21 | **Task lifecycle = `config.task_statuses`** 4-state catalog (pending/in_progress/completed/cancelled) **replacing `event_tasks.is_done`**. A `category` column (`open`/`done`/`dropped`) drives derived progress (`done`) and overdue (`open` only). | Richer lifecycle (founder); a catalog gives icon/order/admin-tuning; `category` distinguishes **cancelled** from done so Overdue excludes both — an instance `is_done` boolean would be the exact drift D7 forbids. |
 | D20 | **Built on the dev database** (2026-06-13, migrations `core_01`–`core_07`): fresh rebuild — dropped the 6 legacy tables (backed up to `_backups/`), created `config` + `public`, seeded catalogs, backfilled the 4 logins, enabled baseline owner-only RLS, revoked RPC access on trigger functions. | Move from paper to a working dev backend; no Pro branch available, dev data disposable. |
 | D19 | **`role_slug` is nullable.** A person signs up *before* picking a role (role-select is a separate step), so the profile is created with `role_slug` null and set later; immutable once set. | The signup trigger creates the profile at signup; NOT NULL would break it. |
 | D18 | **Account deletion** is a secure admin-key action that deletes `auth.users`, letting `ON DELETE CASCADE` wipe the whole tree. `events.created_by` changed from `NOT NULL/RESTRICT` to **nullable + `ON DELETE SET NULL`** so deletion is never blocked. Storage files are purged separately. | A delete button must always work; RESTRICT would block any user who created an event. The DB can't delete storage files (they're not rows). |
@@ -264,20 +285,73 @@ create table config.event_sub_types (
 ```
 **Notes:** FK `event_type_id` `RESTRICT` (protect catalog in use). Seed (wedding): Haldi, Mehendi, Sangeet, Wedding Ceremony\*, Reception\*, Cocktail Party, Post-Wedding Brunch (\* = default).
 
-### `config.event_checklists`  `[NOW · name TBD]`
-**Purpose:** default planning tasks per event type — the rows copied into each new event (the "18" in "12 of 18"). *Name pending Planning-module scope.*
+### `config.event_checklists`  `[NOW]`
+**Purpose:** default planning tasks per event type — the rows copied into each new event (the "18" in "12 of 18"). *Name finalized (Planning module): kept as-is, no rename (D21/D22).*
 ```sql
 create table config.event_checklists (
   id uuid primary key default gen_random_uuid(),
   event_type_id uuid not null references config.event_types(id) on delete restrict,
   title text not null, description text,
+  default_priority_slug text references config.task_priorities(slug) on update cascade,  -- seed source for the task's priority
+  display_order int not null default 0,
+  enabled boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+-- backfill: the 12 existing rows default to 'med' (templates carried no priority before)
+update config.event_checklists set default_priority_slug = 'med' where default_priority_slug is null;
+```
+**Notes:** template→instance pattern; titles are copied into `public.event_tasks` at creation so later edits don't rewrite a host's tasks. `default_priority_slug` → `config.task_priorities(slug)` is the copy source for each seeded task's priority (resolved by slug, like `role_slug`, survives a catalog re-seed — D22). Long-term owned by the Planning module; here because the dashboard aggregates it.
+**Rationale:** the Planning module needs a per-template priority to seed instances; slug-resolution (not an id FK) keeps it re-seedable.
+
+### `config.task_priorities`  `[NOW]`
+**Purpose:** task priority catalog (Low / Medium / High) — the priority a host sets on a task; seeds via `event_checklists.default_priority_slug` and resolved by slug at write.
+```sql
+create table config.task_priorities (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,                       -- low | med | high
+  name text not null, description text, icon_name text,
   display_order int not null default 0,
   enabled boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 ```
-**Notes:** template→instance pattern; titles are copied into `public.event_tasks` at creation so later edits don't rewrite a host's tasks. Long-term owned by the Planning module; here because the dashboard aggregates it.
+**Notes:** PK `id`; `UNIQUE(slug)`. Seed: `low` (Low), `med` (Medium), `high` (High). `public.event_tasks.priority_id` FKs the `id` (NOT NULL); the slug is the stable handle used when seeding/writing.
+**Rationale (D22):** a catalog (vs CHECK) gives icon/label/admin-ordering and lets priorities be tuned without a migration; slug-resolution survives a re-seed.
+
+### `config.task_statuses`  `[NOW]`
+**Purpose:** the 4-state task lifecycle catalog (Pending / In Progress / Completed / Cancelled) — replaces the old `event_tasks.is_done` boolean. The `category` column drives all derived progress/overdue maths.
+```sql
+create table config.task_statuses (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,                        -- pending | in_progress | completed | cancelled
+  name text not null, description text, icon_name text,
+  category text not null check (category in ('open','done','dropped')),  -- drives derived progress/overdue
+  display_order int not null default 0,
+  enabled boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+```
+**Notes:** PK `id`; `UNIQUE(slug)`. Seed: `pending`→`open`, `in_progress`→`open`, `completed`→`done`, `cancelled`→`dropped`. `public.event_tasks.status_id` FKs the `id` (NOT NULL). **Progress** counts `category = 'done'`; **Overdue** counts `category = 'open'` only (so a cancelled task is never overdue).
+**Rationale (D21):** a richer lifecycle than a boolean; `category` lets us distinguish **cancelled** from **done** so Overdue/progress exclude dropped tasks — an instance `is_done` boolean would be the exact drift D7 forbids.
+
+### `config.expense_types`  `[NOW]`
+**Purpose:** admin-managed catalog of expense categories (Venue, Food/Catering, …) that **seeds** each event's `public.event_expense_types`. Admin-CRUD incl. delete — nothing hard-FKs it.
+```sql
+create table config.expense_types (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  name text not null, description text, icon_name text,
+  display_order int not null default 0,
+  enabled boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+```
+**Notes:** PK `id`; `UNIQUE(slug)`. Seed (10 rows): `venue` (Venue), `food` (Food / Catering), `decoration` (Decoration), `photography` (Photography), `videography` (Videography), `attire` (Attire), `music` (Music / DJ), `entertainment` (Entertainment), `invitations` (Invitations), `other` (Other). These are **reference data**, not a priority list — Admin can add / edit / disable / delete. Copied into `public.event_expense_types` per event inside `create_event_with_details`; the per-event row records provenance via `source_slug` text (**not** an FK), so an admin can retire a catalog type without breaking events.
+**Rationale (D25):** template→instance (D5) avoids a polymorphic FK and keeps the budget breakdown a clean `group by`; admin owns the defaults, Event Settings owns the per-event copy.
 
 ---
 
@@ -377,28 +451,160 @@ create unique index uq_collab_email on public.event_collaborators(event_id, lowe
 ```
 **Notes (D16):** child of `events` CASCADE; member `user_id` CASCADE; case-insensitive email uniqueness; presence CHECK. Pending invite stores contact with `user_id` NULL → linked to a **Supabase-verified** identity on first login ([`link_pending_collaborators`](#functions)). A guard trigger ([`prevent_owner_as_collaborator`](#triggers)) blocks the owner from also being a collaborator row.
 
-### `public.event_tasks`  `[NOW · name TBD]`
-**Purpose:** per-event planning tasks. The dashboard derives "12 of 18 / 68%" by counting these. *Name pending Planning scope.*
+### `public.event_tasks`  `[NOW]`
+**Purpose:** per-event planning tasks. The dashboard derives "12 of 18 / 68%" by counting these. *Name finalized (Planning module): kept as-is, no rename (D21/D22).*
 ```sql
 create table public.event_tasks (
   id uuid primary key default gen_random_uuid(),
   event_id uuid not null references public.events(id) on delete cascade,
   template_id uuid references config.event_checklists(id) on delete set null,  -- null = host-added
+  sub_event_id uuid references public.event_sub_events(id) on delete set null, -- null = "Whole event"
   title text not null, description text,
-  is_done boolean not null default false,    -- the column the progress bar counts
+  priority_id uuid not null references config.task_priorities(id) on delete restrict, -- resolved by slug at write
+  status_id   uuid not null references config.task_statuses(id)   on delete restrict, -- replaces is_done
+  due_date date,                             -- null = undated
   display_order int not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
-create index idx_event_tasks_event on public.event_tasks(event_id);
+create index idx_event_tasks_status   on public.event_tasks(event_id, status_id);
+create index idx_event_tasks_subevent on public.event_tasks(event_id, sub_event_id);
+create index idx_event_tasks_due_open on public.event_tasks(event_id, due_date) where due_date is not null;
+-- bare (event_id) index dropped — it's a prefix of the composites above.
 ```
-**Progress query:**
+**Progress query** (counts `status.category = 'done'`, not the old `is_done`):
 ```sql
-select count(*) filter (where is_done) as done, count(*) as total,
-       round(100.0 * count(*) filter (where is_done) / nullif(count(*),0)) as percent
-from public.event_tasks where event_id = :event_id;   -- 12, 18, 68
+select count(*) filter (where s.category = 'done') as done, count(*) as total,
+       round(100.0 * count(*) filter (where s.category = 'done') / nullif(count(*),0)) as percent
+from public.event_tasks t
+join config.task_statuses s on s.id = t.status_id
+where t.event_id = :event_id;   -- 12, 18, 68
 ```
-**Notes:** child of `events` CASCADE; template FK SET NULL (host-added tasks have `template_id` NULL). Titles copied at creation.
+**Notes:** child of `events` CASCADE; template FK SET NULL (host-added tasks have `template_id` NULL); `sub_event_id` SET NULL (null = whole event). `priority_id`/`status_id` are NOT NULL `config` FKs (RESTRICT — a catalog row in use can't be deleted), seeded by slug. `is_done` was **dropped** — completion is now `status.category = 'done'`. **Overdue** = `due_date < current_date AND status.category = 'open'` (derived, never stored). Titles copied at creation.
+**Rationale (D21/D22):** richer 4-state lifecycle + priority via catalogs; `category` separates cancelled from done so Overdue/progress stay correct.
+
+### `public.event_task_assignees`  `[NOW]`
+**Purpose:** who is assigned to a task (co-host / collaborator). A pure join to `auth.users` — names/avatars come from a restricted same-event source, never copied here.
+```sql
+create table public.event_task_assignees (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,        -- trigger-guarded == task's event_id (single-hop RLS)
+  task_id  uuid not null references public.event_tasks(id) on delete cascade,
+  user_id  uuid not null references auth.users(id) on delete cascade,           -- owner OR active collaborator (trigger-checked)
+  assigned_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),                                -- = assigned-at; no updated_at (insert/delete only)
+  unique (task_id, user_id)
+);
+create index idx_task_assignees_task on public.event_task_assignees(task_id);
+create index idx_task_assignees_user on public.event_task_assignees(user_id);
+```
+**Notes:** children CASCADE on event/task/user. `event_id` is **trigger-derived** from the task (the `event_task_assignee_before` guard, [Triggers](#triggers)) so RLS is single-hop and a forged `event_id` can't desync access; the same guard rejects a `user_id` that isn't the event **owner or an active collaborator**, and stamps `assigned_by = auth.uid()` on insert. No `updated_at` (rows are insert/delete only). Name / avatar / role come from a **join** (`event_collaborators` → `user_profiles`) or a restricted RPC — email/phone are never exposed in assignee payloads.
+**Rationale (D23):** reuse existing identity (D3); modularity rule 7 forbids an FK to another module's `event_collaborators`, and the owner isn't a collaborator row (D16); the carried `event_id` keeps RLS fast + consistent with every other event-child.
+
+### `public.event_budgets`  `[NOW]`
+**Purpose:** one budget per event — just the total. Spent / Remaining / Over are **derived** (see [`event_budget_summary`](#views-derived)), never stored.
+```sql
+create table public.event_budgets (
+  event_id uuid primary key references public.events(id) on delete cascade,     -- 1:1
+  total_amount numeric(14,2) not null default 0,
+  currency text not null default 'INR' check (currency in ('INR')),
+  modified_by uuid references auth.users(id) on delete set null,                -- last editor (audit)
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+```
+**Notes:** PK = FK `event_id` CASCADE → strict 1:1 (matches `user_preferences`, D8). First "Set budget" is an **upsert** (`on conflict (event_id)`) — the row may not pre-exist (an empty row is also seeded by `create_event_with_details`). `modified_by` is stamped server-side by the `stamp_budget_modified_by` trigger. Spent/Remaining/Over live in the `event_budget_summary` view, not columns.
+**Rationale (D24):** storing aggregates drifts and would need a recompute trigger on every expense write (D5/D7); derive them instead.
+
+### `public.event_expense_types`  `[NOW]`
+**Purpose:** the per-event copy of expense categories (seeded from `config.expense_types`, plus host-added customs). What `event_expenses` groups under.
+```sql
+create table public.event_expense_types (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,
+  name text not null, icon_name text,
+  is_custom boolean not null default false,                                     -- default-vs-custom, no 2nd table
+  source_slug text,                                                             -- provenance → config.expense_types.slug; NOT an FK; null for custom
+  enabled boolean not null default true,
+  display_order int not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create unique index uq_event_expense_types_name on public.event_expense_types(event_id, lower(name));  -- no dup type names per event (idempotent seed)
+create index idx_event_expense_types_event on public.event_expense_types(event_id);
+```
+**Notes:** child of `events` CASCADE. Seeded from `config.expense_types` **inside `create_event_with_details`** (atomic, no lazy-seed race). Host "+ Add type" → `is_custom = true`, `source_slug` null. `source_slug` is provenance **text, not an FK**, so an admin can retire a catalog type without breaking events. Per-event no-duplicate-name is a **unique index** `uq_event_expense_types_name on (event_id, lower(name))` (case-insensitive), which also makes the seed idempotent.
+**Rationale (D25):** template→instance copy keeps the breakdown one clean `group by` and lets per-event editing live in Event Settings.
+
+### `public.event_expenses`  `[NOW]`
+**Purpose:** budget line-items — each spend, grouped by per-event expense type, optionally tagged to a sub-event.
+```sql
+create table public.event_expenses (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,        -- also reaches the 1:1 budget
+  sub_event_id uuid references public.event_sub_events(id) on delete set null,  -- null = whole event
+  expense_type_id uuid not null references public.event_expense_types(id) on delete restrict,
+  title text, description text,
+  vendor_name text,                                                            -- free-text payee (real vendor_id is post-MVP)
+  amount numeric(14,2) not null check (amount >= 0),
+  receipt_key text,                                                            -- R2 OBJECT KEY (not a public URL); private bucket + signed URL
+  expense_date date,
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index idx_event_expenses_event_type on public.event_expenses(event_id, expense_type_id);  -- breakdown group-by
+create index idx_event_expenses_subevent    on public.event_expenses(event_id, sub_event_id);     -- deferred sub-event breakdown
+```
+**Notes:** child of `events` CASCADE; `expense_type_id` RESTRICT (a per-event type in use can't be deleted); `sub_event_id` SET NULL (null = whole event). `amount >= 0` enforced. `receipt_key` holds the **R2 object key** (not a public URL) — the object lives in the **private** bucket and is served via short-lived signed URLs minted by an auth-checking server route (see `docs/R2-STORAGE-GUIDE.md`); the expense-receipt key prefix is purged in `delete_user_account`. `created_by` is stamped server-side by `stamp_created_by`.
+**Rationale (D24/D25):** line-items are the source of truth; Total/Spent/Remaining derive from them via the summary/breakdown views.
+
+---
+
+## Views (derived)
+
+The Planning module reads its derived numbers (budget Spent/Remaining, the expense breakdown, task progress) from three views — so aggregates are never stored (D24/D5/D7).
+
+> ⚠️ **Footgun:** a plain `public` view runs **as its owner** and **bypasses RLS** — anyone could read every event's numbers. Every view below sets `security_invoker = on`, so the underlying-table RLS applies to the **caller** (the logged-in user only sees their own events' rows).
+
+```sql
+-- Total / Spent / Remaining per event
+create view public.event_budget_summary as
+select b.event_id, b.total_amount,
+       coalesce(sum(e.amount),0)                  as spent,
+       b.total_amount - coalesce(sum(e.amount),0) as remaining,
+       b.currency
+from public.event_budgets b
+left join public.event_expenses e on e.event_id = b.event_id
+group by b.event_id, b.total_amount, b.currency;
+alter view public.event_budget_summary set (security_invoker = on);
+
+-- Spent + item count per expense type per event (the Budget breakdown)
+create view public.event_expense_breakdown as
+select e.event_id, e.expense_type_id, t.name, t.icon_name,
+       sum(e.amount) as spent, count(*) as item_count
+from public.event_expenses e
+join public.event_expense_types t on t.id = e.expense_type_id
+group by e.event_id, e.expense_type_id, t.name, t.icon_name;
+alter view public.event_expense_breakdown set (security_invoker = on);
+
+-- Task progress "done / total / percent" (replaces the old is_done count)
+create view public.event_task_progress as
+select t.event_id,
+       count(*) filter (where s.category = 'done') as done,
+       count(*)                                    as total,
+       round(100.0 * count(*) filter (where s.category = 'done') / nullif(count(*),0)) as percent
+from public.event_tasks t
+join config.task_statuses s on s.id = t.status_id
+group by t.event_id;
+alter view public.event_task_progress set (security_invoker = on);
+```
+
+| View | Returns | Used by |
+|---|---|---|
+| `public.event_budget_summary` | `event_id, total_amount, spent, remaining, currency` | Budget header (Total / Spent / Remaining / Over). |
+| `public.event_expense_breakdown` | `event_id, expense_type_id, name, icon_name, spent, item_count` | Budget breakdown rows per expense type. |
+| `public.event_task_progress` | `event_id, done, total, percent` | Checklist progress "12 of 18 / 68%". |
 
 ---
 
@@ -410,19 +616,48 @@ from public.event_tasks where event_id = :event_id;   -- 12, 18, 68
 | `public.handle_new_user()` | [PLANNED] | Fires when someone signs up (`auth.users` insert) → creates their `user_profiles` + `user_preferences`, copying name/photo/email/phone from the login, then runs `link_pending_collaborators`. Must be `SECURITY DEFINER` with a pinned `search_path` (security). |
 | `public.link_pending_collaborators(p_user_id uuid)` | [PLANNED] | On first verified login, matches the person's **Supabase-verified** email/phone to pending collaborator invites → fills `user_id`, status `active`. Idempotent (`where user_id is null`), verified-source only (no spoofing). |
 | `public.can_access_event(p_event_id uuid)` | [PLANNED] | The single access check every security rule calls: is this person the **owner**, an **active collaborator**, or an **admin**? One place to evolve access logic. `SECURITY DEFINER`, `STABLE`, pinned `search_path`. |
-| `public.create_event_with_details(...)` | [PLANNED] | Creates an event + its sub-events + seeded tasks in **one transaction** (no half-made events). Takes the owner from the login — never trusts a passed-in id. |
-| `public.delete_user_account(p_user_id uuid)` | [PLANNED] | Account deletion — see [Account deletion](#account-deletion). |
+| `public.create_event_with_details(...)` | **[NOW]** (built `planning_07`) | Creates an event + sub-events + seeded tasks + seeded expense types + an empty budget row in **one transaction**. Takes the owner from the login (`auth.uid()`) — **ignores the passed-in `p_user_id`**. `SECURITY DEFINER`, pinned `search_path`, `EXECUTE` revoked from `anon`. See below. |
+| `public.event_task_counts(p_event_id uuid)` | **[NOW]** (built `planning_06`) | One grouped scan → `(total, todo, done, overdue)` for the toolbar chips (Overdue is derived, not a status). `security invoker`, `revoke from anon`, `grant authenticated`. |
+| `public.bulk_set_task_status(p_task_ids uuid[], p_status_slug text)` | **[NOW]** (built `planning_06`) | Bulk-complete/reopen from the bulk bar: resolves the slug, **raises on an unknown slug**, updates all given tasks in the caller's events (RLS still applies). `plpgsql`, `security invoker`, `revoke from anon`, `grant authenticated`. |
+| `public.delete_user_account(p_user_id uuid)` | [PLANNED] | Account deletion — see [Account deletion](#account-deletion). Storage purge must include the expense-receipt key prefix. |
 
 ```sql
--- [NOW] the only function needed to build the core slice
+-- [NOW] the shared updated_at stamper (live version pins search_path)
 create or replace function public.set_updated_at()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = '' as $$
 begin
   new.updated_at = now();
   return new;
 end; $$;
 ```
 > All `SECURITY DEFINER` functions must set `search_path` (e.g. `set search_path = ''` + fully-qualified names) and restrict `EXECUTE` to the right role — a security requirement, not optional.
+
+**`public.event_task_counts(p_event_id uuid)`** — toolbar chips in one scan (Overdue is derived from `category='open' AND due_date < today`):
+```sql
+create or replace function public.event_task_counts(p_event_id uuid)
+returns table(total int, todo int, done int, overdue int)
+language sql stable security invoker set search_path = '' as $$
+  select count(*)::int,
+         count(*) filter (where s.category = 'open')::int,
+         count(*) filter (where s.category = 'done')::int,
+         count(*) filter (where s.category = 'open' and t.due_date < current_date)::int
+  from public.event_tasks t
+  join config.task_statuses s on s.id = t.status_id
+  where t.event_id = p_event_id;
+$$;
+revoke execute on function public.event_task_counts(uuid) from anon;
+grant  execute on function public.event_task_counts(uuid) to authenticated;
+```
+
+**`public.bulk_set_task_status(p_task_ids uuid[], p_status_slug text)`** — bulk-complete/reopen; resolves the slug and **raises** on an unknown one (RLS still scopes the update to the caller's tasks). `plpgsql`, `security invoker`, `revoke from anon`, `grant authenticated`.
+
+**`public.create_event_with_details(p_user_id, p_event_type_id, p_name, p_primary_date, p_primary_venue, p_guest_capacity, p_metadata jsonb, p_sub_events jsonb)`** — built fresh (`SECURITY DEFINER`, pinned `search_path`, `EXECUTE` revoked from `anon`). In one transaction it:
+- sets `events.user_id` **and** `events.created_by` from `auth.uid()` — **ignores `p_user_id`** (never trusts a passed-in id);
+- builds `events.event_details` jsonb from the `p_metadata` `[{key,value}]` array;
+- seeds the chosen sub-events from `p_sub_events`;
+- seeds the checklist → `event_tasks` (status `pending`, priority from `event_checklists.default_priority_slug`, both resolved by slug);
+- seeds `event_expense_types` from `config.expense_types`;
+- inserts an empty `event_budgets` row.
 
 ---
 
@@ -434,6 +669,9 @@ end; $$;
 | signup hook | `auth.users` | on insert (signup) | creates profile + preferences (`handle_new_user`) | [PLANNED] |
 | `prevent_role_change` | `public.user_profiles` | before update | blocks `role_slug` changing once set | [PLANNED] |
 | `prevent_owner_as_collaborator` | `public.event_collaborators` | before insert/update | rejects a collaborator whose `user_id` = the event's owner (no double-count) | [PLANNED] |
+| `event_task_assignee_before` | `public.event_task_assignees` | before insert/update | one consolidated guard: derives `event_id` from the task (rejects a mismatch — a forged `event_id` can't desync RLS), rejects unless `user_id` is the event **owner or an active collaborator**, and stamps `assigned_by = auth.uid()` on insert. `SECURITY DEFINER`, pinned `search_path`. | **[NOW]** |
+| `stamp_created_by` | `public.event_expenses` | before insert | stamps `created_by = auth.uid()` server-side (never trust the client) | **[NOW]** |
+| `stamp_budget_modified_by` | `public.event_budgets` | before insert/update | stamps `modified_by = auth.uid()` server-side | **[NOW]** |
 
 ---
 
@@ -454,6 +692,27 @@ Because Supabase lets the app talk to the database directly over the internet, w
 | `public.event_collaborators` | the event's people | the event's owner |
 
 Notes: policies will target `authenticated` (not `public`); `auth.uid()` wrapped as `(select auth.uid())` for performance; every event-child policy calls `can_access_event(event_id)`.
+
+### Planning module RLS  `[NOW]`
+
+RLS was **enabled in the table-creation migration** (`planning_03`); the policies were added in `planning_05`. All 4 new `public.*` tables (`event_task_assignees`, `event_budgets`, `event_expense_types`, `event_expenses`) get **one `FOR ALL` owner-only policy** using the same inlined predicate the live CORE child tables use — **not** `can_access_event()` (it's still `[PLANNED]`; D26). All event-children (old + new) convert to `can_access_event()` together in the later collaborator pass.
+
+```sql
+-- event-child pattern (event_budgets shown; expense_types / expenses / task_assignees identical on their own event_id)
+create policy event_budgets_owner on public.event_budgets for all to authenticated
+  using     (exists (select 1 from public.events e where e.id = event_budgets.event_id and e.user_id = (select auth.uid())))
+  with check (exists (select 1 from public.events e where e.id = event_budgets.event_id and e.user_id = (select auth.uid())));
+```
+
+`event_task_assignees` uses its **own** `event_id` column (single-hop, thanks to the `event_task_assignee_before` guard trigger that keeps it == the task's `event_id`).
+
+**Catalogs** (`config.task_priorities`, `config.task_statuses`, `config.expense_types`) mirror the live `config.*` pattern exactly: RLS on, one `SELECT` policy `using (true)` for `{anon, authenticated}`, **no** write policy (admin writes via `service_role`), plus `grant usage`/`grant select` — and `config` must stay in *Exposed schemas*.
+
+**Views** are `security_invoker = on` so the caller's RLS on the underlying tables applies ([Views](#views-derived)).
+
+**PII / financial notes:**
+- Assignee names/avatars come via a **restricted same-event view or `security definer` RPC** returning `display_name`/`avatar_url` only — never widen `user_profiles` RLS, never return email/phone.
+- `receipt_key` → R2 object is **private**, served via short-lived signed URLs minted by a server route that first checks event access; the expense-receipt prefix is purged by `delete_user_account` (see `docs/R2-STORAGE-GUIDE.md`).
 
 ---
 
@@ -489,11 +748,14 @@ A "delete my account" button (User Settings) removes everything the person owns 
 delete auth.users(id)
  ├─ user_profiles            (cascade)
  ├─ user_preferences         (cascade)
- ├─ events where user_id = them   (cascade) → event_sub_events, event_tasks,
+ ├─ events where user_id = them   (cascade) → event_sub_events, event_tasks, event_task_assignees,
+ │                                             event_budgets, event_expense_types, event_expenses,
  │                                             event_collaborators, event_feature_overrides
+ ├─ event_task_assignees where user_id = them (cascade — unassigns them from others' tasks; those tasks stay)
  └─ event_collaborators where user_id = them  (cascade — removes them from others' events; those events stay)
-events.created_by = them → SET NULL  (events they made for clients survive)
+events.created_by / event_expenses.created_by / event_budgets.modified_by / event_task_assignees.assigned_by = them → SET NULL
 ```
+> **Storage:** the DB cascade does **not** delete R2 objects. The purge step must also remove each event's prefix — `events/{eventId}/…` — which covers media, invitations, **and expense receipts** (`event_expenses.receipt_key`). See `docs/R2-STORAGE-GUIDE.md`.
 
 **Why `created_by` is `SET NULL`** (D18): with `RESTRICT` the database would refuse to delete any user who ever created an event — the delete button could never work. `SET NULL` lets deletion proceed; a deleted vendor's client events keep going with `created_by = NULL` (snapshot the name elsewhere if billing needs it).
 
@@ -571,7 +833,10 @@ Built when we reach the Admin (catalog management) and Billing/Settings pages.
 
 | Value | Source |
 |---|---|
-| Progress "12 of 18" / "68%" | `count(*) filter (where is_done)` / `count(*)` over `public.event_tasks` |
+| Progress "12 of 18" / "68%" | `count(*) filter (where s.category = 'done')` / `count(*)` over `public.event_tasks` joined to `config.task_statuses` (the `public.event_task_progress` view) |
+| Task **Overdue** count | `count(*) filter (where s.category = 'open' and t.due_date < current_date)` (via `event_task_counts` RPC) |
+| Budget **Spent** / **Remaining** / Over | `sum(event_expenses.amount)` and `total_amount − spent` via `public.event_budget_summary` (never stored on `event_budgets`) |
+| Budget **breakdown** (per expense type) | `sum(amount)` + `count(*)` grouped by `expense_type_id` via `public.event_expense_breakdown` |
 | "has sub-events" / "has collaborators" badges | `EXISTS` over `event_sub_events` / `event_collaborators` (status `active`) |
 | Guest roll-up | `sum(guest_count)` over `event_sub_events` |
 | Days-to-event | `events.primary_date - current_date` |
@@ -582,7 +847,7 @@ Built when we reach the Admin (catalog management) and Billing/Settings pages.
 ## Deferred / out of scope
 
 - **RLS + `can_access_event()`** — policies + the access helper + signup-trigger hardening.
-- **Full Planning module** — due dates, priority, assignees, budget line-items (the `event_checklists`/`event_tasks` names finalize here).
+- **Planning follow-ups** — the Planning module is **built** (Checklist/Tasks + Budget; names finalized, no rename). Still deferred within it: task **status-history** (`event_task_status_events` — latest-only now), **assignee FE wiring** (table built, no UI this pass), **receipt upload** (R2 signed-URL serving), **sub-event budget breakdown** (data captured, not surfaced), and a **real `vendor_id` FK** (free-text `vendor_name` for MVP).
 - **Vendor side** — `config.user_types` has the slug; vendor profiles/services/bookings (`vendor_*`) are a separate scope.
 - **Feature modules** — Guests/RSVP, Media, Invitations, Website, Event Settings, Admin, Chatbot — each FKs to `public.events` / `auth.users`.
 - **Collaborator role → permissions matrix**, ownership-transfer history, invite tokens/expiry, billing payment records.
@@ -604,4 +869,5 @@ grant usage on schema config to anon, authenticated;
 5. **Identity** (`public`): `user_profiles`, `user_preferences`.
 6. **Event data** (`public`): `events`, then `event_sub_events`, `event_collaborators`, `event_tasks`.
 7. **Seed** the catalogs.
-8. **(Later passes)** signup trigger + `link_pending_collaborators`; RLS + `can_access_event()`; `create_event_with_details`; `delete_user_account`; the [enablement & entitlements](#enablement--entitlements-planned) tables.
+8. **Planning module** (live, migrations `planning_01`–`planning_07`): `planning_01` Planning catalogs (`task_priorities`, `task_statuses`, `expense_types`) + seeds + RLS (select-only) + grants; `planning_02` extend `event_checklists` (`default_priority_slug` +backfill) and `event_tasks` (+4 cols NOT NULL, **drop `is_done`**, indexes); `planning_03` the 4 new live tables (RLS **enabled here**) + `updated_at`/guard/attribution triggers; `planning_04` the 3 `security_invoker` views; `planning_05` owner-only RLS policies; `planning_06` `event_task_counts` + `bulk_set_task_status`; `planning_07` (re)build `create_event_with_details`. Then `npx supabase gen types` → refresh `lib/supabase/database.types.ts`; `get_advisors` (security + performance) reviewed clean/accepted.
+9. **(Later passes)** signup trigger + `link_pending_collaborators`; RLS + `can_access_event()` (cuts over all event-children, old + new); `delete_user_account`; the [enablement & entitlements](#enablement--entitlements-planned) tables.

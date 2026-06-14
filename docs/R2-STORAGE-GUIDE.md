@@ -201,9 +201,12 @@ PRIVATE bucket (signed URLs)
   events/{eventId}/media/{uuid}.webp          # gallery master
   events/{eventId}/media/{uuid}_thumb.webp    # gallery thumbnail
   events/{eventId}/invitations/{uuid}.png     # card export
+  events/{eventId}/receipts/{uuid}.{ext}      # expense receipts (Planning module) — PRIVATE only
   users/{userId}/avatar-{uuid}.webp
 ```
 Deleting an event = `deletePrefix(R2_BUCKET_PRIVATE, eventPrefix(eventId))`. UUIDs make keys unguessable. **Per-feature key namespaces + which bucket each lives in get finalized together with the Supabase data model (SP-A).**
+
+**Expense receipts (Planning module).** `public.event_expenses.receipt_key` stores the **R2 object key** under `events/{eventId}/receipts/…` — **never a public URL**. The object lives in the **private** bucket (`evenzi-private`) and is **never** served from the public domain. To display a receipt, mint a **short-lived signed URL** server-side via `/api/storage/sign` (§7/§8) — and that route must **first check the caller's access to the receipt's event** before signing (same owner/event-access check used for upload). Because receipts share the `events/{eventId}/…` prefix, the event-level `deletePrefix(...)` already purges them on event delete; the account-deletion purge (below) must also cover them via the event prefixes.
 
 ---
 
@@ -231,6 +234,7 @@ Deleting an event = `deletePrefix(R2_BUCKET_PRIVATE, eventPrefix(eventId))`. UUI
 - **Videos** are *not* optimized client-side — upload as-is (later: Cloudflare Stream). This guide's optimize is images-only.
 - **Never** import `lib/storage/r2.ts` into a client component (it holds secrets). Client uses `imageOptimize.ts` + fetch to the API routes only.
 - **Never** let the client choose the object key — the server generates it (prevents writing into another user's scope).
+- **Account deletion must purge expense receipts.** `delete_user_account`'s storage-purge step deletes each of the user's event prefixes — `deletePrefix(R2_BUCKET_PRIVATE, eventPrefix(eventId))` — which covers `events/{eventId}/receipts/…` along with media and invitations. Receipts are rows pointing at private objects; deleting the `event_expenses` rows (via cascade) does **not** delete the R2 objects, so the prefix purge is required.
 - **Rotate the R2 token** if its secret ever leaks (delete + recreate, update `.env.local` + Vercel).
 
 ---

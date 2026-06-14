@@ -6,8 +6,8 @@
 
 | | |
 |---|---|
-| **Version** | `2026-06-13.1` |
-| **Backend status** | New model is **live on the dev project** (`smjkbmkxweevqpvygabe`). Catalogs seeded, 4 logins backfilled, RLS on (owner-only baseline). |
+| **Version** | `2026-06-14.1` |
+| **Backend status** | New model is **live on the dev project** (`smjkbmkxweevqpvygabe`). Catalogs seeded, 4 logins backfilled, RLS on (owner-only baseline). **Planning module live** (`planning_01`–`planning_07`): task priority/status/expense-type catalogs, budget + expenses tables, 3 derived views, helper RPCs. |
 | **Types** | `lib/supabase/database.types.ts` |
 | **Heads-up** | The current deployed app queries the **old** shapes — this guide + the [old → new map](#old--new-change-map) is what you use to update it. |
 
@@ -59,7 +59,7 @@ npx supabase gen types typescript --project-id smjkbmkxweevqpvygabe --schema pub
 
 ## 2. The golden rule — `config` tables need `.schema('config')`
 
-Catalog tables (`event_types`, `event_sub_types`, `user_types`, `event_checklists`) live in the **`config`** schema, not `public`. supabase-js defaults to `public`, so:
+Catalog tables (`event_types`, `event_sub_types`, `user_types`, `event_checklists`, and the 3 Planning catalogs `task_priorities`, `task_statuses`, `expense_types`) live in the **`config`** schema, not `public`. supabase-js defaults to `public`, so:
 
 ```ts
 // ❌ WRONG — looks in public, returns "relation does not exist"
@@ -107,7 +107,7 @@ const { data: checklist } = await cfg.from('event_checklists')
   .select('id,title,display_order').eq('event_type_id', typeId).eq('enabled', true).order('display_order')
 ```
 
-**Create an event** (plain inserts under RLS — the one-shot RPC is [planned](#not-built-yet); not atomic yet, fine for now):
+**Create an event** — prefer the now-built one-shot RPC `create_event_with_details` (atomic: event + sub-events + seeded tasks **with `status_id`/`priority_id`** + seeded `event_expense_types` + an empty budget row, in one transaction). It takes the owner from `auth.uid()` and **ignores any passed-in user id**. The plain-insert flow below still works but no longer seeds tasks correctly on its own (tasks need `status_id`+`priority_id`):
 ```ts
 const { data: { user } } = await supabase.auth.getUser()
 
@@ -156,14 +156,91 @@ const { data: events } = await supabase.from('events')
   .order('created_at', { ascending: false })
 ```
 
-**Planning progress "12 of 18 / 68%"** (derived — count, never stored):
+**Planning progress "12 of 18 / 68%"** (derived — count, never stored). `is_done` is **gone**; completion is now `status.category = 'done'`. Easiest path is the `event_task_progress` view:
 ```ts
+// preferred — one row, already computed by the security_invoker view
+const { data: prog } = await supabase.from('event_task_progress')
+  .select('done,total,percent').eq('event_id', eventId).maybeSingle()
+// prog?.done, prog?.total, prog?.percent  (null if the event has no tasks)
+```
+Or count client-side via the status join (needs the cached `task_statuses` catalog to know which ids are `category='done'`):
+```ts
+const doneIds = taskStatuses.filter(s => s.category === 'done').map(s => s.id)
 const { count: total } = await supabase.from('event_tasks')
   .select('*', { count: 'exact', head: true }).eq('event_id', eventId)
 const { count: done } = await supabase.from('event_tasks')
-  .select('*', { count: 'exact', head: true }).eq('event_id', eventId).eq('is_done', true)
+  .select('*', { count: 'exact', head: true }).eq('event_id', eventId).in('status_id', doneIds)
 const percent = total ? Math.round((done! / total) * 100) : 0
 ```
+
+**Planning catalogs — cache the 3 new `config` lists once, map by id:**
+```ts
+const cfg = supabase.schema('config')
+const [{ data: taskPriorities }, { data: taskStatuses }, { data: expenseTypes }] = await Promise.all([
+  cfg.from('task_priorities').select('*').eq('enabled', true).order('display_order'),
+  cfg.from('task_statuses').select('*').eq('enabled', true).order('display_order'),
+  cfg.from('expense_types').select('*').eq('enabled', true).order('display_order'),
+])
+// build slug→id and id→row maps client-side (same pattern as event_types)
+const statusIdBySlug = new Map(taskStatuses!.map(s => [s.slug, s.id]))
+const priorityIdBySlug = new Map(taskPriorities!.map(p => [p.slug, p.id]))
+```
+
+**Add a task** — `status_id` + `priority_id` are **required NOT NULL** now (no more `is_done`). Resolve by slug from the cached catalogs:
+```ts
+await supabase.from('event_tasks').insert({
+  event_id: eventId,
+  title: 'Book caterer',
+  status_id:   statusIdBySlug.get('pending'),   // default new-task status
+  priority_id: priorityIdBySlug.get('med'),
+  sub_event_id: subEventId ?? null,             // null = "Whole event"
+  due_date: '2026-11-01',                        // null = undated
+})
+```
+
+**Toolbar counts (total / todo / done / overdue)** — one RPC, not 4 round-trips:
+```ts
+const { data } = await supabase.rpc('event_task_counts', { p_event_id: eventId })
+// data → [{ total, todo, done, overdue }]
+```
+
+**Bulk complete/reopen** from the bulk bar:
+```ts
+await supabase.rpc('bulk_set_task_status', { p_task_ids: selectedIds, p_status_slug: 'completed' })
+// raises if the slug is unknown; RLS still scopes the update to your tasks
+```
+
+**Set / update the budget** — `event_budgets` is 1:1 per event and may not pre-exist, so **upsert** on `event_id`:
+```ts
+await supabase.from('event_budgets')
+  .upsert({ event_id: eventId, total_amount: 500000 }, { onConflict: 'event_id' })
+// modified_by is stamped server-side by a trigger — don't set it
+```
+
+**Budget summary + breakdown** — read the `security_invoker` views (already RLS-scoped to your events):
+```ts
+const { data: summary } = await supabase.from('event_budget_summary')
+  .select('total_amount,spent,remaining,currency').eq('event_id', eventId).maybeSingle()
+
+const { data: breakdown } = await supabase.from('event_expense_breakdown')
+  .select('expense_type_id,name,icon_name,spent,item_count').eq('event_id', eventId)
+```
+
+**Add an expense** — group under a per-event `event_expense_types` row; `vendor_name` is free text:
+```ts
+await supabase.from('event_expenses').insert({
+  event_id: eventId,
+  expense_type_id: expenseTypeId,        // from event_expense_types (per-event), NOT the config catalog
+  amount: 120000,
+  vendor_name: 'Royal Caterers',
+  sub_event_id: subEventId ?? null,
+  receipt_key: null,                     // R2 OBJECT KEY (set after upload); never a URL
+})
+// created_by is stamped server-side by a trigger
+```
+> **Expense types are per-event.** Read the host's types from `public.event_expense_types` (seeded at event creation from `config.expense_types`); `event_expenses.expense_type_id` FKs that per-event table, not the catalog.
+
+> **Assignee names/avatars** must come from a **restricted same-event source** (a future same-event view or `security definer` RPC returning `display_name`/`avatar_url` only) — **never widen `user_profiles` RLS, never expose email/phone**.
 
 **Profile + role-select + preferences:**
 ```ts
@@ -195,9 +272,11 @@ What changed vs the shapes the current app code uses:
 | `event_metadata` (key/value rows) | `events.event_details` (jsonb) | read `event.event_details.partner_1_name`; write the whole object |
 | `user_profiles.role` (text) | `user_profiles.role_slug` | rename; it's nullable until role-select |
 | `events` (no creator) | `events.created_by` added | set `created_by` on insert (= user for self-serve) |
-| `rpc('create_event_with_details', …)` | removed | do the 3 plain inserts above (one-shot RPC returns later) |
+| `rpc('create_event_with_details', …)` | **built** (Planning) | call it again — atomic create incl. seeded tasks (status/priority) + expense types + empty budget; ignores passed-in user id |
+| `event_tasks.is_done` (boolean) | **dropped** → `status_id` (+ `config.task_statuses.category`) | progress = count `category='done'` (or the `event_task_progress` view); inserts need `status_id`+`priority_id` resolved by slug |
 | manual `.eq('user_id', me)` on reads | RLS auto-scopes | can drop it (harmless to keep) |
 | — | new: `user_preferences`, `event_collaborators`, `event_tasks`, `config.event_checklists` | use as needed |
+| — | new (Planning): `config.task_priorities`, `config.task_statuses`, `config.expense_types`; `public.event_task_assignees`, `event_budgets`, `event_expense_types`, `event_expenses`; views `event_budget_summary`, `event_expense_breakdown`, `event_task_progress`; RPCs `event_task_counts`, `bulk_set_task_status` | see the Planning recipes in §4 |
 
 ---
 
@@ -205,11 +284,11 @@ What changed vs the shapes the current app code uses:
 
 Don't wire these — they're [PLANNED] in DATA-MODEL.md and will arrive with their pages:
 
-- **Collaborator access** — only the event **owner** can read/write today. Adding someone to `event_collaborators` does **not** yet grant them access (the `can_access_event()` RLS layer is pending). Build owner-only flows for now.
-- **One-shot create RPC** (`create_event_with_details`) — use the plain-insert flow above.
-- **Account-deletion server action** (`delete_user_account`).
+- **Collaborator access** — only the event **owner** can read/write today. Adding someone to `event_collaborators` does **not** yet grant them access (the `can_access_event()` RLS layer is pending). Build owner-only flows for now. The same applies to `event_task_assignees` — the table is built (avoids a later live-table migration) but there's **no assignee FE this pass**.
+- **Assignee identity source** — the restricted same-event view / RPC that returns assignee `display_name`/`avatar_url` (without email/phone) isn't built yet; don't read names off `user_profiles` directly.
+- **Account-deletion server action** (`delete_user_account`) — its storage purge must include the expense-receipt key prefix.
+- **Receipt upload** — `event_expenses.receipt_key` exists, but the R2 upload + signed-URL serving route is a backend follow-up (UI stub for now).
 - **Enablement & entitlements** (`config.modules`, `plans`, feature toggles) — not created yet; don't gate UI on them.
-- **Names TBD:** `config.event_checklists` / `public.event_tasks` may be renamed when the Planning page is scoped.
 
 ---
 
@@ -220,5 +299,11 @@ Don't wire these — they're [PLANNED] in DATA-MODEL.md and will arrive with the
 - [ ] Reading lists? → RLS scopes them; also add `.is('deleted_at', null)` for events.
 - [ ] Need partner names? → `events.event_details` jsonb, not a separate table.
 - [ ] Progress/counts/badges? → compute with `count`, don't store.
-- [ ] Catalogs? → fetch once and cache.
+- [ ] Catalogs? → fetch once and cache (now includes `task_priorities`, `task_statuses`, `expense_types` — `config` must stay in *Exposed schemas*).
+- [ ] Task done/progress? → `status.category='done'` (or the `event_task_progress` view), **never** `is_done` (dropped).
+- [ ] Inserting a task? → set `status_id` + `priority_id` (resolve by slug from the cached catalogs).
+- [ ] Setting a budget? → `upsert` on `event_budgets` with `onConflict: 'event_id'`.
+- [ ] Toolbar counts? → `rpc('event_task_counts', { p_event_id })`, not 4 queries.
+- [ ] Expense type? → use a `public.event_expense_types` (per-event) id, not the `config` catalog id.
+- [ ] Assignee names? → restricted same-event source only; never widen `user_profiles` RLS or expose email/phone.
 - [ ] Regenerated types? → use `--schema public,config`.
