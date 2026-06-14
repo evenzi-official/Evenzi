@@ -1,11 +1,10 @@
 // Generated Supabase types for the Evenzi data model.
 // SOURCE OF TRUTH for table shapes is docs/data-model/DATA-MODEL.md.
 //
-// Regenerate (includes BOTH schemas — the default only emits `public`):
+// The `public` block is emitted by the Supabase MCP / CLI. The `config` block is hand-maintained
+// (the MCP `generate_typescript_types` only emits `public`). To regenerate BOTH automatically:
 //   npx supabase gen types typescript --project-id smjkbmkxweevqpvygabe --schema public,config > lib/supabase/database.types.ts
-//
-// NOTE: the `config` schema block below was hand-added so config.* tables are typed today.
-// After running the command above it will be emitted automatically — safe to overwrite this file.
+// Last synced: 2026-06-14 (Planning module — planning_01..07).
 
 export type Json =
   | string
@@ -21,59 +20,207 @@ export type Database = {
   }
   public: {
     Tables: {
-      events: {
+      event_budgets: {
         Row: {
-          cover_image_url: string | null
           created_at: string
-          created_by: string | null
-          deleted_at: string | null
-          description: string | null
-          event_details: Json
-          event_type_id: string
-          guest_capacity: number | null
-          id: string
-          name: string
-          primary_date: string | null
-          primary_venue: string | null
-          status: string
+          currency: string
+          event_id: string
+          modified_by: string | null
+          total_amount: number
           updated_at: string
-          user_id: string
         }
         Insert: {
-          cover_image_url?: string | null
           created_at?: string
-          created_by?: string | null
-          deleted_at?: string | null
-          description?: string | null
-          event_details?: Json
-          event_type_id: string
-          guest_capacity?: number | null
-          id?: string
-          name: string
-          primary_date?: string | null
-          primary_venue?: string | null
-          status?: string
+          currency?: string
+          event_id: string
+          modified_by?: string | null
+          total_amount?: number
           updated_at?: string
-          user_id: string
         }
         Update: {
-          cover_image_url?: string | null
           created_at?: string
-          created_by?: string | null
-          deleted_at?: string | null
-          description?: string | null
-          event_details?: Json
-          event_type_id?: string
-          guest_capacity?: number | null
+          currency?: string
+          event_id?: string
+          modified_by?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_budgets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_collaborators: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          event_id: string
+          id: string
+          invited_at: string
+          invited_email: string | null
+          invited_phone: string | null
+          role: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          event_id: string
           id?: string
-          name?: string
-          primary_date?: string | null
-          primary_venue?: string | null
+          invited_at?: string
+          invited_email?: string | null
+          invited_phone?: string | null
+          role?: string
           status?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          invited_at?: string
+          invited_email?: string | null
+          invited_phone?: string | null
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_collaborators_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_expense_types: {
+        Row: {
+          created_at: string
+          display_order: number
+          enabled: boolean
+          event_id: string
+          icon_name: string | null
+          id: string
+          is_custom: boolean
+          name: string
+          source_slug: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          enabled?: boolean
+          event_id: string
+          icon_name?: string | null
+          id?: string
+          is_custom?: boolean
+          name: string
+          source_slug?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          enabled?: boolean
+          event_id?: string
+          icon_name?: string | null
+          id?: string
+          is_custom?: boolean
+          name?: string
+          source_slug?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_expense_types_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          description: string | null
+          event_id: string
+          expense_date: string | null
+          expense_type_id: string
+          id: string
+          receipt_key: string | null
+          sub_event_id: string | null
+          title: string | null
+          updated_at: string
+          vendor_name: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_id: string
+          expense_date?: string | null
+          expense_type_id: string
+          id?: string
+          receipt_key?: string | null
+          sub_event_id?: string | null
+          title?: string | null
+          updated_at?: string
+          vendor_name?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_id?: string
+          expense_date?: string | null
+          expense_type_id?: string
+          id?: string
+          receipt_key?: string | null
+          sub_event_id?: string | null
+          title?: string | null
+          updated_at?: string
+          vendor_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_expenses_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_expenses_expense_type_id_fkey"
+            columns: ["expense_type_id"]
+            isOneToOne: false
+            referencedRelation: "event_expense_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_expenses_sub_event_id_fkey"
+            columns: ["sub_event_id"]
+            isOneToOne: false
+            referencedRelation: "event_sub_events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_sub_events: {
         Row: {
@@ -131,52 +278,44 @@ export type Database = {
           },
         ]
       }
-      event_collaborators: {
+      event_task_assignees: {
         Row: {
-          accepted_at: string | null
+          assigned_by: string | null
           created_at: string
           event_id: string
           id: string
-          invited_at: string
-          invited_email: string | null
-          invited_phone: string | null
-          role: string
-          status: string
-          updated_at: string
-          user_id: string | null
+          task_id: string
+          user_id: string
         }
         Insert: {
-          accepted_at?: string | null
+          assigned_by?: string | null
           created_at?: string
           event_id: string
           id?: string
-          invited_at?: string
-          invited_email?: string | null
-          invited_phone?: string | null
-          role?: string
-          status?: string
-          updated_at?: string
-          user_id?: string | null
+          task_id: string
+          user_id: string
         }
         Update: {
-          accepted_at?: string | null
+          assigned_by?: string | null
           created_at?: string
           event_id?: string
           id?: string
-          invited_at?: string
-          invited_email?: string | null
-          invited_phone?: string | null
-          role?: string
-          status?: string
-          updated_at?: string
-          user_id?: string | null
+          task_id?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "event_collaborators_event_id_fkey"
+            foreignKeyName: "event_task_assignees_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_task_assignees_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "event_tasks"
             referencedColumns: ["id"]
           },
         ]
@@ -186,9 +325,12 @@ export type Database = {
           created_at: string
           description: string | null
           display_order: number
+          due_date: string | null
           event_id: string
           id: string
-          is_done: boolean
+          priority_id: string
+          status_id: string
+          sub_event_id: string | null
           template_id: string | null
           title: string
           updated_at: string
@@ -197,9 +339,12 @@ export type Database = {
           created_at?: string
           description?: string | null
           display_order?: number
+          due_date?: string | null
           event_id: string
           id?: string
-          is_done?: boolean
+          priority_id: string
+          status_id: string
+          sub_event_id?: string | null
           template_id?: string | null
           title: string
           updated_at?: string
@@ -208,9 +353,12 @@ export type Database = {
           created_at?: string
           description?: string | null
           display_order?: number
+          due_date?: string | null
           event_id?: string
           id?: string
-          is_done?: boolean
+          priority_id?: string
+          status_id?: string
+          sub_event_id?: string | null
           template_id?: string | null
           title?: string
           updated_at?: string
@@ -223,7 +371,95 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "event_tasks_sub_event_id_fkey"
+            columns: ["sub_event_id"]
+            isOneToOne: false
+            referencedRelation: "event_sub_events"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      events: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          description: string | null
+          event_details: Json
+          event_type_id: string
+          guest_capacity: number | null
+          id: string
+          name: string
+          primary_date: string | null
+          primary_venue: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          event_details?: Json
+          event_type_id: string
+          guest_capacity?: number | null
+          id?: string
+          name: string
+          primary_date?: string | null
+          primary_venue?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          event_details?: Json
+          event_type_id?: string
+          guest_capacity?: number | null
+          id?: string
+          name?: string
+          primary_date?: string | null
+          primary_venue?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          email_alerts: boolean
+          push_notifications: boolean
+          sms_alerts: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_alerts?: boolean
+          push_notifications?: boolean
+          sms_alerts?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_alerts?: boolean
+          push_notifications?: boolean
+          sms_alerts?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_profiles: {
         Row: {
@@ -267,38 +503,104 @@ export type Database = {
         }
         Relationships: []
       }
-      user_preferences: {
+    }
+    Views: {
+      event_budget_summary: {
         Row: {
-          created_at: string
-          email_alerts: boolean
-          push_notifications: boolean
-          sms_alerts: boolean
-          updated_at: string
-          user_id: string
+          currency: string | null
+          event_id: string | null
+          remaining: number | null
+          spent: number | null
+          total_amount: number | null
         }
-        Insert: {
-          created_at?: string
-          email_alerts?: boolean
-          push_notifications?: boolean
-          sms_alerts?: boolean
-          updated_at?: string
-          user_id: string
+        Relationships: [
+          {
+            foreignKeyName: "event_budgets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_expense_breakdown: {
+        Row: {
+          event_id: string | null
+          expense_type_id: string | null
+          icon_name: string | null
+          item_count: number | null
+          name: string | null
+          spent: number | null
         }
-        Update: {
-          created_at?: string
-          email_alerts?: boolean
-          push_notifications?: boolean
-          sms_alerts?: boolean
-          updated_at?: string
-          user_id?: string
+        Relationships: [
+          {
+            foreignKeyName: "event_expenses_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_expenses_expense_type_id_fkey"
+            columns: ["expense_type_id"]
+            isOneToOne: false
+            referencedRelation: "event_expense_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_task_progress: {
+        Row: {
+          done: number | null
+          event_id: string | null
+          percent: number | null
+          total: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "event_tasks_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
-    Views: { [_ in never]: never }
-    Functions: { [_ in never]: never }
-    Enums: { [_ in never]: never }
-    CompositeTypes: { [_ in never]: never }
+    Functions: {
+      bulk_set_task_status: {
+        Args: { p_status_slug: string; p_task_ids: string[] }
+        Returns: number
+      }
+      create_event_with_details: {
+        Args: {
+          p_event_type_id: string
+          p_guest_capacity: number
+          p_metadata: Json
+          p_name: string
+          p_primary_date: string
+          p_primary_venue: string
+          p_sub_events: Json
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      event_task_counts: {
+        Args: { p_event_id: string }
+        Returns: {
+          done: number
+          overdue: number
+          todo: number
+          total: number
+        }[]
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   // --- hand-added: config schema (reference/catalog tables). Emitted automatically once you
   //     regenerate with `--schema public,config`. ---
@@ -331,9 +633,9 @@ export type Database = {
         ]
       }
       event_checklists: {
-        Row: { id: string; event_type_id: string; title: string; description: string | null; display_order: number; enabled: boolean; created_at: string; updated_at: string }
-        Insert: { id?: string; event_type_id: string; title: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Update: { id?: string; event_type_id?: string; title?: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Row: { id: string; event_type_id: string; title: string; description: string | null; display_order: number; enabled: boolean; default_priority_slug: string | null; created_at: string; updated_at: string }
+        Insert: { id?: string; event_type_id: string; title: string; description?: string | null; display_order?: number; enabled?: boolean; default_priority_slug?: string | null; created_at?: string; updated_at?: string }
+        Update: { id?: string; event_type_id?: string; title?: string; description?: string | null; display_order?: number; enabled?: boolean; default_priority_slug?: string | null; created_at?: string; updated_at?: string }
         Relationships: [
           {
             foreignKeyName: "event_checklists_event_type_id_fkey"
@@ -342,7 +644,32 @@ export type Database = {
             referencedRelation: "event_types"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "event_checklists_default_priority_slug_fkey"
+            columns: ["default_priority_slug"]
+            isOneToOne: false
+            referencedRelation: "task_priorities"
+            referencedColumns: ["slug"]
+          },
         ]
+      }
+      task_priorities: {
+        Row: { id: string; slug: string; name: string; description: string | null; icon_name: string | null; display_order: number; enabled: boolean; created_at: string; updated_at: string }
+        Insert: { id?: string; slug: string; name: string; description?: string | null; icon_name?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Update: { id?: string; slug?: string; name?: string; description?: string | null; icon_name?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      task_statuses: {
+        Row: { id: string; slug: string; name: string; description: string | null; icon_name: string | null; category: string; display_order: number; enabled: boolean; created_at: string; updated_at: string }
+        Insert: { id?: string; slug: string; name: string; description?: string | null; icon_name?: string | null; category: string; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Update: { id?: string; slug?: string; name?: string; description?: string | null; icon_name?: string | null; category?: string; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      expense_types: {
+        Row: { id: string; slug: string; name: string; description: string | null; icon_name: string | null; display_order: number; enabled: boolean; created_at: string; updated_at: string }
+        Insert: { id?: string; slug: string; name: string; description?: string | null; icon_name?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Update: { id?: string; slug?: string; name?: string; description?: string | null; icon_name?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Relationships: []
       }
     }
     Views: { [_ in never]: never }
@@ -434,3 +761,46 @@ export type TablesUpdate<
       ? U
       : never
     : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+  config: {
+    Enums: {},
+  },
+} as const
