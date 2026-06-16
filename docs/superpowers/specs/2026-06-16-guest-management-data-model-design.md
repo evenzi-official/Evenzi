@@ -87,7 +87,9 @@ create table public.event_guests (
 );
 create index idx_event_guests_event       on public.event_guests(event_id, display_order);
 create index idx_event_guests_event_rsvp  on public.event_guests(event_id, rsvp_status_id);
+create index idx_event_guests_event_name  on public.event_guests(event_id, lower(name));   -- default name-sort/search
 ```
+> `email`/`phone` are intentionally **un-unique and un-indexed**: guest contact is free-text host-entered, the same person can legitimately recur, and search is per-event + client-side (`guests.js`). Don't "fix" this with a unique constraint. `rsvp_status_id` is NOT NULL but a `before insert` trigger defaults it to `pending` when omitted (§8) — so CSV/bulk inserts need only name (+ contact).
 
 ### 4.3 `public.event_guest_sub_events` (which functions a guest is invited to)
 
@@ -156,24 +158,39 @@ insert into config.guest_tags (slug, name, display_order) values
 
 ---
 
-## 6. Derived read view (`security_invoker = on`)
+## 6. Derived read views (`security_invoker = on`)
 
 ```sql
+-- Stats cards: totals by RSVP category + attending headcount + zero-assigned count
 create view public.event_guest_stats as
 select g.event_id,
        count(*)                                              as total,
-       count(*) filter (where s.category = 'attending')      as confirmed,
+       count(*) filter (where s.category = 'attending')      as attending,   -- tracks category, not the 'confirmed' slug
        count(*) filter (where s.category = 'pending')         as pending,
        count(*) filter (where s.category = 'declined')        as declined,
        count(*) filter (where s.category = 'tentative')       as maybe,
-       coalesce(sum(g.party_size) filter (where s.category = 'attending'), 0) as attending_headcount
+       coalesce(sum(g.party_size) filter (where s.category = 'attending'), 0) as attending_headcount,
+       count(*) filter (where not exists (
+         select 1 from public.event_guest_sub_events se where se.guest_id = g.id)) as zero_assigned
 from public.event_guests g
 join config.rsvp_statuses s on s.id = g.rsvp_status_id
 group by g.event_id;
 alter view public.event_guest_stats set (security_invoker = on);
+revoke all on public.event_guest_stats from anon, public;
+grant select on public.event_guest_stats to authenticated;
+
+-- Sidebar per-function counts ("Sangeet 42, Reception 88")
+create view public.event_sub_event_guest_counts as
+select event_id, sub_event_id, count(*) as guest_count
+from public.event_guest_sub_events
+group by event_id, sub_event_id;
+alter view public.event_sub_event_guest_counts set (security_invoker = on);
+revoke all on public.event_sub_event_guest_counts from anon, public;
+grant select on public.event_sub_event_guest_counts to authenticated;
 ```
 
-> ⚠️ `security_invoker = on` is load-bearing — a plain `public` view bypasses RLS. Per-function attending counts and "zero-assigned guests" (guests with no `event_guest_sub_events` row) are derivable on demand; not pre-materialized.
+> ⚠️ `security_invoker = on` is load-bearing — a plain `public` view bypasses RLS; combined with the `authenticated`-only grant, even aggregate headcounts stay owner-private.
+> **Empty-row behavior:** `event_guest_stats` returns **no row** for an event with zero guests (it's the default state of a new event). The FE **must coalesce a missing row to all-zeros** — documented in §11. "Attending per function" (vs invited count) is derivable by joining `event_guest_sub_events` → guests → rsvp category; not pre-materialized.
 
 ---
 
@@ -185,7 +202,17 @@ alter view public.event_guest_stats set (security_invoker = on);
 | `set_updated_at()` | live | attach to the 3 tables with `updated_at` (`event_guests`, `event_guest_tags`, the 2 catalogs); NOT the insert/delete-only join tables. |
 | bulk ops / CSV import | app-side | bulk insert/assign via supabase-js `.insert([...])` / `.in()` under RLS; a dedicated import RPC is deferred. |
 
-`create_event_with_details` stays `SECURITY DEFINER` + pinned `search_path` + `revoke anon`; the new seed sets `created_by=null` (system provenance).
+`create_event_with_details` stays `SECURITY DEFINER`, `set search_path=''`, schema-qualified refs, `revoke execute from public, anon`. The new seed block (same transaction as the task/expense seeds), explicit SQL:
+
+```sql
+insert into public.event_guest_tags (event_id, name, is_custom, source_slug, created_by, display_order)
+select v_event_id, gt.name, false, gt.slug, null, gt.display_order
+from config.guest_tags gt
+where gt.enabled
+order by gt.display_order
+on conflict (event_id, lower(name)) do nothing;   -- idempotent; can't roll back event creation on re-entry
+```
+The DEFINER function runs as the table owner → **bypasses RLS**, so it can write `is_custom=false` rows the client INSERT policy (§9) forbids. `auth.uid()` is unchanged inside DEFINER, but the row sets `created_by=null` explicitly (system provenance), and the attribution trigger only fires for `is_custom=true` (§8), so it won't overwrite it.
 
 ---
 
@@ -196,8 +223,11 @@ alter view public.event_guest_stats set (security_invoker = on);
 | `trg_<table>_updated` | `event_guests`, `event_guest_tags`, catalogs | before update | `set_updated_at()` |
 | `guest_sub_event_before` | `event_guest_sub_events` | before insert/update | derive `event_id` from the guest; **verify `sub_event_id` belongs to that same event** (reject cross-event) — `SECURITY DEFINER`, pinned `search_path` |
 | `guest_tag_link_before` | `event_guest_tag_links` | before insert/update | derive `event_id` from the guest; **verify `tag_id` belongs to that same event** (reject cross-event) — `SECURITY DEFINER`, pinned `search_path` |
+| `default_guest_rsvp` | `event_guests` | before insert | if `new.rsvp_status_id is null`, set it to the `pending` status id (resolved by slug) — makes CSV/bulk insert need only name; column stays NOT NULL |
 | `stamp_guest_created_by` | `event_guests` | before insert | always stamp `created_by = auth.uid()` (every guest is user-added) |
 | `stamp_guest_tag_created_by` | `event_guest_tags` | before insert | stamp `created_by = auth.uid()` **only when `new.is_custom = true`**; seeded rows (`is_custom=false`) keep the inserted `created_by` (the `create_event_with_details` seed passes `null`) |
+
+> **DEFINER hardening (all guard/default/stamp trigger functions):** `language plpgsql security definer set search_path = ''`, all table refs schema-qualified (`public.*`, `config.*`), and `revoke execute on function … from public, anon, authenticated`. The guard/default/stamp triggers are **BEFORE row triggers that only mutate `NEW` (or `RAISE`) and `return new`** — they never perform the write themselves, so the row still passes through the caller's RLS `with_check`. `default_guest_rsvp` needs DEFINER only to read `config.rsvp_statuses`; the two link guards need it to read parent tables the caller can't `SELECT` under RLS.
 
 > **Why the integrity check (not just `event_id` derivation):** RLS `with_check` validates the derived `event_id` is the caller's event — but a caller could pass a `guest_id` from their own event and a `sub_event_id`/`tag_id` from a *different* event; the derived `event_id` (from the guest) would still be theirs, so RLS passes while the link points at a foreign function/tag. The guard trigger rejecting a cross-event `sub_event_id`/`tag_id` closes that hole.
 >
@@ -210,11 +240,22 @@ alter view public.event_guest_stats set (security_invoker = on);
 Enable RLS on all 5 new `public.*` tables in their creating migration (fail-safe). Owner-only inlined predicate, converging on `can_access_event()` with the other event-children later.
 
 ```sql
--- event_guests (direct event_id); event_guest_sub_events / event_guest_tags / event_guest_tag_links identical on their event_id
+-- event_guests (direct event_id); event_guest_sub_events / event_guest_tag_links identical FOR ALL on their event_id
 create policy event_guests_owner on public.event_guests for all to authenticated
   using     (exists (select 1 from public.events e where e.id = event_guests.event_id and e.user_id = (select auth.uid())))
   with check (exists (select 1 from public.events e where e.id = event_guests.event_id and e.user_id = (select auth.uid())));
 ```
+
+**`event_guest_tags` — split policy to close the provenance forge:** clients may read/update/delete any of their event's tags (incl. seeded ones — the tag manager renames them), but may only **INSERT custom** tags (`is_custom=true`). The DEFINER seed bypasses RLS, so it alone writes the `is_custom=false` defaults.
+```sql
+create policy event_guest_tags_rw on public.event_guest_tags for select to authenticated using (<owner predicate>);
+create policy event_guest_tags_upd on public.event_guest_tags for update to authenticated using (<owner>) with check (<owner>);
+create policy event_guest_tags_del on public.event_guest_tags for delete to authenticated using (<owner>);
+create policy event_guest_tags_ins on public.event_guest_tags for insert to authenticated
+  with check (<owner predicate> and is_custom = true);   -- clients can't forge a system-seeded (is_custom=false) tag
+```
+
+> **`can_access_event()` cutover** is a single coordinated migration across **all 6 event-children** (these 5 + the existing CORE/Planning ones); until then guest PII is strictly owner-only by design.
 
 **Catalogs** (`config.rsvp_statuses`, `config.guest_tags`) — RLS on, one `SELECT` policy `using (true)` for `{anon, authenticated}`, no write policy (admin via `service_role`), `grant select`, `config` stays in Exposed Schemas.
 
@@ -227,9 +268,9 @@ create policy event_guests_owner on public.event_guests for all to authenticated
 | # | Migration | Contents |
 |---|---|---|
 | `guests_01` | catalogs + seeds | `config.rsvp_statuses`, `config.guest_tags` + seeds + `updated_at` triggers + RLS select-only + grants |
-| `guests_02` | live tables | the 5 `public.*` tables + indexes + `updated_at`/guard/attribution triggers + **RLS enabled here** |
-| `guests_03` | view | `event_guest_stats` (`security_invoker`) |
-| `guests_04` | RLS policies | owner-only inlined on the 5 new tables |
+| `guests_02` | live tables | the 5 `public.*` tables + indexes + `updated_at`/guard/attribution/`default_guest_rsvp` triggers + **RLS enabled here** |
+| `guests_03` | views | `event_guest_stats` + `event_sub_event_guest_counts` (`security_invoker`, grant authenticated only) |
+| `guests_04` | RLS policies | owner-only inlined on the 5 tables; `event_guest_tags` **split** (INSERT requires `is_custom=true`) |
 | `guests_05` | function | extend `create_event_with_details` (+ guest-tag seed block) |
 
 After build: `npx supabase gen types` → refresh `lib/supabase/database.types.ts`; `get_advisors` (security + performance) reviewed.
@@ -239,9 +280,10 @@ After build: `npx supabase gen types` → refresh `lib/supabase/database.types.t
 ## 11. FE-INTEGRATION.md impact
 
 - Cache `config.rsvp_statuses` + `config.guest_tags` client-side (map by id), same as the other catalogs; `config` must stay in Exposed Schemas.
-- Add a guest = insert `event_guests` with `rsvp_status_id` resolved by slug (`pending` default); `party_size` default 1.
-- Functions/tags = insert/delete rows in `event_guest_sub_events` / `event_guest_tag_links` (bulk via `.insert([...])`); the trigger fills `event_id`.
-- Stats via the `event_guest_stats` view; zero-assigned = guests with no `event_guest_sub_events` row.
+- Add a guest = insert `event_guests` with just name (+ contact); `rsvp_status_id` defaults to `pending` via trigger, `party_size` defaults 1. (Client may still set `rsvp_status_id` explicitly by slug.)
+- Functions/tags = insert/delete rows in `event_guest_sub_events` / `event_guest_tag_links`; the guard trigger fills `event_id`. **Bulk-assign must use `.upsert([...], { onConflict: 'guest_id,sub_event_id', ignoreDuplicates: true })`** (and the `guest_id,tag_id` equivalent) — re-assigning an already-linked function/tag would otherwise abort the whole batch on the unique violation.
+- **Adding a tag from the client always lands `is_custom=true`** (the INSERT policy enforces it); seeded defaults come only from event creation.
+- Stats via the `event_guest_stats` view — **coalesce a missing row (zero-guest event) to all-zeros**; `zero_assigned` is a column on the view now. Sidebar per-function counts via `event_sub_event_guest_counts`.
 - Tag manager edits `event_guest_tags` (rename = one update; delete cascades links).
 
 ---
@@ -259,8 +301,8 @@ After build: `npx supabase gen types` → refresh `lib/supabase/database.types.t
 
 ## 13. DATA-MODEL.md update checklist (same PR)
 
-1. Add the 2 catalogs + 5 live tables (DDL + Notes + Rationale), `[NOW]`.
-2. Add the `event_guest_stats` view to the Views (derived) section.
+1. Add the 2 catalogs + 5 live tables (DDL + Notes + Rationale), `[NOW]`. In the `config.rsvp_statuses` Notes, **explicitly contrast its `category` set (`pending/attending/declined/tentative`) against `task_statuses` (`open/done/dropped`)** — intentionally independent vocabularies, so a future reader doesn't "harmonize" them.
+2. Add the `event_guest_stats` + `event_sub_event_guest_counts` views to the Views (derived) section (note `security_invoker` + authenticated-only grant).
 3. Note the `create_event_with_details` extension (guest-tag seed) in Functions.
 4. Add the guest-link guard trigger + the (conditional) attribution trigger to Triggers.
 5. Extend the Security section with the Guest Management RLS subsection.
@@ -273,8 +315,12 @@ After build: `npx supabase gen types` → refresh `lib/supabase/database.types.t
 
 ---
 
-## 14. Open items for spec review
+## 14. Resolved decisions (were open items)
 
-1. `created_by` on the two **join** tables — intentionally omitted (assignments are always user actions; parent `created_by` covers provenance). OK, or add for symmetry?
-2. `config.guest_tags` seed list (6 defaults: Family, Friends, Bride's side, Groom's side, Out-of-town, Colleagues) — good set, or adjust?
-3. Attribution trigger stamps `created_by` only when `is_custom=true` (so seeds stay `null`) — confirm this provenance rule reads right.
+1. **`created_by` omitted on the two join tables** — resolved: omit (assignments are always user actions; parent `created_by` covers provenance; consistent with `event_task_assignees`). Approved.
+2. **`config.guest_tags` seed = 6 defaults** (Family, Friends, Bride's side, Groom's side, Out-of-town, Colleagues) — approved. Event-specific tags (Table 5, A-list) are host-added per event.
+3. **Provenance rule hardened** — attribution trigger stamps `created_by` only when `is_custom=true`; the client INSERT policy (§9) forbids `is_custom=false`, so a host can't forge a system-seeded tag. Confirmed.
+
+---
+
+**Council reviewed:** 2026-06-16 by data_modeller, backend_engineer, security_expert, tech_lead. Verdict 🟡 ADDRESS-THEN-PROCEED → all fixes folded in (provenance-forge INSERT policy, DEFINER hardening, stats-view zero-row + `zero_assigned` + authenticated-only grant, explicit idempotent seed SQL, `default_guest_rsvp` trigger, `event_sub_event_guest_counts` view, name index, bulk-upsert FE note). Approved by Abhijith.
