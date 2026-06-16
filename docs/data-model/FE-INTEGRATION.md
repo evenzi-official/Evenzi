@@ -7,7 +7,7 @@
 | | |
 |---|---|
 | **Version** | `2026-06-14.1` |
-| **Backend status** | New model is **live on the dev project** (`smjkbmkxweevqpvygabe`). Catalogs seeded, 4 logins backfilled, RLS on (owner-only baseline). **Planning module live** (`planning_01`–`planning_07`): task priority/status/expense-type catalogs, budget + expenses tables, 3 derived views, helper RPCs. |
+| **Backend status** | New model is **live on the dev project** (`smjkbmkxweevqpvygabe`). Catalogs seeded, 4 logins backfilled, RLS on (owner-only baseline). **Planning module live** (`planning_01`–`planning_07`): task priority/status/expense-type catalogs, budget + expenses tables, 3 derived views, helper RPCs. **Guest Management live** (`guests_01`–`guests_05`): rsvp-status + guest-tag catalogs, guest list + function/tag link tables, 2 derived views, guard/default triggers. |
 | **Types** | `lib/supabase/database.types.ts` |
 | **Heads-up** | The current deployed app queries the **old** shapes — this guide + the [old → new map](#old--new-change-map) is what you use to update it. |
 
@@ -59,7 +59,7 @@ npx supabase gen types typescript --project-id smjkbmkxweevqpvygabe --schema pub
 
 ## 2. The golden rule — `config` tables need `.schema('config')`
 
-Catalog tables (`event_types`, `event_sub_types`, `user_types`, `event_checklists`, and the 3 Planning catalogs `task_priorities`, `task_statuses`, `expense_types`) live in the **`config`** schema, not `public`. supabase-js defaults to `public`, so:
+Catalog tables (`event_types`, `event_sub_types`, `user_types`, `event_checklists`, the 3 Planning catalogs `task_priorities`/`task_statuses`/`expense_types`, and the 2 Guest catalogs `rsvp_statuses`/`guest_tags`) live in the **`config`** schema, not `public`. supabase-js defaults to `public`, so:
 
 ```ts
 // ❌ WRONG — looks in public, returns "relation does not exist"
@@ -259,6 +259,32 @@ await supabase.from('user_preferences').update({ sms_alerts: true }).eq('user_id
 
 **Account deletion** — *not a client call.* It needs the secret key (delete `auth.users` + purge storage), so it's a server action / route handler ([planned](#not-built-yet)).
 
+### Guest Management (live — `guests_01`–`guests_05`)
+
+```ts
+// add a guest — name only is enough; rsvp defaults to 'pending' via trigger, party_size to 1
+await supabase.from('event_guests').insert({ event_id, name: 'Aarav', phone: '…', party_size: 2 })
+// (you MAY set rsvp_status_id explicitly by slug; cache config.rsvp_statuses and map by id)
+
+// assign functions / tags — bulk-safe: use upsert+ignoreDuplicates (re-assign won't abort the batch).
+// event_id is filled by the guard trigger; never send it.
+await supabase.from('event_guest_sub_events')
+  .upsert(subEventIds.map(sid => ({ guest_id, sub_event_id: sid })), { onConflict: 'guest_id,sub_event_id', ignoreDuplicates: true })
+await supabase.from('event_guest_tag_links')
+  .upsert(tagIds.map(tid => ({ guest_id, tag_id: tid })), { onConflict: 'guest_id,tag_id', ignoreDuplicates: true })
+
+// adding a tag from the client ALWAYS lands is_custom:true (the INSERT policy enforces it)
+await supabase.from('event_guest_tags').insert({ event_id, name: 'Table 5', is_custom: true })
+
+// stats cards — coalesce a MISSING row (zero-guest event) to all-zeros
+const { data } = await supabase.from('event_guest_stats').select('*').eq('event_id', eventId).maybeSingle()
+const stats = data ?? { total:0, attending:0, pending:0, declined:0, maybe:0, attending_headcount:0, zero_assigned:0 }
+
+// per-function counts for the sidebar
+await supabase.from('event_sub_event_guest_counts').select('*').eq('event_id', eventId)
+```
+Cache `config.rsvp_statuses` + `config.guest_tags` like the other catalogs (need `.schema('config')`). Tag manager: rename = one `update` on `event_guest_tags`; delete cascades the links.
+
 ---
 
 ## 5. Old → new change map
@@ -277,6 +303,7 @@ What changed vs the shapes the current app code uses:
 | manual `.eq('user_id', me)` on reads | RLS auto-scopes | can drop it (harmless to keep) |
 | — | new: `user_preferences`, `event_collaborators`, `event_tasks`, `config.event_checklists` | use as needed |
 | — | new (Planning): `config.task_priorities`, `config.task_statuses`, `config.expense_types`; `public.event_task_assignees`, `event_budgets`, `event_expense_types`, `event_expenses`; views `event_budget_summary`, `event_expense_breakdown`, `event_task_progress`; RPCs `event_task_counts`, `bulk_set_task_status` | see the Planning recipes in §4 |
+| — | new (Guests): `config.rsvp_statuses`, `config.guest_tags`; `public.event_guests`, `event_guest_sub_events`, `event_guest_tags`, `event_guest_tag_links`; views `event_guest_stats`, `event_sub_event_guest_counts` | see the Guest recipes in §4; `create_event_with_details` now also seeds default guest tags |
 
 ---
 

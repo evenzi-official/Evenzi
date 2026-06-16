@@ -6,9 +6,9 @@
 
 | | |
 |---|---|
-| **Version** | `2026-06-14.1` |
-| **Last updated** | 2026-06-14 |
-| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + the **Planning module** (Checklist/Tasks + Budget). Enablement & entitlements + account deletion shapes recorded as **[PLANNED]**. |
+| **Version** | `2026-06-16.1` |
+| **Last updated** | 2026-06-16 |
+| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + the **Planning module** (Checklist/Tasks + Budget) + the **Guest Management module** (guest list, RSVP, function assignments, tags). Enablement & entitlements + account deletion shapes recorded as **[PLANNED]**. |
 | **Database** | Supabase Postgres — project `smjkbmkxweevqpvygabe` (ap-northeast-1) |
 | **Live DB status** | ✅ Built 2026-06-13 on the dev project (migrations `core_01`–`core_07`): catalogs seeded, 4 logins backfilled, baseline RLS on. ✅ Planning module applied 2026-06-14 (migrations `planning_01`–`planning_07`): new catalogs seeded, `event_tasks`/`event_checklists` extended, 4 new live tables + 3 `security_invoker` views + helper RPCs, owner-only RLS on, `get_advisors` (security + performance) reviewed clean. ⚠️ Manual step pending: expose the `config` schema in *Dashboard → Project Settings → API → Exposed schemas*. The deployed app still queries the old shapes — its code must be updated. |
 | **Tags** | **[NOW]** = part of the core slice we build first · **[PLANNED]** = shape locked, built when we reach that page (Admin / Billing / Settings) |
@@ -203,6 +203,10 @@ Newest first. Per-table rationale lives in each table's section.
 
 | # | Decision | Why |
 |---|---|---|
+| D30 | **Guest provenance = `is_custom` + `created_by`.** Catalog-seeded `event_guest_tags` get `is_custom=false` + `created_by=NULL` ("we made it"); host-added get `is_custom=true` + `created_by=auth.uid()` ("user made it"). The `event_guest_tags` **INSERT** policy requires `is_custom=true`, so a client can't forge a system-seeded tag (the DEFINER seed bypasses RLS to write the `false` defaults). `created_by` stamped server-side. | Founder wants to distinguish/audit system-seeded vs user-created rows. `is_custom` is the fast filter; `created_by` is the "who"; the INSERT-policy guard keeps the distinction unforgeable. |
+| D29 | **Guest tags = catalog → per-event copy** (like expense types, D25). `config.guest_tags` (admin defaults) seeds `public.event_guest_tags` per event; `event_guest_tag_links` is the guest↔tag M:N. `source_slug` is text provenance (not an FK). | The tag manager (rename/delete) needs tags as per-event entities, not strings; seeding gives starters; a global catalog would force all hosts to share one list. |
+| D28 | **RSVP is guest-level, single-valued** (`event_guests.rsvp_status_id` → `config.rsvp_statuses`), with a `category` column (`pending`/`attending`/`declined`/`tentative`) driving derived headcount. **`category` vocabulary is intentionally independent of `task_statuses`** (`open`/`done`/`dropped`) — RSVP ≠ task lifecycle. Per-function RSVP deferred. | Matches the built prototype (one status per guest); `category` keeps headcount off hardcoded slugs (D21 lesson). A name-only insert defaults to `pending` via the `default_guest_rsvp` trigger (CSV-import ergonomics). |
+| D27 | **Guest M:N relationships are link tables, never columns/arrays.** Functions = `event_guest_sub_events`; tags = `event_guest_tag_links`. Both carry a trigger-guarded `event_id` for single-hop RLS (like `event_task_assignees`, D23); the guard also rejects a `sub_event_id`/`tag_id` from another event (RLS alone wouldn't catch that). | Columns/arrays fight the tag manager + filtering and are the drift D7 forbids. The cross-event integrity check closes a hole RLS can't (own guest + foreign function). |
 | D26 | **Planning ships owner-only *inlined* RLS** in its creating migrations — the same `EXISTS(events.user_id = (select auth.uid()))` predicate the 4 live CORE child tables use — **not** `can_access_event()`. All event-children (old + new) convert to `can_access_event()` together in the later collaborator pass. | `can_access_event()` is still `[PLANNED]`/not live; referencing it fails or forks the access model into two predicates for one job (the `.nav-tabs`/`.pill-tab` defect class). Verified against live `pg_policies`. |
 | D25 | **Expense types = catalog → per-event copy.** `config.expense_types` (admin-CRUD, **deletable** — nothing hard-FKs it) seeds `public.event_expense_types` per event (`is_custom` flag, `source_slug` text provenance, **not** an FK); `public.event_expenses.expense_type_id` single-FKs the per-event table. | Template→instance (D5) avoids a polymorphic FK and lets the breakdown be one clean `group by`. Per-event editing is owned by Event Settings; admin manages the catalog defaults. A hard FK on `source_slug` would block admins retiring a catalog type. |
 | D24 | **Budget = `event_budgets` 1:1 (`event_id` PK), `total_amount` only.** Spent / Remaining / Over are **derived** via `security_invoker` views, never stored. | Storing aggregates drifts and needs a recompute trigger on every expense write (D5/D7). 1:1 via FK-as-PK matches `user_preferences` (D8). |
@@ -561,6 +565,64 @@ create index idx_event_expenses_subevent    on public.event_expenses(event_id, s
 
 ---
 
+### Guest Management module  `[NOW]` (built `guests_01`–`guests_05`)
+
+Host-side guest list + RSVP + function assignments + tags. Catalogs `config.rsvp_statuses` (pending/confirmed/declined/maybe, `category` pending/attending/declined/tentative) and `config.guest_tags` (6 default suggestions) follow the standard catalog shape (admin-seeded, public-read).
+
+```sql
+-- the guest list (one row per guest per event)
+create table public.event_guests (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,
+  name text not null, email text, phone text,
+  rsvp_status_id uuid not null references config.rsvp_statuses(id) on delete restrict,  -- defaults to 'pending' via trigger
+  invited boolean not null default false,
+  party_size int not null default 1 check (party_size >= 1),                            -- total incl. primary
+  notes text,
+  created_by uuid references auth.users(id) on delete set null,                         -- who added (stamped server-side)
+  display_order int not null default 0,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create index idx_event_guests_event      on public.event_guests(event_id, display_order);
+create index idx_event_guests_event_rsvp on public.event_guests(event_id, rsvp_status_id);
+create index idx_event_guests_event_name on public.event_guests(event_id, lower(name));
+
+-- which functions a guest is invited to (M:N)
+create table public.event_guest_sub_events (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,                -- guard-derived; rejects cross-event
+  guest_id uuid not null references public.event_guests(id) on delete cascade,
+  sub_event_id uuid not null references public.event_sub_events(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  unique (guest_id, sub_event_id)
+);
+
+-- per-event tag entities (catalog-seeded; tag manager edits these)
+create table public.event_guest_tags (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,
+  name text not null,
+  is_custom boolean not null default false, source_slug text,                            -- false+null = system seed
+  created_by uuid references auth.users(id) on delete set null,
+  display_order int not null default 0,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create unique index uq_event_guest_tags_name on public.event_guest_tags(event_id, lower(name));
+
+-- guest ↔ tag (M:N)
+create table public.event_guest_tag_links (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,                -- guard-derived; rejects cross-event
+  guest_id uuid not null references public.event_guests(id) on delete cascade,
+  tag_id uuid not null references public.event_guest_tags(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  unique (guest_id, tag_id)
+);
+```
+**Notes:** all children CASCADE from `events`; `rsvp_status_id` RESTRICT (a status in use can't be deleted); the two join tables carry a trigger-guarded `event_id` (single-hop RLS) and reject a function/tag from another event. `email`/`phone` are intentionally un-unique/un-indexed (free-text, per-event client-side search). **Rationale:** D27 (link tables), D28 (guest-level RSVP + category), D29 (tag catalog→copy), D30 (provenance).
+
+---
+
 ## Views (derived)
 
 The Planning module reads its derived numbers (budget Spent/Remaining, the expense breakdown, task progress) from three views — so aggregates are never stored (D24/D5/D7).
@@ -598,13 +660,39 @@ from public.event_tasks t
 join config.task_statuses s on s.id = t.status_id
 group by t.event_id;
 alter view public.event_task_progress set (security_invoker = on);
+
+-- Guest stats cards: counts by RSVP category + attending headcount + zero-assigned
+create view public.event_guest_stats as
+select g.event_id,
+       count(*)                                          as total,
+       count(*) filter (where s.category = 'attending')  as attending,
+       count(*) filter (where s.category = 'pending')     as pending,
+       count(*) filter (where s.category = 'declined')    as declined,
+       count(*) filter (where s.category = 'tentative')   as maybe,
+       coalesce(sum(g.party_size) filter (where s.category = 'attending'),0) as attending_headcount,
+       count(*) filter (where not exists (
+         select 1 from public.event_guest_sub_events se where se.guest_id = g.id)) as zero_assigned
+from public.event_guests g
+join config.rsvp_statuses s on s.id = g.rsvp_status_id
+group by g.event_id;
+alter view public.event_guest_stats set (security_invoker = on);
+
+-- Sidebar per-function guest counts
+create view public.event_sub_event_guest_counts as
+select event_id, sub_event_id, count(*) as guest_count
+from public.event_guest_sub_events group by event_id, sub_event_id;
+alter view public.event_sub_event_guest_counts set (security_invoker = on);
 ```
+
+> The guest views are additionally **`grant select to authenticated`** only (`revoke from anon`) — even aggregate headcounts are owner-private. `event_guest_stats` returns **no row** for a zero-guest event; the FE coalesces a missing row to all-zeros.
 
 | View | Returns | Used by |
 |---|---|---|
 | `public.event_budget_summary` | `event_id, total_amount, spent, remaining, currency` | Budget header (Total / Spent / Remaining / Over). |
 | `public.event_expense_breakdown` | `event_id, expense_type_id, name, icon_name, spent, item_count` | Budget breakdown rows per expense type. |
 | `public.event_task_progress` | `event_id, done, total, percent` | Checklist progress "12 of 18 / 68%". |
+| `public.event_guest_stats` | `event_id, total, attending, pending, declined, maybe, attending_headcount, zero_assigned` | Guest stats cards. |
+| `public.event_sub_event_guest_counts` | `event_id, sub_event_id, guest_count` | Per-function sidebar counts. |
 
 ---
 
@@ -657,7 +745,10 @@ grant  execute on function public.event_task_counts(uuid) to authenticated;
 - seeds the chosen sub-events from `p_sub_events`;
 - seeds the checklist → `event_tasks` (status `pending`, priority from `event_checklists.default_priority_slug`, both resolved by slug);
 - seeds `event_expense_types` from `config.expense_types`;
-- inserts an empty `event_budgets` row.
+- inserts an empty `event_budgets` row;
+- seeds `event_guest_tags` from `config.guest_tags` (`is_custom=false`, `created_by=null`, `on conflict do nothing`) — added in `guests_05`.
+
+> The `guests_05` re-extension keeps the same 8-param signature + `RpcResult` shape, so the live caller `app/api/events/route.ts:120` is unaffected.
 
 ---
 
@@ -672,6 +763,13 @@ grant  execute on function public.event_task_counts(uuid) to authenticated;
 | `event_task_assignee_before` | `public.event_task_assignees` | before insert/update | one consolidated guard: derives `event_id` from the task (rejects a mismatch — a forged `event_id` can't desync RLS), rejects unless `user_id` is the event **owner or an active collaborator**, and stamps `assigned_by = auth.uid()` on insert. `SECURITY DEFINER`, pinned `search_path`. | **[NOW]** |
 | `stamp_created_by` | `public.event_expenses` | before insert | stamps `created_by = auth.uid()` server-side (never trust the client) | **[NOW]** |
 | `stamp_budget_modified_by` | `public.event_budgets` | before insert/update | stamps `modified_by = auth.uid()` server-side | **[NOW]** |
+| `default_guest_rsvp` | `public.event_guests` | before insert | sets `rsvp_status_id` to `pending` (by slug) when omitted — name-only/CSV inserts work | **[NOW]** |
+| `stamp_guest_created_by` | `public.event_guests` | before insert | stamps `created_by = auth.uid()` (every guest is user-added) | **[NOW]** |
+| `stamp_guest_tag_created_by` | `public.event_guest_tags` | before insert | stamps `created_by = auth.uid()` **only when `is_custom = true`** (seeds stay null) | **[NOW]** |
+| `guest_sub_event_before` | `public.event_guest_sub_events` | before insert/update | derives `event_id` from the guest; rejects a `sub_event_id` from another event. `SECURITY DEFINER`, pinned `search_path`. | **[NOW]** |
+| `guest_tag_link_before` | `public.event_guest_tag_links` | before insert/update | derives `event_id` from the guest; rejects a `tag_id` from another event. `SECURITY DEFINER`, pinned `search_path`. | **[NOW]** |
+
+> All the Guest guard/default/stamp trigger functions are `SECURITY DEFINER`, `search_path=''`, schema-qualified, `EXECUTE` revoked from `public`/`anon`/`authenticated`, and **BEFORE-only** (mutate `NEW`/`RAISE`, never write) so the row still passes the caller's RLS `with_check`.
 
 ---
 
@@ -690,6 +788,7 @@ Because Supabase lets the app talk to the database directly over the internet, w
 | `public.events` | owner, active collaborators, admin (`can_access_event`) | owner (later: collaborators by role) |
 | `public.event_sub_events` / `event_tasks` | same as their event | same as their event |
 | `public.event_collaborators` | the event's people | the event's owner |
+| `public.event_guests` + guest children | same as their event | same as their event |
 
 Notes: policies will target `authenticated` (not `public`); `auth.uid()` wrapped as `(select auth.uid())` for performance; every event-child policy calls `can_access_event(event_id)`.
 
@@ -713,6 +812,12 @@ create policy event_budgets_owner on public.event_budgets for all to authenticat
 **PII / financial notes:**
 - Assignee names/avatars come via a **restricted same-event view or `security definer` RPC** returning `display_name`/`avatar_url` only — never widen `user_profiles` RLS, never return email/phone.
 - `receipt_key` → R2 object is **private**, served via short-lived signed URLs minted by a server route that first checks event access; the expense-receipt prefix is purged by `delete_user_account` (see `docs/R2-STORAGE-GUIDE.md`).
+
+### Guest Management module RLS  `[NOW]`
+
+RLS **enabled in the table-creation migration** (`guests_02`); policies added in `guests_04`. `event_guests`, `event_guest_sub_events`, `event_guest_tag_links` each get **one `FOR ALL` owner-only policy** on their `event_id` (the join tables' `event_id` is guard-trigger-populated → single-hop). `event_guest_tags` is **split**: SELECT/UPDATE/DELETE are owner-only (so the tag manager can rename/delete seeded tags), but **INSERT additionally requires `is_custom = true`** — a client can't forge a system-seeded tag; the `create_event_with_details` DEFINER seed bypasses RLS to write the `is_custom=false` defaults (D30).
+
+**Catalogs** (`config.rsvp_statuses`, `config.guest_tags`) mirror the standard `config.*` pattern (RLS on, `SELECT using(true)`, no write policy, `grant select`). **PII:** `event_guests` holds guest contact (name/email/phone) — owner-only `authenticated`, no anon path; the guest views are `authenticated`-only grants.
 
 ---
 
@@ -750,10 +855,12 @@ delete auth.users(id)
  ├─ user_preferences         (cascade)
  ├─ events where user_id = them   (cascade) → event_sub_events, event_tasks, event_task_assignees,
  │                                             event_budgets, event_expense_types, event_expenses,
- │                                             event_collaborators, event_feature_overrides
+ │                                             event_guests, event_guest_sub_events, event_guest_tags,
+ │                                             event_guest_tag_links, event_collaborators, event_feature_overrides
  ├─ event_task_assignees where user_id = them (cascade — unassigns them from others' tasks; those tasks stay)
  └─ event_collaborators where user_id = them  (cascade — removes them from others' events; those events stay)
-events.created_by / event_expenses.created_by / event_budgets.modified_by / event_task_assignees.assigned_by = them → SET NULL
+events.created_by / event_expenses.created_by / event_budgets.modified_by / event_task_assignees.assigned_by
+  / event_guests.created_by / event_guest_tags.created_by = them → SET NULL
 ```
 > **Storage:** the DB cascade does **not** delete R2 objects. The purge step must also remove each event's prefix — `events/{eventId}/…` — which covers media, invitations, **and expense receipts** (`event_expenses.receipt_key`). See `docs/R2-STORAGE-GUIDE.md`.
 
@@ -837,6 +944,8 @@ Built when we reach the Admin (catalog management) and Billing/Settings pages.
 | Task **Overdue** count | `count(*) filter (where s.category = 'open' and t.due_date < current_date)` (via `event_task_counts` RPC) |
 | Budget **Spent** / **Remaining** / Over | `sum(event_expenses.amount)` and `total_amount − spent` via `public.event_budget_summary` (never stored on `event_budgets`) |
 | Budget **breakdown** (per expense type) | `sum(amount)` + `count(*)` grouped by `expense_type_id` via `public.event_expense_breakdown` |
+| Guest **stats** (total / by RSVP category) + **attending headcount** + **zero-assigned** | counts + `sum(party_size) filter (category='attending')` over `event_guests` via `public.event_guest_stats` |
+| **Per-function guest count** | `count(*)` grouped by `sub_event_id` via `public.event_sub_event_guest_counts` |
 | "has sub-events" / "has collaborators" badges | `EXISTS` over `event_sub_events` / `event_collaborators` (status `active`) |
 | Guest roll-up | `sum(guest_count)` over `event_sub_events` |
 | Days-to-event | `events.primary_date - current_date` |
