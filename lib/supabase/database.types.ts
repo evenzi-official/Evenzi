@@ -1,11 +1,3 @@
-// Generated Supabase types for the Evenzi data model.
-// SOURCE OF TRUTH for table shapes is docs/data-model/DATA-MODEL.md.
-//
-// The `public` block is emitted by the Supabase MCP / CLI. The `config` block is hand-maintained
-// (the MCP `generate_typescript_types` only emits `public`). To regenerate BOTH automatically:
-//   npx supabase gen types typescript --project-id smjkbmkxweevqpvygabe --schema public,config > lib/supabase/database.types.ts
-// Last synced: 2026-06-14 (Planning module — planning_01..07).
-
 export type Json =
   | string
   | number
@@ -15,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.4"
   }
@@ -218,6 +212,198 @@ export type Database = {
             columns: ["sub_event_id"]
             isOneToOne: false
             referencedRelation: "event_sub_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_guest_sub_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          guest_id: string
+          id: string
+          sub_event_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          guest_id: string
+          id?: string
+          sub_event_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          guest_id?: string
+          id?: string
+          sub_event_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_guest_sub_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_guest_sub_events_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "event_guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_guest_sub_events_sub_event_id_fkey"
+            columns: ["sub_event_id"]
+            isOneToOne: false
+            referencedRelation: "event_sub_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_guest_tag_links: {
+        Row: {
+          created_at: string
+          event_id: string
+          guest_id: string
+          id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          guest_id: string
+          id?: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          guest_id?: string
+          id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_guest_tag_links_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_guest_tag_links_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "event_guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_guest_tag_links_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "event_guest_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_guest_tags: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          event_id: string
+          id: string
+          is_custom: boolean
+          name: string
+          source_slug: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          event_id: string
+          id?: string
+          is_custom?: boolean
+          name: string
+          source_slug?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          event_id?: string
+          id?: string
+          is_custom?: boolean
+          name?: string
+          source_slug?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_guest_tags_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_guests: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          email: string | null
+          event_id: string
+          id: string
+          invited: boolean
+          name: string
+          notes: string | null
+          party_size: number
+          phone: string | null
+          rsvp_status_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          email?: string | null
+          event_id: string
+          id?: string
+          invited?: boolean
+          name: string
+          notes?: string | null
+          party_size?: number
+          phone?: string | null
+          rsvp_status_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          email?: string | null
+          event_id?: string
+          id?: string
+          invited?: boolean
+          name?: string
+          notes?: string | null
+          party_size?: number
+          phone?: string | null
+          rsvp_status_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_guests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
@@ -549,6 +735,50 @@ export type Database = {
           },
         ]
       }
+      event_guest_stats: {
+        Row: {
+          attending: number | null
+          attending_headcount: number | null
+          declined: number | null
+          event_id: string | null
+          maybe: number | null
+          pending: number | null
+          total: number | null
+          zero_assigned: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_guests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_sub_event_guest_counts: {
+        Row: {
+          event_id: string | null
+          guest_count: number | null
+          sub_event_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_guest_sub_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_guest_sub_events_sub_event_id_fkey"
+            columns: ["sub_event_id"]
+            isOneToOne: false
+            referencedRelation: "event_sub_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_task_progress: {
         Row: {
           done: number | null
@@ -669,6 +899,18 @@ export type Database = {
         Row: { id: string; slug: string; name: string; description: string | null; icon_name: string | null; display_order: number; enabled: boolean; created_at: string; updated_at: string }
         Insert: { id?: string; slug: string; name: string; description?: string | null; icon_name?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
         Update: { id?: string; slug?: string; name?: string; description?: string | null; icon_name?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      rsvp_statuses: {
+        Row: { id: string; slug: string; name: string; description: string | null; icon_name: string | null; category: string; display_order: number; enabled: boolean; created_at: string; updated_at: string }
+        Insert: { id?: string; slug: string; name: string; description?: string | null; icon_name?: string | null; category: string; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Update: { id?: string; slug?: string; name?: string; description?: string | null; icon_name?: string | null; category?: string; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      guest_tags: {
+        Row: { id: string; slug: string; name: string; description: string | null; display_order: number; enabled: boolean; created_at: string; updated_at: string }
+        Insert: { id?: string; slug: string; name: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Update: { id?: string; slug?: string; name?: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
         Relationships: []
       }
     }
