@@ -61,8 +61,9 @@ The doc is only useful if it stays true. On **every** database change — a tabl
 5. After a table is live, changes ship as **forward-only migrations** — never edit history silently.
 6. Keep [Functions](#functions), [Triggers](#triggers), [Security](#security-row-level-security), and [Auth](#auth--login-setup) current too — not just tables.
 7. **Checked rule:** a module's tables may FK only to **core** (`public.events`, `auth.users`) or to `config.*` — **never to another module's tables.** This is what keeps modules plug-and-play. Enforce it in review (and ideally a CI check over `information_schema`).
+8. **Refresh the visual artifacts** — [`ERD.md`](ERD.md) (the full Mermaid ERD + functions/flows) **and** [`evenzi-erd.drawio`](evenzi-erd.drawio) are **derived from this doc** and MUST be updated in the same PR: add/remove the entity + its FK edges, update the relevant flow diagram if a function/trigger changed, and keep the entity list in sync with the live DB. Standing instruction (Abhijith, 2026-06-16) — these never go stale.
 
-**Rule:** the database and this document change together, in the same PR.
+**Rule:** the database **and** this document **and** the ERD/draw.io artifacts change together, in the same PR.
 
 **Accepted advisor notices (Planning module, 2026-06-14):** `get_advisors` (security) is clean. `get_advisors` (performance) raised the usual **unindexed-FK** and **unused-index** notices for the new tables — **reviewed and ACCEPTED at MVP scale**, consistent with how CORE's equivalent notices were accepted: the hot query paths (per-event progress, breakdown group-by, status/sub-event/due filters) are already covered by the **composite indexes** we added, and the "unused index" notices are an **empty-table cold-start artifact** (no rows yet, so the planner hasn't used them). Re-review once tables carry real data.
 
