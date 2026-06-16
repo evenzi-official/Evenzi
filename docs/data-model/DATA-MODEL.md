@@ -6,9 +6,9 @@
 
 | | |
 |---|---|
-| **Version** | `2026-06-16.1` |
+| **Version** | `2026-06-16.2` |
 | **Last updated** | 2026-06-16 |
-| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + the **Planning module** (Checklist/Tasks + Budget) + the **Guest Management module** (guest list, RSVP, function assignments, tags). Enablement & entitlements + account deletion shapes recorded as **[PLANNED]**. |
+| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + **Planning** (Checklist/Tasks + Budget) + **Guest Management** (guest list, RSVP, function assignments, tags) + **Media & Memories** (photo/video gallery + albums, R2-backed). Enablement & entitlements + account deletion shapes recorded as **[PLANNED]**. |
 | **Database** | Supabase Postgres — project `smjkbmkxweevqpvygabe` (ap-northeast-1) |
 | **Live DB status** | ✅ Built 2026-06-13 on the dev project (migrations `core_01`–`core_07`): catalogs seeded, 4 logins backfilled, baseline RLS on. ✅ Planning module applied 2026-06-14 (migrations `planning_01`–`planning_07`): new catalogs seeded, `event_tasks`/`event_checklists` extended, 4 new live tables + 3 `security_invoker` views + helper RPCs, owner-only RLS on, `get_advisors` (security + performance) reviewed clean. ⚠️ Manual step pending: expose the `config` schema in *Dashboard → Project Settings → API → Exposed schemas*. The deployed app still queries the old shapes — its code must be updated. |
 | **Tags** | **[NOW]** = part of the core slice we build first · **[PLANNED]** = shape locked, built when we reach that page (Admin / Billing / Settings) |
@@ -203,6 +203,12 @@ Newest first. Per-table rationale lives in each table's section.
 
 | # | Decision | Why |
 |---|---|---|
+| D36 | **`create_event_with_details` stays monolithic** (append-a-block) through `media_05` (3rd extension: tasks/budget → guest-tags → album-presets). Extract a `_seed_event_catalog(...)` helper when a **4th** catalog-copy seed lands. | Don't restructure the app's hottest RPC on a feature PR; but the album/guest-tag/expense-type seed blocks are near-identical — record the extraction trigger once. |
+| D35 | **Media files in R2; the DB stores object keys** (`storage_key`, `thumbnail_key`) + metadata. Private bucket + signed URLs gated on event access. `published` is the single-entity website-gallery selector; **anon-read deferred** with the public site — and the safe future pattern is **signed URLs via a public-site route**, never `anon SELECT using(published)` on this mixed table. | Files aren't rows. An anon-read RLS policy on a table holding private photos is one bug from leaking the private subset. |
+| D34 | **Media storage usage derived** (`sum(event_media.byte_size)` via `event_media_storage`); **limit/tier deferred to [PLANNED] entitlements** (app hardcodes free = 5 GB). No `event_storage` table. `byte_size` is **advisory** (server-stamp from R2 HEAD; quota reconciles against real object size). | Storing a derivable aggregate drifts (D7); limit/tier belong to entitlements; the meter input is untrusted. |
+| D33 | **Album presets = `config.album_presets` catalog → per-event copy** (6 defaults seed `event_albums` at creation, `is_custom=false`; client INSERT requires `is_custom=true`, DEFINER seed writes the presets). | Consistent with `expense_types`/`guest_tags` (D25/D29); presets render as inert chips from day one; admin-tunable. |
+| D32 | **Media↔album M:N** (`event_media_albums`); **delete-album cascades only the links**, never the media. Trigger-guarded `event_id` (D27) + rejects a cross-event album. | The prototype models `albumIds[]`; link tables not arrays (D7/D27); the delete-album copy promises photos survive in All Photos. |
+| D31 | **One `event_media` table + a `kind` discriminator** (`text CHECK ('photo','video')`); video-only `duration_sec` (CHECK: null unless video). Photos + videos share grid/album-links/filters/sort. | The prototype merges them in one grid; two tables double the link tables/views/RLS + force UNIONs. `kind` is a true binary → CHECK, not a catalog. |
 | D30 | **Guest provenance = `is_custom` + `created_by`.** Catalog-seeded `event_guest_tags` get `is_custom=false` + `created_by=NULL` ("we made it"); host-added get `is_custom=true` + `created_by=auth.uid()` ("user made it"). The `event_guest_tags` **INSERT** policy requires `is_custom=true`, so a client can't forge a system-seeded tag (the DEFINER seed bypasses RLS to write the `false` defaults). `created_by` stamped server-side. | Founder wants to distinguish/audit system-seeded vs user-created rows. `is_custom` is the fast filter; `created_by` is the "who"; the INSERT-policy guard keeps the distinction unforgeable. |
 | D29 | **Guest tags = catalog → per-event copy** (like expense types, D25). `config.guest_tags` (admin defaults) seeds `public.event_guest_tags` per event; `event_guest_tag_links` is the guest↔tag M:N. `source_slug` is text provenance (not an FK). | The tag manager (rename/delete) needs tags as per-event entities, not strings; seeding gives starters; a global catalog would force all hosts to share one list. |
 | D28 | **RSVP is guest-level, single-valued** (`event_guests.rsvp_status_id` → `config.rsvp_statuses`), with a `category` column (`pending`/`attending`/`declined`/`tentative`) driving derived headcount. **`category` vocabulary is intentionally independent of `task_statuses`** (`open`/`done`/`dropped`) — RSVP ≠ task lifecycle. Per-function RSVP deferred. | Matches the built prototype (one status per guest); `category` keeps headcount off hardcoded slugs (D21 lesson). A name-only insert defaults to `pending` via the `default_guest_rsvp` trigger (CSV-import ergonomics). |
@@ -623,6 +629,61 @@ create table public.event_guest_tag_links (
 
 ---
 
+### Media & Memories module  `[NOW]` (built `media_01`–`media_05`)
+
+Host-side photo/video gallery + albums, **R2-backed** (DB stores object keys, never bytes). Catalog `config.album_presets` (6 defaults: Ceremony, Reception, Mehendi, Sangeet, Candids, Pre-Wedding) seeds each event's albums.
+
+```sql
+-- one table for photos + videos (kind discriminator)
+create table public.event_media (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,
+  kind text not null check (kind in ('photo','video')),
+  storage_key text not null,                  -- R2 object key (original); CHECK pins it under events/{id}/
+  thumbnail_key text,                         -- R2 thumb / video poster
+  name text, original_filename text, content_type text,
+  byte_size bigint not null default 0 check (byte_size >= 0),  -- ADVISORY (server-stamped from R2 HEAD)
+  width int, height int,
+  duration_sec int check (duration_sec is null or kind = 'video'),
+  sub_event_id uuid references public.event_sub_events(id) on delete set null,
+  taken_at timestamptz,                       -- EXIF; drives date filter (null excluded from range)
+  published boolean not null default false,   -- single-entity website-gallery selector
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now(),
+  check (storage_key like 'events/' || event_id::text || '/%')
+);
+create index idx_event_media_event_new on public.event_media(event_id, created_at desc, id desc);  -- Newest + keyset (created_at,id)
+create index idx_event_media_event_kind on public.event_media(event_id, kind);
+create index idx_event_media_event_subevent on public.event_media(event_id, sub_event_id);
+create index idx_event_media_event_taken on public.event_media(event_id, taken_at);
+create index idx_event_media_published on public.event_media(event_id) where published;
+
+create table public.event_albums (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,
+  name text not null,
+  is_custom boolean not null default false, source_slug text,         -- false+null = seeded preset
+  cover_media_id uuid references public.event_media(id) on delete set null,  -- host-selectable cover (same-event, guarded)
+  display_order int not null default 0,
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create unique index uq_event_albums_name on public.event_albums(event_id, lower(name));
+
+-- M:N (a photo in many albums); delete-album drops links only, media survives
+create table public.event_media_albums (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,  -- guard-derived; rejects cross-event
+  media_id uuid not null references public.event_media(id) on delete cascade,
+  album_id uuid not null references public.event_albums(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  unique (media_id, album_id)
+);
+```
+**Notes:** `event_media` created **before** `event_albums` (cover FK). `cover_media_id` SET NULL (delete a cover photo → album survives, cover blanks). Keys point at the **private** R2 bucket — served via signed URLs from an event-access-checked route; the `storage_key` CHECK keeps a row's key under its own event prefix. **Rationale:** D31 (single table+kind), D32 (M:N, links-only delete), D33 (preset catalog→copy), D34 (derived storage), D35 (R2 keys + published).
+
+---
+
 ## Views (derived)
 
 The Planning module reads its derived numbers (budget Spent/Remaining, the expense breakdown, task progress) from three views — so aggregates are never stored (D24/D5/D7).
@@ -682,6 +743,20 @@ create view public.event_sub_event_guest_counts as
 select event_id, sub_event_id, count(*) as guest_count
 from public.event_guest_sub_events group by event_id, sub_event_id;
 alter view public.event_sub_event_guest_counts set (security_invoker = on);
+
+-- Media storage meter usage + counts (limit/tier come from entitlements LATER)
+create view public.event_media_storage as
+select event_id, coalesce(sum(byte_size),0) as used_bytes,
+       count(*) filter (where kind='photo') as photo_count,
+       count(*) filter (where kind='video') as video_count
+from public.event_media group by event_id;
+alter view public.event_media_storage set (security_invoker = on);
+
+-- Album media counts (card shows when count >= 1; preset chips at 0)
+create view public.event_album_counts as
+select event_id, album_id, count(*) as media_count
+from public.event_media_albums group by event_id, album_id;
+alter view public.event_album_counts set (security_invoker = on);
 ```
 
 > The guest views are additionally **`grant select to authenticated`** only (`revoke from anon`) — even aggregate headcounts are owner-private. `event_guest_stats` returns **no row** for a zero-guest event; the FE coalesces a missing row to all-zeros.
@@ -693,6 +768,8 @@ alter view public.event_sub_event_guest_counts set (security_invoker = on);
 | `public.event_task_progress` | `event_id, done, total, percent` | Checklist progress "12 of 18 / 68%". |
 | `public.event_guest_stats` | `event_id, total, attending, pending, declined, maybe, attending_headcount, zero_assigned` | Guest stats cards. |
 | `public.event_sub_event_guest_counts` | `event_id, sub_event_id, guest_count` | Per-function sidebar counts. |
+| `public.event_media_storage` | `event_id, used_bytes, photo_count, video_count` | Storage meter (limit/tier from entitlements later). |
+| `public.event_album_counts` | `event_id, album_id, media_count` | Album cards (card ≥1, chip at 0). |
 
 ---
 
@@ -746,9 +823,10 @@ grant  execute on function public.event_task_counts(uuid) to authenticated;
 - seeds the checklist → `event_tasks` (status `pending`, priority from `event_checklists.default_priority_slug`, both resolved by slug);
 - seeds `event_expense_types` from `config.expense_types`;
 - inserts an empty `event_budgets` row;
-- seeds `event_guest_tags` from `config.guest_tags` (`is_custom=false`, `created_by=null`, `on conflict do nothing`) — added in `guests_05`.
+- seeds `event_guest_tags` from `config.guest_tags` (`is_custom=false`, `created_by=null`, `on conflict do nothing`) — added in `guests_05`;
+- seeds `event_albums` from `config.album_presets` (`is_custom=false`, `created_by=null`, `cover_media_id=null`, `on conflict do nothing`) — added in `media_05`.
 
-> The `guests_05` re-extension keeps the same 8-param signature + `RpcResult` shape, so the live caller `app/api/events/route.ts:120` is unaffected.
+> The `guests_05`/`media_05` re-extensions keep the same 8-param signature + `RpcResult` shape, so the live caller `app/api/events/route.ts:120` is unaffected. **D36:** the function stays monolithic until a 4th catalog-copy seed, then extract a `_seed_event_catalog` helper.
 
 ---
 
@@ -768,6 +846,10 @@ grant  execute on function public.event_task_counts(uuid) to authenticated;
 | `stamp_guest_tag_created_by` | `public.event_guest_tags` | before insert | stamps `created_by = auth.uid()` **only when `is_custom = true`** (seeds stay null) | **[NOW]** |
 | `guest_sub_event_before` | `public.event_guest_sub_events` | before insert/update | derives `event_id` from the guest; rejects a `sub_event_id` from another event. `SECURITY DEFINER`, pinned `search_path`. | **[NOW]** |
 | `guest_tag_link_before` | `public.event_guest_tag_links` | before insert/update | derives `event_id` from the guest; rejects a `tag_id` from another event. `SECURITY DEFINER`, pinned `search_path`. | **[NOW]** |
+| `stamp_media_created_by` | `public.event_media` | before insert | stamps `created_by = auth.uid()` (every upload is user) | **[NOW]** |
+| `stamp_album_created_by` | `public.event_albums` | before insert | stamps `created_by = auth.uid()` **only when `is_custom=true`** (seeded presets stay null — D33) | **[NOW]** |
+| `album_cover_before` | `public.event_albums` | before insert/update | when `cover_media_id` set, rejects a cover media from another event. `SECURITY DEFINER`, pinned `search_path`. | **[NOW]** |
+| `media_album_before` | `public.event_media_albums` | before insert/update | derives `event_id` from the media (RAISE if missing); rejects an `album_id` from another event. `SECURITY DEFINER`, pinned `search_path`. | **[NOW]** |
 
 > All the Guest guard/default/stamp trigger functions are `SECURITY DEFINER`, `search_path=''`, schema-qualified, `EXECUTE` revoked from `public`/`anon`/`authenticated`, and **BEFORE-only** (mutate `NEW`/`RAISE`, never write) so the row still passes the caller's RLS `with_check`.
 
@@ -819,6 +901,12 @@ RLS **enabled in the table-creation migration** (`guests_02`); policies added in
 
 **Catalogs** (`config.rsvp_statuses`, `config.guest_tags`) mirror the standard `config.*` pattern (RLS on, `SELECT using(true)`, no write policy, `grant select`). **PII:** `event_guests` holds guest contact (name/email/phone) — owner-only `authenticated`, no anon path; the guest views are `authenticated`-only grants.
 
+### Media & Memories module RLS  `[NOW]`
+
+RLS **enabled in the creating migration** (`media_02`); policies in `media_04`. `event_media` + `event_media_albums` get one `FOR ALL` owner-only policy on their `event_id`. `event_albums` is **split** (like `event_guest_tags`, D30): SELECT/UPDATE/DELETE owner-only (rename/delete seeded albums OK), **INSERT requires `is_custom=true`** (clients can't forge a preset; the DEFINER seed bypasses RLS). Catalog `config.album_presets`: `SELECT using(true)`, DML revoked from `anon`/`authenticated`, admin via `service_role`.
+
+**Storage (the crux):** media keys point at the **private** R2 bucket. RLS protects the rows; the **objects** are served only via short-lived signed URLs from a route that re-derives the event from the key and runs the same owner check as RLS (never trusts a client `event_id`). The `storage_key` CHECK keeps a row's key under its own `events/{event_id}/…` prefix. `published=true` media stay private for now (anon-read deferred — D35; safe future pattern = signed URLs via a public-site route, never `anon SELECT using(published)`). `byte_size` is advisory (server-stamp from R2 HEAD). Single-photo delete must purge both `storage_key`+`thumbnail_key` via a server route (raw client `.delete()` orphans the objects). The `delete_user_account` prefix purge covers media keys.
+
 ---
 
 ## Auth & login setup
@@ -856,11 +944,13 @@ delete auth.users(id)
  ├─ events where user_id = them   (cascade) → event_sub_events, event_tasks, event_task_assignees,
  │                                             event_budgets, event_expense_types, event_expenses,
  │                                             event_guests, event_guest_sub_events, event_guest_tags,
- │                                             event_guest_tag_links, event_collaborators, event_feature_overrides
+ │                                             event_guest_tag_links, event_media, event_albums,
+ │                                             event_media_albums, event_collaborators, event_feature_overrides
  ├─ event_task_assignees where user_id = them (cascade — unassigns them from others' tasks; those tasks stay)
  └─ event_collaborators where user_id = them  (cascade — removes them from others' events; those events stay)
 events.created_by / event_expenses.created_by / event_budgets.modified_by / event_task_assignees.assigned_by
-  / event_guests.created_by / event_guest_tags.created_by = them → SET NULL
+  / event_guests.created_by / event_guest_tags.created_by / event_media.created_by / event_albums.created_by = them → SET NULL
+  (event_albums.cover_media_id → SET NULL on media delete, not user delete — moot here since the whole event cascades)
 ```
 > **Storage:** the DB cascade does **not** delete R2 objects. The purge step must also remove each event's prefix — `events/{eventId}/…` — which covers media, invitations, **and expense receipts** (`event_expenses.receipt_key`). See `docs/R2-STORAGE-GUIDE.md`.
 
@@ -946,6 +1036,8 @@ Built when we reach the Admin (catalog management) and Billing/Settings pages.
 | Budget **breakdown** (per expense type) | `sum(amount)` + `count(*)` grouped by `expense_type_id` via `public.event_expense_breakdown` |
 | Guest **stats** (total / by RSVP category) + **attending headcount** + **zero-assigned** | counts + `sum(party_size) filter (category='attending')` over `event_guests` via `public.event_guest_stats` |
 | **Per-function guest count** | `count(*)` grouped by `sub_event_id` via `public.event_sub_event_guest_counts` |
+| Media **storage used** + photo/video counts | `sum(byte_size)` + filtered counts over `event_media` via `public.event_media_storage` (limit/tier from entitlements later) |
+| Album **media count** (card-vs-chip) | `count(*)` grouped by `album_id` via `public.event_album_counts` (no row = 0 = chip) |
 | "has sub-events" / "has collaborators" badges | `EXISTS` over `event_sub_events` / `event_collaborators` (status `active`) |
 | Guest roll-up | `sum(guest_count)` over `event_sub_events` |
 | Days-to-event | `events.primary_date - current_date` |

@@ -7,7 +7,7 @@
 | | |
 |---|---|
 | **Version** | `2026-06-14.1` |
-| **Backend status** | New model is **live on the dev project** (`smjkbmkxweevqpvygabe`). Catalogs seeded, 4 logins backfilled, RLS on (owner-only baseline). **Planning module live** (`planning_01`–`planning_07`): task priority/status/expense-type catalogs, budget + expenses tables, 3 derived views, helper RPCs. **Guest Management live** (`guests_01`–`guests_05`): rsvp-status + guest-tag catalogs, guest list + function/tag link tables, 2 derived views, guard/default triggers. |
+| **Backend status** | New model is **live on the dev project** (`smjkbmkxweevqpvygabe`). Catalogs seeded, 4 logins backfilled, RLS on (owner-only baseline). **Planning module live** (`planning_01`–`planning_07`): task priority/status/expense-type catalogs, budget + expenses tables, 3 derived views, helper RPCs. **Guest Management live** (`guests_01`–`guests_05`): rsvp-status + guest-tag catalogs, guest list + function/tag link tables, 2 derived views, guard/default triggers. **Media & Memories live** (`media_01`–`media_05`): album-preset catalog, `event_media` (photo+video) + `event_albums` + M:N link, 2 derived views, R2-keys (storage routes pending). |
 | **Types** | `lib/supabase/database.types.ts` |
 | **Heads-up** | The current deployed app queries the **old** shapes — this guide + the [old → new map](#old--new-change-map) is what you use to update it. |
 
@@ -59,7 +59,7 @@ npx supabase gen types typescript --project-id smjkbmkxweevqpvygabe --schema pub
 
 ## 2. The golden rule — `config` tables need `.schema('config')`
 
-Catalog tables (`event_types`, `event_sub_types`, `user_types`, `event_checklists`, the 3 Planning catalogs `task_priorities`/`task_statuses`/`expense_types`, and the 2 Guest catalogs `rsvp_statuses`/`guest_tags`) live in the **`config`** schema, not `public`. supabase-js defaults to `public`, so:
+Catalog tables (`event_types`, `event_sub_types`, `user_types`, `event_checklists`, the 3 Planning catalogs `task_priorities`/`task_statuses`/`expense_types`, and the 2 Guest catalogs `rsvp_statuses`/`guest_tags`, the Media catalog `album_presets`) live in the **`config`** schema, not `public`. supabase-js defaults to `public`, so:
 
 ```ts
 // ❌ WRONG — looks in public, returns "relation does not exist"
@@ -285,6 +285,26 @@ await supabase.from('event_sub_event_guest_counts').select('*').eq('event_id', e
 ```
 Cache `config.rsvp_statuses` + `config.guest_tags` like the other catalogs (need `.schema('config')`). Tag manager: rename = one `update` on `event_guest_tags`; delete cascades the links.
 
+### Media & Memories (live — `media_01`–`media_05`)
+
+> **Storage ops go through server routes, not raw client calls** — the production `/api/storage/*` routes are still pending, so the grid is non-functional until they land:
+```ts
+// upload: presigned R2 PUT, then a SERVER commit route inserts the event_media row
+//   (server re-derives the key under events/{eventId}/, stamps byte_size from the R2 HEAD).
+// display: a BATCH sign route returns signed URLs for an array of keys (authorizes each key's
+//   event scope). Sign thumbnail_key for grid tiles; sign storage_key lazily on lightbox open.
+// single delete: a SERVER route purges storage_key + thumbnail_key from R2, then deletes the row.
+
+// add/remove media to album (client-safe; the guard fills event_id):
+await supabase.from('event_media_albums')
+  .upsert(mediaIds.map(m => ({ media_id: m, album_id })), { onConflict: 'media_id,album_id', ignoreDuplicates: true })
+// create album from the client ALWAYS lands is_custom:true; set cover = update event_albums.cover_media_id
+// album cards: LEFT JOIN albums -> event_album_counts (missing row = 0 -> render preset as a chip)
+// storage meter: event_media_storage.used_bytes (coalesce no-row -> 0); limit/tier hardcoded (free 5GB) until entitlements
+// Newest = order by created_at desc, id desc (keyset cursor (created_at,id)); date filter = taken_at; website = where published
+```
+Cache `config.album_presets` like the other catalogs (`.schema('config')`).
+
 ---
 
 ## 5. Old → new change map
@@ -304,6 +324,7 @@ What changed vs the shapes the current app code uses:
 | — | new: `user_preferences`, `event_collaborators`, `event_tasks`, `config.event_checklists` | use as needed |
 | — | new (Planning): `config.task_priorities`, `config.task_statuses`, `config.expense_types`; `public.event_task_assignees`, `event_budgets`, `event_expense_types`, `event_expenses`; views `event_budget_summary`, `event_expense_breakdown`, `event_task_progress`; RPCs `event_task_counts`, `bulk_set_task_status` | see the Planning recipes in §4 |
 | — | new (Guests): `config.rsvp_statuses`, `config.guest_tags`; `public.event_guests`, `event_guest_sub_events`, `event_guest_tags`, `event_guest_tag_links`; views `event_guest_stats`, `event_sub_event_guest_counts` | see the Guest recipes in §4; `create_event_with_details` now also seeds default guest tags |
+| — | new (Media): `config.album_presets`; `public.event_media`, `event_albums`, `event_media_albums`; views `event_media_storage`, `event_album_counts` | see the Media recipes in §4; storage ops via server routes (pending); `create_event_with_details` also seeds album presets |
 
 ---
 
