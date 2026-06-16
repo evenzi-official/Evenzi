@@ -102,6 +102,7 @@ One row per invitation card. A card is either template-based (host picks a templ
 | `card_upload_key` | text | | R2 private key — host's full card image (upload mode only; NULL in template mode) |
 | `photo_bg_key` | text | | R2 private key — host-uploaded background photo (photo-layout templates only; NULL otherwise) |
 | `share_token` | text | UK NOT NULL | server-generated on INSERT via trigger: encode(gen_random_bytes(12),'hex') |
+| `share_enabled` | bool | NOT NULL DEFAULT true | host can disable the public link without deleting the card; public endpoint returns 404 when false |
 | `rendered_card_key` | text | | R2 public key — server-rendered card PNG (set by render pipeline) |
 | `rendered_pdf_key` | text | | R2 private key — server-rendered PDF (schema-planned; render built post-v1) |
 | `render_status` | text | NOT NULL DEFAULT 'draft' CHECK (render_status IN ('draft','rendering','ready')) | |
@@ -175,7 +176,11 @@ CREATE POLICY "owner CRUD"
   );
 ```
 
-**Public share URL** (`/invite/{share_token}`): the hosted card page reads the card via a Next.js API route using `service_role` client (bypasses RLS). Only `rendered_card_key`, slot text, and template info are exposed to the guest — private R2 keys are never returned client-side.
+**Public share URL** (`/invite/{share_token}`): the hosted card page reads the card via a Next.js API route using `service_role` client (bypasses RLS), querying **`invitation_card_guest_view`** (not the base table). Returns 404 when `share_enabled = false` or the token is not found. Private R2 keys (`card_upload_key`, `photo_bg_key`, `rendered_pdf_key`) are never exposed — they are absent from the guest view.
+
+**Token revocation:** the host can set `share_enabled = false` to disable a link instantly without deleting the card. Token rotation (generate a new `share_token` + flip `share_enabled = true`) is a future UI feature; the column and RPC hook are schema-planned here.
+
+**Route exclusion:** `/invite/[token]` must be added to the public-paths list in `middleware.ts` (CLAUDE.md shows middleware protects all non-`/api/*`, non-`/auth/*` paths by default — unauthenticated guests will be 401-redirected without this).
 
 **Catalog tables:**
 ```sql
@@ -188,7 +193,9 @@ CREATE POLICY "public read"
 
 ---
 
-## View
+## Views
+
+### `event_invitation_card_summary` (host-facing, security_invoker)
 
 ```sql
 CREATE VIEW event_invitation_card_summary
@@ -198,13 +205,15 @@ SELECT
   c.event_id,
   c.sub_event_id,
   COALESCE(ese.custom_name, cest.name, 'Main Event') AS sub_event_label,
-  t.name                     AS template_name,
-  t.style_slug               AS template_style,
-  t.layout                   AS template_layout,
+  t.name                              AS template_name,
+  t.style_slug                        AS template_style,
+  t.layout                            AS template_layout,
   c.is_default,
   c.is_custom,
   c.render_status,
   c.share_token,
+  c.share_enabled,
+  (c.card_upload_key IS NOT NULL)     AS is_uploaded_card,
   c.created_at,
   c.updated_at
 FROM event_invitation_cards c
@@ -212,6 +221,39 @@ LEFT JOIN event_sub_events ese ON ese.id = c.sub_event_id
 LEFT JOIN config.event_sub_types cest ON cest.id = ese.event_sub_type_id
 LEFT JOIN config.invitation_templates t ON t.id = c.template_id;
 ```
+
+### `invitation_card_guest_view` (public share path — service_role queries this, never the base table)
+
+Projects only guest-safe columns. Private R2 keys, audit fields, and internal metadata are absent. The public share route (`/invite/{share_token}`) and the render pipeline both read from this view.
+
+```sql
+CREATE VIEW invitation_card_guest_view AS
+SELECT
+  c.id,
+  c.event_id,
+  c.sub_event_id,
+  c.template_id,
+  c.slot_eyebrow,
+  c.slot_couple,
+  c.slot_invite,
+  c.slot_date,
+  c.slot_time,
+  c.slot_venue,
+  c.slot_message,
+  c.rendered_card_key,
+  c.render_status,
+  c.share_token,
+  c.share_enabled,
+  t.name    AS template_name,
+  t.style_slug,
+  t.layout,
+  t.default_photo_key
+FROM event_invitation_cards c
+LEFT JOIN config.invitation_templates t ON t.id = c.template_id
+WHERE c.share_enabled = true;
+```
+
+The `WHERE share_enabled = true` clause in this view means a 404 is the natural outcome when the host has disabled the link — the row simply isn't visible through this view.
 
 ---
 
@@ -258,12 +300,31 @@ The future `event_guest_invites` send-log (Guest Management) will store `guest_i
 
 | Migration | Tables / Objects |
 |-----------|-----------------|
-| `inv_01` | `config.invitation_card_styles` + 5 seed rows |
-| `inv_02` | `config.invitation_templates` + 7 seed rows (preview/thumbnail/photo keys TBD — added when R2 assets are uploaded) |
-| `inv_03` | `event_invitation_cards` — table + check constraint + 2 partial unique indexes + 3 triggers |
-| `inv_04` | RLS policies on all 3 tables |
-| `inv_05` | `event_invitation_card_summary` view |
-| `inv_06` | Extend `create_event_with_details` — add invitation card seed block |
+| `inv_01` | `config.invitation_card_styles` + 5 seed rows + public-read RLS inline |
+| `inv_02` | `config.invitation_templates` + 7 seed rows + public-read RLS inline (preview/thumbnail/photo keys set when R2 assets are uploaded) |
+| `inv_03` | `event_invitation_cards` — table + check constraint + 2 partial unique indexes + 3 triggers + owner-only RLS inline |
+| `inv_04` | `event_invitation_card_summary` + `invitation_card_guest_view` |
+| `inv_05` | Extend `create_event_with_details` — add invitation card seed block (with ON CONFLICT / WHERE NOT EXISTS idempotency guard) |
+| `inv_06` | DATA-MODEL.md doc update (tables, views, triggers, decision log entry — rule #8) |
+
+**Note:** RLS is inlined in each creating migration (inv_01, inv_02, inv_03) per project convention (guests, media module precedent). There is no separate RLS migration.
+
+## Council Findings Checklist (address during migrations)
+
+Critical fixes applied to this spec:
+- ✅ C1 — `invitation_card_guest_view` created; public share route reads only this view
+- ✅ C2 — `share_enabled bool` added; revocation documented; route exclusion noted
+
+Important items for migration authors to address (not spec-level gaps, implementation-level):
+- I1 — Add `'failed'` to `render_status` CHECK in `inv_03`
+- I2 — Use `style_id uuid FK → config.invitation_card_styles(id)` not `style_slug` FK
+- I3 — Add `WITH CHECK` clause to owner CRUD RLS policy in `inv_03`
+- I4 — Document `auth.uid()` threading in DEFINER context in `inv_03` trigger bodies (follow D37 pattern)
+- I5 — Seed only main event card in v1 (defer sub-event seeding), OR define UI multi-card path — **decision needed from Abhijith before inv_05**
+- I6 — Add idempotency guard (`ON CONFLICT DO NOTHING` or `WHERE NOT EXISTS`) in `inv_05` invitation seed block
+- I7 — Confirm `event_sub_events` is Events Core (not separate module) in DATA-MODEL.md before `inv_06` lands
+- I8 — Check D37 shared stamp functions exist before creating new per-table DEFINER functions in `inv_03`; reuse if available
+- I9 — Add `/invite/[token]` to public paths in `middleware.ts` (already flagged in spec above)
 
 ---
 
@@ -281,3 +342,7 @@ Config seeds Invitations (dashed arrow). Invitations has parent FK to Events Cor
 - `CONFIG_INVITATION_TEMPLATES |o--o{ EVENT_INVITATION_CARDS : "seeds (set null)"`
 - `EVENTS ||--o{ EVENT_INVITATION_CARDS : "has"`
 - `EVENT_SUB_EVENTS |o--o{ EVENT_INVITATION_CARDS : "tagged (set null)"`
+
+---
+
+**Council reviewed:** 2026-06-16 by data_modeller · backend_engineer · security_expert · product_manager · tech_lead. Verdict: 🟡 ADDRESS-THEN-PROCEED — 2 criticals fixed in spec (share_enabled + invitation_card_guest_view); 10 importants moved to migration checklist.
