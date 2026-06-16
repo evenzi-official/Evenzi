@@ -4,6 +4,68 @@
 
 ---
 
+## ▶ START HERE NEXT — Invitations data model (copy-paste prompt)
+
+> Paste this after `/start-evenzi-session` (Abhijith path → "Continue data model"):
+
+```
+Continue the page-by-page data model. Next slice = INVITATIONS.
+
+Scope (per MVP split): model the invitation CARD DESIGNER / personalizer only —
+the host picks a locked template, personalizes it (inline text on the card,
+upload-first front image, dark-mode-immune), and gets a hosted card + a WhatsApp
+share (text + link). The WhatsApp SEND + delivery/read TRACKING stays in Guest
+Management as a FUTURE event_guest_invites send-log — NOT this slice.
+
+Ground in the prototype first: designs/pages/invitations/ (_spec.md / _page.md /
+the JS fixtures) — it's the canonical build target (card personalizer, locked
+templates, inline-on-card edit, upload, honest WhatsApp share). Read it before proposing schema.
+
+Follow the SAME flow we used for Planning/Guests/Media:
+brainstorm -> spec -> 4-agent council (data_modeller/backend/security/tech_lead) ->
+fold fixes -> plan -> migrations on dev Supabase (teaching mode, narrate each) ->
+smoke test -> regenerate types (merge the config block) -> sync DATA-MODEL.md +
+FE-INTEGRATION.md + ERD.md + evenzi-erd.drawio (maintenance rule #8) -> commit.
+
+Likely shape to validate (don't assume): a config.invitation_templates catalog
+(locked designs, R2 asset keys) + per-event invitation cards (event_id, template
+ref, personalized text as jsonb or columns, uploaded front-image R2 key,
+rendered card R2 key, share text). Card image lives in R2 (DB stores keys, like
+media/receipts). Reuse: event_sub_events (which function the card is for?), the
+catalog->per-event-copy + is_custom + created_by/updated_by patterns, owner-only
+RLS, security_invoker views. Decide: card per-event, per-sub-event, or per-guest-
+segment? Does create_event_with_details seed anything? Confirm the WhatsApp-send
+deferral + the published/hosted-URL story.
+
+All prior modules are live on dev (smjkbmkxweevqpvygabe); DATA-MODEL.md is at
+v2026-06-16.3 (D1-D37). create_event_with_details is monolithic — per D36, if
+Invitations adds a 4th catalog-copy seed, that's the trigger to extract a
+_seed_event_catalog() helper.
+```
+
+After Invitations, the remaining unmodeled pages are **Event Settings** and **Website / Digital Presence**.
+
+---
+
+## Recently Landed (2026-06-16 — Data model: Planning + Guest Mgmt + Media + full ERD)
+
+Large data-model session (Abhijith), teaching mode. Full report: `docs/session-reports/2026-06-16-session-report.md`. 17 commits on `claude/trusting-goldwasser-03009d`. No ClickUp/sprint activity (no active sprint; data-model architecture work).
+
+- **Three feature modules built + live on dev** (`smjkbmkxweevqpvygabe`), each via brainstorm → spec → 4-agent council → plan → migrations → smoke test → types → doc sync:
+  - **Planning** (`planning_01–07`): task priority/status/expense-type catalogs; extended `event_tasks` (status/priority/due/sub-event, dropped `is_done`); `event_task_assignees`, `event_budgets` (1:1), `event_expense_types`, `event_expenses`; 3 views; `event_task_counts`/`bulk_set_task_status` RPCs; **built `create_event_with_details`**. D21–D26.
+  - **Guest Management** (`guests_01–05`): `rsvp_statuses`/`guest_tags` catalogs; `event_guests` (guest-level RSVP, party_size) + `event_guest_sub_events` + `event_guest_tags`/`event_guest_tag_links` (M:N); 2 views. D27–D30.
+  - **Media & Memories** (`media_01–06`): `album_presets` catalog; `event_media` (photo+video, R2 keys, `published`) + `event_albums` (cover) + `event_media_albums` (M:N) + `event_media_tags`/`event_media_tag_links` (M:N) + `updated_by` audit; 2 views. D31–D37.
+- **`create_event_with_details`** now seeds 6 child sets in one transaction (sub-events, tasks, expense types, budget, guest tags, album presets) — same 8-param signature, live caller `app/api/events/route.ts:120` unaffected.
+- **Full ERD + flows** added: `docs/data-model/ERD.md` (Mermaid, 26 tables + functions/triggers/views + create-event/RLS/deletion flows) + `docs/data-model/evenzi-erd.drawio` (editable). **New maintenance rule #8** — these refresh in the same PR as any schema change.
+- **Docs current:** `DATA-MODEL.md` v`2026-06-16.3` (D1–D37), `FE-INTEGRATION.md`, generated `database.types.ts` (`tsc` clean).
+
+**Carryover (cross-module, deferred):**
+- **`can_access_event()` collaborator-RLS cutover** — swap all event-children from owner-only inlined to the helper in one migration.
+- **Production `/api/storage/*` routes** (batch signed-URL + upload-commit + single-delete purge) — Media's grid + expense receipts are non-functional until these land.
+- **FE on the new schema** — the deployed app still queries old shapes (Dheeraj's CORE-update carryover); `app/api/events/[id]/route.ts:93` still hits the dropped `event_metadata`.
+
+---
+
 ## Recently Landed (2026-06-13c — Data model foundation + Supabase backend on DEV)
 
 Data-model architecture + Supabase backend session (Abhijith), teaching mode. Full report: `docs/session-reports/2026-06-13c-session-report.md`. ClickUp: `86d3bay3j` (under Infra: Platform & DevOps).

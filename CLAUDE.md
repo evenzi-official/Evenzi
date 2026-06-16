@@ -355,11 +355,11 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 | Feature | Priority | Status | Subtasks |
 |---------|----------|--------|----------|
 | Event Management Hub | P0 | Not Started | 16 |
-| Guest Management & RSVP | P1 | Not Started | 25 |
+| Guest Management & RSVP | P1 | **Data model LIVE on dev** (`guests_01-05`); design prototype DONE; FE/app not started | 25 |
 | Event Settings | P1 | Not Started | 20 |
 | User Settings | P1 | Not Started | 20 |
-| Planning Tools (Checklist + Budget) | P2 | Not Started | 15 |
-| Media & Memories (Photo Gallery) | P2 | Design prototype DONE (host dashboard — Photos/Videos/Albums, sort/filter, bulk, lightbox; `designs/pages/media/`) | 25 |
+| Planning Tools (Checklist + Budget) | P2 | **Data model LIVE on dev** (`planning_01-07`); design v2 DONE; FE/app not started | 15 |
+| Media & Memories (Photo Gallery) | P2 | **Data model LIVE on dev** (`media_01-06`); design prototype DONE (Photos/Videos/Albums; `designs/pages/media/`); FE/app not started | 25 |
 | Digital Presence (Event Website) | P2 | Not Started | Partial |
 | Admin Module (Developer Panel) | P2 | Not Started | 15 |
 | Digital Invitations (WhatsApp) | P3 | Design prototype DONE — **scope = invitation CARD designer** (personalizer; `designs/pages/invitations/`). WhatsApp send + status tracking stays in Guest Mgmt (see PORT-MAP / overview scope split). | 0 |
