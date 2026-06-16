@@ -26,6 +26,7 @@ export type Database = {
           name: string
           source_slug: string | null
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           cover_media_id?: string | null
@@ -38,6 +39,7 @@ export type Database = {
           name: string
           source_slug?: string | null
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           cover_media_id?: string | null
@@ -50,6 +52,7 @@ export type Database = {
           name?: string
           source_slug?: string | null
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -481,6 +484,7 @@ export type Database = {
           taken_at: string | null
           thumbnail_key: string | null
           updated_at: string
+          updated_by: string | null
           width: number | null
         }
         Insert: {
@@ -501,6 +505,7 @@ export type Database = {
           taken_at?: string | null
           thumbnail_key?: string | null
           updated_at?: string
+          updated_by?: string | null
           width?: number | null
         }
         Update: {
@@ -521,6 +526,7 @@ export type Database = {
           taken_at?: string | null
           thumbnail_key?: string | null
           updated_at?: string
+          updated_by?: string | null
           width?: number | null
         }
         Relationships: [
@@ -582,6 +588,93 @@ export type Database = {
             columns: ["media_id"]
             isOneToOne: false
             referencedRelation: "event_media"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_media_tag_links: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          media_id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          media_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          media_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_tag_links_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_media_tag_links_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "event_media"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_media_tag_links_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "event_media_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_media_tags: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          event_id: string
+          id: string
+          name: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          event_id: string
+          id?: string
+          name: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          event_id?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_tags_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]

@@ -304,6 +304,13 @@ await supabase.from('event_media_albums')
 // Newest = order by created_at desc, id desc (keyset cursor (created_at,id)); date filter = taken_at; website = where published
 ```
 Cache `config.album_presets` like the other catalogs (`.schema('config')`).
+```ts
+// media tags (media_06): per-event entities, no config catalog (all host-created)
+await supabase.from('event_media_tags').insert({ event_id, name: 'Favorites' })   // created_by stamped server-side
+await supabase.from('event_media_tag_links')
+  .upsert(mediaIds.map(m => ({ media_id: m, tag_id })), { onConflict: 'media_id,tag_id', ignoreDuplicates: true })  // guard fills event_id
+// updated_by (last editor) on event_media/event_albums/event_media_tags is stamped on UPDATE — don't send it
+```
 
 ---
 
@@ -324,7 +331,7 @@ What changed vs the shapes the current app code uses:
 | — | new: `user_preferences`, `event_collaborators`, `event_tasks`, `config.event_checklists` | use as needed |
 | — | new (Planning): `config.task_priorities`, `config.task_statuses`, `config.expense_types`; `public.event_task_assignees`, `event_budgets`, `event_expense_types`, `event_expenses`; views `event_budget_summary`, `event_expense_breakdown`, `event_task_progress`; RPCs `event_task_counts`, `bulk_set_task_status` | see the Planning recipes in §4 |
 | — | new (Guests): `config.rsvp_statuses`, `config.guest_tags`; `public.event_guests`, `event_guest_sub_events`, `event_guest_tags`, `event_guest_tag_links`; views `event_guest_stats`, `event_sub_event_guest_counts` | see the Guest recipes in §4; `create_event_with_details` now also seeds default guest tags |
-| — | new (Media): `config.album_presets`; `public.event_media`, `event_albums`, `event_media_albums`; views `event_media_storage`, `event_album_counts` | see the Media recipes in §4; storage ops via server routes (pending); `create_event_with_details` also seeds album presets |
+| — | new (Media): `config.album_presets`; `public.event_media`, `event_albums`, `event_media_albums`, `event_media_tags`, `event_media_tag_links`; views `event_media_storage`, `event_album_counts`; `updated_by` audit on media/albums/media-tags | see the Media recipes in §4; storage ops via server routes (pending); `create_event_with_details` also seeds album presets |
 
 ---
 

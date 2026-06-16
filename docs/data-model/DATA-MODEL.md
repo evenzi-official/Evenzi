@@ -6,7 +6,7 @@
 
 | | |
 |---|---|
-| **Version** | `2026-06-16.2` |
+| **Version** | `2026-06-16.3` |
 | **Last updated** | 2026-06-16 |
 | **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + **Planning** (Checklist/Tasks + Budget) + **Guest Management** (guest list, RSVP, function assignments, tags) + **Media & Memories** (photo/video gallery + albums, R2-backed). Enablement & entitlements + account deletion shapes recorded as **[PLANNED]**. |
 | **Database** | Supabase Postgres — project `smjkbmkxweevqpvygabe` (ap-northeast-1) |
@@ -203,6 +203,7 @@ Newest first. Per-table rationale lives in each table's section.
 
 | # | Decision | Why |
 |---|---|---|
+| D37 | **Media tagging + audit (`media_06`).** Media is taggable beyond albums/sub-events via `public.event_media_tags` (per-event entities — **pure per-event, no `config` catalog / no `is_custom`**: media tags have no universal defaults to seed) + `event_media_tag_links` (M:N, trigger-guarded `event_id`). Added `updated_by` (last-editor audit, stamped on UPDATE via `stamp_updated_by`) to `event_media` + `event_albums` + `event_media_tags`. | Founder ask: tag media + track last-editor. Unlike guest tags (which had seedable defaults), media tags are entirely host-created → no catalog/`is_custom` machinery needed. `updated_by` complements `created_by` for full provenance. |
 | D36 | **`create_event_with_details` stays monolithic** (append-a-block) through `media_05` (3rd extension: tasks/budget → guest-tags → album-presets). Extract a `_seed_event_catalog(...)` helper when a **4th** catalog-copy seed lands. | Don't restructure the app's hottest RPC on a feature PR; but the album/guest-tag/expense-type seed blocks are near-identical — record the extraction trigger once. |
 | D35 | **Media files in R2; the DB stores object keys** (`storage_key`, `thumbnail_key`) + metadata. Private bucket + signed URLs gated on event access. `published` is the single-entity website-gallery selector; **anon-read deferred** with the public site — and the safe future pattern is **signed URLs via a public-site route**, never `anon SELECT using(published)` on this mixed table. | Files aren't rows. An anon-read RLS policy on a table holding private photos is one bug from leaking the private subset. |
 | D34 | **Media storage usage derived** (`sum(event_media.byte_size)` via `event_media_storage`); **limit/tier deferred to [PLANNED] entitlements** (app hardcodes free = 5 GB). No `event_storage` table. `byte_size` is **advisory** (server-stamp from R2 HEAD; quota reconciles against real object size). | Storing a derivable aggregate drifts (D7); limit/tier belong to entitlements; the meter input is untrusted. |
@@ -682,6 +683,28 @@ create table public.event_media_albums (
 ```
 **Notes:** `event_media` created **before** `event_albums` (cover FK). `cover_media_id` SET NULL (delete a cover photo → album survives, cover blanks). Keys point at the **private** R2 bucket — served via signed URLs from an event-access-checked route; the `storage_key` CHECK keeps a row's key under its own event prefix. **Rationale:** D31 (single table+kind), D32 (M:N, links-only delete), D33 (preset catalog→copy), D34 (derived storage), D35 (R2 keys + published).
 
+**Media tagging + audit (`media_06`, D37):** `event_media` + `event_albums` gained `updated_by uuid → auth.users(id) on delete set null` (last-editor, stamped on UPDATE by `stamp_updated_by`). Plus a media-tag pair — **no `config` catalog, no `is_custom`** (pure host-created):
+```sql
+create table public.event_media_tags (          -- per-event media tag entities
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,
+  name text not null,
+  created_by uuid references auth.users(id) on delete set null,
+  updated_by uuid references auth.users(id) on delete set null,
+  display_order int not null default 0,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create unique index uq_event_media_tags_name on public.event_media_tags(event_id, lower(name));
+create table public.event_media_tag_links (      -- media <-> tag (M:N), guard-derived event_id
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,
+  media_id uuid not null references public.event_media(id) on delete cascade,
+  tag_id uuid not null references public.event_media_tags(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  unique (media_id, tag_id)
+);
+```
+
 ---
 
 ## Views (derived)
@@ -850,6 +873,9 @@ grant  execute on function public.event_task_counts(uuid) to authenticated;
 | `stamp_album_created_by` | `public.event_albums` | before insert | stamps `created_by = auth.uid()` **only when `is_custom=true`** (seeded presets stay null — D33) | **[NOW]** |
 | `album_cover_before` | `public.event_albums` | before insert/update | when `cover_media_id` set, rejects a cover media from another event. `SECURITY DEFINER`, pinned `search_path`. | **[NOW]** |
 | `media_album_before` | `public.event_media_albums` | before insert/update | derives `event_id` from the media (RAISE if missing); rejects an `album_id` from another event. `SECURITY DEFINER`, pinned `search_path`. | **[NOW]** |
+| `stamp_updated_by` | `event_media` / `event_albums` / `event_media_tags` | before update | stamps `updated_by = auth.uid()` (last-editor) — separate from `set_updated_at` (D37) | **[NOW]** |
+| `stamp_media_tag_created_by` | `public.event_media_tags` | before insert | stamps `created_by = auth.uid()` | **[NOW]** |
+| `media_tag_link_before` | `public.event_media_tag_links` | before insert/update | derives `event_id` from the media (RAISE if missing); rejects a `tag_id` from another event. `SECURITY DEFINER`, pinned `search_path`. | **[NOW]** |
 
 > All the Guest guard/default/stamp trigger functions are `SECURITY DEFINER`, `search_path=''`, schema-qualified, `EXECUTE` revoked from `public`/`anon`/`authenticated`, and **BEFORE-only** (mutate `NEW`/`RAISE`, never write) so the row still passes the caller's RLS `with_check`.
 
@@ -907,6 +933,8 @@ RLS **enabled in the creating migration** (`media_02`); policies in `media_04`. 
 
 **Storage (the crux):** media keys point at the **private** R2 bucket. RLS protects the rows; the **objects** are served only via short-lived signed URLs from a route that re-derives the event from the key and runs the same owner check as RLS (never trusts a client `event_id`). The `storage_key` CHECK keeps a row's key under its own `events/{event_id}/…` prefix. `published=true` media stay private for now (anon-read deferred — D35; safe future pattern = signed URLs via a public-site route, never `anon SELECT using(published)`). `byte_size` is advisory (server-stamp from R2 HEAD). Single-photo delete must purge both `storage_key`+`thumbnail_key` via a server route (raw client `.delete()` orphans the objects). The `delete_user_account` prefix purge covers media keys.
 
+The media-tag tables (`event_media_tags`, `event_media_tag_links`, D37) get one `FOR ALL` owner-only policy each (RLS enabled in `media_06`); no `is_custom` split (pure host-created, nothing to forge); the link's `event_id` is guard-derived from the media.
+
 ---
 
 ## Auth & login setup
@@ -945,11 +973,13 @@ delete auth.users(id)
  │                                             event_budgets, event_expense_types, event_expenses,
  │                                             event_guests, event_guest_sub_events, event_guest_tags,
  │                                             event_guest_tag_links, event_media, event_albums,
- │                                             event_media_albums, event_collaborators, event_feature_overrides
+ │                                             event_media_albums, event_media_tags, event_media_tag_links,
+ │                                             event_collaborators, event_feature_overrides
  ├─ event_task_assignees where user_id = them (cascade — unassigns them from others' tasks; those tasks stay)
  └─ event_collaborators where user_id = them  (cascade — removes them from others' events; those events stay)
 events.created_by / event_expenses.created_by / event_budgets.modified_by / event_task_assignees.assigned_by
-  / event_guests.created_by / event_guest_tags.created_by / event_media.created_by / event_albums.created_by = them → SET NULL
+  / event_guests.created_by / event_guest_tags.created_by / event_media.created_by / event_albums.created_by
+  / *.updated_by (event_media/event_albums/event_media_tags) / event_media_tags.created_by = them → SET NULL
   (event_albums.cover_media_id → SET NULL on media delete, not user delete — moot here since the whole event cascades)
 ```
 > **Storage:** the DB cascade does **not** delete R2 objects. The purge step must also remove each event's prefix — `events/{eventId}/…` — which covers media, invitations, **and expense receipts** (`event_expenses.receipt_key`). See `docs/R2-STORAGE-GUIDE.md`.
