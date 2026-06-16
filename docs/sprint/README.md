@@ -4,9 +4,7 @@ This folder mirrors ClickUp sprint state into the repo so Dheeraj (who has no Cl
 
 ## Active sprint
 
-**Active sprint:** _none yet_
-
-> When Sprint 1 is created, set this line to `**Active sprint:** sprint-1` and create the folder. `/start-evenzi-session` and `/end-evenzi-session` read this pointer first; they fall back to the highest-numbered `sprint-N/` folder if missing.
+**Active sprint:** sprint-1
 
 ## Folder layout (per sprint)
 

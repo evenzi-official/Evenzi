@@ -1,169 +1,446 @@
 # Evenzi — Full Data Model ERD, Functions & Flows
 
-> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-06-16.3** — CORE + Planning + Guests + Media. Renders on GitHub / VS Code (Mermaid). A draw.io-editable version sits beside this file: [`evenzi-erd.drawio`](evenzi-erd.drawio).
+> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-06-16.3** — CORE + Planning + Guests + Media. Renders on GitHub / VS Code (Mermaid).
 >
 > **Schemas:** `config.*` = reference/catalog (admin-seeded, public-read) · `public.*` = live app data (owner-only RLS) · `auth.*` = Supabase-managed identity.
 
 ---
 
-## 1. Entity-Relationship Diagram (all tables)
+## 1. Domain Module Map
+
+Six modules, each owning its tables. Config seeds all child modules at event creation; Events Core is the FK anchor for every `public.*` table.
+
+```mermaid
+flowchart TB
+  subgraph CFG["⚙️ Config / Catalog  (config schema)"]
+    CUT[config_user_types]
+    CET[config_event_types]
+    CEST[config_event_sub_types]
+    CEC[config_event_checklists]
+    CTP[config_task_priorities]
+    CTS[config_task_statuses]
+    CEXT[config_expense_types]
+    CRS[config_rsvp_statuses]
+    CGT[config_guest_tags]
+    CAP[config_album_presets]
+  end
+
+  subgraph USR["👤 Identity / Users"]
+    UP[user_profiles]
+    UPR[user_preferences]
+  end
+
+  subgraph CORE["📅 Events Core"]
+    E[events]
+    ESE[event_sub_events]
+    EC[event_collaborators]
+  end
+
+  subgraph PLN["📋 Planning"]
+    ET[event_tasks]
+    ETA[event_task_assignees]
+    EB[event_budgets]
+    EXPT[event_expense_types]
+    EXP[event_expenses]
+  end
+
+  subgraph GST["👥 Guest Management"]
+    EG[event_guests]
+    EGSE[event_guest_sub_events]
+    EGT[event_guest_tags]
+    EGTL[event_guest_tag_links]
+  end
+
+  subgraph MED["📸 Media & Memories"]
+    EM[event_media]
+    EA[event_albums]
+    EMA[event_media_albums]
+    EMT[event_media_tags]
+    EMTL[event_media_tag_links]
+  end
+
+  CFG -. "seeds / defines" .-> CORE
+  CFG -. "seeds" .-> PLN
+  CFG -. "seeds" .-> GST
+  CFG -. "seeds" .-> MED
+  USR -- "owns" --> CORE
+  CORE -- "parent FK" --> PLN
+  CORE -- "parent FK" --> GST
+  CORE -- "parent FK" --> MED
+
+  classDef cfg fill:#e8eeff,stroke:#5b7fd4,color:#1e3a6e;
+  classDef usr fill:#e8fef0,stroke:#47a86e,color:#144d2e;
+  classDef core fill:#fff3e0,stroke:#e8941a,color:#6d3c00;
+  classDef pln fill:#f3e8ff,stroke:#9b59d4,color:#4a1a7e;
+  classDef gst fill:#ffe8ec,stroke:#d45b74,color:#6e1a2e;
+  classDef med fill:#e8f8ff,stroke:#2e9fd4,color:#0a3d5e;
+
+  class CUT,CET,CEST,CEC,CTP,CTS,CEXT,CRS,CGT,CAP cfg;
+  class UP,UPR usr;
+  class E,ESE,EC core;
+  class ET,ETA,EB,EXPT,EXP pln;
+  class EG,EGSE,EGT,EGTL gst;
+  class EM,EA,EMA,EMT,EMTL med;
+```
+
+**Arrow key:** `-->` live FK dependency · `-.->` dashed = catalog→per-event **copy** at creation (not a live FK).
+
+---
+
+## 2. Entity-Relationship Diagram (all tables, all columns)
 
 ```mermaid
 erDiagram
-  %% ---------- AUTH (Supabase) ----------
+  %% ---------- AUTH (Supabase-managed) ----------
   AUTH_USERS {
     uuid id PK
     text email "verified"
     text phone "verified"
+    jsonb raw_user_meta_data "Google name/avatar"
   }
 
-  %% ---------- CONFIG (catalogs) ----------
-  CONFIG_USER_TYPES        { uuid id PK  text slug UK }
-  CONFIG_EVENT_TYPES       { uuid id PK  text slug UK  jsonb field_schema }
-  CONFIG_EVENT_SUB_TYPES   { uuid id PK  uuid event_type_id FK  text slug }
-  CONFIG_EVENT_CHECKLISTS  { uuid id PK  uuid event_type_id FK  text default_priority_slug FK }
-  CONFIG_TASK_PRIORITIES   { uuid id PK  text slug UK }
-  CONFIG_TASK_STATUSES     { uuid id PK  text slug UK  text category }
-  CONFIG_EXPENSE_TYPES     { uuid id PK  text slug UK }
-  CONFIG_RSVP_STATUSES     { uuid id PK  text slug UK  text category }
-  CONFIG_GUEST_TAGS        { uuid id PK  text slug UK }
-  CONFIG_ALBUM_PRESETS     { uuid id PK  text slug UK }
+  %% ---------- CONFIG (catalog tables — admin-seeded, public-read) ----------
+  CONFIG_USER_TYPES {
+    uuid id PK
+    text slug UK
+    text name
+    text description
+    int display_order
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  CONFIG_EVENT_TYPES {
+    uuid id PK
+    text slug UK
+    text name
+    text description
+    text icon_name
+    text image_url
+    jsonb field_schema
+    jsonb features
+    int display_order
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  CONFIG_EVENT_SUB_TYPES {
+    uuid id PK
+    uuid event_type_id FK
+    text slug
+    text name
+    text icon_name
+    int display_order
+    bool is_default
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  CONFIG_EVENT_CHECKLISTS {
+    uuid id PK
+    uuid event_type_id FK
+    text title
+    text description
+    text default_priority_slug FK "slug ref → config.task_priorities"
+    int display_order
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  CONFIG_TASK_PRIORITIES {
+    uuid id PK
+    text slug UK
+    text name
+    text description
+    text icon_name
+    int display_order
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  CONFIG_TASK_STATUSES {
+    uuid id PK
+    text slug UK
+    text name
+    text description
+    text icon_name
+    text category "open|done|dropped"
+    int display_order
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  CONFIG_EXPENSE_TYPES {
+    uuid id PK
+    text slug UK
+    text name
+    text description
+    text icon_name
+    int display_order
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  CONFIG_RSVP_STATUSES {
+    uuid id PK
+    text slug UK
+    text name
+    text category "pending|attending|declined|tentative"
+    int display_order
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  CONFIG_GUEST_TAGS {
+    uuid id PK
+    text slug UK
+    text name
+    int display_order
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  CONFIG_ALBUM_PRESETS {
+    uuid id PK
+    text slug UK
+    text name
+    int display_order
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
 
   %% ---------- IDENTITY ----------
   USER_PROFILES {
-    uuid id PK_FK "= auth.users.id"
-    text role_slug FK
-    text email
-    text phone
+    uuid id PK_FK "= auth.users.id (cascade)"
+    text role_slug FK "→ config.user_types(slug)"
+    text display_name
+    text avatar_url
+    text email "verified mirror"
+    text phone "verified mirror"
+    text auth_provider "phone|google|email"
+    text location
+    bool onboarding_completed
+    timestamptz created_at
+    timestamptz updated_at
   }
-  USER_PREFERENCES { uuid user_id PK_FK }
+  USER_PREFERENCES {
+    uuid user_id PK_FK "1:1 (cascade)"
+    bool email_alerts
+    bool push_notifications
+    bool sms_alerts
+    timestamptz created_at
+    timestamptz updated_at
+  }
 
   %% ---------- CORE ----------
   EVENTS {
     uuid id PK
-    uuid user_id FK "owner (transferable)"
-    uuid created_by FK "creator (set null)"
-    uuid event_type_id FK
+    uuid user_id FK "owner (transferable, cascade)"
+    uuid created_by FK "creator (set null on delete)"
+    uuid event_type_id FK "restrict"
+    text name
+    date primary_date
+    text primary_venue
+    int guest_capacity
+    text cover_image_url
+    text description
     jsonb event_details
-    text status
-    timestamptz deleted_at
+    text status "draft|active|completed|cancelled"
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at "soft delete"
   }
   EVENT_SUB_EVENTS {
     uuid id PK
-    uuid event_id FK
-    uuid event_sub_type_id FK "null=custom"
+    uuid event_id FK "cascade"
+    uuid event_sub_type_id FK "null=custom (set null)"
     text custom_name
+    date event_date
+    time start_time
+    time end_time
+    text venue
+    int guest_count
+    text status "tbc|confirmed|cancelled"
+    int display_order
+    timestamptz created_at
+    timestamptz updated_at
   }
   EVENT_COLLABORATORS {
     uuid id PK
-    uuid event_id FK
-    uuid user_id FK "null until accepted"
+    uuid event_id FK "cascade"
+    uuid user_id FK "null until accepted (cascade)"
     text invited_email
+    text invited_phone
     text role
-    text status
+    text status "pending|active"
+    timestamptz invited_at
+    timestamptz accepted_at
+    timestamptz created_at
+    timestamptz updated_at
   }
 
   %% ---------- PLANNING: tasks ----------
   EVENT_TASKS {
     uuid id PK
-    uuid event_id FK
-    uuid template_id FK "config.event_checklists"
-    uuid sub_event_id FK
-    uuid priority_id FK
-    uuid status_id FK
+    uuid event_id FK "cascade"
+    uuid template_id FK "set null (null=host-added)"
+    uuid sub_event_id FK "set null (null=whole event)"
+    text title
+    text description
+    uuid priority_id FK "restrict"
+    uuid status_id FK "restrict"
     date due_date
+    int display_order
+    timestamptz created_at
+    timestamptz updated_at
   }
   EVENT_TASK_ASSIGNEES {
     uuid id PK
-    uuid event_id FK "guard-derived"
-    uuid task_id FK
-    uuid user_id FK "owner or active collaborator"
+    uuid event_id FK "guard-derived from task (cascade)"
+    uuid task_id FK "cascade"
+    uuid user_id FK "owner or active collaborator (cascade)"
+    uuid assigned_by FK "set null on delete"
+    timestamptz created_at
   }
 
   %% ---------- PLANNING: budget ----------
   EVENT_BUDGETS {
-    uuid event_id PK_FK "1:1"
+    uuid event_id PK_FK "1:1 (cascade)"
     numeric total_amount
     text currency
+    uuid modified_by FK "set null on delete"
+    timestamptz created_at
+    timestamptz updated_at
   }
   EVENT_EXPENSE_TYPES {
     uuid id PK
-    uuid event_id FK
+    uuid event_id FK "cascade"
     text name
+    text icon_name
     bool is_custom
-    text source_slug "config.expense_types provenance"
+    text source_slug "provenance text; NOT an FK"
+    bool enabled
+    int display_order
+    timestamptz created_at
+    timestamptz updated_at
   }
   EVENT_EXPENSES {
     uuid id PK
-    uuid event_id FK
-    uuid sub_event_id FK
-    uuid expense_type_id FK
+    uuid event_id FK "cascade"
+    uuid sub_event_id FK "set null (null=whole event)"
+    uuid expense_type_id FK "restrict"
+    text title
+    text description
+    text vendor_name
     numeric amount
-    text receipt_key "R2"
+    text receipt_key "R2 private bucket key"
+    date expense_date
+    uuid created_by FK "set null on delete"
+    timestamptz created_at
+    timestamptz updated_at
   }
 
   %% ---------- GUESTS ----------
   EVENT_GUESTS {
     uuid id PK
-    uuid event_id FK
-    uuid rsvp_status_id FK
+    uuid event_id FK "cascade"
     text name
-    int party_size
+    text email
+    text phone
+    uuid rsvp_status_id FK "restrict"
     bool invited
+    int party_size
+    text notes
+    uuid created_by FK "set null on delete"
+    int display_order
+    timestamptz created_at
+    timestamptz updated_at
   }
   EVENT_GUEST_SUB_EVENTS {
     uuid id PK
-    uuid event_id FK "guard-derived"
-    uuid guest_id FK
-    uuid sub_event_id FK
+    uuid event_id FK "guard-derived from guest (cascade)"
+    uuid guest_id FK "cascade"
+    uuid sub_event_id FK "cascade"
+    timestamptz created_at
   }
   EVENT_GUEST_TAGS {
     uuid id PK
-    uuid event_id FK
+    uuid event_id FK "cascade"
     text name
     bool is_custom
-    text source_slug "config.guest_tags"
+    text source_slug "provenance text; NOT an FK"
+    uuid created_by FK "set null on delete"
+    int display_order
+    timestamptz created_at
+    timestamptz updated_at
   }
   EVENT_GUEST_TAG_LINKS {
     uuid id PK
-    uuid event_id FK "guard-derived"
-    uuid guest_id FK
-    uuid tag_id FK
+    uuid event_id FK "guard-derived from guest (cascade)"
+    uuid guest_id FK "cascade"
+    uuid tag_id FK "cascade"
+    timestamptz created_at
   }
 
   %% ---------- MEDIA ----------
   EVENT_MEDIA {
     uuid id PK
-    uuid event_id FK
-    uuid sub_event_id FK
+    uuid event_id FK "cascade"
     text kind "photo|video"
-    text storage_key "R2"
-    bool published
+    text storage_key "R2 private key"
+    text thumbnail_key "R2 thumb/video poster"
+    text name
+    text original_filename
+    text content_type
+    bigint byte_size "advisory; server-stamped"
+    int width
+    int height
+    int duration_sec "null unless kind=video"
+    uuid sub_event_id FK "set null (null=whole event)"
+    timestamptz taken_at "EXIF date"
+    bool published "website gallery selector"
+    uuid created_by FK "set null on delete"
+    uuid updated_by FK "last editor; set null on delete"
+    timestamptz created_at
+    timestamptz updated_at
   }
   EVENT_ALBUMS {
     uuid id PK
-    uuid event_id FK
-    uuid cover_media_id FK "set null"
+    uuid event_id FK "cascade"
     text name
     bool is_custom
-    text source_slug "config.album_presets"
+    text source_slug "provenance text; NOT an FK"
+    uuid cover_media_id FK "set null on delete"
+    int display_order
+    uuid created_by FK "set null on delete"
+    uuid updated_by FK "last editor; set null on delete"
+    timestamptz created_at
+    timestamptz updated_at
   }
   EVENT_MEDIA_ALBUMS {
     uuid id PK
-    uuid event_id FK "guard-derived"
-    uuid media_id FK
-    uuid album_id FK
+    uuid event_id FK "guard-derived from media (cascade)"
+    uuid media_id FK "cascade"
+    uuid album_id FK "cascade"
+    timestamptz created_at
   }
   EVENT_MEDIA_TAGS {
     uuid id PK
-    uuid event_id FK
+    uuid event_id FK "cascade"
     text name
+    uuid created_by FK "set null on delete"
+    uuid updated_by FK "last editor; set null on delete"
+    int display_order
+    timestamptz created_at
+    timestamptz updated_at
   }
   EVENT_MEDIA_TAG_LINKS {
     uuid id PK
-    uuid event_id FK "guard-derived"
-    uuid media_id FK
-    uuid tag_id FK
+    uuid event_id FK "guard-derived from media (cascade)"
+    uuid media_id FK "cascade"
+    uuid tag_id FK "cascade"
+    timestamptz created_at
   }
 
   %% ===== RELATIONSHIPS =====
@@ -219,11 +496,11 @@ erDiagram
   EVENT_MEDIA_TAGS ||--o{ EVENT_MEDIA_TAG_LINKS : "M:N"
 ```
 
-**Legend:** `||--o{` one-to-many · `||--||` one-to-one · `|o--o{` optional (nullable FK) · `..>` dashed = catalog→per-event **copy** at event creation (not a hard FK). Every `public.*` table also has `created_at`/`updated_at`; entity tables additionally carry `created_by` (+ `updated_by` on media/albums/media-tags). **Modularity rule:** every module FK points only to core (`events`, `event_sub_events`, `auth.users`) or `config.*` — never another module's tables.
+**Legend:** `||--o{` one-to-many · `||--||` one-to-one · `|o--o{` optional (nullable FK) · `..>` dashed = catalog→per-event **copy** at event creation (not a live FK). All columns shown per entity. **Modularity rule:** every module FK points only to core (`events`, `event_sub_events`, `auth.users`) or `config.*` — never another module's tables.
 
 ---
 
-## 2. Functions, triggers & views (the "logic" layer)
+## 3. Functions, triggers & views (the "logic" layer)
 
 ```mermaid
 flowchart LR
@@ -280,7 +557,7 @@ flowchart LR
 
 ---
 
-## 3. Flow — event creation (`create_event_with_details`, one transaction)
+## 4. Flow — event creation (`create_event_with_details`, one transaction)
 
 ```mermaid
 flowchart TD
@@ -300,7 +577,7 @@ flowchart TD
 
 ---
 
-## 4. Flow — RLS access model & signup
+## 5. Flow — RLS access model & signup
 
 ```mermaid
 flowchart TD
@@ -329,7 +606,7 @@ flowchart TD
 
 ---
 
-## 5. Flow — account deletion cascade (`delete_user_account` [PLANNED])
+## 6. Flow — account deletion cascade (`delete_user_account` [PLANNED])
 
 ```mermaid
 flowchart TD
@@ -347,4 +624,4 @@ flowchart TD
 
 ## Maintenance
 
-This file is **derived** from `DATA-MODEL.md` — when the schema changes, update `DATA-MODEL.md` first (source of truth), then refresh these diagrams + the `.drawio`. Keep the entity list and relationships in sync with the live DB.
+This file is **derived** from `DATA-MODEL.md` — when the schema changes, update `DATA-MODEL.md` first (source of truth), then refresh these diagrams. Keep the entity list and relationships in sync with the live DB. Add any new table to both the Module Map (Section 1) and the full ERD (Section 2).
