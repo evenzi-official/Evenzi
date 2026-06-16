@@ -1,0 +1,100 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="evenzi-data-model" name="Evenzi Data Model (v2026-06-16.3)">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===== LEGEND ===== -->
+        <mxCell id="legend" value="Evenzi Data Model — v2026-06-16.3&#10;config=catalog (blue) · auth (grey) · core (green) · planning (yellow) · guests (orange) · media (purple)&#10;solid edge = FK · dashed = catalog→per-event copy at create_event" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;fillColor=#ffffff;strokeColor=#999999;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="10" width="760" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== CONFIG (col 1) ===== -->
+        <mxCell id="c_user_types" value="&lt;b&gt;config.user_types&lt;/b&gt;&lt;hr&gt;id PK · slug UK" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;spacing=4;" vertex="1" parent="1"><mxGeometry x="40" y="90" width="210" height="44" as="geometry" /></mxCell>
+        <mxCell id="c_event_types" value="&lt;b&gt;config.event_types&lt;/b&gt;&lt;hr&gt;id PK · slug UK · field_schema jsonb" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;spacing=4;" vertex="1" parent="1"><mxGeometry x="40" y="148" width="210" height="44" as="geometry" /></mxCell>
+        <mxCell id="c_event_sub_types" value="&lt;b&gt;config.event_sub_types&lt;/b&gt;&lt;hr&gt;id PK · event_type_id FK · slug" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;spacing=4;" vertex="1" parent="1"><mxGeometry x="40" y="206" width="210" height="44" as="geometry" /></mxCell>
+        <mxCell id="c_event_checklists" value="&lt;b&gt;config.event_checklists&lt;/b&gt;&lt;hr&gt;id PK · event_type_id FK&#10;default_priority_slug FK" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;spacing=4;" vertex="1" parent="1"><mxGeometry x="40" y="264" width="210" height="52" as="geometry" /></mxCell>
+        <mxCell id="c_task_priorities" value="&lt;b&gt;config.task_priorities&lt;/b&gt;&lt;hr&gt;id PK · slug UK (low|med|high)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;spacing=4;" vertex="1" parent="1"><mxGeometry x="40" y="330" width="210" height="44" as="geometry" /></mxCell>
+        <mxCell id="c_task_statuses" value="&lt;b&gt;config.task_statuses&lt;/b&gt;&lt;hr&gt;id PK · slug UK · category" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;spacing=4;" vertex="1" parent="1"><mxGeometry x="40" y="388" width="210" height="44" as="geometry" /></mxCell>
+        <mxCell id="c_expense_types" value="&lt;b&gt;config.expense_types&lt;/b&gt;&lt;hr&gt;id PK · slug UK" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;spacing=4;" vertex="1" parent="1"><mxGeometry x="40" y="446" width="210" height="44" as="geometry" /></mxCell>
+        <mxCell id="c_rsvp_statuses" value="&lt;b&gt;config.rsvp_statuses&lt;/b&gt;&lt;hr&gt;id PK · slug UK · category" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;spacing=4;" vertex="1" parent="1"><mxGeometry x="40" y="504" width="210" height="44" as="geometry" /></mxCell>
+        <mxCell id="c_guest_tags" value="&lt;b&gt;config.guest_tags&lt;/b&gt;&lt;hr&gt;id PK · slug UK" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;spacing=4;" vertex="1" parent="1"><mxGeometry x="40" y="562" width="210" height="44" as="geometry" /></mxCell>
+        <mxCell id="c_album_presets" value="&lt;b&gt;config.album_presets&lt;/b&gt;&lt;hr&gt;id PK · slug UK" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;spacing=4;" vertex="1" parent="1"><mxGeometry x="40" y="620" width="210" height="44" as="geometry" /></mxCell>
+
+        <!-- ===== AUTH + IDENTITY + CORE (col 2) ===== -->
+        <mxCell id="auth_users" value="&lt;b&gt;auth.users&lt;/b&gt; (Supabase)&lt;hr&gt;id PK · email · phone" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#999999;spacing=4;" vertex="1" parent="1"><mxGeometry x="320" y="90" width="220" height="44" as="geometry" /></mxCell>
+        <mxCell id="user_profiles" value="&lt;b&gt;public.user_profiles&lt;/b&gt;&lt;hr&gt;id PK,FK=auth.users · role_slug FK&#10;email · phone · auth_provider" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;spacing=4;" vertex="1" parent="1"><mxGeometry x="320" y="150" width="220" height="56" as="geometry" /></mxCell>
+        <mxCell id="user_preferences" value="&lt;b&gt;public.user_preferences&lt;/b&gt;&lt;hr&gt;user_id PK,FK · email/push/sms" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;spacing=4;" vertex="1" parent="1"><mxGeometry x="320" y="222" width="220" height="44" as="geometry" /></mxCell>
+        <mxCell id="events" value="&lt;b&gt;public.events&lt;/b&gt;&lt;hr&gt;id PK · user_id FK (owner)&#10;created_by FK · event_type_id FK&#10;event_details jsonb · status · deleted_at" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;spacing=4;fontStyle=1" vertex="1" parent="1"><mxGeometry x="320" y="290" width="220" height="68" as="geometry" /></mxCell>
+        <mxCell id="event_sub_events" value="&lt;b&gt;public.event_sub_events&lt;/b&gt;&lt;hr&gt;id PK · event_id FK&#10;event_sub_type_id FK · custom_name" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;spacing=4;" vertex="1" parent="1"><mxGeometry x="320" y="380" width="220" height="52" as="geometry" /></mxCell>
+        <mxCell id="event_collaborators" value="&lt;b&gt;public.event_collaborators&lt;/b&gt;&lt;hr&gt;id PK · event_id FK · user_id FK&#10;invited_email · role · status" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;spacing=4;" vertex="1" parent="1"><mxGeometry x="320" y="450" width="220" height="52" as="geometry" /></mxCell>
+
+        <!-- ===== PLANNING (col 3) ===== -->
+        <mxCell id="event_tasks" value="&lt;b&gt;public.event_tasks&lt;/b&gt;&lt;hr&gt;id PK · event_id FK · template_id FK&#10;sub_event_id FK · priority_id FK&#10;status_id FK · due_date" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;spacing=4;" vertex="1" parent="1"><mxGeometry x="620" y="90" width="230" height="68" as="geometry" /></mxCell>
+        <mxCell id="event_task_assignees" value="&lt;b&gt;public.event_task_assignees&lt;/b&gt;&lt;hr&gt;id PK · event_id FK* · task_id FK&#10;user_id FK · assigned_by" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;spacing=4;" vertex="1" parent="1"><mxGeometry x="620" y="174" width="230" height="52" as="geometry" /></mxCell>
+        <mxCell id="event_budgets" value="&lt;b&gt;public.event_budgets&lt;/b&gt; (1:1)&lt;hr&gt;event_id PK,FK · total_amount&#10;currency · modified_by" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;spacing=4;" vertex="1" parent="1"><mxGeometry x="620" y="242" width="230" height="52" as="geometry" /></mxCell>
+        <mxCell id="event_expense_types" value="&lt;b&gt;public.event_expense_types&lt;/b&gt;&lt;hr&gt;id PK · event_id FK · name&#10;is_custom · source_slug" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;spacing=4;" vertex="1" parent="1"><mxGeometry x="620" y="310" width="230" height="52" as="geometry" /></mxCell>
+        <mxCell id="event_expenses" value="&lt;b&gt;public.event_expenses&lt;/b&gt;&lt;hr&gt;id PK · event_id FK · sub_event_id FK&#10;expense_type_id FK · amount · receipt_key" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;spacing=4;" vertex="1" parent="1"><mxGeometry x="620" y="378" width="230" height="60" as="geometry" /></mxCell>
+
+        <!-- ===== GUESTS (col 4) ===== -->
+        <mxCell id="event_guests" value="&lt;b&gt;public.event_guests&lt;/b&gt;&lt;hr&gt;id PK · event_id FK · rsvp_status_id FK&#10;name · party_size · invited" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#ffe6cc;strokeColor=#d79b00;spacing=4;" vertex="1" parent="1"><mxGeometry x="920" y="90" width="230" height="56" as="geometry" /></mxCell>
+        <mxCell id="event_guest_sub_events" value="&lt;b&gt;public.event_guest_sub_events&lt;/b&gt;&lt;hr&gt;id PK · event_id FK* · guest_id FK&#10;sub_event_id FK (M:N functions)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#ffe6cc;strokeColor=#d79b00;spacing=4;" vertex="1" parent="1"><mxGeometry x="920" y="162" width="230" height="52" as="geometry" /></mxCell>
+        <mxCell id="event_guest_tags" value="&lt;b&gt;public.event_guest_tags&lt;/b&gt;&lt;hr&gt;id PK · event_id FK · name&#10;is_custom · source_slug" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#ffe6cc;strokeColor=#d79b00;spacing=4;" vertex="1" parent="1"><mxGeometry x="920" y="230" width="230" height="52" as="geometry" /></mxCell>
+        <mxCell id="event_guest_tag_links" value="&lt;b&gt;public.event_guest_tag_links&lt;/b&gt;&lt;hr&gt;id PK · event_id FK* · guest_id FK&#10;tag_id FK (M:N tags)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#ffe6cc;strokeColor=#d79b00;spacing=4;" vertex="1" parent="1"><mxGeometry x="920" y="298" width="230" height="52" as="geometry" /></mxCell>
+
+        <!-- ===== MEDIA (col 5) ===== -->
+        <mxCell id="event_media" value="&lt;b&gt;public.event_media&lt;/b&gt;&lt;hr&gt;id PK · event_id FK · sub_event_id FK&#10;kind (photo|video) · storage_key (R2)&#10;published · byte_size · created/updated_by" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#e1d5e7;strokeColor=#9673a6;spacing=4;" vertex="1" parent="1"><mxGeometry x="1220" y="90" width="240" height="68" as="geometry" /></mxCell>
+        <mxCell id="event_albums" value="&lt;b&gt;public.event_albums&lt;/b&gt;&lt;hr&gt;id PK · event_id FK · cover_media_id FK&#10;name · is_custom · source_slug" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#e1d5e7;strokeColor=#9673a6;spacing=4;" vertex="1" parent="1"><mxGeometry x="1220" y="174" width="240" height="56" as="geometry" /></mxCell>
+        <mxCell id="event_media_albums" value="&lt;b&gt;public.event_media_albums&lt;/b&gt;&lt;hr&gt;id PK · event_id FK* · media_id FK&#10;album_id FK (M:N albums)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#e1d5e7;strokeColor=#9673a6;spacing=4;" vertex="1" parent="1"><mxGeometry x="1220" y="246" width="240" height="52" as="geometry" /></mxCell>
+        <mxCell id="event_media_tags" value="&lt;b&gt;public.event_media_tags&lt;/b&gt;&lt;hr&gt;id PK · event_id FK · name" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#e1d5e7;strokeColor=#9673a6;spacing=4;" vertex="1" parent="1"><mxGeometry x="1220" y="314" width="240" height="44" as="geometry" /></mxCell>
+        <mxCell id="event_media_tag_links" value="&lt;b&gt;public.event_media_tag_links&lt;/b&gt;&lt;hr&gt;id PK · event_id FK* · media_id FK&#10;tag_id FK (M:N tags)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#e1d5e7;strokeColor=#9673a6;spacing=4;" vertex="1" parent="1"><mxGeometry x="1220" y="372" width="240" height="52" as="geometry" /></mxCell>
+
+        <!-- ===== EDGES (FK) ===== -->
+        <mxCell id="e1" style="endArrow=open;html=1;" edge="1" parent="1" source="user_profiles" target="auth_users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="endArrow=open;html=1;" edge="1" parent="1" source="user_profiles" target="c_user_types"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="endArrow=open;html=1;" edge="1" parent="1" source="user_preferences" target="auth_users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="endArrow=open;html=1;" edge="1" parent="1" source="events" target="auth_users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" style="endArrow=open;html=1;" edge="1" parent="1" source="events" target="c_event_types"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" style="endArrow=open;html=1;" edge="1" parent="1" source="c_event_sub_types" target="c_event_types"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" style="endArrow=open;html=1;" edge="1" parent="1" source="c_event_checklists" target="c_event_types"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" style="endArrow=open;html=1;" edge="1" parent="1" source="c_event_checklists" target="c_task_priorities"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" style="endArrow=open;html=1;" edge="1" parent="1" source="event_sub_events" target="events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e10" style="endArrow=open;html=1;" edge="1" parent="1" source="event_sub_events" target="c_event_sub_types"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e11" style="endArrow=open;html=1;" edge="1" parent="1" source="event_collaborators" target="events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e12" style="endArrow=open;html=1;" edge="1" parent="1" source="event_collaborators" target="auth_users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e13" style="endArrow=open;html=1;" edge="1" parent="1" source="event_tasks" target="events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e14" style="endArrow=open;html=1;dashed=1;" edge="1" parent="1" source="event_tasks" target="c_event_checklists"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e15" style="endArrow=open;html=1;" edge="1" parent="1" source="event_tasks" target="c_task_priorities"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e16" style="endArrow=open;html=1;" edge="1" parent="1" source="event_tasks" target="c_task_statuses"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e17" style="endArrow=open;html=1;" edge="1" parent="1" source="event_tasks" target="event_sub_events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e18" style="endArrow=open;html=1;" edge="1" parent="1" source="event_task_assignees" target="event_tasks"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e19" style="endArrow=open;html=1;" edge="1" parent="1" source="event_task_assignees" target="auth_users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e20" style="endArrow=open;html=1;" edge="1" parent="1" source="event_budgets" target="events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e21" style="endArrow=open;html=1;" edge="1" parent="1" source="event_expense_types" target="events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e22" style="endArrow=open;html=1;dashed=1;" edge="1" parent="1" source="event_expense_types" target="c_expense_types"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e23" style="endArrow=open;html=1;" edge="1" parent="1" source="event_expenses" target="events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e24" style="endArrow=open;html=1;" edge="1" parent="1" source="event_expenses" target="event_expense_types"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e25" style="endArrow=open;html=1;" edge="1" parent="1" source="event_expenses" target="event_sub_events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e26" style="endArrow=open;html=1;" edge="1" parent="1" source="event_guests" target="events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e27" style="endArrow=open;html=1;" edge="1" parent="1" source="event_guests" target="c_rsvp_statuses"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e28" style="endArrow=open;html=1;" edge="1" parent="1" source="event_guest_sub_events" target="event_guests"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e29" style="endArrow=open;html=1;" edge="1" parent="1" source="event_guest_sub_events" target="event_sub_events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e30" style="endArrow=open;html=1;" edge="1" parent="1" source="event_guest_tags" target="events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e31" style="endArrow=open;html=1;dashed=1;" edge="1" parent="1" source="event_guest_tags" target="c_guest_tags"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e32" style="endArrow=open;html=1;" edge="1" parent="1" source="event_guest_tag_links" target="event_guests"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e33" style="endArrow=open;html=1;" edge="1" parent="1" source="event_guest_tag_links" target="event_guest_tags"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e34" style="endArrow=open;html=1;" edge="1" parent="1" source="event_media" target="events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e35" style="endArrow=open;html=1;" edge="1" parent="1" source="event_media" target="event_sub_events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e36" style="endArrow=open;html=1;" edge="1" parent="1" source="event_albums" target="events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e37" style="endArrow=open;html=1;" edge="1" parent="1" source="event_albums" target="event_media"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e38" style="endArrow=open;html=1;" edge="1" parent="1" source="event_media_albums" target="event_media"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e39" style="endArrow=open;html=1;" edge="1" parent="1" source="event_media_albums" target="event_albums"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e40" style="endArrow=open;html=1;" edge="1" parent="1" source="event_media_tags" target="events"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e41" style="endArrow=open;html=1;" edge="1" parent="1" source="event_media_tag_links" target="event_media"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e42" style="endArrow=open;html=1;" edge="1" parent="1" source="event_media_tag_links" target="event_media_tags"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e43" style="endArrow=open;html=1;dashed=1;" edge="1" parent="1" source="event_albums" target="c_album_presets"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
