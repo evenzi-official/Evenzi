@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      event_albums: {
+        Row: {
+          cover_media_id: string | null
+          created_at: string
+          created_by: string | null
+          display_order: number
+          event_id: string
+          id: string
+          is_custom: boolean
+          name: string
+          source_slug: string | null
+          updated_at: string
+        }
+        Insert: {
+          cover_media_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          event_id: string
+          id?: string
+          is_custom?: boolean
+          name: string
+          source_slug?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cover_media_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          event_id?: string
+          id?: string
+          is_custom?: boolean
+          name?: string
+          source_slug?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_albums_cover_media_id_fkey"
+            columns: ["cover_media_id"]
+            isOneToOne: false
+            referencedRelation: "event_media"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_albums_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_budgets: {
         Row: {
           created_at: string
@@ -408,6 +462,130 @@ export type Database = {
           },
         ]
       }
+      event_media: {
+        Row: {
+          byte_size: number
+          content_type: string | null
+          created_at: string
+          created_by: string | null
+          duration_sec: number | null
+          event_id: string
+          height: number | null
+          id: string
+          kind: string
+          name: string | null
+          original_filename: string | null
+          published: boolean
+          storage_key: string
+          sub_event_id: string | null
+          taken_at: string | null
+          thumbnail_key: string | null
+          updated_at: string
+          width: number | null
+        }
+        Insert: {
+          byte_size?: number
+          content_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          duration_sec?: number | null
+          event_id: string
+          height?: number | null
+          id?: string
+          kind: string
+          name?: string | null
+          original_filename?: string | null
+          published?: boolean
+          storage_key: string
+          sub_event_id?: string | null
+          taken_at?: string | null
+          thumbnail_key?: string | null
+          updated_at?: string
+          width?: number | null
+        }
+        Update: {
+          byte_size?: number
+          content_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          duration_sec?: number | null
+          event_id?: string
+          height?: number | null
+          id?: string
+          kind?: string
+          name?: string | null
+          original_filename?: string | null
+          published?: boolean
+          storage_key?: string
+          sub_event_id?: string | null
+          taken_at?: string | null
+          thumbnail_key?: string | null
+          updated_at?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_media_sub_event_id_fkey"
+            columns: ["sub_event_id"]
+            isOneToOne: false
+            referencedRelation: "event_sub_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_media_albums: {
+        Row: {
+          album_id: string
+          created_at: string
+          event_id: string
+          id: string
+          media_id: string
+        }
+        Insert: {
+          album_id: string
+          created_at?: string
+          event_id: string
+          id?: string
+          media_id: string
+        }
+        Update: {
+          album_id?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          media_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_albums_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "event_albums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_media_albums_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_media_albums_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "event_media"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_sub_events: {
         Row: {
           created_at: string
@@ -691,6 +869,29 @@ export type Database = {
       }
     }
     Views: {
+      event_album_counts: {
+        Row: {
+          album_id: string | null
+          event_id: string | null
+          media_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_albums_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "event_albums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_media_albums_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_budget_summary: {
         Row: {
           currency: string | null
@@ -749,6 +950,23 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "event_guests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_media_storage: {
+        Row: {
+          event_id: string | null
+          photo_count: number | null
+          used_bytes: number | null
+          video_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
@@ -908,6 +1126,12 @@ export type Database = {
         Relationships: []
       }
       guest_tags: {
+        Row: { id: string; slug: string; name: string; description: string | null; display_order: number; enabled: boolean; created_at: string; updated_at: string }
+        Insert: { id?: string; slug: string; name: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Update: { id?: string; slug?: string; name?: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      album_presets: {
         Row: { id: string; slug: string; name: string; description: string | null; display_order: number; enabled: boolean; created_at: string; updated_at: string }
         Insert: { id?: string; slug: string; name: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
         Update: { id?: string; slug?: string; name?: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
