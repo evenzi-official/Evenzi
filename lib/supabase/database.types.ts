@@ -465,6 +465,102 @@ export type Database = {
           },
         ]
       }
+      event_invitation_cards: {
+        Row: {
+          card_upload_key: string | null
+          created_at: string
+          created_by: string | null
+          event_id: string
+          id: string
+          is_custom: boolean
+          is_default: boolean
+          photo_bg_key: string | null
+          render_status: string
+          rendered_card_key: string | null
+          rendered_pdf_key: string | null
+          share_enabled: boolean
+          share_token: string
+          slot_couple: string | null
+          slot_date: string | null
+          slot_eyebrow: string | null
+          slot_invite: string | null
+          slot_message: string | null
+          slot_time: string | null
+          slot_venue: string | null
+          sub_event_id: string | null
+          template_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          card_upload_key?: string | null
+          created_at?: string
+          created_by?: string | null
+          event_id: string
+          id?: string
+          is_custom?: boolean
+          is_default?: boolean
+          photo_bg_key?: string | null
+          render_status?: string
+          rendered_card_key?: string | null
+          rendered_pdf_key?: string | null
+          share_enabled?: boolean
+          share_token?: string
+          slot_couple?: string | null
+          slot_date?: string | null
+          slot_eyebrow?: string | null
+          slot_invite?: string | null
+          slot_message?: string | null
+          slot_time?: string | null
+          slot_venue?: string | null
+          sub_event_id?: string | null
+          template_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          card_upload_key?: string | null
+          created_at?: string
+          created_by?: string | null
+          event_id?: string
+          id?: string
+          is_custom?: boolean
+          is_default?: boolean
+          photo_bg_key?: string | null
+          render_status?: string
+          rendered_card_key?: string | null
+          rendered_pdf_key?: string | null
+          share_enabled?: boolean
+          share_token?: string
+          slot_couple?: string | null
+          slot_date?: string | null
+          slot_eyebrow?: string | null
+          slot_invite?: string | null
+          slot_message?: string | null
+          slot_time?: string | null
+          slot_venue?: string | null
+          sub_event_id?: string | null
+          template_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_invitation_cards_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_invitation_cards_sub_event_id_fkey"
+            columns: ["sub_event_id"]
+            isOneToOne: false
+            referencedRelation: "event_sub_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_media: {
         Row: {
           byte_size: number
@@ -1050,6 +1146,41 @@ export type Database = {
           },
         ]
       }
+      event_invitation_card_summary: {
+        Row: {
+          created_at: string | null
+          event_id: string | null
+          id: string | null
+          is_custom: boolean | null
+          is_default: boolean | null
+          is_uploaded_card: boolean | null
+          render_status: string | null
+          share_enabled: boolean | null
+          share_token: string | null
+          sub_event_id: string | null
+          sub_event_label: string | null
+          template_layout: string | null
+          template_name: string | null
+          template_style_id: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_invitation_cards_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_invitation_cards_sub_event_id_fkey"
+            columns: ["sub_event_id"]
+            isOneToOne: false
+            referencedRelation: "event_sub_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_media_storage: {
         Row: {
           event_id: string | null
@@ -1107,6 +1238,45 @@ export type Database = {
           },
         ]
       }
+      invitation_card_guest_view: {
+        Row: {
+          default_photo_key: string | null
+          event_id: string | null
+          id: string | null
+          layout: string | null
+          render_status: string | null
+          rendered_card_key: string | null
+          share_enabled: boolean | null
+          share_token: string | null
+          slot_couple: string | null
+          slot_date: string | null
+          slot_eyebrow: string | null
+          slot_invite: string | null
+          slot_message: string | null
+          slot_time: string | null
+          slot_venue: string | null
+          style_id: string | null
+          sub_event_id: string | null
+          template_id: string | null
+          template_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_invitation_cards_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_invitation_cards_sub_event_id_fkey"
+            columns: ["sub_event_id"]
+            isOneToOne: false
+            referencedRelation: "event_sub_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       bulk_set_task_status: {
@@ -1142,99 +1312,6 @@ export type Database = {
     CompositeTypes: {
       [_ in never]: never
     }
-  }
-  // --- hand-added: config schema (reference/catalog tables). Emitted automatically once you
-  //     regenerate with `--schema public,config`. ---
-  config: {
-    Tables: {
-      user_types: {
-        Row: { id: string; slug: string; name: string; description: string | null; display_order: number; enabled: boolean; created_at: string; updated_at: string }
-        Insert: { id?: string; slug: string; name: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Update: { id?: string; slug?: string; name?: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Relationships: []
-      }
-      event_types: {
-        Row: { id: string; slug: string; name: string; description: string | null; icon_name: string | null; image_url: string | null; field_schema: Json; features: Json; display_order: number; enabled: boolean; created_at: string; updated_at: string }
-        Insert: { id?: string; slug: string; name: string; description?: string | null; icon_name?: string | null; image_url?: string | null; field_schema?: Json; features?: Json; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Update: { id?: string; slug?: string; name?: string; description?: string | null; icon_name?: string | null; image_url?: string | null; field_schema?: Json; features?: Json; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Relationships: []
-      }
-      event_sub_types: {
-        Row: { id: string; event_type_id: string; slug: string; name: string; icon_name: string | null; display_order: number; is_default: boolean; enabled: boolean; created_at: string; updated_at: string }
-        Insert: { id?: string; event_type_id: string; slug: string; name: string; icon_name?: string | null; display_order?: number; is_default?: boolean; enabled?: boolean; created_at?: string; updated_at?: string }
-        Update: { id?: string; event_type_id?: string; slug?: string; name?: string; icon_name?: string | null; display_order?: number; is_default?: boolean; enabled?: boolean; created_at?: string; updated_at?: string }
-        Relationships: [
-          {
-            foreignKeyName: "event_sub_types_event_type_id_fkey"
-            columns: ["event_type_id"]
-            isOneToOne: false
-            referencedRelation: "event_types"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      event_checklists: {
-        Row: { id: string; event_type_id: string; title: string; description: string | null; display_order: number; enabled: boolean; default_priority_slug: string | null; created_at: string; updated_at: string }
-        Insert: { id?: string; event_type_id: string; title: string; description?: string | null; display_order?: number; enabled?: boolean; default_priority_slug?: string | null; created_at?: string; updated_at?: string }
-        Update: { id?: string; event_type_id?: string; title?: string; description?: string | null; display_order?: number; enabled?: boolean; default_priority_slug?: string | null; created_at?: string; updated_at?: string }
-        Relationships: [
-          {
-            foreignKeyName: "event_checklists_event_type_id_fkey"
-            columns: ["event_type_id"]
-            isOneToOne: false
-            referencedRelation: "event_types"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_checklists_default_priority_slug_fkey"
-            columns: ["default_priority_slug"]
-            isOneToOne: false
-            referencedRelation: "task_priorities"
-            referencedColumns: ["slug"]
-          },
-        ]
-      }
-      task_priorities: {
-        Row: { id: string; slug: string; name: string; description: string | null; icon_name: string | null; display_order: number; enabled: boolean; created_at: string; updated_at: string }
-        Insert: { id?: string; slug: string; name: string; description?: string | null; icon_name?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Update: { id?: string; slug?: string; name?: string; description?: string | null; icon_name?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Relationships: []
-      }
-      task_statuses: {
-        Row: { id: string; slug: string; name: string; description: string | null; icon_name: string | null; category: string; display_order: number; enabled: boolean; created_at: string; updated_at: string }
-        Insert: { id?: string; slug: string; name: string; description?: string | null; icon_name?: string | null; category: string; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Update: { id?: string; slug?: string; name?: string; description?: string | null; icon_name?: string | null; category?: string; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Relationships: []
-      }
-      expense_types: {
-        Row: { id: string; slug: string; name: string; description: string | null; icon_name: string | null; display_order: number; enabled: boolean; created_at: string; updated_at: string }
-        Insert: { id?: string; slug: string; name: string; description?: string | null; icon_name?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Update: { id?: string; slug?: string; name?: string; description?: string | null; icon_name?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Relationships: []
-      }
-      rsvp_statuses: {
-        Row: { id: string; slug: string; name: string; description: string | null; icon_name: string | null; category: string; display_order: number; enabled: boolean; created_at: string; updated_at: string }
-        Insert: { id?: string; slug: string; name: string; description?: string | null; icon_name?: string | null; category: string; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Update: { id?: string; slug?: string; name?: string; description?: string | null; icon_name?: string | null; category?: string; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Relationships: []
-      }
-      guest_tags: {
-        Row: { id: string; slug: string; name: string; description: string | null; display_order: number; enabled: boolean; created_at: string; updated_at: string }
-        Insert: { id?: string; slug: string; name: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Update: { id?: string; slug?: string; name?: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Relationships: []
-      }
-      album_presets: {
-        Row: { id: string; slug: string; name: string; description: string | null; display_order: number; enabled: boolean; created_at: string; updated_at: string }
-        Insert: { id?: string; slug: string; name: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Update: { id?: string; slug?: string; name?: string; description?: string | null; display_order?: number; enabled?: boolean; created_at?: string; updated_at?: string }
-        Relationships: []
-      }
-    }
-    Views: { [_ in never]: never }
-    Functions: { [_ in never]: never }
-    Enums: { [_ in never]: never }
-    CompositeTypes: { [_ in never]: never }
   }
 }
 
@@ -1357,9 +1434,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
-  },
-  config: {
     Enums: {},
   },
 } as const

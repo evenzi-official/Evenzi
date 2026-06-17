@@ -1,6 +1,6 @@
 # Evenzi — Full Data Model ERD, Functions & Flows
 
-> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-06-16.3** — CORE + Planning + Guests + Media. Renders on GitHub / VS Code (Mermaid).
+> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-06-17.1** — CORE + Planning + Guests + Media + Invitations. Renders on GitHub / VS Code (Mermaid).
 >
 > **Schemas:** `config.*` = reference/catalog (admin-seeded, public-read) · `public.*` = live app data (owner-only RLS) · `auth.*` = Supabase-managed identity.
 
@@ -59,14 +59,22 @@ flowchart TB
     EMTL[event_media_tag_links]
   end
 
+  subgraph INV["💌 Invitations  (public + config schemas)"]
+    CIS[config_invitation_card_styles]
+    CIT[config_invitation_templates]
+    EIC[event_invitation_cards]
+  end
+
   CFG -. "seeds / defines" .-> CORE
   CFG -. "seeds" .-> PLN
   CFG -. "seeds" .-> GST
   CFG -. "seeds" .-> MED
+  CFG -. "seeds" .-> INV
   USR -- "owns" --> CORE
   CORE -- "parent FK" --> PLN
   CORE -- "parent FK" --> GST
   CORE -- "parent FK" --> MED
+  CORE -- "parent FK" --> INV
 
   classDef cfg fill:#e8eeff,stroke:#5b7fd4,color:#1e3a6e;
   classDef usr fill:#e8fef0,stroke:#47a86e,color:#144d2e;
@@ -74,6 +82,7 @@ flowchart TB
   classDef pln fill:#f3e8ff,stroke:#9b59d4,color:#4a1a7e;
   classDef gst fill:#ffe8ec,stroke:#d45b74,color:#6e1a2e;
   classDef med fill:#e8f8ff,stroke:#2e9fd4,color:#0a3d5e;
+  classDef inv fill:#fff3e0,stroke:#e65100,color:#000;
 
   class CUT,CET,CEST,CEC,CTP,CTS,CEXT,CRS,CGT,CAP cfg;
   class UP,UPR usr;
@@ -81,6 +90,7 @@ flowchart TB
   class ET,ETA,EB,EXPT,EXP pln;
   class EG,EGSE,EGT,EGTL gst;
   class EM,EA,EMA,EMT,EMTL med;
+  class CIS,CIT,EIC inv;
 ```
 
 **Arrow key:** `-->` live FK dependency · `-.->` dashed = catalog→per-event **copy** at creation (not a live FK).
@@ -443,6 +453,59 @@ erDiagram
     timestamptz created_at
   }
 
+  %% ---------- INVITATIONS ----------
+  CONFIG_INVITATION_CARD_STYLES {
+    uuid id PK
+    text slug UK
+    text name
+    int display_order
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  CONFIG_INVITATION_TEMPLATES {
+    uuid id PK
+    text slug UK
+    text name
+    uuid style_id FK
+    text layout
+    text preview_key
+    text thumbnail_key
+    text default_photo_key
+    int display_order
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  EVENT_INVITATION_CARDS {
+    uuid id PK
+    uuid event_id FK
+    uuid sub_event_id FK
+    bool is_default
+    uuid template_id FK
+    bool is_custom
+    text slot_eyebrow
+    text slot_couple
+    text slot_invite
+    text slot_date
+    text slot_time
+    text slot_venue
+    text slot_message
+    text card_upload_key
+    text photo_bg_key
+    text share_token UK
+    bool share_enabled
+    text rendered_card_key
+    text rendered_pdf_key
+    text render_status
+    uuid created_by FK
+    uuid updated_by FK
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
   %% ===== RELATIONSHIPS =====
   AUTH_USERS ||--|| USER_PROFILES : "1:1"
   AUTH_USERS ||--|| USER_PREFERENCES : "1:1"
@@ -494,6 +557,11 @@ erDiagram
   EVENT_ALBUMS |o--|| EVENT_MEDIA : "cover (set null)"
   EVENT_MEDIA ||--o{ EVENT_MEDIA_TAG_LINKS : "M:N tags"
   EVENT_MEDIA_TAGS ||--o{ EVENT_MEDIA_TAG_LINKS : "M:N"
+
+  CONFIG_INVITATION_CARD_STYLES ||--o{ CONFIG_INVITATION_TEMPLATES : "style_id"
+  CONFIG_INVITATION_TEMPLATES |o--o{ EVENT_INVITATION_CARDS : "template (set null)"
+  EVENTS ||--o{ EVENT_INVITATION_CARDS : "has"
+  EVENT_SUB_EVENTS |o--o{ EVENT_INVITATION_CARDS : "tagged (set null)"
 ```
 
 **Legend:** `||--o{` one-to-many · `||--||` one-to-one · `|o--o{` optional (nullable FK) · `..>` dashed = catalog→per-event **copy** at event creation (not a live FK). All columns shown per entity. **Modularity rule:** every module FK points only to core (`events`, `event_sub_events`, `auth.users`) or `config.*` — never another module's tables.

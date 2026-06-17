@@ -59,6 +59,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/auth/callback') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
+    pathname.startsWith('/invite') ||   // guest invitation share URLs — no auth required
     isDevPlayground
 
   // No user on non-public path → redirect to auth
