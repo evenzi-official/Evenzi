@@ -6,11 +6,11 @@
 
 | | |
 |---|---|
-| **Version** | `2026-06-17.1` |
+| **Version** | `2026-06-17.2` |
 | **Last updated** | 2026-06-17 |
-| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + **Planning** (Checklist/Tasks + Budget) + **Guest Management** (guest list, RSVP, function assignments, tags) + **Media & Memories** (photo/video gallery + albums, R2-backed) + **Invitations** (invitation card personalizer — card styles catalog, locked templates catalog, per-event invitation cards, hosted share URL). Enablement & entitlements + account deletion shapes recorded as **[PLANNED]**. |
+| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + **Planning** (Checklist/Tasks + Budget) + **Guest Management** (guest list, RSVP, function assignments, tags) + **Media & Memories** (photo/video gallery + albums, R2-backed) + **Invitations** (invitation card personalizer — card styles catalog, locked templates catalog, per-event invitation cards, hosted share URL) + **Event Management Hub** (`show_on_website` toggle on sub-events, icon catalog fix, `event_hub_summary` aggregation view). Enablement & entitlements + account deletion shapes recorded as **[PLANNED]**. |
 | **Database** | Supabase Postgres — project `smjkbmkxweevqpvygabe` (ap-northeast-1) |
-| **Live DB status** | ✅ Built 2026-06-13 on the dev project (migrations `core_01`–`core_07`): catalogs seeded, 4 logins backfilled, baseline RLS on. ✅ Planning module applied 2026-06-14 (migrations `planning_01`–`planning_07`): new catalogs seeded, `event_tasks`/`event_checklists` extended, 4 new live tables + 3 `security_invoker` views + helper RPCs, owner-only RLS on, `get_advisors` (security + performance) reviewed clean. ⚠️ Manual step pending: expose the `config` schema in *Dashboard → Project Settings → API → Exposed schemas*. The deployed app still queries the old shapes — its code must be updated. ✅ Invitations module applied 2026-06-17 (migrations `inv_01`–`inv_06`): 2 config catalogs seeded, `event_invitation_cards` table + 2 views + `create_event_with_details` extended to seed main event card. |
+| **Live DB status** | ✅ Built 2026-06-13 on the dev project (migrations `core_01`–`core_07`): catalogs seeded, 4 logins backfilled, baseline RLS on. ✅ Planning module applied 2026-06-14 (migrations `planning_01`–`planning_07`): new catalogs seeded, `event_tasks`/`event_checklists` extended, 4 new live tables + 3 `security_invoker` views + helper RPCs, owner-only RLS on, `get_advisors` (security + performance) reviewed clean. ⚠️ Manual step pending: expose the `config` schema in *Dashboard → Project Settings → API → Exposed schemas*. The deployed app still queries the old shapes — its code must be updated. ✅ Invitations module applied 2026-06-17 (migrations `inv_01`–`inv_06`): 2 config catalogs seeded, `event_invitation_cards` table + 2 views + `create_event_with_details` extended to seed main event card. ✅ Event Hub applied 2026-06-17 (migrations `hub_01`–`hub_03`): `show_on_website` column + 2 indexes on `event_sub_events`; `config.event_sub_types` icon names updated to Material Symbols + 2 new types; `event_hub_summary` aggregation view created. |
 | **Tags** | **[NOW]** = part of the core slice we build first · **[PLANNED]** = shape locked, built when we reach that page (Admin / Billing / Settings) |
 
 ---
@@ -204,6 +204,7 @@ Newest first. Per-table rationale lives in each table's section.
 
 | # | Decision | Why |
 |---|---|---|
+| D39 | **Event Management Hub (`hub_01`–`hub_03`).** `event_sub_events.show_on_website bool NOT NULL DEFAULT true` — host controls per-function visibility on event website; default true (opt-out model). `idx_ese_event_id` + `idx_ese_show_on_website` partial index added. `config.event_sub_types` icon_names updated to Material Symbols (`spa`, `back_hand`, `music_note`, `favorite`, `celebration`, `local_bar`, `brunch_dining`); 2 new types added (`engagement`/`diamond`, `pre-wedding-shoot`/`photo_camera`). `event_hub_summary` aggregation view (security_invoker) provides single-query dashboard stats: guest total, task progress, budget totals + NULL-safe budget_percent, active sub-event count (status != 'cancelled'), default card share_token. No new tables; no new RLS. | The Event Control hub page aggregates existing module stats in one query. `show_on_website` is needed by the "Our Journey" sub-event manager prototype. Icon names were seeded with Lucide names but app uses Material Symbols — fixed by idempotent upsert. `budget_percent` uses `NULLIF(COALESCE(...,0),0)` to return NULL when no budget set (not 0, which would be misleading). |
 | D38 | **Invitations card personalizer (`inv_01`–`inv_06`).** Two config catalogs (`config.invitation_card_styles` — 5 style filter chips; `config.invitation_templates` — 7 locked designs) + `public.event_invitation_cards` (per-event/sub-event, dual-mode: `template_id` OR `card_upload_key`, enforced by check constraint). Two partial unique indexes for `is_default` per group (two required — NULL ≠ NULL in B-tree). `share_token` generated by DEFINER trigger. Two views: `event_invitation_card_summary` (host, security_invoker) + `invitation_card_guest_view` (public share, service_role, private R2 keys absent, `WHERE share_enabled` filters revoked links). `create_event_with_details` extended: one main event card seeded (sub-event cards via UI CRUD — I5). `/invite/[token]` added to middleware public paths. | Invitation card personalizer scope: host picks locked template, personalizes text slots, gets hosted share URL + WhatsApp text+link. WhatsApp send + read tracking deferred to Guest Management. Render pipeline (Satori/Puppeteer → R2) is a future slice. `style_id uuid FK` (not slug) per I2. `WITH CHECK` on owner RLS per I3. `stamp_updated_by` (D37 shared) reused for created_by + updated_by. |
 | D37 | **Media tagging + audit (`media_06`).** Media is taggable beyond albums/sub-events via `public.event_media_tags` (per-event entities — **pure per-event, no `config` catalog / no `is_custom`**: media tags have no universal defaults to seed) + `event_media_tag_links` (M:N, trigger-guarded `event_id`). Added `updated_by` (last-editor audit, stamped on UPDATE via `stamp_updated_by`) to `event_media` + `event_albums` + `event_media_tags`. | Founder ask: tag media + track last-editor. Unlike guest tags (which had seedable defaults), media tags are entirely host-created → no catalog/`is_custom` machinery needed. `updated_by` complements `created_by` for full provenance. |
 | D36 | **`create_event_with_details` stays monolithic** (append-a-block) through `media_05` (3rd extension: tasks/budget → guest-tags → album-presets). Extract a `_seed_event_catalog(...)` helper when a **4th** catalog-copy seed lands. | Don't restructure the app's hottest RPC on a feature PR; but the album/guest-tag/expense-type seed blocks are near-identical — record the extraction trigger once. |
@@ -436,11 +437,15 @@ create table public.event_sub_events (
   custom_name text, event_date date, start_time time, end_time time, venue text, guest_count int,
   status text not null default 'tbc' check (status in ('tbc','confirmed','cancelled')),
   display_order int not null default 0,
+  show_on_website bool not null default true,  -- hub_01: host opts out per-function (default on)
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   check (event_sub_type_id is not null or custom_name is not null)
 );
 create index idx_sub_events_event on public.event_sub_events(event_id, display_order);
+-- hub_01 indexes:
+create index if not exists idx_ese_event_id on public.event_sub_events(event_id);
+create index if not exists idx_ese_show_on_website on public.event_sub_events(event_id) where show_on_website = true;
 ```
 **Notes:** child of `events` CASCADE; catalog FK SET NULL (a custom or de-catalogued function survives via `custom_name`); the CHECK guarantees every row is identifiable. `end_time` after `start_time` validated in app.
 
@@ -805,6 +810,78 @@ create unique index invitation_cards_default_main_event_idx
 
 ---
 
+### Event Management Hub  `[NOW]` — `hub_01`–`hub_03`
+
+Aggregates existing feature data for the Event Control dashboard. **No new tables; no new RLS.** Changes are modifications to existing tables + one aggregation view.
+
+#### `event_sub_events` modifications (`hub_01`)
+
+Added column and indexes (see DDL above):
+
+| Addition | Detail |
+|----------|--------|
+| `show_on_website bool NOT NULL DEFAULT true` | Host controls per-function visibility on the event website. Default true — opt-out model (new sub-events appear on the website; host unticks to hide). |
+| `idx_ese_event_id` | Single-column event_id index — covers the hub_03 COUNT subquery and general FK joins. |
+| `idx_ese_show_on_website` | Partial index `ON event_sub_events(event_id) WHERE show_on_website = true` — future website-visible sub-event queries. |
+
+#### `config.event_sub_types` reconciliation (`hub_02`)
+
+Upserted via idempotent DO block (`ON CONFLICT (event_type_id, slug) DO UPDATE SET …`) — **not a schema migration, DML only.** Changes:
+
+| Change | Detail |
+|--------|--------|
+| Icon names (7 rows) | Updated from Lucide → Material Symbols: `sparkles→spa`, `palette→back_hand`, `music→music_note`, `heart→favorite`, `utensils→celebration`, `wine→local_bar`, `coffee→brunch_dining` |
+| 2 new rows added | `engagement` (display_order 0, icon `diamond`) · `pre-wedding-shoot` (display_order 8, icon `photo_camera`) |
+| Total rows | 9 (was 7) |
+
+**Seed state after hub_02:** `engagement`(0), `haldi`(1), `mehendi`(2), `sangeet`(3), `wedding-ceremony`\*(4), `reception`\*(5), `cocktail-party`(6), `post-wedding-brunch`(7), `pre-wedding-shoot`(8). (\* = `is_default true`).
+
+#### `event_hub_summary` view (`hub_03`)
+
+```sql
+create view public.event_hub_summary
+with (security_invoker = on) as
+select
+  e.id                                                           as event_id,
+  e.name                                                         as event_name,
+  e.primary_date,
+  e.primary_venue,
+  coalesce(gs.total,   0)                                        as guest_total,
+  coalesce(tp.percent, 0)                                        as task_percent,
+  coalesce(tp.done,    0)                                        as task_done,
+  coalesce(tp.total,   0)                                        as task_total,
+  coalesce(bs.total_amount, 0)                                   as budget_total,
+  coalesce(bs.spent, 0)                                          as budget_spent,
+  round(
+    (coalesce(bs.spent, 0) / nullif(coalesce(bs.total_amount, 0), 0) * 100)::numeric, 1
+  )                                                              as budget_percent,
+  coalesce(se.sub_event_count, 0)                                as sub_event_count,
+  ic.share_token                                                 as default_card_share_token
+from events e
+left join event_guest_stats      gs on gs.event_id = e.id
+left join event_task_progress    tp on tp.event_id = e.id
+left join event_budget_summary   bs on bs.event_id = e.id
+left join (
+  select event_id, count(*) as sub_event_count
+  from event_sub_events
+  where status != 'cancelled'
+  group by event_id
+) se on se.event_id = e.id
+left join event_invitation_cards ic
+  on ic.event_id = e.id
+  and ic.is_default = true
+  and ic.sub_event_id is null;
+```
+
+**Notes:**
+- `budget_percent` returns `NULL` when no budget set (`NULLIF(…,0)` pattern — FE should treat NULL as "no budget set", not 0%).
+- `sub_event_count` filters `status != 'cancelled'` — active functions only.
+- `default_card_share_token` — convenience for the hub's Share quick-action; NULL if no invitation card yet.
+- Depends on `inv_01`–`inv_06` (event_invitation_cards) being live.
+- Materialization candidate if p95 query time > 200ms at 1k events.
+
+---
+
 ## Views (derived)
 
 The Planning module reads its derived numbers (budget Spent/Remaining, the expense breakdown, task progress) from three views — so aggregates are never stored (D24/D5/D7).
@@ -898,6 +975,12 @@ alter view public.event_album_counts set (security_invoker = on);
 |------|----------|---------|
 | `public.event_invitation_card_summary` | security_invoker | Host-facing card list. Columns: id, event_id, sub_event_id, sub_event_label (coalesced from custom_name / sub_type name / 'Main Event'), template_name, template_style_id, template_layout, is_default, is_custom, render_status, share_token, share_enabled, is_uploaded_card, created_at, updated_at. Joins event_sub_events + config.event_sub_types + config.invitation_templates. |
 | `public.invitation_card_guest_view` | no RLS — service_role access only | Public share path. Guest-safe columns only (no card_upload_key, photo_bg_key, rendered_pdf_key). `WHERE share_enabled = true` provides natural 404 when host disables link. The `/invite/[token]` API route reads ONLY this view via service_role client, never the base table. |
+
+### Event Hub view  `[NOW]`
+
+| View | Security | Purpose |
+|------|----------|---------|
+| `public.event_hub_summary` | security_invoker | Single-query aggregate for the Event Control dashboard. Columns: event_id, event_name, primary_date, primary_venue, guest_total, task_percent, task_done, task_total, budget_total, budget_spent, budget_percent (NULL when no budget set), sub_event_count (active only, status != 'cancelled'), default_card_share_token. Joins event_guest_stats, event_task_progress, event_budget_summary, event_sub_events, event_invitation_cards. |
 
 ---
 
@@ -1229,4 +1312,5 @@ grant usage on schema config to anon, authenticated;
 7. **Seed** the catalogs.
 8. **Planning module** (live, migrations `planning_01`–`planning_07`): `planning_01` Planning catalogs (`task_priorities`, `task_statuses`, `expense_types`) + seeds + RLS (select-only) + grants; `planning_02` extend `event_checklists` (`default_priority_slug` +backfill) and `event_tasks` (+4 cols NOT NULL, **drop `is_done`**, indexes); `planning_03` the 4 new live tables (RLS **enabled here**) + `updated_at`/guard/attribution triggers; `planning_04` the 3 `security_invoker` views; `planning_05` owner-only RLS policies; `planning_06` `event_task_counts` + `bulk_set_task_status`; `planning_07` (re)build `create_event_with_details`. Then `npx supabase gen types` → refresh `lib/supabase/database.types.ts`; `get_advisors` (security + performance) reviewed clean/accepted.
 9. **Invitations module** (live, migrations `inv_01`–`inv_06`): `inv_01` `config.invitation_card_styles` + 5 seeds + RLS; `inv_02` `config.invitation_templates` + 7 seeds + RLS; `inv_03` `event_invitation_cards` + check constraint + 2 partial unique indexes + 4 triggers + owner RLS (WITH CHECK); `inv_04` `event_invitation_card_summary` + `invitation_card_guest_view`; `inv_05` extend `create_event_with_details` (main event card seed, idempotency guard); `inv_06` DATA-MODEL.md + ERD.md doc update. Then `npx supabase gen types` → refresh `lib/supabase/database.types.ts`.
-10. **(Later passes)** signup trigger + `link_pending_collaborators`; RLS + `can_access_event()` (cuts over all event-children, old + new); `delete_user_account`; the [enablement & entitlements](#enablement--entitlements-planned) tables.
+10. **Event Hub** (live, migrations `hub_01`–`hub_03`): `hub_01` ADD COLUMN `event_sub_events.show_on_website bool NOT NULL DEFAULT true` + `idx_ese_event_id` + `idx_ese_show_on_website` partial index; `hub_02` upsert `config.event_sub_types` (DO block with ASSERT — icon names Lucide→Material Symbols, 2 new types); `hub_03` `CREATE VIEW public.event_hub_summary` (security_invoker). Then `npx supabase gen types` → refresh `lib/supabase/database.types.ts`.
+11. **(Later passes)** signup trigger + `link_pending_collaborators`; RLS + `can_access_event()` (cuts over all event-children, old + new); `delete_user_account`; the [enablement & entitlements](#enablement--entitlements-planned) tables.

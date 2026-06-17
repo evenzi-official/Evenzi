@@ -1,6 +1,6 @@
 # Evenzi — Full Data Model ERD, Functions & Flows
 
-> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-06-17.1** — CORE + Planning + Guests + Media + Invitations. Renders on GitHub / VS Code (Mermaid).
+> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-06-17.2** — CORE + Planning + Guests + Media + Invitations + Event Hub. Renders on GitHub / VS Code (Mermaid).
 >
 > **Schemas:** `config.*` = reference/catalog (admin-seeded, public-read) · `public.*` = live app data (owner-only RLS) · `auth.*` = Supabase-managed identity.
 
@@ -65,6 +65,10 @@ flowchart TB
     EIC[event_invitation_cards]
   end
 
+  subgraph HUB["🎛️ Event Hub  (aggregation — no new tables)"]
+    EHS[event_hub_summary view]
+  end
+
   CFG -. "seeds / defines" .-> CORE
   CFG -. "seeds" .-> PLN
   CFG -. "seeds" .-> GST
@@ -75,6 +79,10 @@ flowchart TB
   CORE -- "parent FK" --> GST
   CORE -- "parent FK" --> MED
   CORE -- "parent FK" --> INV
+  CORE -. "aggregated by" .-> HUB
+  GST -. "aggregates" .-> HUB
+  PLN -. "aggregates" .-> HUB
+  INV -. "aggregates" .-> HUB
 
   classDef cfg fill:#e8eeff,stroke:#5b7fd4,color:#1e3a6e;
   classDef usr fill:#e8fef0,stroke:#47a86e,color:#144d2e;
@@ -83,6 +91,7 @@ flowchart TB
   classDef gst fill:#ffe8ec,stroke:#d45b74,color:#6e1a2e;
   classDef med fill:#e8f8ff,stroke:#2e9fd4,color:#0a3d5e;
   classDef inv fill:#fff3e0,stroke:#e65100,color:#000;
+  classDef hub fill:#e8fffe,stroke:#00897b,color:#004d40;
 
   class CUT,CET,CEST,CEC,CTP,CTS,CEXT,CRS,CGT,CAP cfg;
   class UP,UPR usr;
@@ -91,6 +100,7 @@ flowchart TB
   class EG,EGSE,EGT,EGTL gst;
   class EM,EA,EMA,EMT,EMTL med;
   class CIS,CIT,EIC inv;
+  class EHS hub;
 ```
 
 **Arrow key:** `-->` live FK dependency · `-.->` dashed = catalog→per-event **copy** at creation (not a live FK).
@@ -273,6 +283,7 @@ erDiagram
     int guest_count
     text status "tbc|confirmed|cancelled"
     int display_order
+    bool show_on_website "hub_01: website visibility toggle"
     timestamptz created_at
     timestamptz updated_at
   }
@@ -506,6 +517,26 @@ erDiagram
     timestamptz updated_at
   }
 
+  %% ---------- EVENT HUB (aggregation view — read-only) ----------
+  %% Note: event_hub_summary aggregates from events, event_guest_stats, event_task_progress,
+  %%       event_budget_summary, event_sub_events, and event_invitation_cards.
+  %%       Only the EVENTS anchor relationship is drawn to keep the ERD readable.
+  EVENT_HUB_SUMMARY {
+    uuid event_id PK "view — read-only"
+    text event_name
+    date primary_date
+    text primary_venue
+    int guest_total "from event_guest_stats"
+    numeric task_percent "from event_task_progress"
+    int task_done
+    int task_total
+    numeric budget_total "from event_budget_summary"
+    numeric budget_spent
+    numeric budget_percent "NULL when no budget set"
+    int sub_event_count "active only (status != cancelled)"
+    text default_card_share_token "from event_invitation_cards"
+  }
+
   %% ===== RELATIONSHIPS =====
   AUTH_USERS ||--|| USER_PROFILES : "1:1"
   AUTH_USERS ||--|| USER_PREFERENCES : "1:1"
@@ -562,6 +593,8 @@ erDiagram
   CONFIG_INVITATION_TEMPLATES |o--o{ EVENT_INVITATION_CARDS : "template (set null)"
   EVENTS ||--o{ EVENT_INVITATION_CARDS : "has"
   EVENT_SUB_EVENTS |o--o{ EVENT_INVITATION_CARDS : "tagged (set null)"
+
+  EVENTS ||--|| EVENT_HUB_SUMMARY : "aggregated by"
 ```
 
 **Legend:** `||--o{` one-to-many · `||--||` one-to-one · `|o--o{` optional (nullable FK) · `..>` dashed = catalog→per-event **copy** at event creation (not a live FK). All columns shown per entity. **Modularity rule:** every module FK points only to core (`events`, `event_sub_events`, `auth.users`) or `config.*` — never another module's tables.
@@ -597,6 +630,7 @@ flowchart LR
     V5["event_sub_event_guest_counts"]
     V6["event_media_storage"]
     V7["event_album_counts"]
+    V8["event_hub_summary<br/>(hub_03 — aggregates V1-V4 + sub_events + inv_cards)"]
   end
 
   subgraph PLN["[PLANNED]"]
@@ -620,7 +654,8 @@ flowchart LR
 | `default_guest_rsvp` | trigger fn | DEFINER | default RSVP → `pending` |
 | `create_event_with_details` | RPC | DEFINER | one-txn event create + 6 seed blocks; owner from `auth.uid()` |
 | `event_task_counts` / `bulk_set_task_status` | RPC | invoker | toolbar counts / bulk status |
-| 7 views | view | `security_invoker` | derived numbers (progress, budget, guest stats, storage, counts) |
+| 7 module views | view | `security_invoker` | derived numbers (progress, budget, guest stats, storage, counts) |
+| `event_hub_summary` | view | `security_invoker` | hub_03 — single-query dashboard aggregate (joins 5 module views + sub_events + inv_cards) |
 | `handle_new_user` · `can_access_event` · `link_pending_collaborators` · `delete_user_account` | fn | [PLANNED] | signup seed · access check · invite-link · account deletion |
 
 ---
