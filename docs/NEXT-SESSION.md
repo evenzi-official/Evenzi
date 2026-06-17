@@ -4,36 +4,58 @@
 
 ---
 
-## ▶ START HERE NEXT — Event Settings data model (copy-paste prompt)
+## ✅ DONE — Event Settings data model (D40–D48) · 2026-06-17
 
-> Paste this after `/start-evenzi-session` (Abhijith path → "Continue data model"):
+Full brainstorm → spec → 4-agent council → plan → migrations → smoke test → types → doc sync completed this session (Abhijith, teaching mode).
+
+**What landed:**
+- `config.plans` (free/premium/elite seed) + `config.plans_public` anon-safe view (D40)
+- `events.plan_id` NOT NULL FK + `config.free_plan_id()` STABLE fn + `trg_enforce_plan_event_limit` BEFORE INSERT trigger (SECURITY DEFINER, no-op while limits NULL) (D41)
+- `event_general_settings` 1:1 sidecar — tagline, show_on_dashboard, discoverable stub, partial index pre-created (D42)
+- `event_website_settings` 1:1 sidecar — bcrypt hash only, `ck_website_password_required` + `ck_announcement_text_required` constraints, `site_offline` flag (D43)
+- `event_guest_settings` 1:1 sidecar — allow_plus_ones / max_plus_ones_per_invite decoupled, smallint 0–10, empty-string → null coercion rule (D44)
+- `_seed_event_settings()` SECURITY DEFINER helper — D36 trigger reached; REVOKE from public/anon/authenticated, GRANT to service_role; step 8 of `create_event_with_details` (D45)
+- `event_general_settings_view` (security_invoker, joins events, anon revoked) (D46)
+- `event_website_settings_view` (security_invoker, hash excluded, expiry computed, anon revoked) (D47)
+- `event_guest_settings_view` (security_invoker, `effective_max_plus_ones` computed, anon revoked) (D48)
+- All migrations live on dev (`event_settings_01`–`event_settings_07`)
+- TypeScript types regenerated (`database.types.ts` 1936 lines)
+- `DATA-MODEL.md` v2026-06-17.3, `ERD.md` v2026-06-17.3 synced
+
+**FE integration notes (carry into next session):**
+- `website_password_hash` never in any view — hash comparison server-side only
+- `anon` revoked from all three settings views — settings pages are authenticated-only
+- `effective_max_plus_ones` from `event_guest_settings_view` is the RSVP source of truth
+- Service layer must coerce `""` → `null` before writing `default_guest_message`
+- `website_days_remaining` in the view is TypeScript `string | null` (PostgreSQL interval)
+
+## ▶ START HERE NEXT — Event Settings FE integration (copy-paste prompt)
+
+> Paste this after `/start-evenzi-session` (Abhijith path):
 
 ```
-Continue the page-by-page data model. Next slice = EVENT SETTINGS.
+Wire the Event Settings FE to the new database schema (D40–D48).
 
-Scope: model the Event Settings page — per-event settings the host controls
-(general info that isn't in Event CRUD, website visibility, guest-list privacy,
-collaborator management, registry, plan/billing). Some of these may already exist
-in `events` or `event_collaborators`; the goal is to audit what's there, fill
-gaps, and decide what needs new columns vs new tables.
+Backend is fully live on dev (smjkbmkxweevqpvygabe, migrations event_settings_01–07):
+- event_general_settings → event_general_settings_view (SECURITY INVOKER, joins events)
+- event_website_settings → event_website_settings_view (hash excluded, expiry computed)
+- event_guest_settings → event_guest_settings_view (effective_max_plus_ones computed)
+- config.plans → config.plans_public view (anon-safe)
 
-Ground in the prototype first: designs/pages/event-settings/ (6 sub-pages:
-general, website, admins, guest-list, registry, plan-billing). Read them before
-proposing schema.
+Design prototype: designs/pages/event-settings/ (6 sub-pages: general, website,
+admins, guest-list, registry, plan-billing). Read the prototype before proposing routes.
 
-Follow the SAME flow: brainstorm → spec → 4-agent council
-(data_modeller/backend/security/tech_lead) → fold fixes → plan → migrations on
-dev Supabase (teaching mode, narrate each) → smoke test → regenerate types →
-sync DATA-MODEL.md + ERD.md (rule #8) → commit.
+Tasks:
+1. API routes: GET/PUT /api/events/[id]/settings/general, website, guest
+2. React pages/components for each sub-page (read from *_view, write to raw table)
+3. Plan/billing sub-page reads config.plans_public + events.plan_id
+4. password_hash: never fetch, only hash+store on change (bcrypt server-side)
+5. guest settings: read effective_max_plus_ones from view; coerce "" → null for
+   default_guest_message before write
+6. Add FE-INTEGRATION.md notes for D43 (bcrypt) + D44 (empty-string coercion)
 
-DATA-MODEL.md is now at v2026-06-17.2 (D1–D39). All prior modules are live on
-dev (smjkbmkxweevqpvygabe):
-- CORE (core_01–07), Planning (planning_01–07), Guests (guests_01–05),
-  Media (media_01–06), Invitations (inv_01–inv_06), Event Hub (hub_01–hub_03).
-- create_event_with_details seeds sub-events, tasks, expense types, budget,
-  guest tags, album presets, and one main invitation card (6 sets, 8 params).
-
-After Event Settings, the last unmodeled page is Website / Digital Presence.
+DATA-MODEL.md is at v2026-06-17.3 (D1–D48). Remaining unmodeled: Website / Digital Presence.
+TypeScript types: lib/supabase/database.types.ts (1936 lines, all settings types present).
 ```
 
 ---
