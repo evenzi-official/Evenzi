@@ -308,6 +308,111 @@ export type Database = {
           },
         ]
       }
+      event_general_settings: {
+        Row: {
+          created_at: string
+          discoverable: boolean
+          event_id: string
+          show_on_dashboard: boolean
+          tagline: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          discoverable?: boolean
+          event_id: string
+          show_on_dashboard?: boolean
+          tagline?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          discoverable?: boolean
+          event_id?: string
+          show_on_dashboard?: boolean
+          tagline?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_general_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_general_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_guest_settings: {
+        Row: {
+          allow_plus_ones: boolean
+          collect_dietary_notes: boolean
+          created_at: string
+          default_guest_message: string | null
+          event_id: string
+          max_plus_ones_per_invite: number
+          rsvp_deadline: string | null
+          rsvp_enabled: boolean
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          allow_plus_ones?: boolean
+          collect_dietary_notes?: boolean
+          created_at?: string
+          default_guest_message?: string | null
+          event_id: string
+          max_plus_ones_per_invite?: number
+          rsvp_deadline?: string | null
+          rsvp_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          allow_plus_ones?: boolean
+          collect_dietary_notes?: boolean
+          created_at?: string
+          default_guest_message?: string | null
+          event_id?: string
+          max_plus_ones_per_invite?: number
+          rsvp_deadline?: string | null
+          rsvp_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_guest_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_guest_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_guest_sub_events: {
         Row: {
           created_at: string
@@ -1055,6 +1160,63 @@ export type Database = {
           },
         ]
       }
+      event_website_settings: {
+        Row: {
+          announcement_banner_enabled: boolean
+          announcement_banner_text: string | null
+          created_at: string
+          event_id: string
+          search_indexing_enabled: boolean
+          site_offline: boolean
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          website_password_enabled: boolean
+          website_password_hash: string | null
+        }
+        Insert: {
+          announcement_banner_enabled?: boolean
+          announcement_banner_text?: string | null
+          created_at?: string
+          event_id: string
+          search_indexing_enabled?: boolean
+          site_offline?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+          website_password_enabled?: boolean
+          website_password_hash?: string | null
+        }
+        Update: {
+          announcement_banner_enabled?: boolean
+          announcement_banner_text?: string | null
+          created_at?: string
+          event_id?: string
+          search_indexing_enabled?: boolean
+          site_offline?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+          website_password_enabled?: boolean
+          website_password_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_website_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_website_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           cover_image_url: string | null
@@ -1067,6 +1229,7 @@ export type Database = {
           guest_capacity: number | null
           id: string
           name: string
+          plan_id: string
           primary_date: string | null
           primary_venue: string | null
           status: string
@@ -1084,6 +1247,7 @@ export type Database = {
           guest_capacity?: number | null
           id?: string
           name: string
+          plan_id?: string
           primary_date?: string | null
           primary_venue?: string | null
           status?: string
@@ -1101,6 +1265,7 @@ export type Database = {
           guest_capacity?: number | null
           id?: string
           name?: string
+          plan_id?: string
           primary_date?: string | null
           primary_venue?: string | null
           status?: string
@@ -1264,6 +1429,97 @@ export type Database = {
             columns: ["expense_type_id"]
             isOneToOne: false
             referencedRelation: "event_expense_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_general_settings_view: {
+        Row: {
+          created_at: string | null
+          discoverable: boolean | null
+          event_date: string | null
+          event_details: Json | null
+          event_id: string | null
+          event_name: string | null
+          show_on_dashboard: boolean | null
+          tagline: string | null
+          updated_at: string | null
+          updated_by: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_general_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_general_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_guest_settings_view: {
+        Row: {
+          allow_plus_ones: boolean | null
+          collect_dietary_notes: boolean | null
+          created_at: string | null
+          default_guest_message: string | null
+          effective_max_plus_ones: number | null
+          event_id: string | null
+          max_plus_ones_per_invite: number | null
+          rsvp_deadline: string | null
+          rsvp_enabled: boolean | null
+          updated_at: string | null
+          updated_by: string | null
+          user_id: string | null
+        }
+        Insert: {
+          allow_plus_ones?: boolean | null
+          collect_dietary_notes?: boolean | null
+          created_at?: string | null
+          default_guest_message?: string | null
+          effective_max_plus_ones?: never
+          event_id?: string | null
+          max_plus_ones_per_invite?: number | null
+          rsvp_deadline?: string | null
+          rsvp_enabled?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          allow_plus_ones?: boolean | null
+          collect_dietary_notes?: boolean | null
+          created_at?: string | null
+          default_guest_message?: string | null
+          effective_max_plus_ones?: never
+          event_id?: string | null
+          max_plus_ones_per_invite?: number | null
+          rsvp_deadline?: string | null
+          rsvp_enabled?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_guest_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_guest_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
@@ -1434,6 +1690,39 @@ export type Database = {
           },
         ]
       }
+      event_website_settings_view: {
+        Row: {
+          announcement_banner_enabled: boolean | null
+          announcement_banner_text: string | null
+          created_at: string | null
+          event_id: string | null
+          search_indexing_enabled: boolean | null
+          site_offline: boolean | null
+          updated_at: string | null
+          updated_by: string | null
+          user_id: string | null
+          website_days_remaining: string | null
+          website_expired: boolean | null
+          website_expires_at: string | null
+          website_password_enabled: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_website_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_website_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitation_card_guest_view: {
         Row: {
           default_photo_key: string | null
@@ -1482,6 +1771,10 @@ export type Database = {
       }
     }
     Functions: {
+      _seed_event_settings: {
+        Args: { p_event_id: string; p_user_id: string }
+        Returns: undefined
+      }
       bulk_set_task_status: {
         Args: { p_status_slug: string; p_task_ids: string[] }
         Returns: number
