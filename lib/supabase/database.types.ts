@@ -66,6 +66,13 @@ export type Database = {
             foreignKeyName: "event_albums_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_albums_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -97,6 +104,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "event_budgets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_budgets_event_id_fkey"
             columns: ["event_id"]
@@ -151,6 +165,13 @@ export type Database = {
             foreignKeyName: "event_collaborators_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_collaborators_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -194,6 +215,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "event_expense_types_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_expense_types_event_id_fkey"
             columns: ["event_id"]
@@ -254,6 +282,13 @@ export type Database = {
             foreignKeyName: "event_expenses_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_expenses_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -300,6 +335,13 @@ export type Database = {
             foreignKeyName: "event_guest_sub_events_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_guest_sub_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -342,6 +384,13 @@ export type Database = {
           tag_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "event_guest_tag_links_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_guest_tag_links_event_id_fkey"
             columns: ["event_id"]
@@ -404,6 +453,13 @@ export type Database = {
             foreignKeyName: "event_guest_tags_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_guest_tags_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -456,6 +512,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "event_guests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_guests_event_id_fkey"
             columns: ["event_id"]
@@ -549,6 +612,13 @@ export type Database = {
             foreignKeyName: "event_invitation_cards_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_invitation_cards_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -630,6 +700,13 @@ export type Database = {
             foreignKeyName: "event_media_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_media_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -676,6 +753,13 @@ export type Database = {
             foreignKeyName: "event_media_albums_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_media_albums_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -711,6 +795,13 @@ export type Database = {
           tag_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "event_media_tag_links_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_media_tag_links_event_id_fkey"
             columns: ["event_id"]
@@ -770,6 +861,13 @@ export type Database = {
             foreignKeyName: "event_media_tags_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_media_tags_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -786,6 +884,7 @@ export type Database = {
           event_sub_type_id: string | null
           guest_count: number | null
           id: string
+          show_on_website: boolean
           start_time: string | null
           status: string
           updated_at: string
@@ -801,6 +900,7 @@ export type Database = {
           event_sub_type_id?: string | null
           guest_count?: number | null
           id?: string
+          show_on_website?: boolean
           start_time?: string | null
           status?: string
           updated_at?: string
@@ -816,12 +916,20 @@ export type Database = {
           event_sub_type_id?: string | null
           guest_count?: number | null
           id?: string
+          show_on_website?: boolean
           start_time?: string | null
           status?: string
           updated_at?: string
           venue?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "event_sub_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_sub_events_event_id_fkey"
             columns: ["event_id"]
@@ -857,6 +965,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "event_task_assignees_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_task_assignees_event_id_fkey"
             columns: ["event_id"]
@@ -917,6 +1032,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "event_tasks_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_tasks_event_id_fkey"
             columns: ["event_id"]
@@ -1076,6 +1198,13 @@ export type Database = {
             foreignKeyName: "event_media_albums_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_media_albums_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -1090,6 +1219,13 @@ export type Database = {
           total_amount: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "event_budgets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_budgets_event_id_fkey"
             columns: ["event_id"]
@@ -1109,6 +1245,13 @@ export type Database = {
           spent: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "event_expenses_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_expenses_event_id_fkey"
             columns: ["event_id"]
@@ -1141,10 +1284,35 @@ export type Database = {
             foreignKeyName: "event_guests_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_guests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
+      }
+      event_hub_summary: {
+        Row: {
+          budget_percent: number | null
+          budget_spent: number | null
+          budget_total: number | null
+          default_card_share_token: string | null
+          event_id: string | null
+          event_name: string | null
+          guest_total: number | null
+          primary_date: string | null
+          primary_venue: string | null
+          sub_event_count: number | null
+          task_done: number | null
+          task_percent: number | null
+          task_total: number | null
+        }
+        Relationships: []
       }
       event_invitation_card_summary: {
         Row: {
@@ -1165,6 +1333,13 @@ export type Database = {
           updated_at: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "event_invitation_cards_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_invitation_cards_event_id_fkey"
             columns: ["event_id"]
@@ -1193,6 +1368,13 @@ export type Database = {
             foreignKeyName: "event_media_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_media_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -1205,6 +1387,13 @@ export type Database = {
           sub_event_id: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "event_guest_sub_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_guest_sub_events_event_id_fkey"
             columns: ["event_id"]
@@ -1229,6 +1418,13 @@ export type Database = {
           total: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "event_tasks_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_tasks_event_id_fkey"
             columns: ["event_id"]
@@ -1261,6 +1457,13 @@ export type Database = {
           template_name: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "event_invitation_cards_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_invitation_cards_event_id_fkey"
             columns: ["event_id"]
