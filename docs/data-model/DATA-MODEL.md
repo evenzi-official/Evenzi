@@ -6,11 +6,11 @@
 
 | | |
 |---|---|
-| **Version** | `2026-06-17.2` |
+| **Version** | `2026-06-17.3` |
 | **Last updated** | 2026-06-17 |
-| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + **Planning** (Checklist/Tasks + Budget) + **Guest Management** (guest list, RSVP, function assignments, tags) + **Media & Memories** (photo/video gallery + albums, R2-backed) + **Invitations** (invitation card personalizer — card styles catalog, locked templates catalog, per-event invitation cards, hosted share URL) + **Event Management Hub** (`show_on_website` toggle on sub-events, icon catalog fix, `event_hub_summary` aggregation view). Enablement & entitlements + account deletion shapes recorded as **[PLANNED]**. |
+| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + **Planning** (Checklist/Tasks + Budget) + **Guest Management** (guest list, RSVP, function assignments, tags) + **Media & Memories** (photo/video gallery + albums, R2-backed) + **Invitations** (invitation card personalizer — card styles catalog, locked templates catalog, per-event invitation cards, hosted share URL) + **Event Management Hub** (`show_on_website` toggle on sub-events, icon catalog fix, `event_hub_summary` aggregation view) + **Event Settings — plan tier** (`config.plans` seeded; `public.events.plan_id` FK + default function + limit trigger). Remaining entitlements (modules, features, plan_features, overrides) + account deletion shapes recorded as **[PLANNED]**. |
 | **Database** | Supabase Postgres — project `smjkbmkxweevqpvygabe` (ap-northeast-1) |
-| **Live DB status** | ✅ Built 2026-06-13 on the dev project (migrations `core_01`–`core_07`): catalogs seeded, 4 logins backfilled, baseline RLS on. ✅ Planning module applied 2026-06-14 (migrations `planning_01`–`planning_07`): new catalogs seeded, `event_tasks`/`event_checklists` extended, 4 new live tables + 3 `security_invoker` views + helper RPCs, owner-only RLS on, `get_advisors` (security + performance) reviewed clean. ⚠️ Manual step pending: expose the `config` schema in *Dashboard → Project Settings → API → Exposed schemas*. The deployed app still queries the old shapes — its code must be updated. ✅ Invitations module applied 2026-06-17 (migrations `inv_01`–`inv_06`): 2 config catalogs seeded, `event_invitation_cards` table + 2 views + `create_event_with_details` extended to seed main event card. ✅ Event Hub applied 2026-06-17 (migrations `hub_01`–`hub_03`): `show_on_website` column + 2 indexes on `event_sub_events`; `config.event_sub_types` icon names updated to Material Symbols + 2 new types; `event_hub_summary` aggregation view created. |
+| **Live DB status** | ✅ Built 2026-06-13 on the dev project (migrations `core_01`–`core_07`): catalogs seeded, 4 logins backfilled, baseline RLS on. ✅ Planning module applied 2026-06-14 (migrations `planning_01`–`planning_07`): new catalogs seeded, `event_tasks`/`event_checklists` extended, 4 new live tables + 3 `security_invoker` views + helper RPCs, owner-only RLS on, `get_advisors` (security + performance) reviewed clean. ⚠️ Manual step pending: expose the `config` schema in *Dashboard → Project Settings → API → Exposed schemas*. The deployed app still queries the old shapes — its code must be updated. ✅ Invitations module applied 2026-06-17 (migrations `inv_01`–`inv_06`): 2 config catalogs seeded, `event_invitation_cards` table + 2 views + `create_event_with_details` extended to seed main event card. ✅ Event Hub applied 2026-06-17 (migrations `hub_01`–`hub_03`): `show_on_website` column + 2 indexes on `event_sub_events`; `config.event_sub_types` icon names updated to Material Symbols + 2 new types; `event_hub_summary` aggregation view created. ✅ Event Settings (plan tier) applied 2026-06-17 (migrations `event_settings_01`–`event_settings_02`): `config.plans` table + 3 tier rows seeded (free/premium/elite); `public.events.plan_id` NOT NULL FK with `config.free_plan_id()` default function + `idx_events_plan_id` index + `trg_enforce_plan_event_limit` BEFORE INSERT trigger (SECURITY DEFINER; no-op while limits are NULL); 5 CHECK constraints on `config.plans`. |
 | **Tags** | **[NOW]** = part of the core slice we build first · **[PLANNED]** = shape locked, built when we reach that page (Admin / Billing / Settings) |
 
 ---
@@ -417,15 +417,21 @@ create table public.events (
   cover_image_url text, description text,
   event_details jsonb not null default '{}', -- variable per-type answers
   status text not null default 'draft' check (status in ('draft','active','completed','cancelled')),
-  -- plan_id uuid references config.plans(id) on delete restrict,          -- [PLANNED] per-event tier
+  plan_id uuid not null default config.free_plan_id()
+    references config.plans(id) on delete restrict,  -- per-event tier; RESTRICT prevents deleting a tier in use
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   deleted_at timestamptz                     -- soft delete (trash / restore)
 );
 create index idx_events_user on public.events(user_id, created_at desc);
 create index idx_events_type on public.events(event_type_id);
+create index idx_events_plan_id on public.events(plan_id);
+-- trigger: enforce per-plan event limit (BEFORE INSERT, SECURITY DEFINER, no-op while max_events_per_user is NULL)
+create trigger trg_enforce_plan_event_limit
+  before insert on public.events
+  for each row execute function public.enforce_plan_event_limit();
 ```
-**Notes:** owner `user_id` CASCADE; creator `created_by` SET NULL (so deleting a creator never blocks deletion — D18; for a self-made event `created_by = user_id` at insert). `event_type_id` RESTRICT. `event_details` example `{"partner_1_name":"Aarav","partner_2_name":"Ishani"}`, validated against `field_schema`. Ownership transfer = one `UPDATE user_id` (vendor-on-behalf, D16). If vendor billing must survive a deleted creator, snapshot a `created_by_name text` or use a billing/audit record — not a hard FK.
+**Notes:** owner `user_id` CASCADE; creator `created_by` SET NULL (so deleting a creator never blocks deletion — D18; for a self-made event `created_by = user_id` at insert). `event_type_id` RESTRICT. `event_details` example `{"partner_1_name":"Aarav","partner_2_name":"Ishani"}`, validated against `field_schema`. Ownership transfer = one `UPDATE user_id` (vendor-on-behalf, D16). If vendor billing must survive a deleted creator, snapshot a `created_by_name text` or use a billing/audit record — not a hard FK. `plan_id` defaults to the free tier via `config.free_plan_id()` (a STABLE function — PostgreSQL forbids subqueries as column defaults; D41).
 
 ### `public.event_sub_events`  `[NOW]`
 **Purpose:** the actual functions of an event (this wedding's Haldi, Sangeet…).
@@ -1200,7 +1206,7 @@ events.created_by / event_expenses.created_by / event_budgets.modified_by / even
 
 ---
 
-## Enablement & entitlements (PLANNED)
+## Enablement & entitlements (PARTIAL — `config.plans` + `public.events.plan_id` LIVE; modules/features/plan_features/overrides PLANNED)
 
 How modules and paid features get turned on. **Two layers, ANDed** (D17):
 
@@ -1240,12 +1246,57 @@ create table config.features (                 -- unlockable capabilities
   display_order int not null default 0, enabled boolean not null default true,
   created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );
+-- [NOW] config.plans — seeded event_settings_01 (free/premium/elite)
 create table config.plans (                    -- one-time tiers
   id uuid primary key default gen_random_uuid(),
   slug text not null unique,                  -- free|premium|elite
-  name text not null, display_order int not null default 0, enabled boolean not null default true,
-  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+  name text not null,
+  price_inr numeric(10,2) not null default 0,  -- 0 for free; constraint: >= 0
+  max_events_per_user int,                    -- null = unlimited; constraint: > 0 when set
+  max_guests int,                             -- null = unlimited; constraint: > 0 when set
+  max_photos int,                             -- null = unlimited; constraint: > 0 when set
+  max_admins int,                             -- null = unlimited; constraint: > 0 when set
+  display_order int not null default 0, enabled boolean not null default true,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now(),
+  constraint ck_plans_price_non_negative check (price_inr >= 0),
+  constraint ck_plans_max_events_positive check (max_events_per_user is null or max_events_per_user > 0),
+  constraint ck_plans_max_guests_positive check (max_guests is null or max_guests > 0),
+  constraint ck_plans_max_photos_positive check (max_photos is null or max_photos > 0),
+  constraint ck_plans_max_admins_positive check (max_admins is null or max_admins > 0)
 );
+-- Helper: used as events.plan_id DEFAULT (subqueries are forbidden as column defaults in PG)
+create or replace function config.free_plan_id()
+returns uuid language plpgsql stable
+set search_path = config, public, pg_temp
+as $$
+declare v_id uuid;
+begin
+  select id into v_id from config.plans where slug = 'free';
+  if v_id is null then
+    raise exception 'free plan not seeded — run event_settings_01 migration first';
+  end if;
+  return v_id;
+end;
+$$;
+-- Limit enforcement trigger (SECURITY DEFINER — caller role has no direct SELECT on config.plans)
+create or replace function public.enforce_plan_event_limit()
+returns trigger language plpgsql security definer
+set search_path = public, config, pg_temp
+as $$
+declare v_limit int; v_count int;
+begin
+  select p.max_events_per_user into v_limit from config.plans p where p.id = new.plan_id;
+  if v_limit is null then return new; end if;  -- null = unlimited, no-op
+  select count(*) into v_count from public.events
+    where user_id = new.user_id and deleted_at is null and plan_id = new.plan_id;
+  if v_count >= v_limit then
+    raise exception 'plan_event_limit_exceeded: this plan allows at most % events', v_limit;
+  end if;
+  return new;
+end;
+$$;
+
+-- [PLANNED] — built when we reach Admin (catalog management) and Billing/Settings pages
 create table config.plan_features (            -- plan → feature unlock map
   plan_id uuid not null references config.plans(id) on delete cascade,
   feature_id uuid not null references config.features(id) on delete cascade,
@@ -1260,9 +1311,8 @@ create table public.event_feature_overrides (  -- typed per-event override (NOT 
   created_at timestamptz not null default now(), updated_at timestamptz not null default now(),
   primary key (event_id, feature_id)
 );
--- + public.events.plan_id uuid references config.plans(id)  (per-event tier)
 ```
-Built when we reach the Admin (catalog management) and Billing/Settings pages.
+`config.plans` + `public.events.plan_id` FK + limit trigger are LIVE (`event_settings_01`–`event_settings_02`). Modules, features, plan_features, and event_feature_overrides built when we reach the Admin and Billing/Settings pages.
 
 ---
 
