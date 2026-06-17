@@ -4,46 +4,66 @@
 
 ---
 
-## ▶ START HERE NEXT — Invitations data model (copy-paste prompt)
+## ▶ START HERE NEXT — Event Settings data model (copy-paste prompt)
 
 > Paste this after `/start-evenzi-session` (Abhijith path → "Continue data model"):
 
 ```
-Continue the page-by-page data model. Next slice = INVITATIONS.
+Continue the page-by-page data model. Next slice = EVENT SETTINGS.
 
-Scope (per MVP split): model the invitation CARD DESIGNER / personalizer only —
-the host picks a locked template, personalizes it (inline text on the card,
-upload-first front image, dark-mode-immune), and gets a hosted card + a WhatsApp
-share (text + link). The WhatsApp SEND + delivery/read TRACKING stays in Guest
-Management as a FUTURE event_guest_invites send-log — NOT this slice.
+Scope: model the Event Settings page — per-event settings the host controls
+(general info that isn't in Event CRUD, website visibility, guest-list privacy,
+collaborator management, registry, plan/billing). Some of these may already exist
+in `events` or `event_collaborators`; the goal is to audit what's there, fill
+gaps, and decide what needs new columns vs new tables.
 
-Ground in the prototype first: designs/pages/invitations/ (_spec.md / _page.md /
-the JS fixtures) — it's the canonical build target (card personalizer, locked
-templates, inline-on-card edit, upload, honest WhatsApp share). Read it before proposing schema.
+Ground in the prototype first: designs/pages/event-settings/ (6 sub-pages:
+general, website, admins, guest-list, registry, plan-billing). Read them before
+proposing schema.
 
-Follow the SAME flow we used for Planning/Guests/Media:
-brainstorm -> spec -> 4-agent council (data_modeller/backend/security/tech_lead) ->
-fold fixes -> plan -> migrations on dev Supabase (teaching mode, narrate each) ->
-smoke test -> regenerate types (merge the config block) -> sync DATA-MODEL.md +
-FE-INTEGRATION.md + ERD.md + evenzi-erd.drawio (maintenance rule #8) -> commit.
+Follow the SAME flow: brainstorm → spec → 4-agent council
+(data_modeller/backend/security/tech_lead) → fold fixes → plan → migrations on
+dev Supabase (teaching mode, narrate each) → smoke test → regenerate types →
+sync DATA-MODEL.md + ERD.md (rule #8) → commit.
 
-Likely shape to validate (don't assume): a config.invitation_templates catalog
-(locked designs, R2 asset keys) + per-event invitation cards (event_id, template
-ref, personalized text as jsonb or columns, uploaded front-image R2 key,
-rendered card R2 key, share text). Card image lives in R2 (DB stores keys, like
-media/receipts). Reuse: event_sub_events (which function the card is for?), the
-catalog->per-event-copy + is_custom + created_by/updated_by patterns, owner-only
-RLS, security_invoker views. Decide: card per-event, per-sub-event, or per-guest-
-segment? Does create_event_with_details seed anything? Confirm the WhatsApp-send
-deferral + the published/hosted-URL story.
+DATA-MODEL.md is now at v2026-06-17.2 (D1–D39). All prior modules are live on
+dev (smjkbmkxweevqpvygabe):
+- CORE (core_01–07), Planning (planning_01–07), Guests (guests_01–05),
+  Media (media_01–06), Invitations (inv_01–inv_06), Event Hub (hub_01–hub_03).
+- create_event_with_details seeds sub-events, tasks, expense types, budget,
+  guest tags, album presets, and one main invitation card (6 sets, 8 params).
 
-All prior modules are live on dev (smjkbmkxweevqpvygabe); DATA-MODEL.md is at
-v2026-06-16.3 (D1-D37). create_event_with_details is monolithic — per D36, if
-Invitations adds a 4th catalog-copy seed, that's the trigger to extract a
-_seed_event_catalog() helper.
+After Event Settings, the last unmodeled page is Website / Digital Presence.
 ```
 
-After Invitations, the remaining unmodeled pages are **Event Settings** and **Website / Digital Presence**.
+---
+
+## Recently Landed (2026-06-17 — Data model: Invitations + Event Hub)
+
+Two data-model slices landed in the same session (Abhijith), teaching mode. Each followed the full brainstorm → spec → council → plan → migrations → smoke test → types → doc sync flow.
+
+### Invitations card personalizer (inv_01–inv_06) — commit `4e669a1`
+
+- **`config.invitation_card_styles`** — 5 style chips (Minimal, Royal, Floral, Modern, Photo). Seeded.
+- **`config.invitation_templates`** — 7 locked designer templates (Eternal, Saffron, Eucalyptus, Noir, Rosewater, Bloom, Moments), each with R2 key stubs, style FK, layout tag, display order. Seeded.
+- **`public.event_invitation_cards`** — dual-mode per-event/sub-event card: template-based (`template_id` set) OR uploaded (`card_upload_key` set). 7 text slots as columns (`slot_eyebrow`…`slot_message`). `share_token` (DEFINER trigger), `share_enabled`, `rendered_jpg_key`, `photo_bg_key` (photo templates). `is_default`, `is_custom`, `created_by`/`updated_by` (reuses shared `stamp_*` triggers from D37). Check constraint enforces exactly one mode. Two partial unique indexes for `is_default` per group (two required — NULL ≠ NULL in B-tree).
+- **Views:** `event_invitation_card_summary` (host-facing, security_invoker) + `invitation_card_guest_view` (public share path, no RLS, service_role, guest-safe columns only, `WHERE share_enabled`).
+- **`create_event_with_details` extended:** seeds one main event card per event (idempotency guard). 4th catalog-copy triggered the `_seed_event_catalog()` helper extraction (per D36).
+- **Middleware:** `/invite/*` added to public paths.
+- **Decision D38.** `ON CONFLICT (event_type_id, slug)` composite key (not just `slug`).
+
+### Event Management Hub (hub_01–hub_03) — commits `4b6d74f`, `5896a3f`, `6c15386`
+
+- **`event_sub_events.show_on_website bool NOT NULL DEFAULT true`** — host controls per-function visibility on the event website. Indexes: `idx_ese_event_id` + `idx_ese_show_on_website` (partial WHERE show_on_website = true).
+- **`config.event_sub_types` upsert** — 7 icon_names updated from Lucide to Material Symbols; 2 new types added: `engagement` (diamond, order 0) and `pre-wedding-shoot` (photo_camera, order 8). Total: 9 types. Key fix: `ON CONFLICT (event_type_id, slug)` — composite, not just slug.
+- **`event_hub_summary` view (security_invoker)** — single-query aggregate for the Event Control dashboard. Columns: event_id, event_name, primary_date, primary_venue, guest_total, task_percent, task_done, task_total, budget_total, budget_spent, budget_percent (NULLIF-safe, returns NULL when no budget), sub_event_count (active only, `status != 'cancelled'`), default_card_share_token.
+- **Decision D39.** DATA-MODEL.md `v2026-06-17.2` + ERD.md `v2026-06-17.2` — ERD adds HUB subgraph, EVENT_HUB_SUMMARY entity, show_on_website field on EVENT_SUB_EVENTS.
+- TypeScript types regenerated (`database.types.ts` +203 lines).
+
+**Carryover (unchanged from prior session):**
+- **`can_access_event()` collaborator-RLS cutover** — deferred.
+- **Production `/api/storage/*` routes** — Media/invitations non-functional until these land.
+- **FE on new schema** — deployed app still queries old shapes (`event_metadata` dropped).
 
 ---
 
