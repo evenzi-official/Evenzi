@@ -1,6 +1,6 @@
 # Evenzi — Full Data Model ERD, Functions & Flows
 
-> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-06-17.2** — CORE + Planning + Guests + Media + Invitations + Event Hub. Renders on GitHub / VS Code (Mermaid).
+> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-06-17.3** — CORE + Planning + Guests + Media + Invitations + Event Hub + Event Settings. Renders on GitHub / VS Code (Mermaid).
 >
 > **Schemas:** `config.*` = reference/catalog (admin-seeded, public-read) · `public.*` = live app data (owner-only RLS) · `auth.*` = Supabase-managed identity.
 
@@ -8,7 +8,7 @@
 
 ## 1. Domain Module Map
 
-Six modules, each owning its tables. Config seeds all child modules at event creation; Events Core is the FK anchor for every `public.*` table.
+Nine modules, each owning its tables. Config seeds all child modules at event creation; Events Core is the FK anchor for every `public.*` table.
 
 ```mermaid
 flowchart TB
@@ -23,6 +23,7 @@ flowchart TB
     CRS[config_rsvp_statuses]
     CGT[config_guest_tags]
     CAP[config_album_presets]
+    CP[config_plans]
   end
 
   subgraph USR["👤 Identity / Users"]
@@ -69,16 +70,24 @@ flowchart TB
     EHS[event_hub_summary view]
   end
 
+  subgraph SETT["⚙️ Event Settings  (per-event 1:1 sidecars — public schema)"]
+    EGS[event_general_settings]
+    EWS[event_website_settings]
+    EGST[event_guest_settings]
+  end
+
   CFG -. "seeds / defines" .-> CORE
   CFG -. "seeds" .-> PLN
   CFG -. "seeds" .-> GST
   CFG -. "seeds" .-> MED
   CFG -. "seeds" .-> INV
+  CFG -. "configures" .-> SETT
   USR -- "owns" --> CORE
   CORE -- "parent FK" --> PLN
   CORE -- "parent FK" --> GST
   CORE -- "parent FK" --> MED
   CORE -- "parent FK" --> INV
+  CORE -- "parent FK" --> SETT
   CORE -. "aggregated by" .-> HUB
   GST -. "aggregates" .-> HUB
   PLN -. "aggregates" .-> HUB
@@ -92,8 +101,9 @@ flowchart TB
   classDef med fill:#e8f8ff,stroke:#2e9fd4,color:#0a3d5e;
   classDef inv fill:#fff3e0,stroke:#e65100,color:#000;
   classDef hub fill:#e8fffe,stroke:#00897b,color:#004d40;
+  classDef sett fill:#f0fdfa,stroke:#0d9488,color:#134e4a;
 
-  class CUT,CET,CEST,CEC,CTP,CTS,CEXT,CRS,CGT,CAP cfg;
+  class CUT,CET,CEST,CEC,CTP,CTS,CEXT,CRS,CGT,CAP,CP cfg;
   class UP,UPR usr;
   class E,ESE,EC core;
   class ET,ETA,EB,EXPT,EXP pln;
@@ -101,6 +111,7 @@ flowchart TB
   class EM,EA,EMA,EMT,EMTL med;
   class CIS,CIT,EIC inv;
   class EHS hub;
+  class EGS,EWS,EGST sett;
 ```
 
 **Arrow key:** `-->` live FK dependency · `-.->` dashed = catalog→per-event **copy** at creation (not a live FK).
@@ -229,6 +240,22 @@ erDiagram
     timestamptz created_at
     timestamptz updated_at
   }
+  CONFIG_PLANS {
+    uuid id PK
+    text slug UK "free|premium|elite"
+    text name
+    int max_guests
+    int max_sub_events
+    int max_media_mb
+    bool invitations_enabled
+    bool website_enabled
+    bool collaborators_enabled
+    bool custom_domain_enabled
+    int display_order
+    bool enabled
+    timestamptz created_at
+    timestamptz updated_at
+  }
 
   %% ---------- IDENTITY ----------
   USER_PROFILES {
@@ -259,6 +286,7 @@ erDiagram
     uuid user_id FK "owner (transferable, cascade)"
     uuid created_by FK "creator (set null on delete)"
     uuid event_type_id FK "restrict"
+    uuid plan_id FK "tier (restrict; default = free)"
     text name
     date primary_date
     text primary_venue
@@ -517,6 +545,42 @@ erDiagram
     timestamptz updated_at
   }
 
+  %% ---------- EVENT SETTINGS (per-event 1:1 sidecars) ----------
+  EVENT_GENERAL_SETTINGS {
+    uuid event_id PK_FK "1:1 sidecar (cascade)"
+    uuid user_id FK "denorm for single-hop RLS (cascade)"
+    text tagline
+    bool tagline_visible
+    bool discoverable
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  EVENT_WEBSITE_SETTINGS {
+    uuid event_id PK_FK "1:1 sidecar (cascade)"
+    uuid user_id FK "denorm for single-hop RLS (cascade)"
+    bool website_enabled
+    text website_slug UK
+    text website_password_hash "never projected to client"
+    date website_expiry_date
+    bool show_gallery
+    bool show_rsvp
+    bool show_program
+    bool show_map
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  EVENT_GUEST_SETTINGS {
+    uuid event_id PK_FK "1:1 sidecar (cascade)"
+    uuid user_id FK "denorm for single-hop RLS (cascade)"
+    bool plus_ones_enabled
+    smallint max_plus_ones_per_guest "0–10 (0 = no plus-ones)"
+    bool per_sub_event_rsvp
+    bool show_party_size
+    bool collect_dietary
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
   %% ---------- EVENT HUB (aggregation view — read-only) ----------
   %% Note: event_hub_summary aggregates from events, event_guest_stats, event_task_progress,
   %%       event_budget_summary, event_sub_events, and event_invitation_cards.
@@ -558,6 +622,7 @@ erDiagram
   CONFIG_EXPENSE_TYPES ..> EVENT_EXPENSE_TYPES : "seeds (copy)"
   CONFIG_GUEST_TAGS ..> EVENT_GUEST_TAGS : "seeds (copy)"
   CONFIG_ALBUM_PRESETS ..> EVENT_ALBUMS : "seeds (copy)"
+  CONFIG_PLANS ||--o{ EVENTS : "plan_id"
 
   EVENTS ||--o{ EVENT_SUB_EVENTS : "has"
   EVENTS ||--o{ EVENT_COLLABORATORS : "has"
@@ -594,6 +659,10 @@ erDiagram
   EVENTS ||--o{ EVENT_INVITATION_CARDS : "has"
   EVENT_SUB_EVENTS |o--o{ EVENT_INVITATION_CARDS : "tagged (set null)"
 
+  EVENTS ||--|| EVENT_GENERAL_SETTINGS : "has general settings"
+  EVENTS ||--|| EVENT_WEBSITE_SETTINGS : "has website settings"
+  EVENTS ||--|| EVENT_GUEST_SETTINGS : "has guest settings"
+
   EVENTS ||--|| EVENT_HUB_SUMMARY : "aggregated by"
 ```
 
@@ -612,13 +681,16 @@ flowchart LR
     STC["stamp_*_created_by()<br/>expenses/guests/media/tags"]
     GRD["guard fns (SECURITY DEFINER)<br/>event_task_assignee_before · media_album_before<br/>guest/media link guards · album_cover_before<br/>→ derive event_id, reject cross-event"]
     DRS["default_guest_rsvp()<br/>→ pending if null"]
+    EPL["enforce_plan_event_limit()<br/>BEFORE INSERT events → blocks at plan limit"]
   end
 
   subgraph RPC["RPCs (callable)"]
     direction TB
-    CE["create_event_with_details() [DEFINER]<br/>1 txn: event + sub-events + seed tasks<br/>+ expense-types + budget + guest-tags + albums"]
+    CE["create_event_with_details() [DEFINER]<br/>1 txn: event + sub-events + 7 seed blocks<br/>step 8 = _seed_event_settings()"]
     TC["event_task_counts() [invoker]<br/>→ total/todo/done/overdue"]
     BK["bulk_set_task_status() [invoker]"]
+    SE["_seed_event_settings() [DEFINER]<br/>3 settings rows; GRANT to service_role only"]
+    FP["config.free_plan_id() [STABLE DEFINER]<br/>returns free plan UUID (column DEFAULT)"]
   end
 
   subgraph VW["Views (security_invoker = on)"]
@@ -631,6 +703,9 @@ flowchart LR
     V6["event_media_storage"]
     V7["event_album_counts"]
     V8["event_hub_summary<br/>(hub_03 — aggregates V1-V4 + sub_events + inv_cards)"]
+    V9["event_general_settings_view<br/>(anon REVOKED)"]
+    V10["event_website_settings_view<br/>(hash excluded; days_remaining computed; anon REVOKED)"]
+    V11["event_guest_settings_view<br/>(effective_max_plus_ones computed; anon REVOKED)"]
   end
 
   subgraph PLN["[PLANNED]"]
@@ -652,10 +727,16 @@ flowchart LR
 | `stamp_*_created_by` | trigger fns | DEFINER | server-stamp `created_by` (never client-trusted) |
 | `*_before` guards | trigger fns | DEFINER | derive `event_id` from parent + reject cross-event refs |
 | `default_guest_rsvp` | trigger fn | DEFINER | default RSVP → `pending` |
-| `create_event_with_details` | RPC | DEFINER | one-txn event create + 6 seed blocks; owner from `auth.uid()` |
+| `config.free_plan_id` | fn | STABLE DEFINER, `set search_path` | returns free plan UUID; used as column DEFAULT on `events.plan_id`; REVOKE from public/anon/authenticated |
+| `enforce_plan_event_limit` | trigger fn | DEFINER | BEFORE INSERT on `events` — blocks when owner's event count ≥ plan `max_events`; REVOKE from public |
+| `create_event_with_details` | RPC | DEFINER | one-txn event create + 7 seed blocks (step 8 = `_seed_event_settings()`); owner from `auth.uid()` |
+| `_seed_event_settings` | RPC | DEFINER, `set search_path` | seeds 3 settings sidecar rows at event creation; REVOKE from public/anon/authenticated; GRANT to service_role only |
 | `event_task_counts` / `bulk_set_task_status` | RPC | invoker | toolbar counts / bulk status |
 | 7 module views | view | `security_invoker` | derived numbers (progress, budget, guest stats, storage, counts) |
 | `event_hub_summary` | view | `security_invoker` | hub_03 — single-query dashboard aggregate (joins 5 module views + sub_events + inv_cards) |
+| `event_general_settings_view` | view | `security_invoker` | joins `events` for name/dates; `anon` REVOKED |
+| `event_website_settings_view` | view | `security_invoker` | `website_password_hash` excluded; `website_days_remaining` computed (interval → string); `anon` REVOKED |
+| `event_guest_settings_view` | view | `security_invoker` | `effective_max_plus_ones` computed (0 when disabled); `anon` REVOKED |
 | `handle_new_user` · `can_access_event` · `link_pending_collaborators` · `delete_user_account` | fn | [PLANNED] | signup seed · access check · invite-link · account deletion |
 
 ---
@@ -674,8 +755,9 @@ flowchart TD
   G --> H["INSERT event_budgets (total 0)"]
   H --> I["SEED event_guest_tags ← config.guest_tags<br/>(is_custom=false, created_by=null)"]
   I --> J["SEED event_albums ← config.album_presets<br/>(is_custom=false, created_by=null)"]
-  J --> K["RETURN {event_id, name, status, created_at}"]
-  D -.-> note["all 6 seeds + insert<br/>commit/rollback together"]
+  J --> J2["SEED _seed_event_settings()<br/>(general/website/guest default rows — step 8)"]
+  J2 --> K["RETURN {event_id, name, status, created_at}"]
+  D -.-> note["all 7 seeds + insert<br/>commit/rollback together"]
 ```
 
 ---
