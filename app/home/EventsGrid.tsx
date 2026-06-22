@@ -298,7 +298,7 @@ export default function EventsGrid({ events, userDisplay }: Props) {
   const avatarLetter = (userDisplay.replace(/[^a-zA-Z]/g, "")[0] ?? "U").toUpperCase()
 
   return (
-    <div style={{ background: '#0d0d0d', minHeight: '100dvh' }}>
+    <div style={{ background: 'var(--bg)', minHeight: '100dvh' }}>
       <ScrollProgress />
       <nav className="floating-nav" aria-label="Main">
         <div className="floating-nav-inner dash-nav-inner">
