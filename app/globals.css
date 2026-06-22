@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "../designs/shared/shell.css";
 @import "../designs/index.css";
+@import "../designs/pages/auth/auth.css";
 @import "../designs/pages/create-event/create-event.css";
 @import "../designs/pages/event-control/event-control.css";
 @import "../designs/pages/event-control/our-journey.css";
