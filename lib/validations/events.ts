@@ -52,10 +52,25 @@ export const createEventSchema = z.object({
   coverImageUrl: z.string().nullable().optional(),
 })
 
+// Edit event API payload — partial edit of core details + a partial event_details merge.
+// Mirrors the PUT /api/events/[id] contract: all fields optional, empty strings allowed
+// (coerced to null server-side per the D44 empty-string rule). Used for client-side
+// validation before the PUT request.
+export const updateEventSchema = z
+  .object({
+    name: z.string().max(500).nullable().optional(),
+    primary_date: z.string().nullable().optional(),
+    primary_venue: z.string().max(500).nullable().optional(),
+    guest_capacity: z.coerce.number().int().positive().max(100000).nullable().optional(),
+    event_details: z.record(z.string(), z.string().nullable()).optional(),
+  })
+  .strict()
+
 export type Step1Data = z.infer<typeof step1Schema>
 export type Step2Data = z.infer<typeof step2Schema>
 export type Step3Data = z.infer<typeof step3Schema>
 export type CreateEventData = z.infer<typeof createEventSchema>
+export type UpdateEventData = z.infer<typeof updateEventSchema>
 
 /**
  * Validate Step 2 dynamic fields against the event type's form_schema.

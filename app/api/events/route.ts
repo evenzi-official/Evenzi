@@ -40,18 +40,22 @@ function generateEventName(
 interface EventListRow {
   id: string
   name: string | null
+  event_type_id: string
   primary_date: string | null
   primary_venue: string | null
   guest_capacity: number | null
   cover_image_url: string | null
   status: string
   created_at: string
-  event_types: {
-    name: string
-    slug: string
-    icon_name: string | null
-  }
   event_sub_events: { count: number }[]
+}
+
+// config.event_types catalog row (resolved via direct config-schema query, NOT an embed)
+interface EventTypeListRow {
+  id: string
+  name: string
+  slug: string
+  icon_name: string | null
 }
 
 interface RpcResult {
@@ -174,18 +178,22 @@ export async function GET(): Promise<NextResponse> {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // event_types lives in the `config` schema. PostgREST embeds only resolve within
+    // `public`, so we do NOT embed it (a cross-schema embed fails with PGRST200 and was
+    // silently nulling the type label). We fetch the event rows from public here, then
+    // resolve the type names from config below and join in JS.
     const { data, error } = await supabase
       .from('events')
       .select(`
         id,
         name,
+        event_type_id,
         primary_date,
         primary_venue,
         guest_capacity,
         cover_image_url,
         status,
         created_at,
-        event_types ( name, slug, icon_name ),
         event_sub_events ( count )
       `)
       .is('deleted_at', null)
@@ -196,22 +204,50 @@ export async function GET(): Promise<NextResponse> {
       return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 })
     }
 
-    const events: EventListItem[] = (data as unknown as EventListRow[]).map((row) => ({
-      id: row.id,
-      name: row.name,
-      eventType: {
-        name: row.event_types.name,
-        slug: row.event_types.slug,
-        iconName: row.event_types.icon_name,
-      },
-      primaryDate: row.primary_date,
-      primaryVenue: row.primary_venue,
-      guestCapacity: row.guest_capacity,
-      coverImageUrl: row.cover_image_url,
-      status: row.status,
-      subEventCount: row.event_sub_events[0]?.count ?? 0,
-      createdAt: row.created_at,
-    }))
+    const rows = (data as unknown as EventListRow[]) ?? []
+
+    // Resolve event types from the config schema (direct query, NOT an embed)
+    const eventTypeIds = Array.from(
+      new Set(rows.map((row) => row.event_type_id).filter((v): v is string => v != null))
+    )
+
+    const typesById = new Map<string, EventTypeListRow>()
+    if (eventTypeIds.length > 0) {
+      const { data: typeRows, error: typeError } = await supabase
+        .schema('config')
+        .from('event_types')
+        .select('id, name, slug, icon_name')
+        .in('id', eventTypeIds)
+
+      if (typeError) {
+        console.error('GET /api/events event_types query failed:', typeError)
+        return NextResponse.json({ error: 'Failed to fetch event types' }, { status: 500 })
+      }
+
+      for (const t of (typeRows ?? []) as EventTypeListRow[]) {
+        typesById.set(t.id, t)
+      }
+    }
+
+    const events: EventListItem[] = rows.map((row) => {
+      const type = typesById.get(row.event_type_id)
+      return {
+        id: row.id,
+        name: row.name,
+        eventType: {
+          name: type?.name ?? 'Event',
+          slug: type?.slug ?? '',
+          iconName: type?.icon_name ?? null,
+        },
+        primaryDate: row.primary_date,
+        primaryVenue: row.primary_venue,
+        guestCapacity: row.guest_capacity,
+        coverImageUrl: row.cover_image_url,
+        status: row.status,
+        subEventCount: row.event_sub_events[0]?.count ?? 0,
+        createdAt: row.created_at,
+      }
+    })
 
     return NextResponse.json({ events })
   } catch {

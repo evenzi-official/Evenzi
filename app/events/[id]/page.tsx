@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
@@ -10,22 +10,28 @@ const ICON_MAP: Record<string, string> = {
   coffee: 'local_cafe', spa: 'spa',
 }
 
+// Sub-event row joined in JS with its config.event_sub_types catalog entry.
 interface SubEventRow {
   id: string
   custom_name: string | null
   event_sub_types: { name: string; icon_name: string | null } | null
 }
 
-interface EventRow {
-  id: string
-  name: string | null
+// Hero/overview aggregate stats from public.event_hub_summary (security_invoker view).
+interface HubSummaryRow {
+  event_id: string
+  event_name: string | null
   primary_date: string | null
   primary_venue: string | null
-  guest_capacity: number | null
-  status: string
-  cover_image_url: string | null
-  event_types: { name: string; slug: string } | null
-  event_sub_events: SubEventRow[]
+  guest_total: number | null
+  task_percent: number | null
+  task_done: number | null
+  task_total: number | null
+  budget_total: number | null
+  budget_spent: number | null
+  budget_percent: number | null
+  sub_event_count: number | null
+  default_card_share_token: string | null
 }
 
 function formatDate(d: string | null): string {
@@ -49,23 +55,108 @@ export default async function EventControlPage({
   const { id } = await params
   const supabase = await createClient()
 
-  const { data } = await supabase
+  // 1) Existence + soft-delete guard + hero cover image.
+  //    Plain public select (no cross-schema embed) — also tells genuine
+  //    "not found" apart from a query failure.
+  const { data: eventRow, error: eventError } = await supabase
     .from('events')
-    .select(`
-      id, name, primary_date, primary_venue, guest_capacity, status, cover_image_url,
-      event_types ( name, slug ),
-      event_sub_events ( id, custom_name, event_sub_types ( name, icon_name ) )
-    `)
+    .select('id, name, status, cover_image_url, deleted_at')
     .eq('id', id)
     .is('deleted_at', null)
-    .single()
+    .maybeSingle()
 
-  if (!data) redirect('/home')
-  const event = data as unknown as EventRow
+  if (eventError) {
+    console.error('[event-hub] events query failed:', eventError)
+    throw new Error('Failed to load event')
+  }
+  if (!eventRow) {
+    // Genuinely absent or soft-deleted — not a query error.
+    notFound()
+  }
 
-  const eventName = event.name ?? 'Your Event'
+  // 2) Hero / overview aggregate stats — public.event_hub_summary view
+  //    (security_invoker, all in `public` → no cross-schema embed).
+  const { data: summaryRow, error: summaryError } = await supabase
+    .from('event_hub_summary')
+    .select(
+      'event_id, event_name, primary_date, primary_venue, guest_total, ' +
+        'task_percent, task_done, task_total, budget_total, budget_spent, ' +
+        'budget_percent, sub_event_count, default_card_share_token',
+    )
+    .eq('event_id', id)
+    .maybeSingle()
+
+  if (summaryError) {
+    console.error('[event-hub] event_hub_summary query failed:', summaryError)
+    throw new Error('Failed to load event summary')
+  }
+
+  const summary = (summaryRow ?? null) as HubSummaryRow | null
+
+  // 3) Sub-event milestone list — resolve config.event_sub_types separately
+  //    (direct access works; embedding it across schemas does NOT → PGRST200).
+  const { data: subEventRows, error: subEventsError } = await supabase
+    .from('event_sub_events')
+    .select('id, custom_name, event_sub_type_id, display_order')
+    .eq('event_id', id)
+    .order('display_order', { ascending: true })
+
+  if (subEventsError) {
+    console.error('[event-hub] event_sub_events query failed:', subEventsError)
+    throw new Error('Failed to load sub-events')
+  }
+
+  const rawSubEvents = subEventRows ?? []
+
+  // Resolve sub-event type names/icons from the config catalog (direct access).
+  const typeIds = Array.from(
+    new Set(
+      rawSubEvents
+        .map((se) => se.event_sub_type_id)
+        .filter((tid): tid is string => tid != null),
+    ),
+  )
+
+  const typesById: Record<string, { name: string; icon_name: string | null }> = {}
+  if (typeIds.length > 0) {
+    const { data: typeRows, error: typesError } = await supabase
+      .schema('config')
+      .from('event_sub_types')
+      .select('id, name, icon_name')
+      .in('id', typeIds)
+
+    if (typesError) {
+      console.error('[event-hub] config.event_sub_types query failed:', typesError)
+      throw new Error('Failed to load sub-event types')
+    }
+
+    for (const t of typeRows ?? []) {
+      typesById[t.id] = { name: t.name, icon_name: t.icon_name }
+    }
+  }
+
+  // Join in JS — preserve the existing { custom_name, event_sub_types } shape
+  // the JSX expects (name + icon_name resolved off the catalog).
+  const subEvents: SubEventRow[] = rawSubEvents.map((se) => ({
+    id: se.id,
+    custom_name: se.custom_name,
+    event_sub_types: se.event_sub_type_id
+      ? typesById[se.event_sub_type_id] ?? null
+      : null,
+  }))
+
+  // Hero/overview fields — prefer the view; fall back to the events row.
+  const event = {
+    cover_image_url: eventRow.cover_image_url as string | null,
+    primary_date: summary?.primary_date ?? null,
+    primary_venue: summary?.primary_venue ?? null,
+    guest_capacity: summary?.guest_total ?? null,
+  }
+
+  const eventName = summary?.event_name ?? eventRow.name ?? 'Your Event'
   const days = daysUntil(event.primary_date)
-  const subEvents = event.event_sub_events ?? []
+  // Drive the milestone strip off the rows we actually render so the count,
+  // the empty-state branch, and subEvents[0] never diverge.
   const subCount = subEvents.length
 
   // SVG circle progress: circumference = 2π × 44 ≈ 276.46; offset 0 = full fill

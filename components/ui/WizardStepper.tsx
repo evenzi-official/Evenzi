@@ -1,3 +1,5 @@
+import { Fragment } from 'react'
+
 interface Step {
   label: string
 }
@@ -16,16 +18,14 @@ export function WizardStepper({ steps, currentStep }: WizardStepperProps) {
           const isActive = num === currentStep
           const isDone = num < currentStep
           return (
-            <>
+            <Fragment key={num}>
               {i > 0 && (
                 <li
-                  key={`conn-${i}`}
                   className={`cw-step-connector${isDone ? ' is-done' : ''}`}
                   aria-hidden="true"
                 />
               )}
               <li
-                key={num}
                 className={`cw-step${isActive ? ' is-active' : ''}${isDone ? ' is-done' : ''}`}
                 aria-current={isActive ? 'step' : undefined}
               >
@@ -36,7 +36,7 @@ export function WizardStepper({ steps, currentStep }: WizardStepperProps) {
                 </span>
                 <span className="cw-step-label">{step.label}</span>
               </li>
-            </>
+            </Fragment>
           )
         })}
       </ol>
