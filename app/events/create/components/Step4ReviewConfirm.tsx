@@ -68,6 +68,7 @@ export function Step4ReviewConfirm(): React.JSX.Element {
         primaryDate: basicDetails.primaryDate,
         primaryVenue: basicDetails.primaryVenue,
         guestCapacity: basicDetails.guestCapacity,
+        coverImageUrl: basicDetails.coverImageUrl ?? null,
         subEvents: selectedSubEvents.map((se) => ({
           subEventTypeId: se.subEventTypeId,
           customName: se.customName,
@@ -80,7 +81,7 @@ export function Step4ReviewConfirm(): React.JSX.Element {
       })
       if (res.status === 201) {
         const data = await res.json() as { event: { id: string } }
-        router.push(`/events/${data.event.id}/success`)
+        router.push(`/events/${data.event.id}`)
         return
       }
       let message = `Something went wrong (${res.status})`
@@ -113,10 +114,6 @@ export function Step4ReviewConfirm(): React.JSX.Element {
         </p>
       </header>
 
-      {error && (
-        <p className="form-error" role="alert">{error}</p>
-      )}
-
       {/* Basic details */}
       <section className="cc-review-section">
         <header className="cc-review-section-head">
@@ -128,9 +125,9 @@ export function Step4ReviewConfirm(): React.JSX.Element {
         </header>
         <div className="cc-review-grid">
           {formSchema.map((f) => (
-            <div key={f.field} className="cc-review-field">
+            <div key={f.key} className="cc-review-field">
               <span className="cc-review-field-label">{f.label}</span>
-              <span className="cc-review-field-value">{basicDetails.metadata[f.field]?.trim() || '—'}</span>
+              <span className="cc-review-field-value">{basicDetails.metadata[f.key]?.trim() || '—'}</span>
             </div>
           ))}
           <div className="cc-review-field">
@@ -178,6 +175,10 @@ export function Step4ReviewConfirm(): React.JSX.Element {
             )}
           </div>
         </section>
+      )}
+
+      {error && (
+        <p className="form-error" role="alert" style={{ marginTop: '1rem' }}>{error}</p>
       )}
 
       <div className="cc-actions">

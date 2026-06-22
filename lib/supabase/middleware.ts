@@ -72,7 +72,7 @@ export async function updateSession(request: NextRequest) {
   // User exists — check role for routing decisions
   if (user) {
     const profile = await getUserProfile(supabase, user.id)
-    const hasRole = profile?.role != null
+    const hasRole = profile?.role_slug != null
 
     // User with no role trying to access protected routes → role selection
     if (!hasRole && pathname !== '/auth/role-selection' && !isPublicPath) {
@@ -96,7 +96,7 @@ export async function updateSession(request: NextRequest) {
     }
 
     // Host-only routes — vendors cannot access event creation/management
-    if (hasRole && profile?.role !== 'host' && pathname.startsWith('/events')) {
+    if (hasRole && profile?.role_slug !== 'host' && pathname.startsWith('/events')) {
       const url = request.nextUrl.clone()
       url.pathname = '/home'
       return NextResponse.redirect(url)

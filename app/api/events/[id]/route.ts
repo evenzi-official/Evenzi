@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import type {
   EventTypeRow,
-  EventMetadataRow,
   EventSubEventRow,
   EventWithDetails,
   EventSubEvent,
@@ -23,14 +22,15 @@ interface EventDetailRow {
   guest_capacity: number | null
   cover_image_url: string | null
   description: string | null
+  event_details: Record<string, unknown>
   status: string
   created_at: string
   updated_at: string
-  event_types: Pick<EventTypeRow, 'id' | 'name' | 'slug' | 'icon_name' | 'has_sub_events'>
+  event_types: Pick<EventTypeRow, 'id' | 'name' | 'slug' | 'icon_name'>
 }
 
 interface EventSubEventWithType extends EventSubEventRow {
-  sub_event_types: {
+  event_sub_types: {
     name: string
     icon_name: string | null
   } | null
@@ -60,7 +60,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Fetch event with event_type join
+    // Fetch event with event_type join — event_details replaces the old event_metadata table
     const { data: eventData, error: eventError } = await supabase
       .from('events')
       .select(`
@@ -73,13 +73,14 @@ export async function GET(
         guest_capacity,
         cover_image_url,
         description,
+        event_details,
         status,
         created_at,
         updated_at,
-        event_types ( id, name, slug, icon_name, has_sub_events )
+        event_types ( id, name, slug, icon_name )
       `)
       .eq('id', id)
-      .eq('user_id', user.id)
+      .is('deleted_at', null)
       .single()
 
     if (eventError || !eventData) {
@@ -88,38 +89,26 @@ export async function GET(
 
     const event = eventData as unknown as EventDetailRow
 
-    // Fetch metadata
-    const { data: metadataRows, error: metaError } = await supabase
-      .from('event_metadata')
-      .select('id, event_id, key, value')
-      .eq('event_id', id)
+    // Partner names and other variable fields live in events.event_details (jsonb)
+    const metadata = (event.event_details ?? {}) as Record<string, string>
 
-    if (metaError) {
-      console.error('GET /api/events/[id] metadata error:', metaError)
-      return NextResponse.json({ error: 'Failed to fetch event metadata' }, { status: 500 })
-    }
-
-    const metadata: Record<string, string> = {}
-    for (const row of (metadataRows as EventMetadataRow[])) {
-      metadata[row.key] = row.value ?? ''
-    }
-
-    // Fetch sub-events with sub_event_types join for names
+    // Fetch sub-events with event_sub_types join for names
     const { data: subEventRows, error: subEventError } = await supabase
       .from('event_sub_events')
       .select(`
         id,
         event_id,
-        sub_event_type_id,
+        event_sub_type_id,
         custom_name,
-        date,
-        time,
+        event_date,
+        start_time,
+        end_time,
         venue,
         status,
         display_order,
         created_at,
         updated_at,
-        sub_event_types ( name, icon_name )
+        event_sub_types ( name, icon_name )
       `)
       .eq('event_id', id)
       .order('display_order', { ascending: true })
@@ -131,10 +120,10 @@ export async function GET(
 
     const subEvents: EventSubEvent[] = (subEventRows as unknown as EventSubEventWithType[]).map((row) => ({
       id: row.id,
-      name: row.custom_name ?? row.sub_event_types?.name ?? 'Unnamed',
-      iconName: row.sub_event_types?.icon_name ?? null,
-      date: row.date,
-      time: row.time,
+      name: row.custom_name ?? row.event_sub_types?.name ?? 'Unnamed',
+      iconName: row.event_sub_types?.icon_name ?? null,
+      date: row.event_date,
+      time: row.start_time,
       venue: row.venue,
       status: row.status as EventSubEvent['status'],
     }))
@@ -157,7 +146,7 @@ export async function GET(
         name: et.name,
         slug: et.slug,
         iconName: et.icon_name,
-        hasSubEvents: et.has_sub_events,
+        hasSubEvents: true, // has_sub_events removed from schema; supported for all enabled types
       },
       metadata,
       subEvents,

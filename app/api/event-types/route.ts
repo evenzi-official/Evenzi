@@ -7,8 +7,10 @@ export async function GET() {
     const supabase = await createClient()
 
     const { data, error } = await supabase
+      .schema('config')
       .from('event_types')
       .select('*')
+      .eq('enabled', true)
       .order('display_order', { ascending: true })
 
     if (error) {

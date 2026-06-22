@@ -77,6 +77,23 @@ export function getPublicUrl(key: string): string {
   return `${publicBaseUrl.replace(/\/$/, '')}/${key}`
 }
 
+/** Upload a Buffer/Uint8Array directly from the server. */
+export async function putObject(opts: {
+  bucket: string
+  key: string
+  body: Buffer | Uint8Array
+  contentType: string
+}): Promise<void> {
+  await client().send(
+    new PutObjectCommand({
+      Bucket: opts.bucket,
+      Key: opts.key,
+      Body: opts.body,
+      ContentType: opts.contentType,
+    })
+  )
+}
+
 export async function deleteObject(bucket: string, key: string): Promise<void> {
   await client().send(new DeleteObjectCommand({ Bucket: bucket, Key: key }))
 }

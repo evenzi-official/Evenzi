@@ -23,9 +23,11 @@ export async function GET(
     const supabase = await createClient()
 
     const { data, error } = await supabase
-      .from('sub_event_types')
+      .schema('config')
+      .from('event_sub_types')
       .select('*')
       .eq('event_type_id', typeId)
+      .eq('enabled', true)
       .order('display_order', { ascending: true })
 
     if (error) {

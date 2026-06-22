@@ -49,6 +49,7 @@ export const createEventSchema = z.object({
         )
     )
     .max(50, 'Too many sub-events (max 50)'),
+  coverImageUrl: z.string().nullable().optional(),
 })
 
 export type Step1Data = z.infer<typeof step1Schema>
@@ -62,14 +63,14 @@ export type CreateEventData = z.infer<typeof createEventSchema>
  */
 export function validateDynamicFields(
   metadata: Record<string, string>,
-  formSchema: { field: string; label: string; required: boolean }[]
+  formSchema: { key: string; label: string; required: boolean }[]
 ): { field: string; message: string }[] {
   const errors: { field: string; message: string }[] = []
   for (const fieldDef of formSchema) {
     if (fieldDef.required) {
-      const value = metadata[fieldDef.field]
+      const value = metadata[fieldDef.key]
       if (!value || value.trim() === '') {
-        errors.push({ field: fieldDef.field, message: `${fieldDef.label} is required` })
+        errors.push({ field: fieldDef.key, message: `${fieldDef.label} is required` })
       }
     }
   }

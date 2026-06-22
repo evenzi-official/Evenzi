@@ -87,10 +87,11 @@ export async function POST(request: Request): Promise<NextResponse> {
       )
     }
 
-    const { eventTypeId, metadata, primaryDate, primaryVenue, guestCapacity, subEvents } = parsed.data
+    const { eventTypeId, metadata, primaryDate, primaryVenue, guestCapacity, subEvents, coverImageUrl } = parsed.data
 
     // Verify event type exists and is enabled
     const { data: eventTypeData, error: typeError } = await supabase
+      .schema('config')
       .from('event_types')
       .select('id, name, slug, enabled')
       .eq('id', eventTypeId)
@@ -112,8 +113,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     // Build RPC params
     const pMetadata = Object.entries(metadata).map(([key, value]) => ({ key, value }))
     const pSubEvents = subEvents.map((se, index) => ({
-      sub_event_type_id: se.subEventTypeId ?? '',
-      custom_name: se.customName ?? '',
+      sub_event_type_id: se.subEventTypeId ?? null,
+      custom_name: se.customName ?? null,
       display_order: index + 1,
     }))
 
@@ -134,6 +135,17 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     const result = rpcData as RpcResult
+
+    // Save cover image URL if provided
+    if (coverImageUrl) {
+      const { error: coverError } = await supabase
+        .from('events')
+        .update({ cover_image_url: coverImageUrl })
+        .eq('id', result.event_id)
+      if (coverError) {
+        console.error('Failed to save cover image URL:', coverError)
+      }
+    }
 
     return NextResponse.json(
       {
@@ -176,7 +188,7 @@ export async function GET(): Promise<NextResponse> {
         event_types ( name, slug, icon_name ),
         event_sub_events ( count )
       `)
-      .eq('user_id', user.id)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
 
     if (error) {

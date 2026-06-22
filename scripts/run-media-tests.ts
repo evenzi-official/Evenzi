@@ -2,8 +2,8 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 
-const tests = [];
-function test(id, name, fn) {
+const tests: { id: string; name: string; fn: () => void }[] = [];
+function test(id: string, name: string, fn: () => void) {
   tests.push({ id, name, fn });
 }
 

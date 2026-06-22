@@ -26,7 +26,7 @@ export default function RoleSelectionPage() {
 
       const { error: updateError } = await supabase
         .from('user_profiles')
-        .update({ role })
+        .update({ role_slug: role })
         .eq('id', user.id)
 
       if (updateError) {

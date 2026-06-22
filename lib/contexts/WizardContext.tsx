@@ -14,6 +14,7 @@ export interface WizardState {
     primaryVenue: string | null
     guestCapacity: number | null
     metadata: Record<string, string>
+    coverImageUrl: string | null
   }
   selectedSubEvents: SelectedSubEvent[]
 }
@@ -27,6 +28,7 @@ export const initialWizardState: WizardState = {
     primaryVenue: null,
     guestCapacity: null,
     metadata: {},
+    coverImageUrl: null,
   },
   selectedSubEvents: [],
 }

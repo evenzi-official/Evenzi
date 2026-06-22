@@ -1,11 +1,11 @@
 // --- Form schema field definition (stored in event_types.form_schema) ---
 export interface FormSchemaField {
-  field: string
+  key: string
   label: string
   type: 'text' | 'number' | 'date' | 'select'
   required: boolean
   placeholder?: string
-  options?: string[] // for select type
+  options?: string[]
 }
 
 // --- Event Types (dimension table) ---
@@ -110,8 +110,7 @@ export interface EventTypeRow {
   icon_name: string | null
   image_url: string | null
   enabled: boolean
-  has_sub_events: boolean
-  form_schema: FormSchemaField[]
+  field_schema: FormSchemaField[]
   features: string[]
   display_order: number
   created_at: string
@@ -154,10 +153,11 @@ export interface EventMetadataRow {
 export interface EventSubEventRow {
   id: string
   event_id: string
-  sub_event_type_id: string | null
+  event_sub_type_id: string | null
   custom_name: string | null
-  date: string | null
-  time: string | null
+  event_date: string | null
+  start_time: string | null
+  end_time: string | null
   venue: string | null
   status: string
   display_order: number
@@ -175,9 +175,9 @@ export function mapEventTypeRow(row: EventTypeRow): EventType {
     iconName: row.icon_name,
     imageUrl: row.image_url,
     enabled: row.enabled,
-    hasSubEvents: row.has_sub_events,
-    formSchema: row.form_schema,
-    features: row.features,
+    hasSubEvents: true, // has_sub_events removed from schema; sub-events supported for all enabled types
+    formSchema: row.field_schema ?? [],
+    features: row.features ?? [],
     displayOrder: row.display_order,
   }
 }

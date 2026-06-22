@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
   if (data.user) {
     const profile = await getUserProfile(supabase, data.user.id)
-    const redirectPath = profile?.role ? '/home' : '/auth/role-selection'
+    const redirectPath = profile?.role_slug ? '/home' : '/auth/role-selection'
 
     // Update redirect location — cookies are already set on `response`
     response.headers.set('location', `${origin}${redirectPath}`)

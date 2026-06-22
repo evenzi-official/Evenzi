@@ -13,7 +13,7 @@ const ICON_MAP: Record<string, string> = {
 interface SubEventRow {
   id: string
   custom_name: string | null
-  sub_event_types: { name: string; icon_name: string | null } | null
+  event_sub_types: { name: string; icon_name: string | null } | null
 }
 
 interface EventRow {
@@ -54,9 +54,10 @@ export default async function EventControlPage({
     .select(`
       id, name, primary_date, primary_venue, guest_capacity, status, cover_image_url,
       event_types ( name, slug ),
-      event_sub_events ( id, custom_name, sub_event_types ( name, icon_name ) )
+      event_sub_events ( id, custom_name, event_sub_types ( name, icon_name ) )
     `)
     .eq('id', id)
+    .is('deleted_at', null)
     .single()
 
   if (!data) redirect('/home')
@@ -287,8 +288,8 @@ export default async function EventControlPage({
               {/* Active milestone spotlight — first sub-event */}
               {(() => {
                 const next = subEvents[0]
-                const nextName = next.custom_name ?? next.sub_event_types?.name ?? 'Sub-event'
-                const nextIcon = ICON_MAP[next.sub_event_types?.icon_name ?? ''] ?? 'celebration'
+                const nextName = next.custom_name ?? next.event_sub_types?.name ?? 'Sub-event'
+                const nextIcon = ICON_MAP[next.event_sub_types?.icon_name ?? ''] ?? 'celebration'
                 return (
                   <div className="rounded-3xl p-6 md:p-8 mb-10 relative overflow-hidden ec-milestone-spotlight">
                     <div aria-hidden="true" className="absolute -bottom-20 -left-20 w-56 h-56 rounded-full ec-deco-glow-bl" />
@@ -338,8 +339,8 @@ export default async function EventControlPage({
                     style={{ gridTemplateColumns: `repeat(${subCount}, minmax(0, 1fr))` }}
                   >
                     {subEvents.map((se, idx) => {
-                      const name = se.custom_name ?? se.sub_event_types?.name ?? 'Sub-event'
-                      const icon = ICON_MAP[se.sub_event_types?.icon_name ?? ''] ?? 'celebration'
+                      const name = se.custom_name ?? se.event_sub_types?.name ?? 'Sub-event'
+                      const icon = ICON_MAP[se.event_sub_types?.icon_name ?? ''] ?? 'celebration'
                       const isNext = idx === 0
                       return (
                         <li key={se.id} className="flex flex-col items-center text-center">

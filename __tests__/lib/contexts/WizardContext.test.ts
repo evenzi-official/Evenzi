@@ -62,6 +62,7 @@ describe('wizardReducer', () => {
       primaryVenue: 'Grand Hall',
       guestCapacity: 200,
       metadata: { theme: 'vintage' },
+      coverImageUrl: null,
     }
     const next = wizardReducer(initialWizardState, {
       type: 'SET_BASIC_DETAILS',
@@ -175,6 +176,7 @@ describe('wizardReducer', () => {
         primaryVenue: 'Grand Hall',
         guestCapacity: 200,
         metadata: { theme: 'vintage' },
+        coverImageUrl: null,
       },
       selectedSubEvents: [
         { subEventTypeId: 'sub-1', customName: null, name: 'Mehendi', iconName: 'leaf' },

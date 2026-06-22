@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useWizard } from '@/lib/contexts/WizardContext'
 import { validateDynamicFields } from '@/lib/validations/events'
 import type { FormSchemaField } from '@/lib/types/events'
@@ -8,6 +8,9 @@ import type { FormSchemaField } from '@/lib/types/events'
 interface FieldErrors {
   [field: string]: string
 }
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 
 export default function Step2BasicDetails(): React.JSX.Element | null {
   const { state, dispatch } = useWizard()
@@ -33,11 +36,62 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [guestCapacityError, setGuestCapacityError] = useState<string>('')
 
+  // Cover image state
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(
+    state.basicDetails.coverImageUrl ?? null
+  )
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string>('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   function handleMetadataChange(field: string, value: string): void {
     setMetadata((prev) => ({ ...prev, [field]: value }))
     if (fieldErrors[field]) {
       setFieldErrors((prev) => { const next = { ...prev }; delete next[field]; return next })
     }
+  }
+
+  async function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadError('')
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setUploadError('Only JPEG, PNG, WebP, or GIF images are allowed')
+      return
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setUploadError('Image must be under 5 MB')
+      return
+    }
+
+    setUploading(true)
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const res = await fetch('/api/events/cover', { method: 'POST', body: formData })
+    if (!res.ok) {
+      let msg = 'Upload failed — please try again'
+      try {
+        const body = await res.json() as { error?: string }
+        if (body.error) msg = body.error
+      } catch { /* use default */ }
+      setUploadError(msg)
+      setUploading(false)
+      return
+    }
+
+    const { url } = await res.json() as { url: string }
+    setCoverImageUrl(url)
+    setUploading(false)
+  }
+
+  function handleRemoveCover(): void {
+    setCoverImageUrl(null)
+    setUploadError('')
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   function buildBasicDetails() {
@@ -46,6 +100,7 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
       primaryVenue: primaryVenue.trim() || null,
       guestCapacity: guestCapacity.trim() !== '' ? parseInt(guestCapacity, 10) : null,
       metadata,
+      coverImageUrl,
     }
   }
 
@@ -101,28 +156,92 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
         </p>
       </header>
 
+      {/* Cover image upload */}
+      <div className="form-group is-full" style={{ marginBottom: '0.5rem' }}>
+        <label className="form-label">Cover photo <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(optional)</span></label>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          style={{ display: 'none' }}
+          onChange={(e) => { void handleImageSelect(e) }}
+        />
+        {coverImageUrl ? (
+          <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', height: '180px', background: 'var(--surface-2, #f3f4f6)' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={coverImageUrl}
+              alt="Event cover"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+            <button
+              type="button"
+              onClick={handleRemoveCover}
+              aria-label="Remove cover photo"
+              style={{
+                position: 'absolute', top: '8px', right: '8px',
+                background: 'rgba(0,0,0,0.55)', border: 'none', borderRadius: '50%',
+                width: '32px', height: '32px', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', cursor: 'pointer', color: '#fff',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>close</span>
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            style={{
+              width: '100%', height: '140px', border: '2px dashed var(--border, #d1d5db)',
+              borderRadius: '12px', background: 'var(--surface-2, #f9fafb)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center', gap: '8px', cursor: uploading ? 'not-allowed' : 'pointer',
+              color: 'var(--muted)', transition: 'border-color 0.15s',
+            }}
+          >
+            {uploading ? (
+              <>
+                <span className="material-symbols-outlined" style={{ fontSize: '32px', animation: 'spin 1s linear infinite' }}>progress_activity</span>
+                <span style={{ fontSize: '13px' }}>Uploading…</span>
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined icon-fill" style={{ fontSize: '32px' }}>add_photo_alternate</span>
+                <span style={{ fontSize: '13px', fontWeight: 500 }}>Upload cover photo</span>
+                <span style={{ fontSize: '11px' }}>JPEG · PNG · WebP · GIF · up to 5 MB</span>
+              </>
+            )}
+          </button>
+        )}
+        {uploadError && (
+          <p className="form-error" role="alert" style={{ marginTop: '6px' }}>{uploadError}</p>
+        )}
+      </div>
+
       <div className="cc-form-grid">
         {/* Dynamic schema fields — first one gets full-width treatment */}
         {formSchema.map((fieldDef: FormSchemaField, i: number) => (
-          <div key={fieldDef.field} className={`form-group${i === 0 ? ' is-full' : ''}`}>
-            <label className="form-label" htmlFor={`field-${fieldDef.field}`}>
+          <div key={fieldDef.key} className={`form-group${i === 0 ? ' is-full' : ''}`}>
+            <label className="form-label" htmlFor={`field-${fieldDef.key}`}>
               {fieldDef.label}{fieldDef.required ? ' *' : ''}
             </label>
             <input
-              id={`field-${fieldDef.field}`}
+              id={`field-${fieldDef.key}`}
               type={fieldDef.type === 'number' ? 'number' : 'text'}
               className="form-input"
-              value={metadata[fieldDef.field] ?? ''}
+              value={metadata[fieldDef.key] ?? ''}
               placeholder={fieldDef.placeholder ?? ''}
               maxLength={fieldDef.type !== 'number' ? 80 : undefined}
               autoComplete="off"
-              aria-invalid={!!fieldErrors[fieldDef.field]}
-              aria-describedby={fieldErrors[fieldDef.field] ? `err-${fieldDef.field}` : undefined}
-              onChange={(e) => handleMetadataChange(fieldDef.field, e.target.value)}
+              aria-invalid={!!fieldErrors[fieldDef.key]}
+              aria-describedby={fieldErrors[fieldDef.key] ? `err-${fieldDef.key}` : undefined}
+              onChange={(e) => handleMetadataChange(fieldDef.key, e.target.value)}
             />
-            {fieldErrors[fieldDef.field] && (
-              <p className="form-error" id={`err-${fieldDef.field}`} role="alert">
-                {fieldErrors[fieldDef.field]}
+            {fieldErrors[fieldDef.key] && (
+              <p className="form-error" id={`err-${fieldDef.key}`} role="alert">
+                {fieldErrors[fieldDef.key]}
               </p>
             )}
           </div>
