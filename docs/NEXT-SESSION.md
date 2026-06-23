@@ -4,6 +4,28 @@
 
 ---
 
+## ✅ DONE — QA pass + create-wizard overhaul + dashboard/UX fixes · 2026-06-23
+
+Large QA + fix session (Abhijith). Multi-agent audit + two founder manual passes (M1–M16) → fixes across the in-scope screens, **verified live (Playwright + DB)**. All on `Dev-Vibe` + `Dev-Vibe-Testing` (commits `0e72a70`→`87c74c5`). App-code `tsc`: 0 errors. Full rolling status: **`qa/QA-SUMMARY.md`** (+ `qa/manual-findings.md`, `qa/in-scope-screens-findings.md`, `qa/FIX-PLAN.md`, `qa/EVENZI-TEST-PLAYBOOK.md`).
+
+**What landed:**
+- **Create wizard** — event types server-rendered (no spinner); cover photo → shell `.dp-dropzone`; **Event Title** field; dark branded **date calendar** + validation (no past, max +5y); Step-3 **Set time (wheel) / Set venue / Add custom ceremony** modals; **sub-event date capped at the Event Date**; **end-time constrained to after start-time**; guest-count clamp (≤100k) + witty helper; Step-3 search empty-state.
+- **DB:** RPC `create_event_with_details` extended (migration `create_event_persist_sub_event_datetime_venue`) to persist per-sub-event `event_date/start_time/end_time/venue`; `/api/events` passes `eventTitle` + the new fields. DATA-MODEL.md updated.
+- **Dashboard** — `force-dynamic` (new event shows without refresh); **structure-matched** skeleton `loading.tsx`; filter alignment; nav "Sign out" relabel; surfaced query errors.
+- **Reliability** — `app/events/[id]/error.tsx` so a transient `fetch failed` shows a retry instead of a blank page.
+- **Design-system** — OTP toast (`is-show`), ToggleSwitch/StatusBadge/Button fixed against shell + cataloged; success-page cross-schema embed fixed + rebuilt on shell; settings delete modal Esc-to-close; media-proxy prefix allowlist.
+- **Platform** — brand **preloader** on app boot; **skeleton** primitive polished.
+
+**▶ Next / open (for Dheeraj — see `qa/QA-SUMMARY.md` "Open / next"):**
+1. **Success page chrome duplication** — move it out of the event `[id]` layout (standalone screen).
+2. Live-walk the 🟦 (code-verified) items: search empty-state, dashboard skeleton, OTP toast, Esc-modal, Toggle/StatusBadge (settings sub-pages).
+3. Apply the **structure-matched skeleton** pattern (home is the reference) to the event-dashboard `loading.tsx` + new screens.
+4. Optional: server-side **retry-once** on the event queries so a transient `fetch failed` self-heals before the error boundary shows.
+5. **M13 decision:** sub-event dates currently hard-capped at the Event Date (Post-Wedding Brunch can't be after) — confirm or allow a window.
+6. Pre-existing debt (separate tickets): ~13 stale unit tests, lint debt, hub-hero SVG `transform-origin`.
+
+---
+
 ## ✅ DONE — Event Settings data model (D40–D48) · 2026-06-17
 
 Full brainstorm → spec → 4-agent council → plan → migrations → smoke test → types → doc sync completed this session (Abhijith, teaching mode).

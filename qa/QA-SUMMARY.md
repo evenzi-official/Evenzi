@@ -93,5 +93,6 @@ Host-only MVP, 4 screens: **Login/Registration**, **Event creation (4-step wizar
 | M16 | Skeleton primitive **polished** (contrast + brand shimmer + definition); event-dashboard `loading.tsx` added | 🟦 |
 
 ## Rounds
+- **2026-06-23 (R2b)** — Follow-ups: home `loading.tsx` made **structure-matched** (real chrome + card-shaped skeleton, zero layout shift); added `app/events/[id]/error.tsx` (root cause: transient `TypeError: fetch failed` + no error boundary made the event dashboard go **blank** until refresh — now a recoverable "Try again"). Verified by forcing a throw. App-code `tsc`: 0 errors.
 - **2026-06-23 (R2)** — Founder round-2 manual pass (M11–M16) → 1-agent create-wizard fix + skeleton polish. M11–M15 verified live (Playwright); M16 skeleton improved + wired. App-code `tsc`: 0 errors.
 - **2026-06-23 (R1)** — Multi-agent audit + founder manual pass (M1–M10) + 4-workstream fix + server/DB persistence fix + preloader. All ✅ items verified live (Playwright + DB). App-code `tsc`: 0 errors.
