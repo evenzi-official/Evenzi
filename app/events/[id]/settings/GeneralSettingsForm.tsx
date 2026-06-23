@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FormGroup } from '@/components/ui/FormGroup'
 import { FormInput } from '@/components/ui/FormInput'
@@ -43,6 +43,30 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
   const [deleting, setDeleting] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [toast, setToast] = useState<ToastState | null>(null)
+
+  // Trigger that opened the delete modal — focus returns here on close (a11y).
+  const deleteTriggerRef = useRef<HTMLButtonElement>(null)
+
+  // Closes the confirm modal and returns focus to the trigger button.
+  function closeConfirm(): void {
+    setConfirmOpen(false)
+    deleteTriggerRef.current?.focus()
+  }
+
+  // Escape closes the delete confirm modal (don't dismiss mid-delete).
+  useEffect(() => {
+    if (!confirmOpen) return
+
+    function onKeyDown(e: KeyboardEvent): void {
+      if (e.key === 'Escape' && !deleting) {
+        e.preventDefault()
+        closeConfirm()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [confirmOpen, deleting])
 
   // Reuses the shell .bc-toast primitive (designs/shared/shell.css). The visible
   // state class is .is-show.
@@ -238,6 +262,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
               <p className="text-xs text-muted mt-0.5">Permanently removes all data, guests, and media. Cannot be undone.</p>
             </div>
             <button
+              ref={deleteTriggerRef}
               type="button"
               className="btn-pill btn-pill-danger shrink-0"
               onClick={() => setConfirmOpen(true)}
@@ -254,7 +279,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
         className={`modal-scrim${confirmOpen ? ' is-open' : ''}`}
         aria-hidden={!confirmOpen}
         onClick={(e) => {
-          if (e.target === e.currentTarget && !deleting) setConfirmOpen(false)
+          if (e.target === e.currentTarget && !deleting) closeConfirm()
         }}
       >
         <div className="modal-confirm-cautionary modal-card" role="alertdialog" aria-modal="true" aria-labelledby="es-delete-title">
@@ -269,7 +294,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
             <button
               type="button"
               className="btn-pill btn-pill-secondary"
-              onClick={() => setConfirmOpen(false)}
+              onClick={closeConfirm}
               disabled={deleting}
             >
               Cancel

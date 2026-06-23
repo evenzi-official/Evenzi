@@ -701,7 +701,7 @@
           <span class="status-badge status-declined"><span class="status-dot" aria-hidden="true"></span>Declined</span>
           <span class="status-badge status-maybe"><span class="status-dot" aria-hidden="true"></span>Maybe</span>
           <span class="status-badge status-pending"><span class="status-dot" aria-hidden="true"></span>Pending</span>
-          <span class="status-badge status-badge--over">
+          <span class="status-badge status-declined">
             <span class="material-symbols-outlined" aria-hidden="true">warning</span>
             ₹42,000 over budget
           </span>
@@ -746,10 +746,16 @@
           </div>
           <button type="button" class="btn-pill btn-pill-primary btn-pill-lg" style="width:100%;justify-content:center">PUBLISH EVENT WEBSITE<span class="material-symbols-outlined">arrow_forward</span></button>
           <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:center">
+            <button type="button" class="btn-pill btn-pill-danger">SIGN OUT</button>
+            <button type="button" class="btn-pill btn-pill-ghost">EDIT</button>
+            <button type="button" class="btn-pill btn-pill-primary btn-pill-sm">SMALL</button>
+            <button type="button" class="btn-pill btn-pill-ghost btn-pill-sm">GHOST SM</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:center">
             <button type="button" class="btn-pill btn-pill-primary is-loading" aria-busy="true">SAVING<span class="material-symbols-outlined">arrow_forward</span><span class="btn-pill-spinner" aria-hidden="true"></span></button>
             <button type="button" class="btn-pill btn-pill-secondary is-loading" aria-busy="true">SYNCING<span class="btn-pill-spinner" aria-hidden="true"></span></button>
           </div>
-          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Use <code class="cs-code">.btn-pill</code> for all CTAs. Composes with <code class="cs-code">.btn-pill-primary</code> / <code class="cs-code">.btn-pill-secondary</code> / <code class="cs-code">.btn-pill-lg</code>. For async actions add <code class="cs-code">.is-loading</code> + <code class="cs-code">aria-busy="true"</code> and include a <code class="cs-code">&lt;span class="btn-pill-spinner"&gt;</code> child. Reduced-motion swaps spin to opacity pulse.</p>
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Use <code class="cs-code">.btn-pill</code> for all CTAs. Variants: <code class="cs-code">.btn-pill-primary</code> / <code class="cs-code">.btn-pill-secondary</code> / <code class="cs-code">.btn-pill-danger</code> / <code class="cs-code">.btn-pill-ghost</code> (transparent + brand text/border, lowest emphasis). Sizes: base · <code class="cs-code">.btn-pill-sm</code> (compact rows) · <code class="cs-code">.btn-pill-lg</code> (page footers). For async actions add <code class="cs-code">.is-loading</code> + <code class="cs-code">aria-busy="true"</code> and include a <code class="cs-code">&lt;span class="btn-pill-spinner"&gt;</code> child. Reduced-motion swaps spin to opacity pulse.</p>
         </div>
       </article>
 
@@ -2308,6 +2314,40 @@
           <div class="skeleton skeleton-line skeleton-line-sm" style="width:30%"></div>
           <div class="skeleton skeleton-line skeleton-line-lg" style="width:60%"></div>
           <div class="skeleton skeleton-line skeleton-line-sm" style="width:80%"></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 15. REACT WRAPPER MAP (components/ui/* → shell)     -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="react-wrappers">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">15 · React wrapper map</p>
+      <h2 class="cs-h2">components/ui/* → shell primitives</h2>
+      <p class="cs-h2-sub">Each React wrapper in <code class="cs-code">components/ui/</code> must emit the canonical shell markup above — nothing invented. This table is the contract; if a wrapper drifts from the class on the right, it renders unstyled. Keep both in sync in the same change (Reuse-Before-Create).</p>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">RW1</span> · <code class="cs-code">&lt;Button&gt;</code> · <code class="cs-code">components/ui/Button.tsx</code></p>
+        <div class="cs-stage cs-stage--col" style="padding:1.25rem;gap:.5rem;align-items:flex-start">
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Emits <code class="cs-code">.btn-pill</code> + variant + size. <code class="cs-code">variant</code> → <code class="cs-code">primary</code>=<code class="cs-code">.btn-pill-primary</code>, <code class="cs-code">secondary</code>=<code class="cs-code">.btn-pill-secondary</code>, <code class="cs-code">danger</code>=<code class="cs-code">.btn-pill-danger</code>, <code class="cs-code">ghost</code>=<code class="cs-code">.btn-pill-ghost</code>. <code class="cs-code">size</code> → <code class="cs-code">sm</code>=<code class="cs-code">.btn-pill-sm</code>, <code class="cs-code">md</code>=base, <code class="cs-code">lg</code>=<code class="cs-code">.btn-pill-lg</code>. <code class="cs-code">loading</code> → <code class="cs-code">.is-loading</code> + <code class="cs-code">.btn-pill-spinner</code> child. See B2.</p>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">RW2</span> · <code class="cs-code">&lt;ToggleSwitch&gt;</code> · <code class="cs-code">components/ui/ToggleSwitch.tsx</code></p>
+        <div class="cs-stage cs-stage--col" style="padding:1.25rem;gap:.5rem;align-items:flex-start">
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Emits <code class="cs-code">&lt;button class="toggle-switch" role="switch" aria-checked&gt;&lt;span class="toggle-switch-thumb"/&gt;&lt;/button&gt;</code> (see B8). On-state is driven by <code class="cs-code">aria-checked="true"</code> — never a CSS class. Supports controlled (<code class="cs-code">checked</code>+<code class="cs-code">onChange</code>) and uncontrolled (<code class="cs-code">defaultChecked</code>) use. Optional <code class="cs-code">label</code> wraps with <code class="cs-code">.toggle-switch-row</code> + <code class="cs-code">.toggle-switch-label</code>.</p>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">RW3</span> · <code class="cs-code">&lt;StatusBadge&gt;</code> · <code class="cs-code">components/ui/StatusBadge.tsx</code></p>
+        <div class="cs-stage cs-stage--col" style="padding:1.25rem;gap:.5rem;align-items:flex-start">
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Emits <code class="cs-code">.status-badge</code> + a real status class (see P5). <code class="cs-code">variant</code> → <code class="cs-code">success</code>=<code class="cs-code">.status-confirmed</code>, <code class="cs-code">warning</code>=<code class="cs-code">.status-maybe</code>, <code class="cs-code">danger</code>/<code class="cs-code">overrun</code>=<code class="cs-code">.status-declined</code>, <code class="cs-code">info</code>/<code class="cs-code">live</code>=<code class="cs-code">.status-published</code>, <code class="cs-code">draft</code>=<code class="cs-code">.status-draft</code>. <code class="cs-code">dot</code> → adds <code class="cs-code">.status-dot</code>.</p>
         </div>
       </article>
     </div>

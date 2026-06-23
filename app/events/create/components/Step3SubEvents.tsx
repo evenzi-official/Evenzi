@@ -1,9 +1,12 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useWizard } from '@/lib/contexts/WizardContext'
 import type { SubEventType } from '@/lib/types/events'
 import { SubEventCard } from './SubEventCard'
+import { SetTimeModal, SetVenueModal, AddCustomModal } from './Step3Modals'
+
+type ModalKind = 'time' | 'venue' | 'custom' | null
 
 export function Step3SubEvents(): React.JSX.Element {
   const { state, dispatch } = useWizard()
@@ -14,9 +17,9 @@ export function Step3SubEvents(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
 
-  const [showCustomInput, setShowCustomInput] = useState(false)
-  const [customName, setCustomName] = useState('')
-  const customInputRef = useRef<HTMLInputElement>(null)
+  // Modal state — one shared set, targeting the active card (matches design).
+  const [modal, setModal] = useState<ModalKind>(null)
+  const [activeClientId, setActiveClientId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!eventType) return
@@ -49,29 +52,12 @@ export function Step3SubEvents(): React.JSX.Element {
     return () => { cancelled = true }
   }, [eventType, dispatch])
 
-  useEffect(() => {
-    if (showCustomInput) customInputRef.current?.focus()
-  }, [showCustomInput])
-
   function handleToggle(sub: SubEventType): void {
     dispatch({ type: 'TOGGLE_SUB_EVENT', payload: { subEventTypeId: sub.id, name: sub.name, iconName: sub.iconName } })
   }
 
-  function handleAddCustom(): void {
-    const trimmed = customName.trim()
-    if (!trimmed) return
-    dispatch({ type: 'ADD_CUSTOM_SUB_EVENT', payload: { name: trimmed } })
-    setCustomName('')
-    setShowCustomInput(false)
-  }
-
-  function handleRemoveCustom(index: number): void {
-    dispatch({ type: 'REMOVE_CUSTOM_SUB_EVENT', payload: { index } })
-  }
-
-  function handleCancelCustom(): void {
-    setCustomName('')
-    setShowCustomInput(false)
+  function handleRemoveCustom(clientId: string): void {
+    dispatch({ type: 'REMOVE_CUSTOM_SUB_EVENT', payload: { clientId } })
   }
 
   const isSelectedType = (id: string): boolean =>
@@ -81,9 +67,48 @@ export function Step3SubEvents(): React.JSX.Element {
   const canContinue = selectedSubEvents.length > 0
   const selectionCount = selectedSubEvents.length
 
-  const filteredSubEventTypes = searchQuery.trim()
-    ? subEventTypes.filter((s) => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const trimmedQuery = searchQuery.trim()
+  const filteredSubEventTypes = trimmedQuery
+    ? subEventTypes.filter((s) => s.name.toLowerCase().includes(trimmedQuery.toLowerCase()))
     : subEventTypes
+  const noTypeMatches = trimmedQuery !== '' && filteredSubEventTypes.length === 0
+
+  const activeSubEvent = activeClientId
+    ? selectedSubEvents.find((se) => se.clientId === activeClientId) ?? null
+    : null
+
+  // Opening a meta modal needs a selected card. If the card isn't selected yet,
+  // select it first so it has a clientId, then target it.
+  function openMeta(kind: 'time' | 'venue', sub: SubEventType): void {
+    const target = selectedSubEvents.find((se) => se.subEventTypeId === sub.id)
+    if (!target) {
+      dispatch({ type: 'TOGGLE_SUB_EVENT', payload: { subEventTypeId: sub.id, name: sub.name, iconName: sub.iconName } })
+      // The new entry isn't in this render's state; resolve it on next tick.
+      setModal(kind)
+      setActiveClientId(null)
+      setPendingSelect({ subEventTypeId: sub.id, kind })
+      return
+    }
+    setActiveClientId(target.clientId)
+    setModal(kind)
+  }
+
+  // After a select-then-open, bind the active card once the dispatch lands.
+  const [pendingSelect, setPendingSelect] = useState<{ subEventTypeId: string; kind: 'time' | 'venue' } | null>(null)
+  useEffect(() => {
+    if (!pendingSelect) return
+    const match = selectedSubEvents.find((se) => se.subEventTypeId === pendingSelect.subEventTypeId)
+    if (match) {
+      setActiveClientId(match.clientId)
+      setModal(pendingSelect.kind)
+      setPendingSelect(null)
+    }
+  }, [pendingSelect, selectedSubEvents])
+
+  function closeModal(): void {
+    setModal(null)
+    setActiveClientId(null)
+  }
 
   function handleContinue(): void {
     if (!canContinue) return
@@ -96,17 +121,11 @@ export function Step3SubEvents(): React.JSX.Element {
 
   if (loading) {
     return (
-      <section className="clay-card cc-card">
-        <div className="flex items-center justify-center gap-3 py-16">
-          <div
-            className="w-6 h-6 rounded-full border-2 animate-spin"
-            style={{ borderColor: 'var(--line)', borderTopColor: 'transparent' }}
-            role="status"
-            aria-label="Loading celebrations"
-          />
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: 'var(--muted)' }}>
-            Loading celebrations…
-          </p>
+      <section className="clay-card cc-card" aria-busy="true" aria-label="Loading celebrations">
+        <div className="cc-celebration-grid">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="skeleton skeleton-block" style={{ height: 96, borderRadius: 16 }} />
+          ))}
         </div>
       </section>
     )
@@ -156,99 +175,99 @@ export function Step3SubEvents(): React.JSX.Element {
       {/* Celebration cards grid */}
       {filteredSubEventTypes.length > 0 && (
         <div className="cc-celebration-grid" role="group" aria-label="Wedding celebrations">
-          {filteredSubEventTypes.map((sub) => (
-            <SubEventCard
-              key={sub.id}
-              id={sub.id}
-              name={sub.name}
-              iconName={sub.iconName}
-              isSelected={isSelectedType(sub.id)}
-              onToggle={() => handleToggle(sub)}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Custom sub-events already added */}
-      {customSubEvents.length > 0 && (
-        <div className="cc-celebration-grid">
-          {customSubEvents.map((ce, idx) => {
-            const absoluteIndex = selectedSubEvents.indexOf(ce)
+          {filteredSubEventTypes.map((sub) => {
+            const selected = selectedSubEvents.find((se) => se.subEventTypeId === sub.id)
             return (
-              <div
-                key={idx}
-                role="checkbox"
-                aria-checked="true"
-                className="cc-celebration-card"
-                style={{ cursor: 'default' }}
-              >
-                <button
-                  type="button"
-                  className="cc-celebration-check"
-                  aria-label={`Remove ${ce.name}`}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => handleRemoveCustom(absoluteIndex)}
-                >
-                  <span className="material-symbols-outlined icon-fill">close</span>
-                </button>
-                <div className="cc-celebration-head">
-                  <span className="cc-celebration-icon" aria-hidden="true">
-                    <span className="material-symbols-outlined icon-fill">add_circle</span>
-                  </span>
-                  <div className="cc-celebration-body">
-                    <span className="cc-celebration-name">{ce.name}</span>
-                    <p className="cc-celebration-desc">Custom ceremony</p>
-                  </div>
-                </div>
-              </div>
+              <SubEventCard
+                key={sub.id}
+                id={sub.id}
+                name={sub.name}
+                iconName={sub.iconName}
+                isSelected={isSelectedType(sub.id)}
+                eventDate={selected?.eventDate ?? null}
+                startTime={selected?.startTime ?? null}
+                venue={selected?.venue ?? null}
+                onToggle={() => handleToggle(sub)}
+                onSetTime={() => openMeta('time', sub)}
+                onSetVenue={() => openMeta('venue', sub)}
+              />
             )
           })}
         </div>
       )}
 
-      {/* Add custom button / inline form */}
-      {!showCustomInput ? (
-        <button type="button" className="cc-add-custom" onClick={() => setShowCustomInput(true)}>
-          <span aria-hidden="true" className="material-symbols-outlined">add</span>
-          Add a custom ceremony
-        </button>
-      ) : (
-        <div className="flex flex-col gap-3">
-          <div className="form-group">
-            <label className="form-label" htmlFor="cc-custom-name">Ceremony name</label>
-            <input
-              id="cc-custom-name"
-              ref={customInputRef}
-              type="text"
-              className="form-input"
-              value={customName}
-              placeholder="e.g. Mehndi Night"
-              maxLength={80}
-              autoComplete="off"
-              onChange={(e) => setCustomName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleAddCustom()
-                if (e.key === 'Escape') handleCancelCustom()
-              }}
-            />
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="btn-pill btn-pill-primary"
-              disabled={!customName.trim()}
-              onClick={handleAddCustom}
-            >
-              <span>Add</span>
-              <span aria-hidden="true" className="btn-pill-spinner" />
-            </button>
-            <button type="button" className="btn-pill btn-pill-secondary" onClick={handleCancelCustom}>
-              <span>Cancel</span>
-              <span aria-hidden="true" className="btn-pill-spinner" />
-            </button>
-          </div>
+      {/* Empty-state when a search matches no built-in celebrations (M6) */}
+      {noTypeMatches && (
+        <div className="cc-search-empty" role="status" style={{ textAlign: 'center', padding: '1.5rem 1rem', color: 'var(--muted)' }}>
+          <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 32, opacity: 0.7 }}>search_off</span>
+          <p style={{ fontSize: 14, marginTop: '0.5rem' }}>
+            No celebrations match “{trimmedQuery}”.
+          </p>
+          <p style={{ fontSize: 13, marginTop: '0.25rem' }}>
+            You can still add it as a custom ceremony below.
+          </p>
         </div>
       )}
+
+      {/* Custom sub-events already added — keyed on stable clientId (D6) */}
+      {customSubEvents.length > 0 && (
+        <div className="cc-celebration-grid">
+          {customSubEvents.map((ce) => (
+            <div
+              key={ce.clientId}
+              role="checkbox"
+              aria-checked="true"
+              className="cc-celebration-card"
+              style={{ cursor: 'default' }}
+            >
+              <button
+                type="button"
+                className="cc-celebration-check"
+                aria-label={`Remove ${ce.name}`}
+                style={{ cursor: 'pointer' }}
+                onClick={() => handleRemoveCustom(ce.clientId)}
+              >
+                <span className="material-symbols-outlined icon-fill">close</span>
+              </button>
+              <div className="cc-celebration-head">
+                <span className="cc-celebration-icon" aria-hidden="true">
+                  <span className="material-symbols-outlined icon-fill">add_circle</span>
+                </span>
+                <div className="cc-celebration-body">
+                  <span className="cc-celebration-name">{ce.name}</span>
+                  <p className="cc-celebration-desc">{ce.customDesc ?? 'Custom ceremony'}</p>
+                </div>
+              </div>
+              <div className="cc-celebration-meta">
+                <button
+                  type="button"
+                  className="cc-meta-btn"
+                  aria-label={`Set date and time for ${ce.name}`}
+                  onClick={() => { setActiveClientId(ce.clientId); setModal('time') }}
+                >
+                  <span aria-hidden="true" className="material-symbols-outlined">schedule</span>
+                  <span className="cc-meta-label">{ce.startTime || ce.eventDate ? 'Edit time' : 'Set time'}</span>
+                </button>
+                <button
+                  type="button"
+                  className="cc-meta-btn"
+                  aria-label={`Set venue for ${ce.name}`}
+                  onClick={() => { setActiveClientId(ce.clientId); setModal('venue') }}
+                >
+                  <span aria-hidden="true" className="material-symbols-outlined">place</span>
+                  <span className="cc-meta-label">{ce.venue?.trim() || 'Set venue'}</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Add custom ceremony — opens modal (M5) */}
+      <button type="button" className="cc-add-custom" onClick={() => setModal('custom')}>
+        <span aria-hidden="true" className="material-symbols-outlined">add</span>
+        Add a custom ceremony
+      </button>
 
       {/* Selection count chip */}
       <div className={`cc-selection-chip${selectionCount === 0 ? ' is-empty' : ''}`} role="status" aria-live="polite">
@@ -273,6 +292,46 @@ export function Step3SubEvents(): React.JSX.Element {
           <span aria-hidden="true" className="btn-pill-spinner" />
         </button>
       </div>
+
+      {/* Modals — keyed so they remount fresh (state inits from props) on open */}
+      <SetTimeModal
+        key={`time-${activeClientId ?? 'none'}`}
+        open={modal === 'time' && activeSubEvent != null}
+        forLabel={activeSubEvent ? `For ${activeSubEvent.name}` : 'For this celebration'}
+        initial={{
+          eventDate: activeSubEvent?.eventDate ?? null,
+          startTime: activeSubEvent?.startTime ?? null,
+          endTime: activeSubEvent?.endTime ?? null,
+        }}
+        onSave={(v) => {
+          if (activeClientId) {
+            dispatch({ type: 'SET_SUB_EVENT_META', payload: { clientId: activeClientId, eventDate: v.eventDate, startTime: v.startTime, endTime: v.endTime } })
+          }
+        }}
+        onClose={closeModal}
+      />
+      <SetVenueModal
+        key={`venue-${activeClientId ?? 'none'}`}
+        open={modal === 'venue' && activeSubEvent != null}
+        forLabel={activeSubEvent ? `For ${activeSubEvent.name}` : 'For this celebration'}
+        initial={{
+          venue: activeSubEvent?.venue ?? null,
+          venueAddress: activeSubEvent?.venueAddress ?? null,
+        }}
+        onSave={(v) => {
+          if (activeClientId) {
+            dispatch({ type: 'SET_SUB_EVENT_META', payload: { clientId: activeClientId, venue: v.venue, venueAddress: v.venueAddress } })
+          }
+        }}
+        onClose={closeModal}
+      />
+      <AddCustomModal
+        open={modal === 'custom'}
+        onSave={(v) => {
+          dispatch({ type: 'ADD_CUSTOM_SUB_EVENT', payload: { name: v.name, customDesc: v.desc } })
+        }}
+        onClose={closeModal}
+      />
     </section>
   )
 }

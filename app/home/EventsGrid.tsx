@@ -264,12 +264,27 @@ function EventSection({ events, isCollab }: { events: EventListItem[]; isCollab?
   )
 }
 
+function ErrorSection() {
+  return (
+    <div className="nothing-yet">
+      <span className="nothing-yet-icon" aria-hidden="true">
+        <span className="material-symbols-outlined">error</span>
+      </span>
+      <p className="nothing-yet-title">Couldn&apos;t load your events</p>
+      <p className="nothing-yet-sub">
+        Something went wrong while fetching your events. Please refresh the page to try again.
+      </p>
+    </div>
+  )
+}
+
 interface Props {
   events: EventListItem[]
   userDisplay: string
+  hasError?: boolean
 }
 
-export default function EventsGrid({ events, userDisplay }: Props) {
+export default function EventsGrid({ events, userDisplay, hasError = false }: Props) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -299,6 +314,19 @@ export default function EventsGrid({ events, userDisplay }: Props) {
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100dvh' }}>
+      {/* M9: the shell `.seg--fill` desktop rule (max-width:520px; margin-right:auto)
+          leaves the right "Active/Past" control with trailing dead space and out of
+          alignment with the left "My events/Collaborations" control. Scope an override
+          to the home filter row so both segs split the row evenly (50/50) with the
+          space-between gap — edge-to-edge, no dead space, matching the left group. */}
+      <style>{`
+        .home-filter-row .seg.seg--fill {
+          flex: 1 1 0;
+          min-width: 0;
+          max-width: none;
+          margin-right: 0;
+        }
+      `}</style>
       <ScrollProgress />
       <nav className="floating-nav" aria-label="Main">
         <div className="floating-nav-inner dash-nav-inner">
@@ -327,7 +355,7 @@ export default function EventsGrid({ events, userDisplay }: Props) {
             <ThemeToggle />
             <button
               type="button"
-              aria-label="Settings"
+              aria-label="Sign out"
               className="fn-icon-btn"
               onClick={() => { void handleSignOut() }}
             >
@@ -350,7 +378,7 @@ export default function EventsGrid({ events, userDisplay }: Props) {
           </p>
         </header>
 
-        <div className="filter-row">
+        <div className="filter-row home-filter-row">
           <div className="seg seg--fill" role="radiogroup" aria-label="Ownership filter">
             <button
               type="button"
@@ -407,7 +435,11 @@ export default function EventsGrid({ events, userDisplay }: Props) {
           className="mt-10 md:mt-12"
           aria-label={`${ownership === "my" ? "My" : "Collaborative"} ${time} events`}
         >
-          <EventSection events={visibleEvents} isCollab={ownership === "collab"} />
+          {hasError ? (
+            <ErrorSection />
+          ) : (
+            <EventSection events={visibleEvents} isCollab={ownership === "collab"} />
+          )}
         </section>
       </main>
     </div>

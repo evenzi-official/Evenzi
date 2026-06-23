@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { PageFooter } from '@/components/layout/PageFooter'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
 
 interface SuccessPageProps {
   params: Promise<{ id: string }>
@@ -20,145 +20,150 @@ export default async function EventSuccessPage({ params }: SuccessPageProps): Pr
     redirect('/auth')
   }
 
-  const { data: event } = await supabase
+  // 1) Existence + ownership guard. Plain public select (no cross-schema embed) —
+  //    embedding config.event_types from public.events triggers PGRST200 and used
+  //    to silently bounce the user to /home. Distinguish a genuine miss from a
+  //    query failure: notFound() only when the row is truly absent.
+  const { data: event, error: eventError } = await supabase
     .from('events')
-    .select('id, name, primary_date, primary_venue, event_types ( name, slug )')
+    .select('id, name, primary_date, primary_venue, event_type_id')
     .eq('id', id)
     .eq('user_id', user.id)
-    .single()
+    .is('deleted_at', null)
+    .maybeSingle()
 
+  if (eventError) {
+    console.error('[event-success] events query failed:', eventError)
+    throw new Error('Failed to load event')
+  }
   if (!event) {
-    redirect('/home')
+    notFound()
   }
 
-  const eventTypeName = Array.isArray(event.event_types)
-    ? event.event_types[0]?.name ?? 'event'
-    : (event.event_types as { name: string; slug: string } | null)?.name ?? 'event'
+  // 2) Resolve the event type from the config catalog separately (direct schema
+  //    access works; embedding it across schemas does NOT → PGRST200), then join
+  //    in JS — the pattern used in app/events/[id]/page.tsx and the events API.
+  let eventTypeName = 'event'
+  if (event.event_type_id) {
+    const { data: eventType, error: eventTypeError } = await supabase
+      .schema('config')
+      .from('event_types')
+      .select('id, name, slug')
+      .eq('id', event.event_type_id)
+      .maybeSingle()
+
+    if (eventTypeError) {
+      console.error('[event-success] config.event_types query failed:', eventTypeError)
+      throw new Error('Failed to load event type')
+    }
+
+    if (eventType?.name) {
+      eventTypeName = eventType.name
+    }
+  }
 
   const daysUntil = event.primary_date
-    ? Math.ceil((new Date(event.primary_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    ? Math.ceil(
+        (new Date(event.primary_date).setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) /
+          (1000 * 60 * 60 * 24),
+      )
     : null
 
   const showCountdown = daysUntil !== null && daysUntil > 0
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: 'var(--color-bg-primary)' }}>
-      {/* Header */}
-      <header
-        className="w-full border-b"
-        style={{
-          background: 'var(--color-bg-card)',
-          borderColor: 'var(--color-border)',
-        }}
-      >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center">
-          <span
-            className="text-xl font-bold"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            Evenzi
-          </span>
+    <div className="page-bg page-shell" data-page="event-success">
+      {/* Header — shell page-shell primitives */}
+      <header className="page-shell-header">
+        <Link href="/home" className="page-logo" aria-label="Evenzi home">
+          Evenzi
+        </Link>
+        <span className="page-eyebrow" aria-hidden="true">
+          Celebratory Curator
+        </span>
+        <div className="page-shell-actions">
+          <ThemeToggle className="page-theme-toggle" />
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="flex-1 w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-        <div className="w-full max-w-2xl mx-auto text-center">
-          {/* Hero */}
-          <div className="mb-10">
-            <h1
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-tight"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              You&apos;re All Set! 🎉
-            </h1>
-            <p
-              className="text-xl sm:text-2xl"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              Your {eventTypeName} dashboard is ready for you.
-            </p>
-          </div>
-
-          {/* Quick action cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
-            {/* Days countdown — only if date is set and in the future */}
-            {showCountdown && (
-              <div
-                className="flex flex-col items-center justify-center gap-2 rounded-2xl p-6"
-                style={{
-                  background: 'var(--color-bg-card)',
-                  border: '1px solid var(--color-border)',
-                  boxShadow: 'var(--shadow-md)',
-                }}
-              >
-                <span className="text-4xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-                  {daysUntil}
-                </span>
-                <span
-                  className="text-sm font-medium uppercase tracking-wide"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
-                  Days to go
-                </span>
-              </div>
-            )}
-
-            {/* Checklist */}
-            <div
-              className="flex flex-col items-center justify-center gap-2 rounded-2xl p-6"
-              style={{
-                background: 'var(--color-bg-card)',
-                border: '1px solid var(--color-border)',
-                boxShadow: 'var(--shadow-md)',
-              }}
-            >
-              <span className="text-3xl">📋</span>
-              <span
-                className="text-base font-semibold"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
-                Empty Checklist
-              </span>
-              <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                Start adding tasks
-              </span>
-            </div>
-
-            {/* Add Guests */}
-            <div
-              className="flex flex-col items-center justify-center gap-2 rounded-2xl p-6"
-              style={{
-                background: 'var(--color-bg-card)',
-                border: '1px solid var(--color-border)',
-                boxShadow: 'var(--shadow-md)',
-              }}
-            >
-              <span className="text-3xl">👥</span>
-              <span
-                className="text-base font-semibold"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
-                Add Guests
-              </span>
-              <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                Invite your people
-              </span>
-            </div>
-          </div>
-
-          {/* CTA */}
-          <Link
-            href="/home"
-            className="inline-flex items-center gap-2 px-8 py-4 font-semibold rounded-full shadow-lg hover:shadow-xl hover:opacity-90 transition-all duration-200 text-lg text-white"
-            style={{ background: 'var(--color-primary)' }}
+      <main className="page-main page-main-center">
+        <section
+          className="clay-card"
+          aria-labelledby="success-title"
+          style={{ maxWidth: '560px', width: '100%', textAlign: 'center', padding: '2.5rem 2rem' }}
+        >
+          <h1
+            id="success-title"
+            className="font-display font-bold text-ink"
+            style={{ fontSize: '2rem', letterSpacing: '-0.02em', marginBottom: '0.75rem' }}
           >
-            Go to Dashboard →
+            You&apos;re all set!
+          </h1>
+          <p className="text-muted" style={{ fontSize: '1.05rem', marginBottom: '2rem' }}>
+            Your {eventTypeName} dashboard is ready for you.
+          </p>
+
+          {/* Countdown — hero-meta-chip shell primitive */}
+          {showCountdown && (
+            <div className="flex items-center justify-center" style={{ marginBottom: '2rem' }}>
+              <span className="hero-meta-chip">
+                <span aria-hidden="true" className="hero-meta-icon">
+                  <span className="material-symbols-outlined icon-fill icon-sm-18">celebration</span>
+                </span>
+                <span className="hero-meta-text">
+                  <span className="hero-meta-label">The celebration</span>
+                  <span className="hero-meta-value">
+                    {daysUntil} {daysUntil === 1 ? 'day' : 'days'} to go
+                  </span>
+                </span>
+              </span>
+            </div>
+          )}
+
+          {/* Quick-glance stats — stats-strip-card shell primitive */}
+          <div
+            className="grid gap-3"
+            style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', marginBottom: '2rem', textAlign: 'left' }}
+          >
+            <div className="stats-strip-card flex items-center gap-3" style={{ padding: '1rem' }}>
+              <span aria-hidden="true" className="stat-icon">
+                <span className="material-symbols-outlined icon-fill">checklist_rtl</span>
+              </span>
+              <div className="min-w-0">
+                <p className="font-display font-bold text-ink leading-none" style={{ fontSize: '0.95rem' }}>
+                  Checklist
+                </p>
+                <p className="text-muted" style={{ fontSize: '0.75rem', marginTop: '2px' }}>
+                  Start adding tasks
+                </p>
+              </div>
+            </div>
+            <div className="stats-strip-card flex items-center gap-3" style={{ padding: '1rem' }}>
+              <span aria-hidden="true" className="stat-icon">
+                <span className="material-symbols-outlined icon-fill">groups</span>
+              </span>
+              <div className="min-w-0">
+                <p className="font-display font-bold text-ink leading-none" style={{ fontSize: '0.95rem' }}>
+                  Guests
+                </p>
+                <p className="text-muted" style={{ fontSize: '0.75rem', marginTop: '2px' }}>
+                  Invite your people
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA — btn-pill primitive */}
+          <Link href={`/events/${event.id}`} className="btn-pill btn-pill-primary btn-pill-lg">
+            <span>Go to dashboard</span>
+            <span aria-hidden="true" className="material-symbols-outlined">
+              arrow_forward
+            </span>
           </Link>
-        </div>
+        </section>
       </main>
 
-      <PageFooter />
+      <footer className="page-shell-footer">© 2026 Evenzi · Crafted with care</footer>
     </div>
   )
 }

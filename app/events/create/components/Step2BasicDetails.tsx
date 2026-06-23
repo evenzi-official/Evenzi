@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useWizard } from '@/lib/contexts/WizardContext'
-import { validateDynamicFields } from '@/lib/validations/events'
+import { validateDynamicFields, EVENT_DATE_MIN_ISO, eventDateMaxISO } from '@/lib/validations/events'
 import type { FormSchemaField } from '@/lib/types/events'
+import { DatePicker } from './DatePicker'
 
 interface FieldErrors {
   [field: string]: string
@@ -14,13 +15,16 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 
 export default function Step2BasicDetails(): React.JSX.Element | null {
   const { state, dispatch } = useWizard()
-  if (!state.eventType) {
-    dispatch({ type: 'GO_TO_STEP', payload: 1 })
-    return null
-  }
   const eventType = state.eventType
-  const formSchema = eventType.formSchema
+  const formSchema = eventType?.formSchema ?? []
 
+  // No event type selected — bounce back to Step 1 (after hooks, to keep the
+  // hook order stable per the Rules of Hooks).
+  useEffect(() => {
+    if (!eventType) dispatch({ type: 'GO_TO_STEP', payload: 1 })
+  }, [eventType, dispatch])
+
+  const [eventTitle, setEventTitle] = useState<string>(state.basicDetails.eventTitle ?? '')
   const [metadata, setMetadata] = useState<Record<string, string>>(
     () => state.basicDetails.metadata ?? {}
   )
@@ -35,6 +39,7 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
   )
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [guestCapacityError, setGuestCapacityError] = useState<string>('')
+  const [dateError, setDateError] = useState<string>('')
 
   // Cover image state
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(
@@ -42,7 +47,11 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
   )
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string>('')
+  const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const dateMin = EVENT_DATE_MIN_ISO()
+  const dateMax = eventDateMaxISO()
 
   function handleMetadataChange(field: string, value: string): void {
     setMetadata((prev) => ({ ...prev, [field]: value }))
@@ -51,10 +60,7 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
     }
   }
 
-  async function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>): Promise<void> {
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  async function uploadFile(file: File): Promise<void> {
     setUploadError('')
 
     if (!ALLOWED_TYPES.includes(file.type)) {
@@ -71,21 +77,38 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
     const formData = new FormData()
     formData.append('file', file)
 
-    const res = await fetch('/api/events/cover', { method: 'POST', body: formData })
-    if (!res.ok) {
-      let msg = 'Upload failed — please try again'
-      try {
-        const body = await res.json() as { error?: string }
-        if (body.error) msg = body.error
-      } catch { /* use default */ }
-      setUploadError(msg)
+    try {
+      const res = await fetch('/api/events/cover', { method: 'POST', body: formData })
+      if (!res.ok) {
+        let msg = 'Upload failed — please try again'
+        try {
+          const body = await res.json() as { error?: string }
+          if (body.error) msg = body.error
+        } catch { /* use default */ }
+        setUploadError(msg)
+        return
+      }
+      const { url } = await res.json() as { url: string }
+      setCoverImageUrl(url)
+    } catch {
+      setUploadError('Upload failed — please try again')
+    } finally {
       setUploading(false)
-      return
     }
+  }
 
-    const { url } = await res.json() as { url: string }
-    setCoverImageUrl(url)
-    setUploading(false)
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>): void {
+    const file = e.target.files?.[0]
+    if (!file) return
+    void uploadFile(file)
+  }
+
+  function handleDrop(e: React.DragEvent<HTMLDivElement>): void {
+    e.preventDefault()
+    setDragOver(false)
+    if (uploading) return
+    const file = e.dataTransfer.files?.[0]
+    if (file) void uploadFile(file)
   }
 
   function handleRemoveCover(): void {
@@ -94,8 +117,9 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  function buildBasicDetails() {
+  function buildBasicDetails(): typeof state.basicDetails {
     return {
+      eventTitle: eventTitle.trim() || null,
       primaryDate: primaryDate.trim() || null,
       primaryVenue: primaryVenue.trim() || null,
       guestCapacity: guestCapacity.trim() !== '' ? parseInt(guestCapacity, 10) : null,
@@ -126,13 +150,26 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
     } else {
       setGuestCapacityError('')
     }
+    if (primaryDate.trim() !== '') {
+      if (primaryDate < dateMin) {
+        setDateError('Event date can’t be in the past')
+        valid = false
+      } else if (primaryDate > dateMax) {
+        setDateError('Event date must be within the next 5 years')
+        valid = false
+      } else {
+        setDateError('')
+      }
+    } else {
+      setDateError('')
+    }
     return valid
   }
 
   function handleContinue(): void {
     if (!validate()) return
     dispatch({ type: 'SET_BASIC_DETAILS', payload: buildBasicDetails() })
-    const nextStep = eventType.hasSubEvents ? 3 : state.totalSteps
+    const nextStep = eventType?.hasSubEvents ? 3 : state.totalSteps
     dispatch({ type: 'GO_TO_STEP', payload: nextStep })
   }
 
@@ -140,6 +177,8 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
     dispatch({ type: 'SET_BASIC_DETAILS', payload: buildBasicDetails() })
     dispatch({ type: 'GO_TO_STEP', payload: 1 })
   }
+
+  if (!eventType) return null
 
   return (
     <section className="clay-card cc-card" aria-labelledby="cc-step2-title">
@@ -156,7 +195,7 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
         </p>
       </header>
 
-      {/* Cover image upload */}
+      {/* Cover image upload — shell .dp-dropzone primitive (single image, M2) */}
       <div className="form-group is-full" style={{ marginBottom: '0.5rem' }}>
         <label className="form-label">Cover photo <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(optional)</span></label>
         <input
@@ -164,10 +203,10 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif"
           style={{ display: 'none' }}
-          onChange={(e) => { void handleImageSelect(e) }}
+          onChange={handleImageSelect}
         />
         {coverImageUrl ? (
-          <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', height: '180px', background: 'var(--surface-2, #f3f4f6)' }}>
+          <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', height: '180px', background: 'var(--line-soft)' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={coverImageUrl}
@@ -189,31 +228,33 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
             </button>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-            style={{
-              width: '100%', height: '140px', border: '2px dashed var(--border, #d1d5db)',
-              borderRadius: '12px', background: 'var(--surface-2, #f9fafb)',
-              display: 'flex', flexDirection: 'column', alignItems: 'center',
-              justifyContent: 'center', gap: '8px', cursor: uploading ? 'not-allowed' : 'pointer',
-              color: 'var(--muted)', transition: 'border-color 0.15s',
+          <div
+            role="button"
+            tabIndex={0}
+            className={`dp-dropzone${dragOver ? ' is-dragover' : ''}`}
+            aria-disabled={uploading}
+            aria-label="Upload cover photo"
+            onClick={() => { if (!uploading) fileInputRef.current?.click() }}
+            onKeyDown={(e) => {
+              if ((e.key === 'Enter' || e.key === ' ') && !uploading) {
+                e.preventDefault()
+                fileInputRef.current?.click()
+              }
             }}
+            onDragOver={(e) => { e.preventDefault(); if (!uploading) setDragOver(true) }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
           >
-            {uploading ? (
-              <>
-                <span className="material-symbols-outlined" style={{ fontSize: '32px', animation: 'spin 1s linear infinite' }}>progress_activity</span>
-                <span style={{ fontSize: '13px' }}>Uploading…</span>
-              </>
-            ) : (
-              <>
-                <span className="material-symbols-outlined icon-fill" style={{ fontSize: '32px' }}>add_photo_alternate</span>
-                <span style={{ fontSize: '13px', fontWeight: 500 }}>Upload cover photo</span>
-                <span style={{ fontSize: '11px' }}>JPEG · PNG · WebP · GIF · up to 5 MB</span>
-              </>
-            )}
-          </button>
+            <span className="dp-dropzone-icon" aria-hidden="true">
+              <span className="material-symbols-outlined icon-fill">
+                {uploading ? 'progress_activity' : 'add_photo_alternate'}
+              </span>
+            </span>
+            <span className="dp-dropzone-title">
+              {uploading ? 'Uploading…' : 'Upload cover photo'}
+            </span>
+            <span className="dp-dropzone-hint">JPEG · PNG · WebP · GIF · up to 5 MB</span>
+          </div>
         )}
         {uploadError && (
           <p className="form-error" role="alert" style={{ marginTop: '6px' }}>{uploadError}</p>
@@ -221,42 +262,64 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
       </div>
 
       <div className="cc-form-grid">
-        {/* Dynamic schema fields — first one gets full-width treatment */}
-        {formSchema.map((fieldDef: FormSchemaField, i: number) => (
-          <div key={fieldDef.key} className={`form-group${i === 0 ? ' is-full' : ''}`}>
-            <label className="form-label" htmlFor={`field-${fieldDef.key}`}>
-              {fieldDef.label}{fieldDef.required ? ' *' : ''}
-            </label>
-            <input
-              id={`field-${fieldDef.key}`}
-              type={fieldDef.type === 'number' ? 'number' : 'text'}
-              className="form-input"
-              value={metadata[fieldDef.key] ?? ''}
-              placeholder={fieldDef.placeholder ?? ''}
-              maxLength={fieldDef.type !== 'number' ? 80 : undefined}
-              autoComplete="off"
-              aria-invalid={!!fieldErrors[fieldDef.key]}
-              aria-describedby={fieldErrors[fieldDef.key] ? `err-${fieldDef.key}` : undefined}
-              onChange={(e) => handleMetadataChange(fieldDef.key, e.target.value)}
-            />
-            {fieldErrors[fieldDef.key] && (
-              <p className="form-error" id={`err-${fieldDef.key}`} role="alert">
-                {fieldErrors[fieldDef.key]}
-              </p>
-            )}
-          </div>
-        ))}
-
-        {/* Event date */}
-        <div className="form-group">
-          <label className="form-label" htmlFor="cc-eventDate">Event date</label>
+        {/* Event title (optional) — full width, derives name when blank (M3) */}
+        <div className="form-group is-full">
+          <label className="form-label" htmlFor="cc-title">
+            Event title <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(optional)</span>
+          </label>
           <input
-            id="cc-eventDate"
-            type="date"
+            id="cc-title"
+            type="text"
             className="form-input"
-            value={primaryDate}
-            onChange={(e) => setPrimaryDate(e.target.value)}
+            value={eventTitle}
+            placeholder="e.g. Aaisha &amp; Taylan's Wedding"
+            maxLength={80}
+            autoComplete="off"
+            onChange={(e) => setEventTitle(e.target.value)}
           />
+        </div>
+
+        {/* Dynamic schema fields (e.g. partner names) — design grouping, two-up */}
+        <div className="cc-partners-group">
+          {formSchema.map((fieldDef: FormSchemaField) => (
+            <div key={fieldDef.key} className="form-group">
+              <label className="form-label" htmlFor={`field-${fieldDef.key}`}>
+                {fieldDef.label}{fieldDef.required ? ' *' : ''}
+              </label>
+              <input
+                id={`field-${fieldDef.key}`}
+                type={fieldDef.type === 'number' ? 'number' : 'text'}
+                className="form-input"
+                value={metadata[fieldDef.key] ?? ''}
+                placeholder={fieldDef.placeholder ?? ''}
+                maxLength={fieldDef.type !== 'number' ? 80 : undefined}
+                autoComplete="off"
+                aria-invalid={!!fieldErrors[fieldDef.key]}
+                aria-describedby={fieldErrors[fieldDef.key] ? `err-${fieldDef.key}` : undefined}
+                onChange={(e) => handleMetadataChange(fieldDef.key, e.target.value)}
+              />
+              {fieldErrors[fieldDef.key] && (
+                <p className="form-error" id={`err-${fieldDef.key}`} role="alert">
+                  {fieldErrors[fieldDef.key]}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Event date — dark branded calendar (M4) */}
+        <div className="form-group">
+          <span className="form-label" id="cc-eventDate-label">Event date</span>
+          <DatePicker
+            value={primaryDate || null}
+            onChange={(iso) => { setPrimaryDate(iso); setDateError('') }}
+            min={dateMin}
+            max={dateMax}
+            labelId="cc-eventDate-label"
+          />
+          {dateError && (
+            <p className="form-error" role="alert" style={{ marginTop: '6px' }}>{dateError}</p>
+          )}
         </div>
 
         {/* Guest count */}

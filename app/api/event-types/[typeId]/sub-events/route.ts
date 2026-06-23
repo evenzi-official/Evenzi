@@ -31,6 +31,7 @@ export async function GET(
       .order('display_order', { ascending: true })
 
     if (error) {
+      console.error('GET /api/event-types/[typeId]/sub-events error:', error)
       return NextResponse.json(
         { error: 'Failed to fetch sub-event types' },
         { status: 500 }
@@ -40,7 +41,8 @@ export async function GET(
     const subEventTypes = (data as SubEventTypeRow[]).map(mapSubEventTypeRow)
 
     return NextResponse.json({ subEventTypes })
-  } catch {
+  } catch (error) {
+    console.error('GET /api/event-types/[typeId]/sub-events error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

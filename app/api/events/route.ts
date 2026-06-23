@@ -91,7 +91,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       )
     }
 
-    const { eventTypeId, metadata, primaryDate, primaryVenue, guestCapacity, subEvents, coverImageUrl } = parsed.data
+    const { eventTypeId, eventTitle, metadata, primaryDate, primaryVenue, guestCapacity, subEvents, coverImageUrl } = parsed.data
 
     // Verify event type exists and is enabled
     const { data: eventTypeData, error: typeError } = await supabase
@@ -111,8 +111,10 @@ export async function POST(request: Request): Promise<NextResponse> {
       return NextResponse.json({ error: 'Event type is not available' }, { status: 400 })
     }
 
-    // Generate event name from metadata
-    const eventName = generateEventName(eventType.slug, eventType.name, metadata)
+    // Event name: explicit title if provided (M3), else auto-derive from metadata
+    const eventName = eventTitle?.trim()
+      ? eventTitle.trim()
+      : generateEventName(eventType.slug, eventType.name, metadata)
 
     // Build RPC params
     const pMetadata = Object.entries(metadata).map(([key, value]) => ({ key, value }))
@@ -120,6 +122,11 @@ export async function POST(request: Request): Promise<NextResponse> {
       sub_event_type_id: se.subEventTypeId ?? null,
       custom_name: se.customName ?? null,
       display_order: index + 1,
+      // M5 — per-sub-event date/time/venue (RPC persists these into event_sub_events)
+      event_date: se.eventDate ?? null,
+      start_time: se.startTime ?? null,
+      end_time: se.endTime ?? null,
+      venue: se.venue ?? null,
     }))
 
     const { data: rpcData, error: rpcError } = await supabase.rpc('create_event_with_details', {

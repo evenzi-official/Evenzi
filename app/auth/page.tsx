@@ -304,7 +304,7 @@ export default function AuthPage() {
 
       <div
         id="bc-toast"
-        className={`bc-toast${toastVisible ? ' is-active' : ''}`}
+        className={`bc-toast${toastVisible ? ' is-show' : ''}`}
         role="status"
         aria-live="polite"
       >

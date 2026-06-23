@@ -57,6 +57,17 @@ export function Step4ReviewConfirm(): React.JSX.Element {
     })
   }
 
+  function formatTime(time24: string | null): string | null {
+    if (!time24) return null
+    const [hStr, mStr] = time24.split(':')
+    const h = parseInt(hStr, 10)
+    const m = parseInt(mStr, 10)
+    if (isNaN(h) || isNaN(m)) return null
+    const ampm = h >= 12 ? 'PM' : 'AM'
+    const h12 = h % 12 === 0 ? 12 : h % 12
+    return `${h12}:${String(m).padStart(2, '0')} ${ampm}`
+  }
+
   async function handleSubmit(): Promise<void> {
     if (submitting) return
     setSubmitting(true)
@@ -64,6 +75,7 @@ export function Step4ReviewConfirm(): React.JSX.Element {
     try {
       const payload = {
         eventTypeId: eventType!.id,
+        eventTitle: basicDetails.eventTitle ?? null,
         metadata: basicDetails.metadata,
         primaryDate: basicDetails.primaryDate,
         primaryVenue: basicDetails.primaryVenue,
@@ -72,6 +84,10 @@ export function Step4ReviewConfirm(): React.JSX.Element {
         subEvents: selectedSubEvents.map((se) => ({
           subEventTypeId: se.subEventTypeId,
           customName: se.customName,
+          eventDate: se.eventDate,
+          startTime: se.startTime,
+          endTime: se.endTime,
+          venue: se.venue,
         })),
       }
       const res = await fetch('/api/events', {
@@ -124,6 +140,12 @@ export function Step4ReviewConfirm(): React.JSX.Element {
           </button>
         </header>
         <div className="cc-review-grid">
+          {basicDetails.eventTitle?.trim() && (
+            <div className="cc-review-field">
+              <span className="cc-review-field-label">Title</span>
+              <span className="cc-review-field-value">{basicDetails.eventTitle.trim()}</span>
+            </div>
+          )}
           {formSchema.map((f) => (
             <div key={f.key} className="cc-review-field">
               <span className="cc-review-field-label">{f.label}</span>
@@ -159,19 +181,26 @@ export function Step4ReviewConfirm(): React.JSX.Element {
             {selectedSubEvents.length === 0 ? (
               <p style={{ fontSize: 14, color: 'var(--muted)' }}>No ceremonies selected.</p>
             ) : (
-              selectedSubEvents.map((se, idx) => (
-                <div key={idx} className="cc-review-event">
-                  <span className="cc-review-event-icon" aria-hidden="true">
-                    <span className="material-symbols-outlined icon-fill">
-                      {se.iconName ? (ICON_MAP[se.iconName] ?? 'celebration') : 'celebration'}
+              selectedSubEvents.map((se) => {
+                const dateLabel = se.eventDate ? formatDate(se.eventDate) : null
+                const timeLabel = formatTime(se.startTime)
+                const metaParts = [dateLabel, timeLabel, se.venue?.trim() || null].filter(Boolean)
+                return (
+                  <div key={se.clientId} className="cc-review-event">
+                    <span className="cc-review-event-icon" aria-hidden="true">
+                      <span className="material-symbols-outlined icon-fill">
+                        {se.iconName ? (ICON_MAP[se.iconName] ?? 'celebration') : 'celebration'}
+                      </span>
                     </span>
-                  </span>
-                  <div className="cc-review-event-body">
-                    <span className="cc-review-event-name">{se.name}</span>
-                    <span className="cc-review-event-meta">Sub-ceremony</span>
+                    <div className="cc-review-event-body">
+                      <span className="cc-review-event-name">{se.name}</span>
+                      <span className="cc-review-event-meta">
+                        {metaParts.length > 0 ? metaParts.join(' · ') : 'Sub-ceremony'}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))
+                )
+              })
             )}
           </div>
         </section>

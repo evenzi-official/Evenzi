@@ -1,44 +1,28 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { EventType } from '@/lib/types/events'
 import { useWizard } from '@/lib/contexts/WizardContext'
 import { EventTypeCard } from './EventTypeCard'
 
 const PAGE_SIZE = 3
 
-export function Step1EventType(): React.JSX.Element {
+interface Step1EventTypeProps {
+  eventTypes: EventType[]
+}
+
+export function Step1EventType({ eventTypes }: Step1EventTypeProps): React.JSX.Element {
   const { state, dispatch } = useWizard()
-  const [eventTypes, setEventTypes] = useState<EventType[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [page, setPage] = useState(0)
 
-  useEffect(() => {
-    async function fetchEventTypes(): Promise<void> {
-      try {
-        setLoading(true)
-        setError(null)
-        const res = await fetch('/api/event-types')
-        if (!res.ok) throw new Error(`Failed to load event types (${res.status})`)
-        const data = (await res.json()) as { eventTypes: EventType[] }
-        setEventTypes(data.eventTypes)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load event types')
-      } finally {
-        setLoading(false)
-      }
-    }
-    void fetchEventTypes()
-  }, [])
-
-  // Jump to the page containing the already-selected event type on load
-  useEffect(() => {
+  // Open on the page holding the already-selected type (computed at mount from
+  // server-provided props — no effect needed).
+  const [page, setPage] = useState<number>(() => {
     if (state.eventType && eventTypes.length > 0) {
       const idx = eventTypes.findIndex((et) => et.id === state.eventType!.id)
-      if (idx >= 0) setPage(Math.floor(idx / PAGE_SIZE))
+      if (idx >= 0) return Math.floor(idx / PAGE_SIZE)
     }
-  }, [eventTypes, state.eventType])
+    return 0
+  })
 
   const totalPages = Math.ceil(eventTypes.length / PAGE_SIZE)
   const visibleCards = eventTypes.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
@@ -67,37 +51,20 @@ export function Step1EventType(): React.JSX.Element {
     appearance: 'none',
   })
 
-  if (loading) {
+  // Server-rendered catalog should always be present. If it's empty, the
+  // fetch failed upstream — show the SK3 event-card skeleton template rather
+  // than a hand-rolled spinner (M1).
+  if (eventTypes.length === 0) {
     return (
-      <section className="clay-card cc-card">
-        <div className="flex items-center justify-center gap-3 py-16">
-          <div
-            className="w-6 h-6 rounded-full border-2 animate-spin"
-            style={{ borderColor: 'var(--line)', borderTopColor: 'transparent' }}
-            role="status"
-            aria-label="Loading event types"
-          />
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: 'var(--muted)' }}>
-            Loading event types…
-          </p>
-        </div>
-      </section>
-    )
-  }
-
-  if (error) {
-    return (
-      <section className="clay-card cc-card">
-        <div className="flex flex-col items-center gap-4 py-12 text-center" role="alert">
-          <p style={{ fontSize: 14, color: 'var(--muted)' }}>{error}</p>
-          <button
-            type="button"
-            className="btn-pill btn-pill-secondary"
-            onClick={() => window.location.reload()}
-          >
-            <span>Try again</span>
-            <span aria-hidden="true" className="btn-pill-spinner" />
-          </button>
+      <section className="clay-card cc-card" aria-busy="true" aria-label="Loading event types">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i}>
+              <div className="skeleton skeleton-block" style={{ aspectRatio: '1 / 1', borderRadius: 16 }} />
+              <div className="skeleton skeleton-line skeleton-line-lg mt-4" style={{ width: '70%' }} />
+              <div className="skeleton skeleton-line skeleton-line-sm mt-3" style={{ width: '50%' }} />
+            </div>
+          ))}
         </div>
       </section>
     )

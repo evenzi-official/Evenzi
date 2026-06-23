@@ -1132,6 +1132,21 @@ html{scroll-behavior:smooth}
 .btn-pill-lg{
   padding:0 1.5rem;height:46px;font-size:13px;letter-spacing:.12em;
 }
+/* Ghost variant — transparent chip with brand text + hairline brand border.
+   Lowest-emphasis pill: for tertiary actions sitting next to a primary CTA
+   (e.g. inline "Edit" / "Cancel" affordances) where a filled or secondary
+   pill would be too loud. Composition: <button class="btn-pill btn-pill-ghost">. */
+.btn-pill-ghost{
+  background:transparent;color:var(--brand);
+  border:1px solid var(--brand-tint-2);
+}
+@media (hover:hover) and (pointer:fine){.btn-pill-ghost:hover{background:var(--brand-tint);border-color:var(--brand-tint-2);transform:translateY(-1px)}}
+/* Small size — tighter padding + 10px label for compact rows (table cells,
+   card headers, dense toolbars). Scoped to -sm; base .btn-pill is unchanged.
+   Composition: <button class="btn-pill btn-pill-primary btn-pill-sm">. */
+.btn-pill-sm{
+  padding:.35rem .7rem;font-size:10px;letter-spacing:.12em;
+}
 /* ── Loading state — three-dot bounce indicator ──
    Hides label/trailing icon, reveals a centered row of three dots that
    bounce in sequence. Replaces the generic spinning-circle pattern with
@@ -1266,6 +1281,11 @@ html{scroll-behavior:smooth}
 }
 .toggle-switch[aria-checked="true"] .toggle-switch-thumb{transform:translateX(22px)}
 .toggle-switch:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.toggle-switch:disabled{opacity:.5;cursor:not-allowed}
+/* Optional inline label, paired with the switch via the ToggleSwitch wrapper.
+   Composition: <span class="toggle-switch-row"><button class="toggle-switch">…</button><span class="toggle-switch-label">…</span></span> */
+.toggle-switch-row{display:inline-flex;align-items:center;gap:.6rem}
+.toggle-switch-label{font-size:.85rem;color:var(--ink)}
 
 /* ════════════════════════════════════════════════════════════════════
    SECTION RULE — eyebrow heading with brand dash prefix

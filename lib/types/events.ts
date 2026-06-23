@@ -143,13 +143,6 @@ export interface EventRow {
   updated_at: string
 }
 
-export interface EventMetadataRow {
-  id: string
-  event_id: string
-  key: string
-  value: string | null
-}
-
 export interface EventSubEventRow {
   id: string
   event_id: string

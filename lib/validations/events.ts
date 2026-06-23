@@ -1,5 +1,36 @@
 import { z } from 'zod'
 
+// --- Event date range (M4) ------------------------------------------------
+// Event date must be today-or-later and at most 5 years out. Helpers are
+// shared by the wizard picker (to disable out-of-range days) and the schema
+// (to reject bypassed values server-side).
+
+const MAX_YEARS_AHEAD = 5
+
+function toISODate(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+/** Inclusive minimum event date (today) as YYYY-MM-DD. */
+export function EVENT_DATE_MIN_ISO(): string {
+  return toISODate(new Date())
+}
+
+/** Inclusive maximum event date (today + 5 years) as YYYY-MM-DD. */
+export function eventDateMaxISO(): string {
+  const d = new Date()
+  d.setFullYear(d.getFullYear() + MAX_YEARS_AHEAD)
+  return toISODate(d)
+}
+
+/** True when an ISO date string is within [today, today+5y]. */
+export function isEventDateInRange(iso: string): boolean {
+  return iso >= EVENT_DATE_MIN_ISO() && iso <= eventDateMaxISO()
+}
+
 // Step 1: event type must be selected
 export const step1Schema = z.object({
   eventTypeId: z.string().uuid('Select an event type'),
@@ -27,13 +58,24 @@ export const step3Schema = z.object({
     .min(1, 'Select at least one sub-event'),
 })
 
+// Event date: ISO date, must be today-or-later and within 5 years (M4).
+const eventDateField = z
+  .string()
+  .date()
+  .refine((iso) => iso >= EVENT_DATE_MIN_ISO(), 'Event date can’t be in the past')
+  .refine((iso) => iso <= eventDateMaxISO(), 'Event date must be within the next 5 years')
+  .nullable()
+  .optional()
+
 // Full create event API payload — [I5] max 50 sub-events, [I6] max 500 char values, [I7] max 20 keys, [S4] min(1) aligned
 export const createEventSchema = z.object({
   eventTypeId: z.string().uuid(),
+  // Optional explicit event title (M3); server uses it as the event name when present.
+  eventTitle: z.string().trim().min(1).max(120).nullable().optional(),
   metadata: z
     .record(z.string(), z.string().min(1).max(500))
     .refine((obj) => Object.keys(obj).length <= 20, 'Too many metadata fields (max 20)'),
-  primaryDate: z.string().date().nullable().optional(),
+  primaryDate: eventDateField,
   primaryVenue: z.string().max(500).nullable().optional(),
   guestCapacity: z.coerce.number().int().positive().max(100000).nullable().optional(),
   subEvents: z
@@ -42,6 +84,16 @@ export const createEventSchema = z.object({
         .object({
           subEventTypeId: z.string().uuid().nullable().optional(),
           customName: z.string().min(1).max(100).nullable().optional(),
+          // Per-celebration scheduling captured in Step 3 modals (M5).
+          eventDate: z
+            .string()
+            .date()
+            .refine((iso) => iso <= eventDateMaxISO(), 'Sub-event date must be within the next 5 years')
+            .nullable()
+            .optional(),
+          startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time').nullable().optional(),
+          endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time').nullable().optional(),
+          venue: z.string().max(500).nullable().optional(),
         })
         .refine(
           (data) => data.subEventTypeId != null || data.customName != null,

@@ -12,12 +12,23 @@ const client = new S3Client({
 
 const BUCKET = process.env.R2_BUCKET_PUBLIC || 'evenzi-public'
 
+// Only these top-level prefixes are servable through the public proxy. The
+// bucket is hardcoded-public so cross-bucket traversal isn't possible, but this
+// stops callers from fetching arbitrary keys by guessing — narrow the proxy to
+// the namespaces we actually publish (see app/api/events/cover R2 key layout).
+const ALLOWED_PREFIXES = ['events/', 'event-covers/', 'website/'] as const
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ key: string[] }> }
 ): Promise<Response> {
   const { key: parts } = await params
   const key = parts.join('/')
+
+  // Reject traversal attempts and keys outside the allowlisted namespaces.
+  if (key.includes('..') || !ALLOWED_PREFIXES.some((prefix) => key.startsWith(prefix))) {
+    return new Response('Not found', { status: 404 })
+  }
 
   try {
     const result = await client.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }))
