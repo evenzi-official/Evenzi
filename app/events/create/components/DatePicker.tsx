@@ -137,14 +137,33 @@ function CalendarPopover({ value, onChange, min, max, onClose }: CalendarPopover
   const monthMaxAllowed = maxDate ? new Date(maxDate.getFullYear(), maxDate.getMonth(), 1) : null
   const prevMonth = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1)
   const nextMonth = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1)
-  const canPrev = !monthMinAllowed || prevMonth >= monthMinAllowed
-  const canNext = !monthMaxAllowed || nextMonth <= monthMaxAllowed
+
+  // Year bounds for the month-selection view (M11). Clamp to the allowed range.
+  const minYear = minDate ? minDate.getFullYear() : null
+  const maxYear = maxDate ? maxDate.getFullYear() : null
+  const prevYear = new Date(cursor.getFullYear() - 1, cursor.getMonth(), 1)
+  const nextYear = new Date(cursor.getFullYear() + 1, cursor.getMonth(), 1)
+
+  // In month view the arrows step the year; in day view they step the month.
+  const canPrev = monthView
+    ? (minYear == null || cursor.getFullYear() - 1 >= minYear)
+    : (!monthMinAllowed || prevMonth >= monthMinAllowed)
+  const canNext = monthView
+    ? (maxYear == null || cursor.getFullYear() + 1 <= maxYear)
+    : (!monthMaxAllowed || nextMonth <= monthMaxAllowed)
+
+  function goPrev(): void {
+    setCursor(monthView ? prevYear : prevMonth)
+  }
+  function goNext(): void {
+    setCursor(monthView ? nextYear : nextMonth)
+  }
 
   return (
           <div className="cal-pop" role="dialog" aria-modal="true" aria-label="Choose a date" style={{ position: 'static' }}>
             <div className="cal-head">
-              <button type="button" className="cal-nav" aria-label="Previous month" disabled={!canPrev || monthView}
-                onClick={() => setCursor(prevMonth)}>
+              <button type="button" className="cal-nav" aria-label={monthView ? 'Previous year' : 'Previous month'} disabled={!canPrev}
+                onClick={goPrev}>
                 <span className="material-symbols-outlined" aria-hidden="true">chevron_left</span>
               </button>
               <button
@@ -156,8 +175,8 @@ function CalendarPopover({ value, onChange, min, max, onClose }: CalendarPopover
                 <span className="cal-title">{MONTHS[cursor.getMonth()]} {cursor.getFullYear()}</span>
                 <span className="material-symbols-outlined cal-title-caret" aria-hidden="true">expand_more</span>
               </button>
-              <button type="button" className="cal-nav" aria-label="Next month" disabled={!canNext || monthView}
-                onClick={() => setCursor(nextMonth)}>
+              <button type="button" className="cal-nav" aria-label={monthView ? 'Next year' : 'Next month'} disabled={!canNext}
+                onClick={goNext}>
                 <span className="material-symbols-outlined" aria-hidden="true">chevron_right</span>
               </button>
             </div>

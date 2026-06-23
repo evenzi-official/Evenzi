@@ -12,6 +12,8 @@ interface FieldErrors {
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+// Sane upper bound on guest count (M12) — mirrors createEventSchema.guestCapacity.
+const GUEST_CAPACITY_MAX = 100000
 
 export default function Step2BasicDetails(): React.JSX.Element | null {
   const { state, dispatch } = useWizard()
@@ -52,6 +54,19 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
 
   const dateMin = EVENT_DATE_MIN_ISO()
   const dateMax = eventDateMaxISO()
+
+  // A witty, tasteful nudge that reacts to the typed guest count (M12). Returns
+  // null below the playful threshold so the helper line stays quiet for normal
+  // weddings.
+  function guestVibe(raw: string): string | null {
+    const n = parseInt(raw, 10)
+    if (isNaN(n) || n <= 0) return null
+    if (n > GUEST_CAPACITY_MAX) return `That’s a lot — we cap guest counts at ${GUEST_CAPACITY_MAX.toLocaleString('en-IN')}.`
+    if (n > 20000) return 'Planning a stadium wedding? 😄'
+    if (n > 2000) return 'Big celebration! 🎉'
+    return null
+  }
+  const guestHelper = guestVibe(guestCapacity)
 
   function handleMetadataChange(field: string, value: string): void {
     setMetadata((prev) => ({ ...prev, [field]: value }))
@@ -143,6 +158,9 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
       const parsed = parseInt(guestCapacity, 10)
       if (isNaN(parsed) || parsed <= 0 || !Number.isInteger(parsed)) {
         setGuestCapacityError('Guest capacity must be a positive whole number')
+        valid = false
+      } else if (parsed > GUEST_CAPACITY_MAX) {
+        setGuestCapacityError(`Guest count can’t exceed ${GUEST_CAPACITY_MAX.toLocaleString('en-IN')}`)
         valid = false
       } else {
         setGuestCapacityError('')
@@ -329,22 +347,32 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
             id="cc-guestCount"
             type="number"
             min={1}
-            max={10000}
+            max={GUEST_CAPACITY_MAX}
             inputMode="numeric"
             className="form-input"
             value={guestCapacity}
             placeholder="Estimated guests"
             autoComplete="off"
             aria-invalid={!!guestCapacityError}
-            aria-describedby={guestCapacityError ? 'cc-guest-err' : undefined}
+            aria-describedby={
+              guestCapacityError ? 'cc-guest-err' : guestHelper ? 'cc-guest-help' : undefined
+            }
             onChange={(e) => {
-              setGuestCapacity(e.target.value)
+              // Clamp absurd values so they can never be stored (M12).
+              let next = e.target.value
+              const parsed = parseInt(next, 10)
+              if (!isNaN(parsed) && parsed > GUEST_CAPACITY_MAX) {
+                next = String(GUEST_CAPACITY_MAX)
+              }
+              setGuestCapacity(next)
               if (guestCapacityError) setGuestCapacityError('')
             }}
           />
-          {guestCapacityError && (
+          {guestCapacityError ? (
             <p className="form-error" id="cc-guest-err" role="alert">{guestCapacityError}</p>
-          )}
+          ) : guestHelper ? (
+            <p className="cc-form-helper" id="cc-guest-help" aria-live="polite">{guestHelper}</p>
+          ) : null}
         </div>
 
         {/* Venue — full width with place icon prefix */}

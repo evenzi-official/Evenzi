@@ -45,6 +45,8 @@ interface TimePickerProps {
   placeholder?: string
   labelId?: string
   triggerClassName?: string
+  /** 24h "HH:MM" lower bound (exclusive) — only times strictly after this are offered (M15). */
+  minTime?: string | null
 }
 
 export function TimePicker({
@@ -53,6 +55,7 @@ export function TimePicker({
   placeholder = 'Pick a time',
   labelId,
   triggerClassName,
+  minTime,
 }: TimePickerProps): React.JSX.Element {
   const [open, setOpen] = useState(false)
   const triggerLabel = value ? readout(parse24(value)) : placeholder
@@ -77,7 +80,7 @@ export function TimePicker({
       >
         {/* Remounted fresh each open → draft inits from props, no reset effect. */}
         {open && (
-          <TimeWheel value={value} onChange={onChange} onClose={() => setOpen(false)} />
+          <TimeWheel value={value} onChange={onChange} minTime={minTime ?? null} onClose={() => setOpen(false)} />
         )}
       </div>
     </>
@@ -87,11 +90,38 @@ export function TimePicker({
 interface TimeWheelProps {
   value: string | null
   onChange: (value24: string) => void
+  minTime: string | null
   onClose: () => void
 }
 
-function TimeWheel({ value, onChange, onClose }: TimeWheelProps): React.JSX.Element {
-  const [draft, setDraft] = useState<Parts>(() => parse24(value))
+// Build a 24h "HH:MM" string from explicit parts (mirrors to24, but lets us
+// probe hypothetical combinations for the min-time guard, M15).
+function partsTo24(hour12: number, minute: number, ampm: 'AM' | 'PM'): string {
+  let h = hour12 % 12
+  if (ampm === 'PM') h += 12
+  return `${String(h).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+}
+
+// First valid (> minTime) time, or null if minTime is the last minute of the day.
+function firstAfter(minTime: string): string | null {
+  const [hStr, mStr] = minTime.split(':')
+  let total = parseInt(hStr, 10) * 60 + parseInt(mStr, 10) + 1
+  if (total > 23 * 60 + 59) return null
+  const h = Math.floor(total / 60)
+  const m = total % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}
+
+function TimeWheel({ value, onChange, minTime, onClose }: TimeWheelProps): React.JSX.Element {
+  const [draft, setDraft] = useState<Parts>(() => {
+    const initial = parse24(value)
+    // If the initial draft isn't strictly after minTime, snap to the first valid time.
+    if (minTime && partsTo24(initial.hour12, initial.minute, initial.ampm) <= minTime) {
+      const snapped = firstAfter(minTime)
+      if (snapped) return parse24(snapped)
+    }
+    return initial
+  })
   const hourRef = useRef<HTMLButtonElement>(null)
   const minRef = useRef<HTMLButtonElement>(null)
 
@@ -114,6 +144,31 @@ function TimeWheel({ value, onChange, onClose }: TimeWheelProps): React.JSX.Elem
     onClose()
   }
 
+  // M15 — guard each column against minTime. An option is disabled only when no
+  // combination of the *other* two parts can clear minTime (so the wheel never
+  // dead-ends). Picking a still-valid-elsewhere option snaps the rest forward.
+  function isAfterMin(p: Parts): boolean {
+    return !minTime || partsTo24(p.hour12, p.minute, p.ampm) > minTime
+  }
+  function hourEnabled(h: number): boolean {
+    if (!minTime) return true
+    return MINUTES.some((m) => isAfterMin({ hour12: h, minute: m, ampm: draft.ampm }))
+  }
+  function minuteEnabled(m: number): boolean {
+    if (!minTime) return true
+    return isAfterMin({ hour12: draft.hour12, minute: m, ampm: draft.ampm })
+  }
+  function ampmEnabled(ap: 'AM' | 'PM'): boolean {
+    if (!minTime) return true
+    return HOURS_12.some((h) => MINUTES.some((m) => isAfterMin({ hour12: h, minute: m, ampm: ap })))
+  }
+  // After changing one part, nudge the others forward until the time clears minTime.
+  function settle(p: Parts): Parts {
+    if (isAfterMin(p)) return p
+    const snapped = firstAfter(minTime!)
+    return snapped ? parse24(snapped) : p
+  }
+
   return (
           <div className="tp-pop" role="dialog" aria-modal="true" aria-label="Choose a time" style={{ position: 'static' }}>
             <p className="tp-title">
@@ -126,6 +181,7 @@ function TimeWheel({ value, onChange, onClose }: TimeWheelProps): React.JSX.Elem
                 <div className="tp-scroll" role="listbox" aria-label="Hour">
                   {HOURS_12.map((h) => {
                     const sel = h === draft.hour12
+                    const disabled = !hourEnabled(h)
                     return (
                       <button
                         key={h}
@@ -133,8 +189,9 @@ function TimeWheel({ value, onChange, onClose }: TimeWheelProps): React.JSX.Elem
                         type="button"
                         role="option"
                         aria-selected={sel}
+                        disabled={disabled}
                         className={`tp-opt${sel ? ' is-sel' : ''}`}
-                        onClick={() => setDraft((d) => ({ ...d, hour12: h }))}
+                        onClick={() => setDraft((d) => settle({ ...d, hour12: h }))}
                       >
                         {h}
                       </button>
@@ -147,6 +204,7 @@ function TimeWheel({ value, onChange, onClose }: TimeWheelProps): React.JSX.Elem
                 <div className="tp-scroll" role="listbox" aria-label="Minute">
                   {MINUTES.map((m) => {
                     const sel = m === draft.minute
+                    const disabled = !minuteEnabled(m)
                     return (
                       <button
                         key={m}
@@ -154,8 +212,9 @@ function TimeWheel({ value, onChange, onClose }: TimeWheelProps): React.JSX.Elem
                         type="button"
                         role="option"
                         aria-selected={sel}
+                        disabled={disabled}
                         className={`tp-opt${sel ? ' is-sel' : ''}`}
-                        onClick={() => setDraft((d) => ({ ...d, minute: m }))}
+                        onClick={() => setDraft((d) => settle({ ...d, minute: m }))}
                       >
                         {String(m).padStart(2, '0')}
                       </button>
@@ -169,9 +228,10 @@ function TimeWheel({ value, onChange, onClose }: TimeWheelProps): React.JSX.Elem
                   <button
                     key={ap}
                     type="button"
+                    disabled={!ampmEnabled(ap)}
                     className={`tp-ampm-btn${draft.ampm === ap ? ' is-sel' : ''}`}
                     aria-pressed={draft.ampm === ap}
-                    onClick={() => setDraft((d) => ({ ...d, ampm: ap }))}
+                    onClick={() => setDraft((d) => settle({ ...d, ampm: ap }))}
                   >
                     {ap}
                   </button>

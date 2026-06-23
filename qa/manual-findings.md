@@ -62,3 +62,37 @@
 - **Where:** `/home` filter row (`app/home/*` — "My events / Collaborations" left `.seg` + "Active / Past" right `.seg`).
 - **Issue:** the right control (Active/Past) has **trailing dead space** and doesn't align with the left control. They should align consistently (edge-to-edge / space-between), matching the left group's width/format.
 - Severity: Low (layout polish).
+
+---
+
+# Round 2 — 2026-06-23 (testing the shipped fixes; create wizard)
+
+## M11 — Date picker month/year view: left/right arrows don't work
+- **Where:** `DatePicker.tsx` — when you click the month/year header (e.g. "July 2026" ▲) it shows the month grid (Jan/Feb/Mar…), but the `<` `>` arrows at the top don't change the year. Fix: wire prev/next in the month-selection view to step the year (respecting the min today / max +5y bounds).
+- Severity: Medium.
+
+## M12 — Guest count: cap unreasonable input + witty helper
+- **Where:** Step 2 "Guest count" (`Step2BasicDetails.tsx`). Currently accepts absurd values (e.g. `20021412412343312423`).
+- **Fix:** enforce a sensible max (e.g. ≤ 100000) in the input + `createEventSchema`. AND add a helper line *below* the field (same treatment as the label/field group) that reacts to the value — once it crosses a reasonable threshold, show a *witty* comment (e.g. "Planning a stadium wedding? 😄"). Keep it light; cap the actual stored value.
+- Severity: Medium (validation) + nice-to-have (witty copy).
+
+## M13 — Sub-event date must respect the main Event Date
+- **Where:** Step 3 "Set date & time" sub-event date picker vs the Event Date chosen in Step 2 (Details).
+- **Issue:** sub-event date can be set independently of the main event date. Founder rule: *sub-event date should not cross the Event Date selected in Details.*
+- **Fix:** constrain the sub-event date picker relative to the main event date (min today, max = event date). ⚠️ Open question to confirm at fix time: some ceremonies legitimately happen *after* the main day (e.g. Post-Wedding Brunch) — decide whether to hard-cap at event date or allow a small +N-day window. Default for now: cap at event date unless founder says otherwise.
+- Severity: Medium.
+
+## M14 — Loading delay on the Celebrations (Step 3) page
+- **Where:** Step 3 shows skeleton placeholder cards while sub-event types load (client fetch). Same class as M1.
+- **Fix:** server-render the sub-event types (pass as initial props) so there's no load delay. (Skeleton is the correct fallback if a load is unavoidable, but the goal is no load.)
+- Severity: Medium (UX + perf).
+
+## M15 — End time should be constrained to after Start time (not just error after)
+- **Where:** Step 3 "Set date & time" — End time. Validation message "End time must be after the start time" works ✅, but the user can still *select* an invalid time first.
+- **Fix:** make the End-time wheel picker only offer times *after* the chosen Start time (disable/hide earlier options) so an invalid pick isn't possible. Keep the error as a backstop.
+- Severity: Low–Medium (UX).
+
+## M16 — Use the preloader / loading treatment wherever needed
+- **Where:** app-wide.
+- **Ask:** apply a loading treatment wherever there's a wait — the brand *preloader* for full-page/route transitions where it fits, and the *skeleton* for in-page data regions (dashboard, celebrations, event dashboard, etc.). Audit the in-scope screens and add the right one to each loading point.
+- Severity: Medium (consistency/UX).

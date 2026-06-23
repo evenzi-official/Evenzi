@@ -3,17 +3,31 @@
 import React, { useEffect, useState } from 'react'
 import { useWizard } from '@/lib/contexts/WizardContext'
 import type { SubEventType } from '@/lib/types/events'
+import { EVENT_DATE_MIN_ISO, eventDateMaxISO } from '@/lib/validations/events'
 import { SubEventCard } from './SubEventCard'
 import { SetTimeModal, SetVenueModal, AddCustomModal } from './Step3Modals'
 
 type ModalKind = 'time' | 'venue' | 'custom' | null
 
-export function Step3SubEvents(): React.JSX.Element {
+interface Step3SubEventsProps {
+  /** Server-rendered sub-event types for the chosen type (M14). Undefined on a
+   * catalog miss → fall back to a client fetch. */
+  initialSubEventTypes?: SubEventType[]
+}
+
+export function Step3SubEvents({ initialSubEventTypes }: Step3SubEventsProps): React.JSX.Element {
   const { state, dispatch } = useWizard()
   const { eventType, selectedSubEvents, totalSteps } = state
 
-  const [subEventTypes, setSubEventTypes] = useState<SubEventType[]>([])
-  const [loading, setLoading] = useState(true)
+  // Sub-event date bounds (M13): min = today, max = the main Event Date from
+  // Step 2. When no event date is set yet, fall back to today / today+5y.
+  const subEventDateMin = EVENT_DATE_MIN_ISO()
+  const subEventDateMax = state.basicDetails.primaryDate ?? eventDateMaxISO()
+
+  // Seed from server-rendered props when available (M14) — no loading state.
+  const hasInitial = initialSubEventTypes != null
+  const [subEventTypes, setSubEventTypes] = useState<SubEventType[]>(initialSubEventTypes ?? [])
+  const [loading, setLoading] = useState(!hasInitial)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -25,6 +39,22 @@ export function Step3SubEvents(): React.JSX.Element {
     if (!eventType) return
     let cancelled = false
 
+    function seedDefaults(data: SubEventType[]): void {
+      const defaults = data
+        .filter((s) => s.isDefault)
+        .map((s) => ({ subEventTypeId: s.id, customName: null, name: s.name, iconName: s.iconName }))
+      if (defaults.length > 0) {
+        dispatch({ type: 'SET_DEFAULT_SUB_EVENTS', payload: defaults })
+      }
+    }
+
+    // Server-rendered path (M14): no fetch, just seed the default selections.
+    if (initialSubEventTypes != null) {
+      seedDefaults(initialSubEventTypes)
+      return () => { cancelled = true }
+    }
+
+    // Fallback path — catalog miss at the server level. Fetch client-side.
     async function fetchSubEvents(): Promise<void> {
       setLoading(true)
       setError(null)
@@ -35,12 +65,7 @@ export function Step3SubEvents(): React.JSX.Element {
         const data: SubEventType[] = json.subEventTypes ?? json
         if (cancelled) return
         setSubEventTypes(data)
-        const defaults = data
-          .filter((s) => s.isDefault)
-          .map((s) => ({ subEventTypeId: s.id, customName: null, name: s.name, iconName: s.iconName }))
-        if (defaults.length > 0) {
-          dispatch({ type: 'SET_DEFAULT_SUB_EVENTS', payload: defaults })
-        }
+        seedDefaults(data)
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Something went wrong')
       } finally {
@@ -50,7 +75,7 @@ export function Step3SubEvents(): React.JSX.Element {
 
     void fetchSubEvents()
     return () => { cancelled = true }
-  }, [eventType, dispatch])
+  }, [eventType, dispatch, initialSubEventTypes])
 
   function handleToggle(sub: SubEventType): void {
     dispatch({ type: 'TOGGLE_SUB_EVENT', payload: { subEventTypeId: sub.id, name: sub.name, iconName: sub.iconName } })
@@ -298,6 +323,8 @@ export function Step3SubEvents(): React.JSX.Element {
         key={`time-${activeClientId ?? 'none'}`}
         open={modal === 'time' && activeSubEvent != null}
         forLabel={activeSubEvent ? `For ${activeSubEvent.name}` : 'For this celebration'}
+        dateMin={subEventDateMin}
+        dateMax={subEventDateMax}
         initial={{
           eventDate: activeSubEvent?.eventDate ?? null,
           startTime: activeSubEvent?.startTime ?? null,

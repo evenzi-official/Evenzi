@@ -28,24 +28,35 @@ interface TimeModalProps {
   open: boolean
   forLabel: string
   initial: TimeModalValue
+  /** ISO min for the sub-event date (defaults to today). */
+  dateMin?: string
+  /** ISO max for the sub-event date — capped at the main Event Date (M13). */
+  dateMax?: string
   onSave: (value: TimeModalValue) => void
   onClose: () => void
 }
 
-export function SetTimeModal({ open, forLabel, initial, onSave, onClose }: TimeModalProps): React.JSX.Element | null {
+export function SetTimeModal({ open, forLabel, initial, dateMin, dateMax, onSave, onClose }: TimeModalProps): React.JSX.Element | null {
   useModalDismiss(open, onClose)
   if (!open) return null
   // Remounted via `key` by the parent when (re)opened, so state inits from props.
   return (
-    <SetTimeModalBody forLabel={forLabel} initial={initial} onSave={onSave} onClose={onClose} />
+    <SetTimeModalBody forLabel={forLabel} initial={initial} dateMin={dateMin} dateMax={dateMax} onSave={onSave} onClose={onClose} />
   )
 }
 
-function SetTimeModalBody({ forLabel, initial, onSave, onClose }: Omit<TimeModalProps, 'open'>): React.JSX.Element {
+function SetTimeModalBody({ forLabel, initial, dateMin, dateMax, onSave, onClose }: Omit<TimeModalProps, 'open'>): React.JSX.Element {
   const [eventDate, setEventDate] = useState<string | null>(initial.eventDate)
   const [startTime, setStartTime] = useState<string | null>(initial.startTime)
   const [endTime, setEndTime] = useState<string | null>(initial.endTime)
   const [err, setErr] = useState<string>('')
+
+  // M15 — when start moves to ≥ the chosen end, invalidate the now-impossible end.
+  function handleStartChange(v: string): void {
+    setStartTime(v)
+    setErr('')
+    if (endTime && endTime <= v) setEndTime(null)
+  }
 
   function handleSave(): void {
     if (endTime && startTime && endTime <= startTime) {
@@ -67,18 +78,23 @@ function SetTimeModalBody({ forLabel, initial, onSave, onClose }: Omit<TimeModal
             <DatePicker
               value={eventDate}
               onChange={(iso) => { setEventDate(iso); setErr('') }}
-              min={EVENT_DATE_MIN_ISO()}
-              max={eventDateMaxISO()}
+              min={dateMin ?? EVENT_DATE_MIN_ISO()}
+              max={dateMax ?? eventDateMaxISO()}
               labelId="cc-time-date-label"
             />
           </div>
           <div className="cc-modal-field">
             <span className="form-label" id="cc-time-start-label">Start time</span>
-            <TimePicker value={startTime} onChange={(v) => { setStartTime(v); setErr('') }} labelId="cc-time-start-label" />
+            <TimePicker value={startTime} onChange={handleStartChange} labelId="cc-time-start-label" />
           </div>
           <div className="cc-modal-field">
             <span className="form-label" id="cc-time-end-label">End time <span className="cc-modal-optional">(optional)</span></span>
-            <TimePicker value={endTime} onChange={(v) => { setEndTime(v); setErr('') }} labelId="cc-time-end-label" />
+            <TimePicker
+              value={endTime}
+              onChange={(v) => { setEndTime(v); setErr('') }}
+              minTime={startTime}
+              labelId="cc-time-end-label"
+            />
           </div>
           {err && (
             <p className="form-error" role="alert">

@@ -219,8 +219,8 @@
   --muted-soft:    #7a7a7a;
   --line:          #2a2a2a;
   --line-soft:     #1f1f1f;
-  --skel-base:     #232327;   /* skeleton placeholder fill (dark) */
-  --skel-sheen:    #303036;   /* skeleton shimmer highlight (dark) */
+  --skel-base:     #26262c;   /* skeleton placeholder fill (dark) */
+  --skel-sheen:    #3c3c46;   /* skeleton shimmer highlight (dark) */
   --dark-card:     #1f2937;
   --dark-card-soft:#374151;
   --shadow-clay:       0 8px 24px -8px rgba(0,0,0,.55), 0 2px 6px -2px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
@@ -4202,16 +4202,20 @@ body.no-scroll{overflow:hidden}
    designs/components.html — reuse those, don't hand-roll per page.
    ════════════════════════════════════════════════════════════════════ */
 .skeleton{
-  position:relative;overflow:hidden;border-radius:8px;
-  background:var(--skel-base);
+  position:relative;overflow:hidden;border-radius:10px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--skel-base) 88%,var(--skel-sheen)),var(--skel-base));
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--skel-sheen) 45%,transparent);
 }
 .skeleton::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(100deg,transparent 20%,var(--skel-sheen) 50%,transparent 80%);
-  background-size:200% 100%;
-  animation:skel-shimmer 1.3s ease-in-out infinite;
+  background:linear-gradient(100deg,
+    transparent 30%,
+    color-mix(in srgb,var(--skel-sheen) 92%,var(--brand) 8%) 50%,
+    transparent 70%);
+  background-size:220% 100%;
+  animation:skel-shimmer 1.5s cubic-bezier(.45,0,.25,1) infinite;
 }
-@keyframes skel-shimmer{0%{background-position:180% 0}100%{background-position:-180% 0}}
+@keyframes skel-shimmer{0%{background-position:180% 0}100%{background-position:-60% 0}}
 
 /* shape modifiers */
 .skeleton-line{height:.85rem;border-radius:6px}

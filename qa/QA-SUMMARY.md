@@ -82,5 +82,16 @@ Host-only MVP, 4 screens: **Login/Registration**, **Event creation (4-step wizar
 - Hub hero SVG `transform-origin` → should be `transformOrigin` (console warning).
 - `<html>` "Extra attributes from server: class" — benign theme-script hydration warning.
 
+## Round 2 status (2026-06-23) — create-wizard refinements
+| # | Item | Status |
+|---|---|---|
+| M11 | Date picker month-view `<` `>` arrows now step the **year** (clamped) | ✅ |
+| M12 | Guest count clamped to ≤100k + live **witty helper** below the field | ✅ |
+| M13 | Sub-event date capped at the **Event Date** (days after disabled; client + schema) | ✅ |
+| M14 | Celebrations (Step 3) **server-rendered** — no load delay | ✅ |
+| M15 | End time only offers times **after** Start time (earlier options disabled) | ✅ |
+| M16 | Skeleton primitive **polished** (contrast + brand shimmer + definition); event-dashboard `loading.tsx` added | 🟦 |
+
 ## Rounds
-- **2026-06-23** — Multi-agent audit + founder manual pass (M1–M10) + 4-workstream fix + server/DB persistence fix + preloader. All ✅ items verified live (Playwright + DB). App-code `tsc`: 0 errors.
+- **2026-06-23 (R2)** — Founder round-2 manual pass (M11–M16) → 1-agent create-wizard fix + skeleton polish. M11–M15 verified live (Playwright); M16 skeleton improved + wired. App-code `tsc`: 0 errors.
+- **2026-06-23 (R1)** — Multi-agent audit + founder manual pass (M1–M10) + 4-workstream fix + server/DB persistence fix + preloader. All ✅ items verified live (Playwright + DB). App-code `tsc`: 0 errors.

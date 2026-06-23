@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { WizardProvider, useWizard } from '@/lib/contexts/WizardContext'
 import { WizardStepper } from '@/components/ui/WizardStepper'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
-import type { EventType } from '@/lib/types/events'
+import type { EventType, SubEventType } from '@/lib/types/events'
 import { Step1EventType } from './components/Step1EventType'
 import Step2BasicDetails from './components/Step2BasicDetails'
 import { Step3SubEvents } from './components/Step3SubEvents'
@@ -20,9 +20,11 @@ const WIZARD_STEPS = [
 
 interface WizardShellProps {
   eventTypes: EventType[]
+  /** Server-fetched sub-event types grouped by event_type_id (M14). */
+  subEventTypesByType: Record<string, SubEventType[]>
 }
 
-function WizardContent({ eventTypes }: WizardShellProps): React.JSX.Element {
+function WizardContent({ eventTypes, subEventTypesByType }: WizardShellProps): React.JSX.Element {
   const { state, dispatch } = useWizard()
   const searchParams = useSearchParams()
   const lastSyncedStep = useRef<number>(state.currentStep)
@@ -49,12 +51,18 @@ function WizardContent({ eventTypes }: WizardShellProps): React.JSX.Element {
     }
   }, [state.currentStep])
 
+  // Server-provided sub-event types for the chosen event type — undefined on a
+  // catalog miss, where Step 3 falls back to a client fetch (M14).
+  const initialSubEventTypes = state.eventType
+    ? subEventTypesByType[state.eventType.id]
+    : undefined
+
   function renderStep(): React.JSX.Element {
     switch (state.currentStep) {
       case 1: return <Step1EventType eventTypes={eventTypes} />
       case 2: return <Step2BasicDetails />
       case 3:
-        if (state.eventType?.hasSubEvents) return <Step3SubEvents />
+        if (state.eventType?.hasSubEvents) return <Step3SubEvents initialSubEventTypes={initialSubEventTypes} />
         return <Step4ReviewConfirm />
       case 4: return <Step4ReviewConfirm />
       default: return <Step1EventType eventTypes={eventTypes} />
@@ -92,7 +100,7 @@ function WizardContent({ eventTypes }: WizardShellProps): React.JSX.Element {
   )
 }
 
-export function WizardShell({ eventTypes }: WizardShellProps): React.JSX.Element {
+export function WizardShell({ eventTypes, subEventTypesByType }: WizardShellProps): React.JSX.Element {
   return (
     <WizardProvider>
       <Suspense
@@ -102,7 +110,7 @@ export function WizardShell({ eventTypes }: WizardShellProps): React.JSX.Element
           </div>
         }
       >
-        <WizardContent eventTypes={eventTypes} />
+        <WizardContent eventTypes={eventTypes} subEventTypesByType={subEventTypesByType} />
       </Suspense>
     </WizardProvider>
   )

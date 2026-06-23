@@ -12,6 +12,8 @@ Evenzi is an early-stage wedding/event planning SaaS platform. Users create even
 
 **Terse in inline 1:1 chat, full plain-English in every persisted/team-facing artifact.** In direct chat with the user, lead with the answer, drop filler/hedging/restating, prefer tables over prose — to cut output tokens. This NEVER applies to ClickUp tickets, commit/PR bodies, specs, plans, test plans, spec-kit files, council/subagent prompts, or verbatim approval-gate readouts (e.g. Dheeraj→Abhijith sync) — those stay full and detailed; the "verbatim, no detail dropped" rule always wins. Terse ≠ sloppy: keep technical precision and `file:line`/markdown-link formatting. Override: "explain in full" / "go deep" → full for that answer. Full spec + rationale: `~/.claude/projects/-Users-xcalider-Documents-Projects-Evenzi/memory/feedback_terse_inline_chat.md`.
 
+**WhatsApp messages use WhatsApp syntax, not markdown.** When asked to draft a WhatsApp message (e.g. to Dheeraj), format with WhatsApp markup: `*bold*` (single asterisk), `_italic_` (underscore), `~strikethrough~`, ` ```monospace``` `, `` `inline code` ``, bullets `* ` / `- `, numbered `1. `, quote `> `. No headings or tables (they don't render) — use `*bold*` emphasis lines + bullets. Markdown's `**bold**` shows literal asterisks in WhatsApp, so switch syntax for the whole draft. Memory: `feedback_whatsapp_formatting.md`.
+
 ---
 
 ## Tech Stack

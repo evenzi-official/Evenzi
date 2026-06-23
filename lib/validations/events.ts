@@ -102,6 +102,19 @@ export const createEventSchema = z.object({
     )
     .max(50, 'Too many sub-events (max 50)'),
   coverImageUrl: z.string().nullable().optional(),
+}).superRefine((data, ctx) => {
+  // M13 — a sub-event date can't cross the main Event Date. Only enforced when
+  // the primary date is set; otherwise the per-field today/+5y bounds apply.
+  if (!data.primaryDate) return
+  data.subEvents.forEach((se, i) => {
+    if (se.eventDate && se.eventDate > data.primaryDate!) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['subEvents', i, 'eventDate'],
+        message: 'Sub-event date can’t be after the main event date',
+      })
+    }
+  })
 })
 
 // Edit event API payload — partial edit of core details + a partial event_details merge.
