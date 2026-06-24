@@ -1,0 +1,26 @@
+{
+  "_note": "Backup of the 6 legacy app tables captured before the 2026-06-13 fresh-rebuild to the new data model (DATA-MODEL.md v2026-06-13.4). Dev/test data. auth.users (4 real logins) NOT included here — managed by Supabase, not dropped.",
+  "captured_at": "2026-06-13T17:26:55Z",
+  "user_profiles": [
+    {"id": "d09f7310-73a3-4352-b05f-67dc71e02048", "role": "host", "email": "ap171998@gmail.com", "phone": null, "display_name": "Abhijith Pramod", "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocLwtJNoXpIa2n-NQuWE2F0AmmPLFChGdpydHiGGpxyBYnYu-CT_fA=s96-c", "auth_provider": "google", "onboarding_completed": false},
+    {"id": "475f9ebb-6169-471f-a52f-c0e20e35792f", "role": "host", "email": null, "phone": "919999999999", "display_name": null, "avatar_url": null, "auth_provider": "phone", "onboarding_completed": false},
+    {"id": "9764db42-b5c4-4cc5-9218-5242bad37c59", "role": "host", "email": "evenzi.official@gmail.com", "phone": null, "display_name": "Evenzi", "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocJO6s-85JPt4o3x7E4RPaovxVO859JXCwkm2gOk5Pu86KVpEw=s96-c", "auth_provider": "google", "onboarding_completed": false},
+    {"id": "e776471a-af75-428e-ad6d-7c548868e53f", "role": "host", "email": "dheerajpgirish@gmail.com", "phone": null, "display_name": "Dheeraj P Girish", "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocJ9z1ZRq3iKzcVR8bfkYHt11EUY5p34anRGHoY8f-EYtu_xZd1X=s96-c", "auth_provider": "google", "onboarding_completed": false}
+  ],
+  "events": [
+    {"id": "c22f7717-88bd-4f48-80c8-1f8abd82f776", "name": "Aarav & Ishani's Wedding", "user_id": "475f9ebb-6169-471f-a52f-c0e20e35792f", "event_type": "wedding", "primary_date": null, "primary_venue": null, "guest_capacity": null, "status": "active"},
+    {"id": "81c6d9f4-a2df-4e42-ab8e-df70c3b705e1", "name": "A & B's Wedding", "user_id": "475f9ebb-6169-471f-a52f-c0e20e35792f", "event_type": "wedding", "primary_date": "2026-05-01", "primary_venue": "Kannur", "guest_capacity": 2000, "status": "active"},
+    {"id": "9822cbdd-ba94-4236-9e4c-17cf821340da", "name": "Dheeraj & Dheeraj's Wedding", "user_id": "e776471a-af75-428e-ad6d-7c548868e53f", "event_type": "wedding", "primary_date": "2026-06-10", "primary_venue": "Bangalore", "guest_capacity": 10, "status": "active"},
+    {"id": "41c5ea6f-5a32-489a-930b-5edaa666210a", "name": "Abhi & Abhi's Wedding", "user_id": "e776471a-af75-428e-ad6d-7c548868e53f", "event_type": "wedding", "primary_date": "2026-09-10", "primary_venue": "Kannur", "guest_capacity": 37, "status": "active"},
+    {"id": "dfdbd3d0-006e-4ea7-9305-b0be5698c6c9", "name": "A & B's Wedding", "user_id": "9764db42-b5c4-4cc5-9218-5242bad37c59", "event_type": "wedding", "primary_date": null, "primary_venue": null, "guest_capacity": 20, "status": "active"}
+  ],
+  "event_metadata": [
+    {"event_id": "c22f7717-88bd-4f48-80c8-1f8abd82f776", "partner_1_name": "Aarav", "partner_2_name": "Ishani"},
+    {"event_id": "81c6d9f4-a2df-4e42-ab8e-df70c3b705e1", "partner_1_name": "A", "partner_2_name": "B"},
+    {"event_id": "9822cbdd-ba94-4236-9e4c-17cf821340da", "partner_1_name": "Dheeraj", "partner_2_name": "Dheeraj"},
+    {"event_id": "41c5ea6f-5a32-489a-930b-5edaa666210a", "partner_1_name": "Abhi", "partner_2_name": "Abhi"},
+    {"event_id": "dfdbd3d0-006e-4ea7-9305-b0be5698c6c9", "partner_1_name": "A", "partner_2_name": "B"}
+  ],
+  "event_sub_events_count": 22,
+  "_event_sub_events_note": "22 rows across the 5 events, all unscheduled (date/time/venue null, status tbc). One custom row: event 41c5ea6f... has custom_name='Test'. Catalogs (event_types: 6, sub_event_types: 7 wedding) are re-seeded fresh in the new config schema, not restored from here."
+}

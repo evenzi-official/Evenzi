@@ -1,172 +1,56 @@
-'use client'
+import { createClient } from '@/lib/supabase/server'
+import {
+  mapEventTypeRow,
+  mapSubEventTypeRow,
+  type EventType,
+  type EventTypeRow,
+  type SubEventType,
+  type SubEventTypeRow,
+} from '@/lib/types/events'
+import { WizardShell } from './WizardShell'
 
-import { Suspense, useEffect, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { WizardProvider, useWizard } from '@/lib/contexts/WizardContext'
-import { WizardProgress } from './components/WizardProgress'
-import { Step1EventType } from './components/Step1EventType'
-import Step2BasicDetails from './components/Step2BasicDetails'
-import { Step3SubEvents } from './components/Step3SubEvents'
-import { Step4ReviewConfirm } from './components/Step4ReviewConfirm'
+// The event-types catalog is tiny + static — fetch it on the server so Step 1
+// renders instantly with no client round-trip / loading spinner (M1).
+//
+// Sub-event types are also tiny + static. The chosen event type is picked
+// client-side in Step 1, so we can't filter server-side — instead we fetch the
+// full enabled catalog and group it by event_type_id, then Step 3 reads its own
+// type's entries from the map with no client fetch / load delay (M14). If a
+// type isn't in the map (catalog miss), Step 3 falls back to its client fetch.
+export default async function CreateEventPage(): Promise<React.JSX.Element> {
+  const supabase = await createClient()
 
-// ---- Inner wizard content (needs useSearchParams, wrapped in Suspense) ----
+  const [typesRes, subTypesRes] = await Promise.all([
+    supabase
+      .schema('config')
+      .from('event_types')
+      .select('*')
+      .eq('enabled', true)
+      .order('display_order', { ascending: true }),
+    supabase
+      .schema('config')
+      .from('event_sub_types')
+      .select('*')
+      .eq('enabled', true)
+      .order('display_order', { ascending: true }),
+  ])
 
-function WizardContent(): React.JSX.Element {
-  const { state, dispatch } = useWizard()
-  const searchParams = useSearchParams()
-
-  // Track last synced step to prevent loops
-  const lastSyncedStep = useRef<number>(state.currentStep)
-
-  // URL → state: only on initial mount (read step from URL if present)
-  useEffect(() => {
-    const stepParam = searchParams.get('step')
-    if (stepParam) {
-      const step = parseInt(stepParam, 10)
-      if (!isNaN(step) && step >= 1 && step !== state.currentStep) {
-        dispatch({ type: 'GO_TO_STEP', payload: step })
-        lastSyncedStep.current = step
-      }
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // State → URL: use window.history.replaceState to avoid Next.js RSC refetch
-  useEffect(() => {
-    if (state.currentStep !== lastSyncedStep.current) {
-      lastSyncedStep.current = state.currentStep
-      const url = new URL(window.location.href)
-      url.searchParams.set('step', String(state.currentStep))
-      window.history.replaceState(null, '', url.toString())
-    }
-  }, [state.currentStep])
-
-  // Render active step
-  function renderStep(): React.JSX.Element {
-    switch (state.currentStep) {
-      case 1:
-        return <Step1EventType />
-      case 2:
-        return <Step2BasicDetails />
-      case 3:
-        if (state.eventType?.hasSubEvents) {
-          return <Step3SubEvents />
-        }
-        // No sub-events — step 3 is Review & Confirm
-        return <Step4ReviewConfirm />
-      case 4:
-        return <Step4ReviewConfirm />
-      default:
-        return <Step1EventType />
-    }
+  if (typesRes.error) {
+    console.error('CreateEventPage: failed to load event types:', typesRes.error)
+  }
+  if (subTypesRes.error) {
+    console.error('CreateEventPage: failed to load sub-event types:', subTypesRes.error)
   }
 
-  return (
-    <div className="flex flex-col min-h-screen" style={{ background: 'var(--color-bg-primary)' }}>
-      {/* Header */}
-      <header
-        className="w-full border-b"
-        style={{
-          background: 'var(--color-bg-card)',
-          borderColor: 'var(--color-border)',
-        }}
-      >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center relative">
-          <span
-            className="text-xl font-bold"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            Evenzi
-          </span>
-          <span
-            className="absolute left-1/2 -translate-x-1/2"
-            style={{
-              fontFamily: 'var(--font-manrope), sans-serif',
-              fontSize: '14px',
-              lineHeight: '20px',
-              letterSpacing: '3.5px',
-              color: 'var(--color-text-primary)',
-            }}
-          >
-            CELEBRATORY CURATOR
-          </span>
-        </div>
-      </header>
+  const eventTypes: EventType[] = ((typesRes.data as EventTypeRow[] | null) ?? []).map(mapEventTypeRow)
 
-      {/* Main content */}
-      <main className="flex-1 w-full">
-        {/* Progress stepper — sits between header and step content */}
-        <div
-          style={{
-            background: 'transparent',
-            marginTop: '40px',
-          }}
-        >
-          <WizardProgress />
-        </div>
-        {renderStep()}
-      </main>
+  // Group sub-types by their event_type_id for O(1) lookup in Step 3.
+  const subEventTypesByType: Record<string, SubEventType[]> = {}
+  for (const row of (subTypesRes.data as SubEventTypeRow[] | null) ?? []) {
+    const list = subEventTypesByType[row.event_type_id] ?? []
+    list.push(mapSubEventTypeRow(row))
+    subEventTypesByType[row.event_type_id] = list
+  }
 
-      {/* Footer */}
-      <footer
-        className="w-full border-t py-6"
-        style={{
-          background: 'var(--color-bg-card)',
-          borderColor: 'var(--color-border)',
-        }}
-      >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p
-            className="text-sm"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
-            © 2026 Evenzi. All rights reserved.
-          </p>
-          <nav className="flex items-center gap-4">
-            <a
-              href="/privacy"
-              className="text-sm hover:underline"
-              style={{ color: 'var(--color-text-muted)' }}
-            >
-              Privacy
-            </a>
-            <a
-              href="/terms"
-              className="text-sm hover:underline"
-              style={{ color: 'var(--color-text-muted)' }}
-            >
-              Terms
-            </a>
-            <a
-              href="/help"
-              className="text-sm hover:underline"
-              style={{ color: 'var(--color-text-muted)' }}
-            >
-              Help
-            </a>
-          </nav>
-        </div>
-      </footer>
-    </div>
-  )
-}
-
-// ---- WizardShell — public page export ----
-
-export default function CreateEventPage(): React.JSX.Element {
-  return (
-    <WizardProvider>
-      <Suspense
-        fallback={
-          <div
-            className="min-h-screen flex items-center justify-center"
-            style={{ background: 'var(--color-bg-primary)' }}
-          >
-            <div style={{ color: 'var(--color-text-muted)' }}>Loading wizard…</div>
-          </div>
-        }
-      >
-        <WizardContent />
-      </Suspense>
-    </WizardProvider>
-  )
+  return <WizardShell eventTypes={eventTypes} subEventTypesByType={subEventTypesByType} />
 }

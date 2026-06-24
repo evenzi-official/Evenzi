@@ -7,6 +7,18 @@
       "runtimeArgs": ["run", "dev"],
       "port": 3000,
       "autoPort": false
+    },
+    {
+      "name": "stitch-preview",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "cd ${workspaceFolder}/designs && python3 -m http.server 8770 --bind 127.0.0.1"],
+      "port": 8770
+    },
+    {
+      "name": "design",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "design"],
+      "port": 4000
     }
   ]
 }

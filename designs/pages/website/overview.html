@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Event Website · Anya &amp; Kabir</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Manage your Evenzi invitation website — choose a template, edit pages, share with guests." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<link rel="manifest" href="../../manifest.webmanifest" />
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="website.css" />
+</head>
+<body class="min-h-dvh bg-bg text-ink" data-page="website" data-section="website" data-wb-page="overview">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ────────────────────── FLOATING TOP NAV (Dashboard | Website) ────────────────────── -->
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner">
+
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+
+    <!-- View switcher — plain navigation, not a tablist (cross-page links). -->
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../event-control/event-control.html" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="overview.html" class="nav-tab is-active" aria-current="page" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+
+  </div>
+</nav>
+
+<!-- ────────────────────── FLOATING TOOL RAIL (consistent w/ Dashboard) ────────────────────── -->
+<aside class="tool-rail" aria-label="Event tools">
+  <a href="../guests/guests.html" class="tr-btn" data-label="Guest management" data-page="guests" aria-label="Guest management">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+  </a>
+  <a href="../invitations/invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations" aria-label="Invitations">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
+  </a>
+  <a href="../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning" aria-label="Planning">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
+  </a>
+  <a href="../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media" aria-label="Media &amp; memories">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
+  </a>
+  <a href="../event-settings/general.html" class="tr-btn" data-label="Event settings" data-page="event-settings" aria-label="Event settings">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+  </a>
+</aside>
+
+<!-- ────────────────────── BREADCRUMB (rich — canonical sub-page pattern) ────────────────────── -->
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event" data-bc-back data-bc-back-label="EVENT">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html" data-bc-link>ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        WEBSITE
+      </li>
+    </ol>
+    <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
+    <button type="button" class="bc-copy" aria-label="Copy page link" data-bc-copy data-bc-copy-path="https://evenzi.com/e/anya-kabir">
+      <span aria-hidden="true" class="material-symbols-outlined">content_copy</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ────────────────────── SECTION HEAD (canonical flat header) ────────────────────── -->
+<div class="page-band">
+<header class="section-head reveal">
+  <p class="section-head-eyebrow">Section</p>
+  <h1 class="section-head-title">Event Website</h1>
+  <p class="section-head-sub">Build a public site for guests to view event details and RSVP. Share it via WhatsApp when you're ready.</p>
+</header>
+</div>
+
+<!-- ────────────────────── WEBSITE MODULE SUB-NAV ────────────────────── -->
+<!-- Plain navigation across sibling pages of the Website module — not a tablist. -->
+<div class="seg-wrap seg-wrap--page reveal">
+  <nav class="seg" aria-label="Website sections">
+    <a href="overview.html" class="seg-item seg--page is-active" aria-current="page">
+      <span class="material-symbols-outlined" aria-hidden="true">tune</span>
+      <span>Overview</span>
+    </a>
+    <a href="design.html" class="seg-item seg--page">
+      <span class="material-symbols-outlined" aria-hidden="true">palette</span>
+      <span>Design</span>
+    </a>
+    <a href="photos.html" class="seg-item seg--page">
+      <span class="material-symbols-outlined" aria-hidden="true">photo_library</span>
+      <span>Photos</span>
+    </a>
+    <a href="card-templates.html" class="seg-item seg--page">
+      <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+      <span>Card Templates</span>
+    </a>
+  </nav>
+</div>
+
+<!-- ────────────────────── MAIN GRID ────────────────────── -->
+<main class="dp-shell reveal" id="wb-main">
+
+  <!-- LEFT COLUMN — order: Preview · Get Started · URL & Status · Card Templates teaser ─ -->
+  <div class="dp-col-left">
+
+    <!-- Live Preview (FIRST on mobile — what guests see is the most-asked question) -->
+    <section class="clay-card dp-card" id="preview" aria-labelledby="dp-prev-h">
+      <header class="dp-card-head">
+        <div>
+          <h2 id="dp-prev-h" class="dp-card-title">Live preview</h2>
+          <p class="dp-card-sub">What guests see when they open your site</p>
+        </div>
+        <div class="device-toggle" role="radiogroup" aria-label="Preview device">
+          <button type="button" class="device-toggle-btn is-active" role="radio" aria-checked="true" data-device="mobile" aria-label="Mobile preview">
+            <span class="material-symbols-outlined" aria-hidden="true">smartphone</span>
+          </button>
+          <button type="button" class="device-toggle-btn" role="radio" aria-checked="false" data-device="desktop" aria-label="Desktop preview">
+            <span class="material-symbols-outlined" aria-hidden="true">desktop_windows</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Static rendering of the public hero. Marked as an image group so the
+           preview button inside isn't keyboard-reachable / SR-announced. -->
+      <div class="dp-preview-stage" data-device-stage="mobile">
+        <div class="dp-preview-frame" role="img" aria-label="Preview: Anya &amp; Kabir public hero — names, date, countdown, Unlock Guest Details">
+          <div class="dp-preview-screen" aria-hidden="true">
+            <div class="dp-preview-content">
+              <p class="dpp-eyebrow">Wedding of</p>
+              <h3 class="dpp-couple">Anya &amp; Kabir</h3>
+              <p class="dpp-date">Sat, 14 Feb 2026</p>
+              <p class="dpp-countdown">268 days · 4 hrs</p>
+              <span class="dpp-unlock">Unlock Guest Details</span>
+              <p class="dpp-foot">Open this link to RSVP</p>
+            </div>
+          </div>
+        </div>
+        <div class="dp-preview-caption">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+          Public hero shows to anyone with the link. Private details unlock with phone match or password.
+        </div>
+      </div>
+    </section>
+
+    <!-- Get Started Checklist -->
+    <section class="clay-card dp-card" id="getstarted" aria-labelledby="dp-gs-h" data-gs-state="in-progress">
+      <header class="dp-card-head">
+        <div>
+          <h2 id="dp-gs-h" class="dp-card-title">Get started</h2>
+          <p class="dp-card-sub"><span id="dp-gs-done">3</span> of <span id="dp-gs-total">8</span> done</p>
+        </div>
+        <span class="dp-gs-meter" aria-hidden="true">
+          <span class="dp-gs-bar" data-p="37.5"></span>
+        </span>
+      </header>
+
+      <!-- All-done state markup — hidden until [data-gs-state="all-done"] flips it. -->
+      <div class="dp-gs-done-banner" role="status" aria-hidden="true">
+        <span class="material-symbols-outlined" aria-hidden="true">celebration</span>
+        <div>
+          <p class="dp-gs-done-title">You're all set.</p>
+          <p class="dp-gs-done-sub">Preview once more and publish to share with guests.</p>
+        </div>
+        <button class="btn-pill btn-pill-primary" type="button" data-dp-publish>
+          <span class="material-symbols-outlined" aria-hidden="true">rocket_launch</span>
+          Publish
+        </button>
+      </div>
+
+      <div class="dp-gs-grid" role="list">
+        <a href="#cover" class="gs-tile is-done" role="listitem">
+          <span class="gs-tile-icon" aria-hidden="true"><span class="material-symbols-outlined">image</span></span>
+          <span class="gs-tile-body">
+            <span class="gs-tile-label">Add a cover photo</span>
+            <span class="gs-tile-help">Hero image for the homepage</span>
+          </span>
+          <span class="gs-tile-state" aria-label="Done"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span></span>
+        </a>
+        <a href="#hero" class="gs-tile is-done" role="listitem">
+          <span class="gs-tile-icon" aria-hidden="true"><span class="material-symbols-outlined">edit</span></span>
+          <span class="gs-tile-body">
+            <span class="gs-tile-label">Edit hero copy</span>
+            <span class="gs-tile-help">Names, tagline, date</span>
+          </span>
+          <span class="gs-tile-state" aria-label="Done"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span></span>
+        </a>
+        <a href="#schedule" class="gs-tile is-done" role="listitem">
+          <span class="gs-tile-icon" aria-hidden="true"><span class="material-symbols-outlined">calendar_month</span></span>
+          <span class="gs-tile-body">
+            <span class="gs-tile-label">Add sub-events</span>
+            <span class="gs-tile-help">Mehendi, Ceremony, Reception…</span>
+          </span>
+          <span class="gs-tile-state" aria-label="Done"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span></span>
+        </a>
+        <a href="#wedding-party" class="gs-tile" role="listitem">
+          <span class="gs-tile-icon" aria-hidden="true"><span class="material-symbols-outlined">groups</span></span>
+          <span class="gs-tile-body">
+            <span class="gs-tile-label">Add wedding party</span>
+            <span class="gs-tile-help">Family + close people</span>
+          </span>
+          <span class="gs-tile-state" aria-hidden="true"><span class="material-symbols-outlined">chevron_right</span></span>
+        </a>
+        <a href="#password" class="gs-tile" role="listitem">
+          <span class="gs-tile-icon" aria-hidden="true"><span class="material-symbols-outlined">lock</span></span>
+          <span class="gs-tile-body">
+            <span class="gs-tile-label">Set a site password</span>
+            <span class="gs-tile-help">Optional — for extra privacy</span>
+          </span>
+          <span class="gs-tile-state" aria-hidden="true"><span class="material-symbols-outlined">chevron_right</span></span>
+        </a>
+        <a href="#qa" class="gs-tile" role="listitem">
+          <span class="gs-tile-icon" aria-hidden="true"><span class="material-symbols-outlined">question_answer</span></span>
+          <span class="gs-tile-body">
+            <span class="gs-tile-label">Add Q&amp;A</span>
+            <span class="gs-tile-help">Answer guest FAQs upfront</span>
+          </span>
+          <span class="gs-tile-state" aria-hidden="true"><span class="material-symbols-outlined">chevron_right</span></span>
+        </a>
+        <a href="photos.html" class="gs-tile" role="listitem">
+          <span class="gs-tile-icon" aria-hidden="true"><span class="material-symbols-outlined">photo_library</span></span>
+          <span class="gs-tile-body">
+            <span class="gs-tile-label">Upload first photos</span>
+            <span class="gs-tile-help">Build out the gallery</span>
+          </span>
+          <span class="gs-tile-state" aria-hidden="true"><span class="material-symbols-outlined">chevron_right</span></span>
+        </a>
+        <a href="#publish" class="gs-tile" role="listitem">
+          <span class="gs-tile-icon" aria-hidden="true"><span class="material-symbols-outlined">rocket_launch</span></span>
+          <span class="gs-tile-body">
+            <span class="gs-tile-label">Preview &amp; publish</span>
+            <span class="gs-tile-help">Take your site live</span>
+          </span>
+          <span class="gs-tile-state" aria-hidden="true"><span class="material-symbols-outlined">chevron_right</span></span>
+        </a>
+      </div>
+    </section>
+
+    <!-- URL & Status (third now — administrative; lower in hierarchy) -->
+    <section class="clay-card dp-card" aria-labelledby="dp-url-h">
+      <header class="dp-card-head dp-card-head-wrap">
+        <div class="dp-card-head-lead">
+          <h2 id="dp-url-h" class="dp-card-title">Site URL &amp; Status</h2>
+          <span class="status-badge status-draft" aria-label="Site status: Draft" id="wb-status-badge">
+            <span class="status-dot" aria-hidden="true"></span>
+            Draft
+          </span>
+        </div>
+        <div class="dp-card-head-actions">
+          <a href="#preview" class="btn-pill btn-pill-secondary btn-pill-sm" aria-label="Preview website">
+            <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+            Preview
+          </a>
+          <button type="button" class="btn-pill btn-pill-secondary btn-pill-sm" data-dp-publish aria-label="Publish settings — visibility and password">
+            <span class="material-symbols-outlined" aria-hidden="true">rocket_launch</span>
+            Publish
+          </button>
+          <button type="button" class="btn-pill btn-pill-primary btn-pill-sm" data-dp-share aria-label="Share — URL, WhatsApp message, QR">
+            <span class="material-symbols-outlined" aria-hidden="true">ios_share</span>
+            Share
+          </button>
+        </div>
+      </header>
+
+      <div class="dp-url-row">
+        <div class="dp-url-display">
+          <span class="dp-url-prefix">evenzi.com/e/</span>
+          <span class="dp-url-slug" id="dp-slug">vibrant-union</span>
+        </div>
+        <div class="dp-url-actions">
+          <button type="button" class="dp-icon-btn" data-dp-copy="https://evenzi.com/e/anya-kabir" aria-label="Copy URL">
+            <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
+          </button>
+          <button type="button" class="dp-icon-btn" data-dp-edit-slug aria-label="Edit URL slug">
+            <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+          </button>
+        </div>
+      </div>
+
+      <ul class="dp-status-list" aria-label="Site controls">
+        <li class="dp-status-row">
+          <div class="dp-status-meta">
+            <span class="dp-status-label" id="dp-vis-label">Visibility</span>
+            <span class="dp-status-help" id="dp-vis-help" aria-live="polite">Currently in Draft — only you can see it</span>
+          </div>
+          <button type="button" class="toggle-switch" role="switch" aria-checked="false" data-dp-toggle="visibility" aria-labelledby="dp-vis-label" aria-describedby="dp-vis-help">
+            <span class="toggle-switch-thumb" aria-hidden="true"></span>
+          </button>
+        </li>
+        <li class="dp-status-row">
+          <div class="dp-status-meta">
+            <span class="dp-status-label" id="dp-rsvp-label">RSVP collection</span>
+            <span class="dp-status-help" id="dp-rsvp-help" aria-live="polite">Accept responses from guests</span>
+          </div>
+          <button type="button" class="toggle-switch" role="switch" aria-checked="true" data-dp-toggle="rsvp" aria-labelledby="dp-rsvp-label" aria-describedby="dp-rsvp-help">
+            <span class="toggle-switch-thumb" aria-hidden="true"></span>
+          </button>
+        </li>
+        <li class="dp-status-row">
+          <div class="dp-status-meta">
+            <span class="dp-status-label" id="dp-pwd-label">Private content lock</span>
+            <span class="dp-status-help" id="dp-pwd-help" aria-live="polite">Guests need a phone match or password to unlock details</span>
+          </div>
+          <button type="button" class="toggle-switch" role="switch" aria-checked="true" data-dp-toggle="password" aria-labelledby="dp-pwd-label" aria-describedby="dp-pwd-help">
+            <span class="toggle-switch-thumb" aria-hidden="true"></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Card Templates teaser -->
+    <section class="clay-card dp-card dp-card-teaser" aria-labelledby="dp-ct-h">
+      <div class="dp-teaser-icon" aria-hidden="true">
+        <span class="material-symbols-outlined">mail</span>
+      </div>
+      <div class="dp-teaser-body">
+        <h2 id="dp-ct-h" class="dp-card-title">Need a printed-style invitation card?</h2>
+        <p class="dp-card-sub">Pick from our library of designer card templates — download as PDF or use them in WhatsApp invitations.</p>
+      </div>
+      <a href="card-templates.html" class="btn-pill btn-pill-secondary dp-teaser-cta">
+        Browse templates
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+      </a>
+    </section>
+
+  </div>
+
+  <!-- RIGHT COLUMN ──────────────────────────────────── -->
+  <aside class="dp-col-right" aria-label="Pages and Quick info">
+
+    <section class="clay-card dp-card dp-pages-card" aria-labelledby="dp-pages-h" data-pages-state="populated">
+      <header class="dp-card-head">
+        <div>
+          <h2 id="dp-pages-h" class="dp-card-title">Pages</h2>
+          <p class="dp-card-sub" aria-live="polite"><span id="dp-pages-count">9</span> total · drag to reorder</p>
+        </div>
+        <button type="button" class="dp-icon-btn dp-add-btn" data-dp-add-page aria-label="Add page">
+          <span class="material-symbols-outlined" aria-hidden="true">add</span>
+        </button>
+      </header>
+
+      <!-- Empty state markup (hidden by default; shown when data-pages-state="empty") -->
+      <div class="dp-pages-empty" aria-hidden="true">
+        <span class="material-symbols-outlined dp-pages-empty-icon" aria-hidden="true">web</span>
+        <p class="dp-pages-empty-title">No pages yet</p>
+        <p class="dp-pages-empty-help">Start with Home and RSVP — we'll set them up for you.</p>
+        <button type="button" class="btn-pill btn-pill-primary" data-dp-add-page>
+          <span class="material-symbols-outlined" aria-hidden="true">add</span>
+          Add first page
+        </button>
+      </div>
+
+      <ul class="dp-page-list" role="list">
+        <li class="page-list-row" data-page="home">
+          <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Home — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+          <div class="dp-page-meta">
+            <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">home</span>
+            <span class="dp-page-name">Home</span>
+            <span class="dp-page-tier dp-tier-public">Public</span>
+          </div>
+          <div class="dp-page-actions">
+            <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+            <button class="dp-icon-btn-sm" aria-label="Edit Home" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+          </div>
+        </li>
+        <li class="page-list-row" data-page="rsvp">
+          <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder RSVP — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+          <div class="dp-page-meta">
+            <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">how_to_reg</span>
+            <span class="dp-page-name">RSVP</span>
+            <span class="dp-page-tier dp-tier-private" title="Private — guest must unlock"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+          </div>
+          <div class="dp-page-actions">
+            <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+            <button class="dp-icon-btn-sm" aria-label="Edit RSVP" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+          </div>
+        </li>
+        <li class="page-list-row" data-page="schedule">
+          <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Schedule — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+          <div class="dp-page-meta">
+            <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">calendar_month</span>
+            <span class="dp-page-name">Schedule</span>
+            <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+          </div>
+          <div class="dp-page-actions">
+            <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+            <button class="dp-icon-btn-sm" aria-label="Edit Schedule" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+          </div>
+        </li>
+        <li class="page-list-row" data-page="story">
+          <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Story — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+          <div class="dp-page-meta">
+            <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">favorite</span>
+            <span class="dp-page-name">Story</span>
+            <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+          </div>
+          <div class="dp-page-actions">
+            <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+            <button class="dp-icon-btn-sm" aria-label="Edit Story" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+          </div>
+        </li>
+        <li class="page-list-row" data-page="wedding-party">
+          <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Wedding Party — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+          <div class="dp-page-meta">
+            <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">groups</span>
+            <span class="dp-page-name">Wedding Party</span>
+            <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+          </div>
+          <div class="dp-page-actions">
+            <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+            <button class="dp-icon-btn-sm" aria-label="Edit Wedding Party" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+          </div>
+        </li>
+        <li class="page-list-row is-hidden" data-page="venue">
+          <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Venue — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+          <div class="dp-page-meta">
+            <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">place</span>
+            <span class="dp-page-name">Venue</span>
+            <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+          </div>
+          <div class="dp-page-actions">
+            <button class="dp-icon-btn-sm" aria-label="Show page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility_off</span></button>
+            <button class="dp-icon-btn-sm" aria-label="Edit Venue" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+          </div>
+        </li>
+        <li class="page-list-row" data-page="travel">
+          <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Travel and Stay — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+          <div class="dp-page-meta">
+            <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">hotel</span>
+            <span class="dp-page-name">Travel &amp; Stay</span>
+            <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+          </div>
+          <div class="dp-page-actions">
+            <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+            <button class="dp-icon-btn-sm" aria-label="Edit Travel and Stay" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+          </div>
+        </li>
+        <li class="page-list-row" data-page="qa">
+          <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Q and A — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+          <div class="dp-page-meta">
+            <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">question_answer</span>
+            <span class="dp-page-name">Q &amp; A</span>
+            <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+          </div>
+          <div class="dp-page-actions">
+            <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+            <button class="dp-icon-btn-sm" aria-label="Edit Q and A" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+          </div>
+        </li>
+        <li class="page-list-row" data-page="gallery">
+          <button class="dp-drag" type="button" aria-disabled="true" title="Drag to reorder (keyboard reorder coming soon)" aria-label="Reorder Gallery — drag only for now"><span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span></button>
+          <div class="dp-page-meta">
+            <span class="material-symbols-outlined dp-page-icon" aria-hidden="true">collections</span>
+            <span class="dp-page-name">Gallery</span>
+            <span class="dp-page-tier dp-tier-private"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Private</span>
+          </div>
+          <div class="dp-page-actions">
+            <button class="dp-icon-btn-sm" aria-label="Hide page" type="button" data-dp-row-toggle><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+            <button class="dp-icon-btn-sm" aria-label="Edit Gallery" type="button" data-dp-row-edit><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+          </div>
+        </li>
+      </ul>
+
+      <button class="dp-add-page-cta" type="button" data-dp-add-page>
+        <span class="material-symbols-outlined" aria-hidden="true">add</span>
+        Add page
+      </button>
+    </section>
+
+    <section class="dp-tip-card" aria-labelledby="dp-tip-h">
+      <span class="material-symbols-outlined dp-tip-icon" aria-hidden="true">lightbulb</span>
+      <div>
+        <h3 id="dp-tip-h" class="dp-tip-title">Tip</h3>
+        <p class="dp-tip-body">Personalised guest links unlock the site automatically — no password needed. Add guests in <a href="../guests/guests.html">Guest Management</a> to send them.</p>
+      </div>
+    </section>
+
+  </aside>
+</main>
+
+<!-- ══════════════════════ MODALS ══════════════════════
+     Cross-cutting modals (Share, Publish settings, Publish-confirm,
+     Discard) are injected by website.js — single source across every
+     Website-module tab. Do not paste markup back here.
+-->
+
+<!-- ────────────────────── FOOTER ────────────────────── -->
+<footer class="dp-foot reveal">
+  <p>© 2026 Evenzi · Crafted with care</p>
+</footer>
+
+<!-- Help FAB -->
+<button class="help-fab" type="button" aria-label="Need help?">
+  <span class="material-symbols-outlined" aria-hidden="true">help</span>
+</button>
+
+<!-- Shell toast (canonical — driven by window.evzToast() in shell.js) -->
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text"></span>
+</div>
+
+<script src="../../shared/shell.js" defer></script>
+<script src="website.js" defer></script>
+</body>
+</html>

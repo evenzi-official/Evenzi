@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Host Dashboard</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Your Evenzi host dashboard — events you own and collaborate on." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="stylesheet" href="shared/tailwind.css" />
+<link rel="stylesheet" href="shared/shell.css" />
+<link rel="stylesheet" href="index.css" />
+</head>
+<body data-page="dashboard" data-section="dashboard" data-ownership="my" data-time="active">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ────────────────────── DASHBOARD NAV (no center tabs; +Create Event CTA) ────────────────────── -->
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner dash-nav-inner">
+    <a href="index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+
+    <span aria-hidden="true"></span><!-- center spacer -->
+
+    <div class="fn-actions">
+      <a href="pages/create-event/step-1-type.html" class="dash-create-btn" aria-label="Create new event">
+        <span aria-hidden="true" class="material-symbols-outlined">add</span>
+        <span class="dash-create-label">Create event</span>
+      </a>
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <a href="pages/settings/settings.html" aria-label="Account settings" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">settings</span>
+      </a>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ────────────────────── PAGE BODY ────────────────────── -->
+<main class="page-band pt-10 md:pt-14 pb-20">
+
+  <header class="section-head reveal">
+    <p class="section-head-eyebrow">Welcome back, Abhijith</p>
+    <h1 class="section-head-title" id="dash-title">Your Events</h1>
+    <p class="section-head-sub">Everything you're hosting, planning and helping with — in one place.</p>
+  </header>
+
+    <!-- Filter row: ownership + time. Two independent radiogroups (4 combos),
+         not tabs — there are no tabpanels matching tabs 1:1. -->
+    <div class="filter-row reveal">
+      <div class="seg seg--fill" role="radiogroup" aria-label="Ownership filter">
+        <button type="button" role="radio" data-set-ownership="my" class="seg-item is-active" aria-checked="true">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill dash-filter-icon">home_pin</span>
+          <span>My events</span>
+        </button>
+        <button type="button" role="radio" data-set-ownership="collab" class="seg-item" aria-checked="false">
+          <span aria-hidden="true" class="material-symbols-outlined dash-filter-icon">groups</span>
+          <span>Collaborations</span>
+        </button>
+      </div>
+      <div class="seg seg--fill" role="radiogroup" aria-label="Time filter">
+        <button type="button" role="radio" data-set-time="active" class="seg-item is-active" aria-checked="true">
+          <span>Active</span>
+        </button>
+        <button type="button" role="radio" data-set-time="past" class="seg-item" aria-checked="false">
+          <span>Past</span>
+        </button>
+      </div>
+    </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       VIEW SECTIONS — only one visible at a time, driven by body[data-*]
+       ════════════════════════════════════════════════════════════════════ -->
+
+  <!-- ─────── MY EVENTS · ACTIVE ─────── -->
+  <section class="event-grid event-section reveal mt-10 md:mt-12" data-section="my-active" aria-label="My active events">
+
+    <!-- Featured: Anya & Kabir's Wedding -->
+    <article class="featured-event-card">
+      <div class="fec-cover" aria-hidden="true"></div>
+      <div class="fec-body">
+        <div class="fec-head">
+          <div class="fec-head-text">
+            <p class="fec-type-eyebrow">Wedding · Final preparations</p>
+            <h2 class="fec-title"><a href="pages/event-control/event-control.html" class="fec-link-stretched">Anya &amp; Kabir's Wedding</a></h2>
+          </div>
+          <span class="fec-countdown">
+            <span aria-hidden="true" class="material-symbols-outlined icon-fill">timer</span>
+            45 days to go
+          </span>
+        </div>
+
+        <div class="fec-meta">
+          <span class="hero-meta-chip">
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">location_on</span></span>
+            <span class="hero-meta-text">
+              <span class="hero-meta-label">Venue</span>
+              <span class="hero-meta-value">Rajasthan Heritage Palace</span>
+            </span>
+          </span>
+          <span class="hero-meta-chip">
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">calendar_month</span></span>
+            <span class="hero-meta-text">
+              <span class="hero-meta-label">Date</span>
+              <span class="hero-meta-value">Sat · Dec 22, 2025</span>
+            </span>
+          </span>
+          <span class="hero-meta-chip">
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">groups</span></span>
+            <span class="hero-meta-text">
+              <span class="hero-meta-label">Guests</span>
+              <span class="hero-meta-value">184 confirmed</span>
+            </span>
+          </span>
+        </div>
+
+        <div class="fec-progress">
+          <div class="fec-progress-head">
+            <span class="fec-progress-label">Planning progress</span>
+            <span class="fec-progress-val">68% · 12 of 18 tasks done</span>
+          </div>
+          <div class="fec-progress-track"><span class="fec-progress-fill fec-progress-fill--68"></span></div>
+        </div>
+
+        <div class="fec-bottom">
+          <a href="pages/event-control/event-control.html" class="fec-upnext">
+            <span aria-hidden="true" class="material-symbols-outlined">bolt</span>
+            <span class="fec-upnext-text"><strong>Up next</strong> · Confirm caterer headcount · due in 3 days</span>
+          </a>
+          <div class="fec-actions">
+            <a href="pages/website/overview.html" class="btn-pill btn-pill-secondary">
+              <span aria-hidden="true" class="material-symbols-outlined">language</span>
+              Live website
+            </a>
+            <a href="pages/event-control/event-control.html" class="btn-pill btn-pill-primary">
+              Manage event
+              <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <div class="event-side">
+    <!-- Compact: Sarah's 30th -->
+    <a href="#" class="compact-event-card">
+      <div class="cec-body">
+        <span class="cec-status">
+          <span class="dot" aria-hidden="true"></span>
+          Upcoming
+        </span>
+        <p class="cec-type">Birthday celebration</p>
+        <p class="cec-title">Sarah's 30th</p>
+        <p class="cec-meta-line">
+          <span aria-hidden="true" class="material-symbols-outlined">calendar_month</span>
+          Sat · Nov 15, 2025
+        </p>
+        <p class="cec-meta-line">
+          <span aria-hidden="true" class="material-symbols-outlined">groups</span>
+          ₹35,000 budget · 28 guests
+        </p>
+        <div class="cec-bottom">
+          <span class="cec-action">
+            Manage
+            <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+          </span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Compact: Tech Summit 2024 -->
+    <a href="#" class="compact-event-card">
+      <div class="cec-body">
+        <span class="cec-status cec-status-active">
+          <span class="dot" aria-hidden="true"></span>
+          Active planning
+        </span>
+        <p class="cec-type">Corporate · Conference</p>
+        <p class="cec-title">Tech Summit 2024</p>
+        <p class="cec-meta-line">
+          <span aria-hidden="true" class="material-symbols-outlined">location_on</span>
+          Bangalore Convention Centre
+        </p>
+        <p class="cec-meta-line">
+          <span aria-hidden="true" class="material-symbols-outlined">calendar_month</span>
+          Mar 14, 2026
+        </p>
+        <div class="cec-bottom">
+          <span class="cec-action">
+            View details
+            <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+          </span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Empty CTA: New project -->
+    <a href="pages/create-event/step-1-type.html" class="empty-cta-card">
+      <span aria-hidden="true" class="empty-cta-icon">
+        <span class="material-symbols-outlined">add</span>
+      </span>
+      <span class="empty-cta-title">Start a new event</span>
+      <span class="empty-cta-sub">Wedding, birthday, conference, or anything you're hosting.</span>
+    </a>
+    </div>
+  </section>
+
+  <!-- ─────── MY EVENTS · PAST ─────── -->
+  <section class="event-grid event-section reveal mt-10 md:mt-12" data-section="my-past" aria-label="My past events">
+
+    <!-- Featured: The Kapoor Wedding -->
+    <article class="featured-event-card">
+      <div class="fec-cover" aria-hidden="true">
+        <span class="fec-cover-tag fec-status-done">
+          <span aria-hidden="true" class="material-symbols-outlined fec-cover-tag-icon">check_circle</span>
+          Completed
+        </span>
+      </div>
+      <div class="fec-body">
+        <div class="fec-head">
+          <div class="fec-head-text">
+            <p class="fec-type-eyebrow">Wedding · Held Feb 14, 2024</p>
+            <h2 class="fec-title"><a href="#" class="fec-link-stretched">The Kapoor Wedding</a></h2>
+          </div>
+          <span class="fec-countdown fec-countdown-muted">
+            <span aria-hidden="true" class="material-symbols-outlined">history</span>
+            Held 21 months ago
+          </span>
+        </div>
+
+        <div class="fec-meta">
+          <span class="hero-meta-chip">
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">location_on</span></span>
+            <span class="hero-meta-text">
+              <span class="hero-meta-label">Venue</span>
+              <span class="hero-meta-value">The Grand Ballroom, Mumbai</span>
+            </span>
+          </span>
+          <span class="hero-meta-chip">
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">calendar_month</span></span>
+            <span class="hero-meta-text">
+              <span class="hero-meta-label">Date</span>
+              <span class="hero-meta-value">Wed · Feb 14, 2024</span>
+            </span>
+          </span>
+          <span class="hero-meta-chip">
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">groups</span></span>
+            <span class="hero-meta-text">
+              <span class="hero-meta-label">Final attendance</span>
+              <span class="hero-meta-value">242 guests</span>
+            </span>
+          </span>
+        </div>
+
+        <div class="fec-bottom">
+          <div class="fec-actions">
+            <a href="#" class="btn-pill btn-pill-secondary">
+              <span aria-hidden="true" class="material-symbols-outlined">photo_library</span>
+              Photo gallery
+            </a>
+            <a href="#" class="btn-pill btn-pill-primary">
+              Event report
+              <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <div class="event-side">
+    <!-- Compact: Annual Tech Summit 2025 -->
+    <a href="#" class="compact-event-card">
+      <div class="cec-body">
+        <span class="cec-status cec-status-archived">
+          <span class="dot" aria-hidden="true"></span>
+          Archived · Jan 2025
+        </span>
+        <p class="cec-type">Corporate · Final budget ₹16.5L</p>
+        <p class="cec-title">Annual Tech Summit 2025</p>
+        <p class="cec-meta-line">
+          <span aria-hidden="true" class="material-symbols-outlined">verified_user</span>
+          Co-organiser
+        </p>
+        <div class="cec-bottom">
+          <span class="cec-action">
+            View summary
+            <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+          </span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Compact: Summer Gala 2024 -->
+    <a href="#" class="compact-event-card">
+      <div class="cec-body">
+        <span class="cec-status cec-status-archived">
+          <span class="dot" aria-hidden="true"></span>
+          Archived · Aug 2024
+        </span>
+        <p class="cec-type">Charity fundraiser</p>
+        <p class="cec-title">Summer Gala 2024</p>
+        <p class="cec-meta-line">
+          <span aria-hidden="true" class="material-symbols-outlined">payments</span>
+          ₹4.8L raised
+        </p>
+        <div class="cec-bottom">
+          <span class="cec-action">
+            View archive
+            <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+          </span>
+        </div>
+      </div>
+    </a>
+    </div>
+  </section>
+
+  <!-- ─────── COLLABORATIONS · ACTIVE ─────── -->
+  <section class="event-grid event-section reveal mt-10 md:mt-12" data-section="collab-active" aria-label="Active collaborations">
+
+    <!-- Featured: Mehta & Shah Sangeet -->
+    <article class="featured-event-card fec-collab">
+      <div class="fec-cover" aria-hidden="true"></div>
+      <div class="fec-body">
+        <div class="fec-head">
+          <div class="fec-head-text">
+            <p class="fec-type-eyebrow">Wedding sangeet · Planning</p>
+            <h2 class="fec-title"><a href="#" class="fec-link-stretched">Mehta &amp; Shah Sangeet</a></h2>
+          </div>
+          <span class="fec-countdown">
+            <span aria-hidden="true" class="material-symbols-outlined icon-fill">timer</span>
+            12 days to go
+          </span>
+        </div>
+
+        <div class="fec-collab-sub fec-collab-only">
+          <p class="fec-role-tag">
+            <span aria-hidden="true" class="material-symbols-outlined">handshake</span>
+            Collaborator · Budget Manager
+          </p>
+          <div class="fec-people">
+            <div class="avatar-stack" aria-label="Other collaborators">
+              <span class="avatar-stack-item">M</span>
+              <span class="avatar-stack-item">S</span>
+              <span class="avatar-stack-item">A</span>
+            </div>
+            <span class="avatar-stack-overflow">+2</span>
+          </div>
+        </div>
+
+        <div class="fec-meta">
+          <span class="hero-meta-chip">
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">location_on</span></span>
+            <span class="hero-meta-text">
+              <span class="hero-meta-label">Venue</span>
+              <span class="hero-meta-value">The Grand Ballroom, Mumbai</span>
+            </span>
+          </span>
+          <span class="hero-meta-chip">
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">calendar_month</span></span>
+            <span class="hero-meta-text">
+              <span class="hero-meta-label">Date</span>
+              <span class="hero-meta-value">Sat · Nov 15, 2025</span>
+            </span>
+          </span>
+          <span class="hero-meta-chip">
+            <span class="hero-meta-icon"><span class="material-symbols-outlined icon-fill dash-meta-icon">groups</span></span>
+            <span class="hero-meta-text">
+              <span class="hero-meta-label">Guests</span>
+              <span class="hero-meta-value">280 invited</span>
+            </span>
+          </span>
+        </div>
+
+        <div class="fec-progress">
+          <div class="fec-progress-head">
+            <span class="fec-progress-label">Budget used</span>
+            <span class="fec-progress-val">62% · ₹3.1L of ₹5L</span>
+          </div>
+          <div class="fec-progress-track"><span class="fec-progress-fill fec-progress-fill--62"></span></div>
+        </div>
+
+        <div class="fec-bottom">
+          <a href="#" class="fec-upnext">
+            <span aria-hidden="true" class="material-symbols-outlined">bolt</span>
+            <span class="fec-upnext-text"><strong>Up next</strong> · Approve florist quote · due in 2 days</span>
+          </a>
+          <div class="fec-actions">
+            <a href="#" class="btn-pill btn-pill-secondary">
+              <span aria-hidden="true" class="material-symbols-outlined">checklist_rtl</span>
+              My tasks
+            </a>
+            <a href="#" class="btn-pill btn-pill-primary">
+              Open dashboard
+              <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <div class="event-side">
+    <!-- Compact: Corporate Gala 2026 -->
+    <a href="#" class="compact-event-card">
+      <div class="cec-body">
+        <span class="cec-status cec-status-active">
+          <span class="dot" aria-hidden="true"></span>
+          Active · Logistics
+        </span>
+        <p class="cec-type">Corporate · Annual summit</p>
+        <p class="cec-title">Corporate Gala 2026</p>
+        <p class="cec-meta-line">
+          <span aria-hidden="true" class="material-symbols-outlined">badge</span>
+          Logistics support · 500 guests
+        </p>
+        <p class="cec-meta-line">
+          <span aria-hidden="true" class="material-symbols-outlined">calendar_month</span>
+          Apr 22, 2026
+        </p>
+        <div class="cec-bottom">
+          <div class="flex items-center gap-2">
+            <div class="avatar-stack">
+              <span class="avatar-stack-item avatar-stack-item--sm">JD</span>
+              <span class="avatar-stack-item avatar-stack-item--sm">AL</span>
+            </div>
+          </div>
+          <span class="cec-action">
+            View details
+            <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+          </span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Empty CTA: Join with code -->
+    <a href="#" class="empty-cta-card">
+      <span aria-hidden="true" class="empty-cta-icon empty-cta-icon--join">
+        <span class="material-symbols-outlined">key</span>
+      </span>
+      <span class="empty-cta-title">Join with code</span>
+      <span class="empty-cta-sub">Got an invite from a friend or organiser? Paste the code to start collaborating.</span>
+    </a>
+    </div>
+  </section>
+
+  <!-- ─────── COLLABORATIONS · PAST ─────── -->
+  <section class="event-grid event-section reveal mt-10 md:mt-12" data-section="collab-past" aria-label="Past collaborations">
+    <div class="nothing-yet">
+      <span class="nothing-yet-icon" aria-hidden="true">
+        <span class="material-symbols-outlined">history</span>
+      </span>
+      <p class="nothing-yet-title">No past collaborations yet</p>
+      <p class="nothing-yet-sub">Once events you've collaborated on wrap up, they'll show here with archives, your role and final reports.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ────────────────────── FOOTER ────────────────────── -->
+<footer class="page-band mt-20 pt-10 pb-10 border-t border-line">
+  <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="flex items-center gap-3">
+      <span aria-hidden="true" class="w-9 h-9 shrink-0 rounded-full bg-brand text-white inline-flex items-center justify-center font-display font-bold">E</span>
+      <p class="text-sm text-muted font-semibold">© 2026 Evenzi · Capture · Share · Cherish</p>
+    </div>
+    <div class="flex items-center gap-6 text-xs font-bold tracking-widest text-muted uppercase">
+      <a href="#" class="hover:text-brand transition-colors">Privacy</a>
+      <a href="#" class="hover:text-brand transition-colors">Terms</a>
+      <a href="#" class="hover:text-brand transition-colors">Help</a>
+    </div>
+  </div>
+</footer>
+
+<button aria-label="Open help center" class="help-fab">
+  <span aria-hidden="true" class="material-symbols-outlined icon-fill">support_agent</span>
+</button>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">PATH COPIED</span>
+</div>
+
+<script src="shared/shell.js"></script>
+<script src="index.js"></script>
+</body>
+</html>

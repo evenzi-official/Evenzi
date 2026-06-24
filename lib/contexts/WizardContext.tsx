@@ -3,6 +3,25 @@
 import React, { createContext, useContext, useReducer } from 'react'
 import type { EventType, SelectedSubEvent } from '@/lib/types/events'
 
+// Per-celebration scheduling captured in Step 3 modals (M5). Extends the shared
+// SelectedSubEvent (lib/types) with the optional date / time / venue / custom
+// description fields the create payload persists into `event_sub_events`.
+export interface WizardSubEvent extends SelectedSubEvent {
+  clientId: string
+  eventDate: string | null  // ISO YYYY-MM-DD
+  startTime: string | null  // 24h HH:MM
+  endTime: string | null    // 24h HH:MM
+  venue: string | null
+  venueAddress: string | null
+  customDesc: string | null
+}
+
+let subEventSeq = 0
+function nextClientId(): string {
+  subEventSeq += 1
+  return `se_${Date.now().toString(36)}_${subEventSeq}`
+}
+
 // --- State ---
 
 export interface WizardState {
@@ -10,13 +29,15 @@ export interface WizardState {
   totalSteps: number
   eventType: EventType | null
   basicDetails: {
+    /** Optional explicit event title (M3). Falls back to auto-derived name when blank. */
     eventTitle: string | null
     primaryDate: string | null
     primaryVenue: string | null
     guestCapacity: number | null
     metadata: Record<string, string>
+    coverImageUrl: string | null
   }
-  selectedSubEvents: SelectedSubEvent[]
+  selectedSubEvents: WizardSubEvent[]
 }
 
 export const initialWizardState: WizardState = {
@@ -29,21 +50,44 @@ export const initialWizardState: WizardState = {
     primaryVenue: null,
     guestCapacity: null,
     metadata: {},
+    coverImageUrl: null,
   },
   selectedSubEvents: [],
 }
 
 // --- Actions ---
 
+export interface SubEventMetaPayload {
+  eventDate?: string | null
+  startTime?: string | null
+  endTime?: string | null
+  venue?: string | null
+  venueAddress?: string | null
+}
+
 export type WizardAction =
   | { type: 'SET_EVENT_TYPE'; payload: EventType }
   | { type: 'SET_BASIC_DETAILS'; payload: WizardState['basicDetails'] }
   | { type: 'TOGGLE_SUB_EVENT'; payload: { subEventTypeId: string; name: string; iconName: string | null } }
-  | { type: 'ADD_CUSTOM_SUB_EVENT'; payload: { name: string } }
-  | { type: 'REMOVE_CUSTOM_SUB_EVENT'; payload: { index: number } }
+  | { type: 'ADD_CUSTOM_SUB_EVENT'; payload: { name: string; customDesc?: string | null } }
+  | { type: 'REMOVE_CUSTOM_SUB_EVENT'; payload: { clientId: string } }
+  | { type: 'SET_SUB_EVENT_META'; payload: { clientId: string } & SubEventMetaPayload }
   | { type: 'SET_DEFAULT_SUB_EVENTS'; payload: SelectedSubEvent[] }
   | { type: 'GO_TO_STEP'; payload: number }
   | { type: 'RESET' }
+
+function toWizardSubEvent(se: SelectedSubEvent): WizardSubEvent {
+  return {
+    ...se,
+    clientId: nextClientId(),
+    eventDate: null,
+    startTime: null,
+    endTime: null,
+    venue: null,
+    venueAddress: null,
+    customDesc: null,
+  }
+}
 
 // --- Reducer ---
 
@@ -84,7 +128,7 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
           ...state,
           selectedSubEvents: [
             ...state.selectedSubEvents,
-            { subEventTypeId, customName: null, name, iconName },
+            toWizardSubEvent({ subEventTypeId, customName: null, name, iconName }),
           ],
         }
       }
@@ -96,20 +140,41 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
         selectedSubEvents: [
           ...state.selectedSubEvents,
           {
-            subEventTypeId: null,
-            customName: action.payload.name,
-            name: action.payload.name,
-            iconName: null,
+            ...toWizardSubEvent({
+              subEventTypeId: null,
+              customName: action.payload.name,
+              name: action.payload.name,
+              iconName: null,
+            }),
+            customDesc: action.payload.customDesc ?? null,
           },
         ],
       }
     }
 
     case 'REMOVE_CUSTOM_SUB_EVENT': {
-      const { index } = action.payload
+      const { clientId } = action.payload
       return {
         ...state,
-        selectedSubEvents: state.selectedSubEvents.filter((_, i) => i !== index),
+        selectedSubEvents: state.selectedSubEvents.filter((se) => se.clientId !== clientId),
+      }
+    }
+
+    case 'SET_SUB_EVENT_META': {
+      const { clientId, ...meta } = action.payload
+      return {
+        ...state,
+        selectedSubEvents: state.selectedSubEvents.map((se) => {
+          if (se.clientId !== clientId) return se
+          return {
+            ...se,
+            ...(meta.eventDate !== undefined ? { eventDate: meta.eventDate } : {}),
+            ...(meta.startTime !== undefined ? { startTime: meta.startTime } : {}),
+            ...(meta.endTime !== undefined ? { endTime: meta.endTime } : {}),
+            ...(meta.venue !== undefined ? { venue: meta.venue } : {}),
+            ...(meta.venueAddress !== undefined ? { venueAddress: meta.venueAddress } : {}),
+          }
+        }),
       }
     }
 
@@ -120,7 +185,7 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
       }
       return {
         ...state,
-        selectedSubEvents: action.payload,
+        selectedSubEvents: action.payload.map(toWizardSubEvent),
       }
     }
 

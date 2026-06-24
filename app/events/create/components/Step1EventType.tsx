@@ -1,277 +1,167 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import type { EventType } from '@/lib/types/events'
 import { useWizard } from '@/lib/contexts/WizardContext'
 import { EventTypeCard } from './EventTypeCard'
 
-export function Step1EventType(): React.JSX.Element {
+const PAGE_SIZE = 3
+
+interface Step1EventTypeProps {
+  eventTypes: EventType[]
+}
+
+export function Step1EventType({ eventTypes }: Step1EventTypeProps): React.JSX.Element {
   const { state, dispatch } = useWizard()
-  const [eventTypes, setEventTypes] = useState<EventType[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [somethingElseSelected, setSomethingElseSelected] = useState(false)
-  const [customTitle, setCustomTitle] = useState('')
-  const titleInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    async function fetchEventTypes(): Promise<void> {
-      try {
-        setLoading(true)
-        setError(null)
-        const res = await fetch('/api/event-types')
-        if (!res.ok) throw new Error(`Failed to load event types (${res.status})`)
-        const data = (await res.json()) as { eventTypes: EventType[] }
-        setEventTypes(data.eventTypes)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load event types')
-      } finally {
-        setLoading(false)
-      }
+  // Open on the page holding the already-selected type (computed at mount from
+  // server-provided props — no effect needed).
+  const [page, setPage] = useState<number>(() => {
+    if (state.eventType && eventTypes.length > 0) {
+      const idx = eventTypes.findIndex((et) => et.id === state.eventType!.id)
+      if (idx >= 0) return Math.floor(idx / PAGE_SIZE)
     }
-    void fetchEventTypes()
-  }, [])
+    return 0
+  })
 
-  function handleSelectCard(eventType: EventType): void {
-    setSomethingElseSelected(false)
+  const totalPages = Math.ceil(eventTypes.length / PAGE_SIZE)
+  const visibleCards = eventTypes.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+  const canPrev = page > 0
+  const canNext = page < totalPages - 1
+
+  function handleSelect(eventType: EventType): void {
     dispatch({ type: 'SET_EVENT_TYPE', payload: eventType })
   }
 
-  function handleSelectSomethingElse(): void {
-    setSomethingElseSelected(true)
-    setTimeout(() => titleInputRef.current?.focus(), 50)
-  }
-
-  function handleProceed(): void {
-    if (somethingElseSelected) {
-      const customType: EventType = {
-        id: 'custom',
-        name: customTitle.trim() || 'Custom Event',
-        slug: 'custom',
-        description: null,
-        iconName: null,
-        imageUrl: null,
-        enabled: true,
-        hasSubEvents: false,
-        formSchema: [],
-        features: [],
-        displayOrder: 999,
-      }
-      dispatch({ type: 'SET_EVENT_TYPE', payload: customType })
-    }
+  function handleContinue(): void {
+    if (!state.eventType) return
     dispatch({ type: 'GO_TO_STEP', payload: 2 })
   }
 
-  const canProceed =
-    (!!state.eventType && !somethingElseSelected) ||
-    (somethingElseSelected && customTitle.trim().length > 0)
+  const navBtn = (active: boolean): React.CSSProperties => ({
+    width: 36, height: 36, borderRadius: '50%',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+    background: 'var(--card)',
+    border: '1px solid var(--line)',
+    color: 'var(--ink)',
+    cursor: active ? 'pointer' : 'default',
+    opacity: active ? 1 : 0.3,
+    transition: 'opacity .2s, background-color .2s',
+    appearance: 'none',
+  })
 
-  if (loading) {
+  // Server-rendered catalog should always be present. If it's empty, the
+  // fetch failed upstream — show the SK3 event-card skeleton template rather
+  // than a hand-rolled spinner (M1).
+  if (eventTypes.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-4">
-        <div
-          className="w-8 h-8 rounded-full border-2 animate-spin"
-          style={{ borderColor: 'var(--color-border)', borderTopColor: 'transparent' }}
-          role="status"
-          aria-label="Loading event types"
-        />
-        <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-          Loading event types…
-        </p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div
-        className="mx-auto max-w-md mt-16 p-6 rounded-xl border text-center"
-        style={{ background: 'var(--color-error-bg)', borderColor: 'var(--color-error-border)' }}
-        role="alert"
-      >
-        <p className="text-sm font-medium" style={{ color: 'var(--color-error)' }}>{error}</p>
-        <button
-          type="button"
-          onClick={() => window.location.reload()}
-          className="mt-4 px-4 py-2 text-sm font-medium rounded-lg transition-opacity hover:opacity-80"
-          style={{ background: 'var(--color-text-primary)', color: '#ffffff' }}
-        >
-          Try again
-        </button>
-      </div>
+      <section className="clay-card cc-card" aria-busy="true" aria-label="Loading event types">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i}>
+              <div className="skeleton skeleton-block" style={{ aspectRatio: '1 / 1', borderRadius: 16 }} />
+              <div className="skeleton skeleton-line skeleton-line-lg mt-4" style={{ width: '70%' }} />
+              <div className="skeleton skeleton-line skeleton-line-sm mt-3" style={{ width: '50%' }} />
+            </div>
+          ))}
+        </div>
+      </section>
     )
   }
 
   return (
-    <section className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-
-      {/* Heading */}
-      <div className="mb-10 text-center">
-        <h1
-          className="font-normal text-center mb-4"
-          style={{
-            fontFamily: 'var(--font-manrope), sans-serif',
-            fontSize: '48px',
-            lineHeight: '48px',
-            letterSpacing: '-1.2px',
-            color: '#1a1a1a',
-          }}
-        >
-          What type of event<br />
-          are you{' '}
-          <span style={{ color: 'var(--color-text-primary)' }}>planning?</span>
-        </h1>
-        <p className="text-base" style={{ color: 'var(--color-text-secondary)' }}>
-          Choose an event type to unlock curated templates and expert<br />
-          planning tools tailored for your celebration.
+    <section className="clay-card cc-card" aria-labelledby="cc-step1-title">
+      <header className="cc-card-head">
+        <p className="cc-card-eyebrow">
+          <span className="material-symbols-outlined icon-fill" aria-hidden="true">auto_awesome</span>
+          Start of your story
         </p>
-      </div>
+        <h1 className="cc-card-title" id="cc-step1-title">
+          What type of event are <em>you planning</em>?
+        </h1>
+        <p className="cc-card-lead">
+          Pick a type to unlock curated templates and expert planning tools tailored to your celebration.
+        </p>
+      </header>
 
-      {/* Event type cards — 4 columns */}
-      <div
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5"
-        role="list"
-        aria-label="Event types"
-      >
-        {eventTypes.map((eventType) => (
-          <div key={eventType.id} role="listitem">
-            <EventTypeCard
-              eventType={eventType}
-              isSelected={!somethingElseSelected && state.eventType?.id === eventType.id}
-              onSelect={handleSelectCard}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Something Else card */}
-      <button
-        type="button"
-        onClick={handleSelectSomethingElse}
-        aria-pressed={somethingElseSelected}
-        style={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          gap: '24px',
-          padding: '28px 32px',
-          background: '#ffffff',
-          borderRadius: '16px',
-          border: `1.5px dashed ${somethingElseSelected ? 'var(--color-text-primary)' : '#d1d5db'}`,
-          cursor: 'pointer',
-          textAlign: 'left',
-          position: 'relative',
-          outline: 'none',
-          transition: 'border-color 0.15s',
-        }}
-      >
-        {/* Selection dot */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            top: '20px',
-            right: '20px',
-            width: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            background: somethingElseSelected ? 'var(--color-text-primary)' : 'transparent',
-            border: somethingElseSelected ? 'none' : '2px solid #d1d5db',
-          }}
-        />
-
-        {/* Left: title + description */}
-        <div style={{ flex: '0 0 auto', maxWidth: '50%' }}>
-          <h3
-            style={{
-              fontFamily: 'var(--font-manrope), sans-serif',
-              fontSize: '20px',
-              fontWeight: 700,
-              color: '#1a1a1a',
-              marginBottom: '8px',
-            }}
-          >
-            Something Else?
-          </h3>
-          <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: '1.55', margin: 0 }}>
-            A custom framework for your unique vision. Build your event from the ground up with our modular toolkit.
-          </p>
-        </div>
-
-        {/* Right: event title input */}
-        <div style={{ flex: 1, minWidth: 0 }} onClick={(e) => e.stopPropagation()}>
-          <label
-            htmlFor="custom-event-title"
-            style={{
-              display: 'block',
-              fontSize: '11px',
-              fontWeight: 600,
-              letterSpacing: '0.1em',
-              color: 'var(--color-text-secondary)',
-              marginBottom: '8px',
-              textTransform: 'uppercase',
-            }}
-          >
-            Event Title
-          </label>
-          <input
-            ref={titleInputRef}
-            id="custom-event-title"
-            type="text"
-            value={customTitle}
-            onChange={(e) => {
-              setCustomTitle(e.target.value)
-              if (!somethingElseSelected) setSomethingElseSelected(true)
-            }}
-            onFocus={() => {
-              if (!somethingElseSelected) handleSelectSomethingElse()
-            }}
-            placeholder="e.g. Art Exhibition"
-            style={{
-              width: '100%',
-              padding: '10px 0',
-              fontSize: '14px',
-              color: '#1a1a1a',
-              background: 'transparent',
-              border: 'none',
-              borderBottom: '1px solid #e5e7eb',
-              outline: 'none',
-              fontFamily: 'inherit',
-            }}
-          />
-        </div>
-      </button>
-
-      {/* Proceed button */}
-      <div className="flex justify-center mt-10">
+      {/* Carousel */}
+      <div className="flex items-center gap-3">
         <button
           type="button"
-          onClick={handleProceed}
-          disabled={!canProceed}
-          style={{
-            padding: '18px 56px',
-            background: canProceed ? 'var(--color-text-primary)' : '#e5e7eb',
-            color: canProceed ? '#ffffff' : '#9ca3af',
-            fontSize: '13px',
-            fontWeight: 700,
-            letterSpacing: '0.12em',
-            borderRadius: '9999px',
-            border: 'none',
-            cursor: canProceed ? 'pointer' : 'not-allowed',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            transition: 'background 0.15s, opacity 0.15s',
-            fontFamily: 'var(--font-manrope), sans-serif',
-          }}
+          aria-label="Previous event types"
+          disabled={!canPrev}
+          style={navBtn(canPrev)}
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
         >
-          PROCEED TO DETAILS
-          <span aria-hidden="true">→</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>chevron_left</span>
+        </button>
+
+        <div className="flex-1 min-w-0">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-[.85rem] sm:gap-4" role="radiogroup" aria-label="Event type">
+            {visibleCards.map((eventType) => (
+              <EventTypeCard
+                key={eventType.id}
+                eventType={eventType}
+                isSelected={state.eventType?.id === eventType.id}
+                onSelect={handleSelect}
+              />
+            ))}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          aria-label="Next event types"
+          disabled={!canNext}
+          style={navBtn(canNext)}
+          onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>chevron_right</span>
         </button>
       </div>
 
+      {/* Page dots */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-1.5" aria-hidden="true">
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              aria-label={`Page ${i + 1}`}
+              onClick={() => setPage(i)}
+              style={{
+                height: 6,
+                width: i === page ? 20 : 6,
+                borderRadius: 9999,
+                background: i === page ? 'var(--brand)' : 'var(--line)',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                transition: 'width .2s, background-color .2s',
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="cc-actions">
+        <a className="cc-back-btn" href="/home">
+          <span aria-hidden="true" className="material-symbols-outlined">arrow_back</span>
+          Cancel
+        </a>
+        <button
+          type="button"
+          className="btn-pill btn-pill-primary btn-pill-lg"
+          disabled={!state.eventType}
+          aria-disabled={!state.eventType}
+          onClick={handleContinue}
+        >
+          <span>Proceed to details</span>
+          <span aria-hidden="true" className="material-symbols-outlined">arrow_forward</span>
+          <span aria-hidden="true" className="btn-pill-spinner" />
+        </button>
+      </div>
     </section>
   )
 }

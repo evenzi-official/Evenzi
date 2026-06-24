@@ -1,0 +1,298 @@
+/* Media & Memories — page-specific styles.
+   Shell primitives do the heavy lifting (.photo-tile, .bulk-bar, .dp-tile-grid,
+   .dp-dropzone--multi, .modal-lightbox-nav, .photos-empty, modal shells).
+   This file owns only the page-local rows from the spec reuse map:
+   storage meter · recent strip · upload-progress list · album cards
+   (.album-card — flagged for shell promotion at 2nd consumer). */
+
+/* ── Page rhythm ────────────────────────────────────────────────────── */
+.media-storage-meter{margin-top:.5rem}
+.media-upload,
+.media-recent,
+.media-albums,
+.media-all,
+.media-videos{margin-top:2.75rem}
+
+.media-empty-copy{font-size:.85rem;color:var(--muted);margin:.25rem 0 0}
+.media-empty-copy[hidden]{display:none}
+
+/* Spec: NO blurred chrome on this page's tile chips (master grid drops
+   backdrop-filter entirely; budget ≤2 blurred surfaces page-wide). */
+[data-page="media"] .photo-tile-check{backdrop-filter:none;background:rgba(0,0,0,.62)}
+[data-page="media"] .photo-tile-action{backdrop-filter:none;background:rgba(0,0,0,.68)}
+
+/* ── Storage meter strip ────────────────────────────────────────────── */
+.media-storage-meter{
+  display:flex;flex-direction:column;gap:.85rem;
+  padding:1.1rem 1.25rem;
+}
+.media-meter-lead{display:flex;align-items:flex-start;gap:.75rem;min-width:0}
+.media-meter-icon{
+  width:40px;height:40px;flex-shrink:0;border-radius:12px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--brand-tint);color:var(--brand);
+}
+.media-meter-icon .material-symbols-outlined{font-size:22px}
+.media-meter-meta{min-width:0}
+.media-meter-title{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:.95rem;
+  color:var(--ink);letter-spacing:-.005em;margin:0;
+}
+.media-meter-text{
+  font-size:.8rem;color:var(--muted);margin:.1rem 0 0;
+  font-variant-numeric:tabular-nums;
+}
+.media-meter-note{
+  display:inline-flex;align-items:center;gap:.3rem;
+  font-size:.78rem;font-weight:600;margin:.25rem 0 0;
+}
+.media-meter-note[hidden]{display:none}
+.media-meter-track{
+  width:100%;height:8px;border-radius:9999px;
+  background:var(--line-soft);overflow:hidden;
+}
+.media-meter-fill{
+  display:block;height:100%;width:0;border-radius:inherit;
+  background:var(--brand);
+  transition:width .3s ease;
+}
+@media (prefers-reduced-motion: reduce){.media-meter-fill{transition:none}}
+/* 3 states — icon + text + color, never color alone (JS swaps glyph+copy) */
+.media-storage-meter[data-meter-state="near"] .media-meter-icon{background:var(--warning-tint);color:var(--warning)}
+.media-storage-meter[data-meter-state="near"] .media-meter-fill{background:var(--warning)}
+.media-storage-meter[data-meter-state="near"] .media-meter-note{color:var(--warning-ink)}
+.media-storage-meter[data-meter-state="atcap"] .media-meter-icon{background:var(--danger-tint);color:var(--danger)}
+.media-storage-meter[data-meter-state="atcap"] .media-meter-fill{background:var(--danger)}
+.media-storage-meter[data-meter-state="atcap"] .media-meter-note{color:var(--danger-ink)}
+.media-meter-cta{
+  display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+}
+.media-meter-cta-copy{font-size:.8rem;color:var(--muted);font-weight:600}
+@media (min-width:768px){
+  .media-storage-meter{
+    flex-direction:row;align-items:center;gap:1.25rem;
+  }
+  .media-meter-lead{flex:0 0 auto;max-width:40%}
+  .media-meter-track{flex:1 1 auto}
+  .media-meter-cta{flex:0 0 auto}
+}
+
+/* ── Upload surface ─────────────────────────────────────────────────── */
+.media-file-input{
+  position:absolute;width:1px;height:1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;
+}
+.media-upload-progress{
+  list-style:none;margin:.85rem 0 0;padding:0;
+  display:flex;flex-direction:column;gap:.5rem;
+}
+.media-upload-progress:empty{margin-top:0}
+.media-upload-row{
+  display:flex;align-items:center;gap:.75rem;
+  background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:.6rem .85rem;
+}
+.media-upload-row .material-symbols-outlined{font-size:20px;flex-shrink:0}
+.media-upload-row[data-state="uploading"] .media-upload-state-icon{color:var(--brand)}
+.media-upload-row[data-state="processing"] .media-upload-state-icon{color:var(--brand)}
+.media-upload-row[data-state="success"] .media-upload-state-icon{color:var(--success)}
+.media-upload-row[data-state="failed"] .media-upload-state-icon{color:var(--danger)}
+.media-upload-row[data-state="uploading"] .media-upload-state-icon{animation:media-spin 1s linear infinite}
+@keyframes media-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){
+  .media-upload-row[data-state="uploading"] .media-upload-state-icon{animation:none}
+}
+.media-upload-main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:.3rem}
+.media-upload-name{
+  font-size:.85rem;font-weight:600;color:var(--ink);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.media-upload-track{
+  width:100%;height:4px;border-radius:9999px;
+  background:var(--line-soft);overflow:hidden;
+}
+.media-upload-row[data-state="failed"] .media-upload-track,
+.media-upload-row[data-state="success"] .media-upload-track{display:none}
+.media-upload-fill{
+  display:block;height:100%;width:0;border-radius:inherit;
+  background:var(--brand);transition:width .25s ease;
+}
+@media (prefers-reduced-motion: reduce){.media-upload-fill{transition:none}}
+.media-upload-status{font-size:.75rem;color:var(--muted);font-weight:600;white-space:nowrap}
+.media-upload-row[data-state="failed"] .media-upload-status{color:var(--danger-ink)}
+.media-upload-retry{
+  flex-shrink:0;
+  background:none;border:1px solid var(--line);border-radius:9999px;
+  padding:.35rem .8rem;min-height:32px;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:.78rem;
+  color:var(--ink);cursor:pointer;
+  transition:border-color .15s ease,background .15s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  .media-upload-retry:hover{border-color:var(--brand);background:var(--brand-tint)}
+}
+.media-upload-retry:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* ── Recent uploads strip ───────────────────────────────────────────── */
+.media-recent-scroller{position:relative}
+.media-recent-scroller[hidden]{display:none}
+/* overflow affordance — fade on the trailing edge */
+.media-recent-scroller::after{
+  content:"";position:absolute;top:0;right:0;bottom:.75rem;width:2.5rem;
+  background:linear-gradient(to right, transparent, var(--bg));
+  pointer-events:none;
+}
+.media-recent-strip{
+  list-style:none;margin:0;padding:.25rem .25rem .75rem;
+  display:flex;gap:.75rem;
+  overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch;
+}
+.media-recent-strip > li{flex:0 0 132px;scroll-snap-align:start;min-width:0}
+.media-recent-strip .dp-tile{width:100%}
+
+/* ── Albums ─────────────────────────────────────────────────────────── */
+.media-preset-chips{margin-bottom:1rem}
+.media-preset-chips[hidden]{display:none}
+/* inert preset chips — not buttons, no pointer affordance */
+.media-preset-chips .dp-filter-chip{cursor:default}
+.media-albums-grid .empty-cta-card{
+  min-height:100%;padding:1.25rem 1rem;gap:.6rem;border-radius:14px;
+}
+.media-albums-grid .empty-cta-card .empty-cta-icon{width:44px;height:44px}
+.media-albums-grid .empty-cta-card .empty-cta-icon .material-symbols-outlined{font-size:22px}
+.album-card .dp-tile-thumb{aspect-ratio:4/3}
+.album-card-open{
+  border:0;background:transparent;padding:0;cursor:pointer;
+}
+.album-card-count{font-variant-numeric:tabular-nums}
+.album-card .photo-tile-action{position:absolute;top:.5rem;right:.5rem;z-index:3}
+
+/* ── All photos ─────────────────────────────────────────────────────── */
+.media-all{padding:1.25rem}
+@media (min-width:768px){.media-all{padding:1.5rem}}
+.media-all-head{
+  display:flex;flex-direction:column;gap:.85rem;
+  margin-bottom:1.1rem;
+}
+.media-all-lead{min-width:0}
+.media-all-title{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:1.15rem;
+  color:var(--ink);letter-spacing:-.01em;margin:0;
+}
+.media-all-sub{font-size:.8rem;color:var(--muted);margin:.2rem 0 0}
+.media-all-aux{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+/* even distribution on mobile — controls spread across the row */
+@media (max-width:767px){
+  .media-all-aux{justify-content:space-between;width:100%}
+  .media-all-aux .btn-pill{flex:1 1 auto;justify-content:center}
+}
+@media (min-width:768px){
+  .media-all-head{flex-direction:row;align-items:flex-start;justify-content:space-between}
+}
+.media-active-filter[hidden]{display:none}
+.media-active-filter{margin:0 0 1rem;flex-wrap:wrap;gap:.4rem}
+.media-active-filter .dp-filter-chip{
+  display:inline-flex;align-items:center;gap:.3rem;
+}
+.media-active-filter .dp-filter-chip .material-symbols-outlined{font-size:15px}
+.media-clear-all{
+  background:none;border:0;cursor:pointer;padding:.2rem .35rem;
+  font-size:.78rem;font-weight:600;color:var(--muted);
+  text-decoration:underline;text-underline-offset:2px;
+}
+@media (hover:hover) and (pointer:fine){ .media-clear-all:hover{color:var(--brand)} }
+.media-clear-all:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:6px}
+
+/* ── Sort + filter toolbar ──────────────────────────────────────────── */
+.media-toolbar{
+  display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;
+  margin:0 0 1rem;
+}
+.media-toolbar-div{width:1px;height:22px;background:var(--line);flex:0 0 auto}
+.media-tool .material-symbols-outlined{font-size:17px}
+.media-tool.is-active{
+  background:var(--brand-tint);border-color:var(--brand);color:var(--brand);
+}
+@media (max-width:767px){
+  .media-toolbar{gap:.4rem}
+  .media-toolbar-div{display:none}
+  .media-tool{flex:1 1 auto;justify-content:center}
+}
+.media-all[data-photos-state="empty"] .media-all-aux,
+.media-all[data-photos-state="empty"] .media-toolbar{display:none}
+
+/* date-range filter modal fields */
+.media-date-fields{display:grid;gap:.85rem;margin:.4rem 0 1.1rem}
+@media (min-width:480px){ .media-date-fields{grid-template-columns:1fr 1fr} }
+
+/* Destructive bulk action (Delete) — reads on the dark .bulk-bar; tinted red,
+   distinct from the neutral Add/Remove-from-album actions. */
+.bulk-bar-act--danger{color:color-mix(in oklab, var(--danger) 65%, white)}
+@media (hover:hover) and (pointer:fine){
+  .bulk-bar-act--danger:hover{background:color-mix(in oklab, var(--danger) 32%, transparent);color:#fff}
+}
+
+/* ── Video tiles (poster + play badge + duration) — reuse .photo-tile chrome ── */
+.video-tile .dp-tile-thumb{position:relative}
+.media-vplay-badge{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:44px;height:44px;border-radius:9999px;pointer-events:none;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.5);color:#fff;
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+}
+.media-vplay-badge .material-symbols-outlined{font-size:26px}
+.media-vduration{
+  position:absolute;right:.4rem;bottom:.4rem;pointer-events:none;
+  padding:.05rem .3rem;border-radius:6px;
+  font-size:.68rem;font-weight:700;letter-spacing:.02em;
+  background:rgba(0,0,0,.72);color:#fff;
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .media-vplay-badge{background:rgba(0,0,0,.62)}
+}
+
+/* ── Video player lightbox stage ────────────────────────────────────── */
+.media-vplayer{position:relative;display:flex;align-items:center;justify-content:center;background:#000;border-radius:inherit;overflow:hidden}
+.media-vplayer .modal-lightbox-img{display:block;max-width:100%}
+.media-vplay{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:72px;height:72px;border-radius:9999px;border:0;cursor:pointer;
+  background:rgba(0,0,0,.55);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.media-vplay .material-symbols-outlined{font-size:40px}
+@media (hover:hover) and (pointer:fine){ .media-vplay:hover{background:var(--brand)} }
+.media-vplay:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.media-vduration--lg{right:.75rem;bottom:.75rem;font-size:.8rem;padding:.18rem .5rem}
+.media-load-sentinel{height:1px}
+.media-load-sentinel[hidden]{display:none}
+
+/* Select affordance: checkboxes ride the tiles on fine pointers
+   (hover/focus reveal); on touch they only exist in select mode. */
+@media (hover:hover) and (pointer:fine){
+  .media-all .photo-tile-select{opacity:0;transition:opacity .15s}
+  .media-all .photo-tile:hover .photo-tile-select,
+  .media-all .photo-tile:focus-within .photo-tile-select,
+  .media-all .photo-tile.is-selected .photo-tile-select,
+  .media-all[data-select-mode="on"] .photo-tile-select{opacity:1}
+}
+@media (prefers-reduced-motion: reduce){
+  .media-all .photo-tile-select{transition:none}
+}
+@media (hover:none){
+  .media-all[data-select-mode="off"] .photo-tile-select{display:none}
+}
+.media-all[data-select-mode="on"] #md-select-toggle{
+  background:var(--brand-tint);border-color:var(--brand);color:var(--brand);
+}
+
+/* ── Videos teaser — disabled, non-interactive ──────────────────────── */
+.media-videos .empty-cta-card{cursor:default}
+@media (hover:hover) and (pointer:fine){
+  .media-videos .empty-cta-card:hover{
+    border-color:var(--line);background:transparent;transform:none;
+  }
+}

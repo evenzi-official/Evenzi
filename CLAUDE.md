@@ -8,6 +8,14 @@ Evenzi is an early-stage wedding/event planning SaaS platform. Users create even
 
 ---
 
+## Communication Mode
+
+**Terse in inline 1:1 chat, full plain-English in every persisted/team-facing artifact.** In direct chat with the user, lead with the answer, drop filler/hedging/restating, prefer tables over prose — to cut output tokens. This NEVER applies to ClickUp tickets, commit/PR bodies, specs, plans, test plans, spec-kit files, council/subagent prompts, or verbatim approval-gate readouts (e.g. Dheeraj→Abhijith sync) — those stay full and detailed; the "verbatim, no detail dropped" rule always wins. Terse ≠ sloppy: keep technical precision and `file:line`/markdown-link formatting. Override: "explain in full" / "go deep" → full for that answer. Full spec + rationale: `~/.claude/projects/-Users-xcalider-Documents-Projects-Evenzi/memory/feedback_terse_inline_chat.md`.
+
+**WhatsApp messages use WhatsApp syntax, not markdown.** When asked to draft a WhatsApp message (e.g. to Dheeraj), format with WhatsApp markup: `*bold*` (single asterisk), `_italic_` (underscore), `~strikethrough~`, ` ```monospace``` `, `` `inline code` ``, bullets `* ` / `- `, numbered `1. `, quote `> `. No headings or tables (they don't render) — use `*bold*` emphasis lines + bullets. Markdown's `**bold**` shows literal asterisks in WhatsApp, so switch syntax for the whole draft. Memory: `feedback_whatsapp_formatting.md`.
+
+---
+
 ## Tech Stack
 
 - **Framework:** Next.js 14.2.5 (App Router)
@@ -20,10 +28,27 @@ Evenzi is an early-stage wedding/event planning SaaS platform. Users create even
 - **Email:** Resend (`resend` package) — notifications
 - **ClickUp:** REST API integration — task intake and pipeline triggers
 
+---
+
+## Project Connectors (MCP)
+
+This project uses these specific accounts/workspaces. When multiple are available across MCPs, **always use these — never default to the first one listed**. If unsure, ask before acting.
+
+| Tool | Identifier | Purpose |
+|------|-----------|---------|
+| **ClickUp** | Workspace `90161512057` → Product space `90166506901` | Task intake & pipeline. See [docs/clickup/WORKSPACE.md](docs/clickup/WORKSPACE.md) for all list IDs. |
+| **Supabase** | Project `smjkbmkxweevqpvygabe` (region `ap-northeast-1`) | Auth + DB |
+| **Vercel** | Team `evenzi` / Project `evenzi` (`prj_dXWmfgGtBOJDsBO18BOmcNxfwwoX`) | Deployments → `evenzi.vercel.app` |
+| **Figma** | File key `LjoTKwL7pkpYVnAW6hr4s8` ([Evenzi](https://www.figma.com/design/LjoTKwL7pkpYVnAW6hr4s8/Evenzi)) | **Locked / hand-off ready** designs (canonical source) |
+| **Stitch** | Project `3859360114226566614` | **Active design workshop** — drafts before promotion to Figma |
+
+**Design source-of-truth rule:** when implementing a component, prefer **Figma**. Fall back to **Stitch** only if the screen isn't in Figma yet.
+
 ## Commands
 
 ```bash
-npm run dev            # Start dev server on localhost:3000
+npm run dev            # Start Next.js dev server on localhost:3000
+npm run design         # Start live-server for designs/ on localhost:4000 (LAN — mobile-testable)
 npm run build          # Production build
 npm start              # Start production server
 npm run lint           # Run ESLint
@@ -44,7 +69,7 @@ app/                        # Next.js App Router pages
   api/auth/verify/          # Session verification endpoint
 
 ai/                         # Agent knowledge base & pipeline reference (markdown + YAML frontmatter)
-  agents/                   # 15 enriched agent specs (knowledge base for Claude Code sessions)
+  agents/                   # 11 enriched agent specs (knowledge base for Claude Code sessions)
   pipelines/                # 4 pipeline definitions (feature, bug, enhancement, system_guard)
   system/agent_rules.md     # Shared coding standards
 
@@ -79,7 +104,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=<supabase-anon-key>
 # LLM Providers (at least one required)
 ANTHROPIC_API_KEY=sk-ant-xxxx           # primary provider
 OPENAI_API_KEY=sk-proj-xxxx             # optional — used by task_planner, task_distributor
-GOOGLE_GENERATIVE_AI_API_KEY=AIzaxxxx   # optional — used by qa_engineer
+GOOGLE_GENERATIVE_AI_API_KEY=AIzaxxxx   # optional — used by test_engineer
 GROQ_API_KEY=gsk_xxxx                   # optional
 OLLAMA_BASE_URL=http://localhost:11434/api  # optional, local only
 
@@ -120,6 +145,21 @@ RUNNER_EMAIL_ON_ALERT=true              # Send email on budget alerts + approval
 
 > Features are built using the superpowers plugin workflow (brainstorm → plan → implement → review), guided by enriched agent prompts in `ai/agents/`.
 
+### Delegation Gate (BEFORE any development) — RULE
+
+**Before writing/building/testing anything, stop and route the work to the cheapest competent executor — default to delegating, reserve Claude's tokens for judgment.** Claude (the expensive context) should plan, diagnose, write specs/build-docs, review, and gate quality — not do mechanical building or testing that Cursor or Antigravity can do under supervision.
+
+| Executor | Owns | Use for |
+|---|---|---|
+| **Cursor** | building / implementation (from a Claude build-doc) | feature builds, migrations, mechanical multi-file edits |
+| **Antigravity** | automated testing | a11y / responsive / regression test passes |
+| **Claude (me)** | planning · spec & build-doc authoring · root-cause diagnosis · **review + quality gates** · small surgical fixes only when delegation overhead > the fix | judgment, not typing |
+
+- **The gate:** at the start of any dev task, ask "can Cursor build this / Antigravity test this under my review?" If yes → write the build-doc and delegate. Do it inline ONLY when it's trivial/surgical or needs live conversation context.
+- **When the executor isn't obvious, ASK the founder** before proceeding.
+- Claude always keeps the **review gate** — delegated work comes back for a Claude (Playwright/spec) review before it's considered done or pushed.
+- **Why:** save Claude token usage; maximize parallel throughput across editors.
+
 ### How It Works
 
 1. **Plan in ClickUp** — Create a feature task using templates from `docs/clickup/TEMPLATES.md` (see `docs/clickup/` for all ClickUp docs)
@@ -127,6 +167,23 @@ RUNNER_EMAIL_ON_ALERT=true              # Send email on budget alerts + approval
 3. **Superpowers workflow** — brainstorm → write-plan → subagent-driven-development → code-review
 4. **Agent knowledge** — At each stage, Claude Code references `ai/agents/` for role-specific checklists and patterns
 5. **Approval gates** — After each dev phase, user validates output before next phase starts
+
+### Council Gates (Multi-Agent Cross-Validation)
+
+For non-trivial work, the `council` skill (`.claude/skills/council/SKILL.md`) auto-invokes at three checkpoints. It dispatches a contextual roster of domain experts (Tech Lead, Frontend, Backend, Security, Data Modeller, QA, etc.) drawn from `ai/agents/`, runs a debate round where they cross-validate each other's findings, and resolves disagreements via a Tech Lead arbiter ruling.
+
+| Checkpoint | Mode | Roster size | Skip if trivial? |
+|---|---|---|---|
+| After plan written, before implementation | `/council plan <path>` | 3–5 agents | <3 tasks, no schema/auth/API |
+| After design spec written, before frontend dev | `/council design <path-or-desc>` | 3–5 agents | Cosmetic tweak on existing component only |
+| After implementation, before commit | `/council code` | 3–5 agents | <50 LOC + no auth/schema/API/middleware touched |
+| When debugging starts (non-trivial bug) | `/council bug <description>` | 3–5 agents | Typo, known-trivial revert |
+
+**Design mode caveat:** subagents can't see Figma/Stitch images. Pass a written spec or description — the council reviews intent, structure, states, and design-system fit, not pixels.
+
+Council supersedes the lighter `plan-review` skill for non-trivial plans — `plan-review` stays available for quick single-round passes. The triviality skip is automatic (Phase 0 of the skill); critical findings block the next phase until addressed.
+
+**Cost:** a 5-agent council ≈ 11 subagent dispatches per checkpoint (5 critique + 5 debate + 1 arbiter). Use the skip and roster cap (5) — don't expand both.
 
 ### Parallel Subagents (Standard Practice)
 
@@ -203,10 +260,13 @@ The `ai/pipelines/` files define the ideal step order for different work types. 
 
 Agent definitions live in `ai/agents/<role>.md` with YAML frontmatter. To improve an agent's knowledge, edit the prompt body below the frontmatter. Changes are picked up when Claude Code reads the file.
 
+**Self-evolution via `agent-evolve`:** Each agent file has a `## Learnings` section (starts empty). The `agent-evolve` skill (`.claude/skills/agent-evolve/SKILL.md`) auto-captures non-obvious, validated, role-specific, actionable learnings from sessions and appends them — with user approval — to the relevant agent's section. Hard cap of 8 entries per agent; oldest/weakest demoted to `ai/agents/_archived_learnings.md` on overflow. The skill fires on learning signals during work and as a batch step inside `/end-evenzi-session`. Generic best-practices and cross-cutting rules are routed to `CLAUDE.md` or memory instead — agent files only get insights that change THAT agent's future critiques.
+
 Key enriched agents:
 - `frontend_engineer.md` — design thinking, typography, color, motion, anti-patterns (from frontend-design plugin)
 - `code_reviewer.md` — confidence scoring, false positive filtering, multi-perspective review (from code-review plugin)
 - `security_expert.md` — 9 vulnerability patterns, defense-in-depth, Next.js security (from security-guidance plugin)
+- `ui_ux_designer.md` — Evenzi-specific design role book: two-user split, free-tier-feels-paid, WhatsApp-aware, component reuse, content-length resilience, code quality in `designs/`. Evolves freely with new patterns learned per pass.
 
 ### Parked: Automated Runner
 
@@ -225,6 +285,14 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 ---
 
 ## Coding Conventions
+
+### Component Reuse (Reuse Before Create) — RULE
+
+**Before building any component, pattern, or primitive, search for an existing one that does the same JOB — by purpose, not by name.** If one exists, reuse it (as-is) or extend it via a modifier; **never fork a parallel component that duplicates an existing one's job.** (This is exactly how `.nav-tabs` and `.pill-tab` both came to exist as two controls for the same view-switcher — a defect later unified into `.seg`.)
+
+- **The catalog is the source of truth:** `designs/components.html` + `designs/shared/shell.css` for UI; `ai/` for agent/pipeline knowledge. Check it first and cite the primitive you're reusing.
+- **Keep the catalog current:** any new shared primitive MUST be added to `designs/components.html` in the same change. An uncataloged primitive can't be found, so the next person rebuilds it — which is the whole failure `components.html` exists to prevent. Catalog-backfill debt directly causes reinvention.
+- **A same-purpose duplicate is a review-blocking defect**, not polish. Three rungs only: reuse-as-is → modifier-extend → new (new only when nothing serves the purpose).
 
 ### Naming
 - **Directories:** kebab-case (`event-management`)
@@ -277,29 +345,27 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 
 | Feature | Priority | Status | Subtasks |
 |---------|----------|--------|----------|
-| Fix Vercel Deployment | P0 | Blocked (pre-existing) | 0 |
-| Reusable Component Library | P0 | Not Started | 28 |
+| Fix Vercel Deployment | P0 | DONE — live at evenzi.vercel.app | 0 |
 | Auth & Role Selection | P0 | DONE | 10 |
+| Event CRUD (4-Step Wizard) | P0 | In Review (revamp landed) | 45 |
+| Host Dashboard | P0 | In Review (revamp landed) | 21 |
+| Landing Section (Marketing Site) | P2 | In Progress | 13 |
+| Reusable Component Library | P0 | Not Started | 28 |
 
 **Backlog:**
 
 | Feature | Priority | Status | Subtasks |
 |---------|----------|--------|----------|
-| Event CRUD (5-Step Wizard) | P0 | Not Started | 45 |
-| Host Dashboard | P0 | Shell exists, needs real data | 21 |
 | Event Management Hub | P0 | Not Started | 16 |
-| Guest Management & RSVP | P1 | Not Started | 25 |
-| Event Settings | P1 | Not Started | 20 |
+| Guest Management & RSVP | P1 | **Data model LIVE on dev** (`guests_01-05`); design prototype DONE; FE/app not started | 25 |
+| Event Settings | P1 | **Data model LIVE on dev** (`event_settings_01-07`, D40–D48 — `config.plans` catalog, `events.plan_id` FK + limit trigger, 3 sidecar tables + security_invoker views); FE/app not started | 20 |
 | User Settings | P1 | Not Started | 20 |
-| Planning Tools (Checklist + Budget) | P2 | Not Started | 15 |
-| Media & Memories (Photo Gallery) | P2 | Not Started | 25 |
+| Planning Tools (Checklist + Budget) | P2 | **Data model LIVE on dev** (`planning_01-07`); design v2 DONE; FE/app not started | 15 |
+| Media & Memories (Photo Gallery) | P2 | **Data model LIVE on dev** (`media_01-06`); design prototype DONE (Photos/Videos/Albums; `designs/pages/media/`); FE/app not started | 25 |
 | Digital Presence (Event Website) | P2 | Not Started | Partial |
-| Landing Section (Marketing Site) | P2 | Not Started | 0 |
-| Admin Module (Developer Panel) | P2 | Not Started | 0 |
-| Digital Invitations (WhatsApp) | P3 | Not Started | 0 |
-| Support Chatbot (FAQ + Admin + Escalation) | P1 | Planned (Figma-blocked) | 30 |
-
-**Total:** 267 subtasks across 11 features. 4 features still need subtasks (Batch 4).
+| Admin Module (Developer Panel) | P2 | Not Started | 15 |
+| Digital Invitations (WhatsApp) | P3 | **Data model LIVE on dev** (`inv_01-06`); design prototype DONE — **scope = invitation CARD designer** (personalizer; `designs/pages/invitations/`). WhatsApp send + status tracking stays in Guest Mgmt (see PORT-MAP / overview scope split). FE/app not started. | 0 |
+| Support Chatbot (FAQ + Admin + Escalation) | P1 | Planned (unblocked — build from design system) | 30 |
 
 **Out of scope for MVP:** Vendor role, AI Photo Finder, real-time features, event discovery/search, analytics.
 

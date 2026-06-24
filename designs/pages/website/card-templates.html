@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Event Website · Card Templates</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Browse designer-made invitation card templates and download them as PDF or PNG." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<link rel="manifest" href="../../manifest.webmanifest" />
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="website.css" />
+</head>
+<body class="min-h-dvh bg-bg text-ink" data-page="website" data-section="website" data-wb-page="cards">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ────────────────────── FLOATING TOP NAV ────────────────────── -->
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../event-control/event-control.html" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="overview.html" class="nav-tab is-active" aria-current="page" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ────────────────────── FLOATING TOOL RAIL ────────────────────── -->
+<aside class="tool-rail" aria-label="Event tools">
+  <a href="../guests/guests.html" class="tr-btn" data-label="Guest management" data-page="guests" aria-label="Guest management">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+  </a>
+  <a href="../invitations/invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations" aria-label="Invitations">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
+  </a>
+  <a href="../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning" aria-label="Planning">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
+  </a>
+  <a href="../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media" aria-label="Media &amp; memories">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
+  </a>
+  <a href="../event-settings/general.html" class="tr-btn" data-label="Event settings" data-page="event-settings" aria-label="Event settings">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+  </a>
+</aside>
+
+<!-- ────────────────────── BREADCRUMB ────────────────────── -->
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event" data-bc-back data-bc-back-label="EVENT">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html" data-bc-link>ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        WEBSITE · CARD TEMPLATES
+      </li>
+    </ol>
+    <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
+    <button type="button" class="bc-copy" aria-label="Copy page link" data-bc-copy data-bc-copy-path="https://evenzi.com/e/anya-kabir">
+      <span aria-hidden="true" class="material-symbols-outlined">content_copy</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ────────────────────── SECTION HEAD ────────────────────── -->
+<div class="page-band">
+<header class="section-head reveal">
+  <p class="section-head-eyebrow">Website</p>
+  <h1 class="section-head-title">Card Templates</h1>
+  <p class="section-head-sub">Pick a designer-made invitation card, preview it, and download as PDF or PNG.</p>
+</header>
+</div>
+
+<!-- ────────────────────── WEBSITE MODULE SUB-NAV ────────────────────── -->
+<div class="seg-wrap seg-wrap--page reveal">
+  <nav class="seg" aria-label="Website sections">
+    <a href="overview.html" class="seg-item seg--page">
+      <span class="material-symbols-outlined" aria-hidden="true">tune</span>
+      <span>Overview</span>
+    </a>
+    <a href="design.html" class="seg-item seg--page">
+      <span class="material-symbols-outlined" aria-hidden="true">palette</span>
+      <span>Design</span>
+    </a>
+    <a href="photos.html" class="seg-item seg--page">
+      <span class="material-symbols-outlined" aria-hidden="true">photo_library</span>
+      <span>Photos</span>
+    </a>
+    <a href="card-templates.html" class="seg-item seg--page is-active" aria-current="page">
+      <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+      <span>Card Templates</span>
+    </a>
+  </nav>
+</div>
+
+<!-- ────────────────────── MAIN ────────────────────── -->
+<main class="page-band pb-24 reveal" id="wb-main">
+  <section class="clay-card dp-card" aria-labelledby="ct-h">
+    <header class="dp-card-head">
+      <div>
+        <h2 id="ct-h" class="dp-card-title">Invitation cards</h2>
+        <p class="dp-card-sub">Cards keep their own design — they don't follow your website colours. Preview one, then download it for WhatsApp or print.</p>
+      </div>
+    </header>
+
+    <div class="dp-filter-chips" role="radiogroup" aria-label="Filter cards by style" id="ct-filters"></div>
+    <p class="dp-result-count" id="ct-count" aria-live="polite"></p>
+
+    <div class="dp-tile-grid" id="ct-grid" aria-label="Card templates"></div>
+
+    <div class="dp-grid-empty" id="ct-empty" hidden>
+      <span class="dp-grid-empty-icon" aria-hidden="true"><span class="material-symbols-outlined">imagesmode</span></span>
+      <p class="dp-grid-empty-title">No cards in this style yet</p>
+      <p class="dp-grid-empty-help">More designs are on the way.</p>
+      <button type="button" class="btn-pill btn-pill-secondary" id="ct-show-all">Show all cards</button>
+    </div>
+  </section>
+</main>
+
+<!-- ────────────────────── FOOTER ────────────────────── -->
+<footer class="dp-foot reveal">
+  <p>© 2026 Evenzi · Crafted with care</p>
+</footer>
+
+<button class="help-fab" type="button" aria-label="Need help?">
+  <span class="material-symbols-outlined" aria-hidden="true">help</span>
+</button>
+
+<!-- ────────────────────── CARD LIGHTBOX (page-local, repopulated per click) ────────────────────── -->
+<div class="modal-scrim modal-scrim-deep" id="ct-lightbox" data-modal aria-hidden="true">
+  <div class="modal-card modal-image-lightbox" role="dialog" aria-modal="true" aria-labelledby="ct-lb-title">
+    <button class="modal-lightbox-close" type="button" data-modal-close aria-label="Close preview">
+      <span aria-hidden="true" class="material-symbols-outlined">close</span>
+    </button>
+    <img class="modal-lightbox-img" id="ct-lb-img" src="" alt="" />
+    <div class="modal-lightbox-bar">
+      <div class="modal-lightbox-meta">
+        <p class="modal-lightbox-title" id="ct-lb-title"></p>
+        <p class="modal-lightbox-sub" id="ct-lb-sub"></p>
+      </div>
+      <div class="modal-lightbox-actions">
+        <a class="btn-pill btn-pill-secondary" id="ct-lb-wa" href="#" data-ct-whatsapp>
+          <span aria-hidden="true" class="material-symbols-outlined">forward_to_inbox</span>
+          Use in invite
+        </a>
+        <a class="btn-pill btn-pill-secondary" id="ct-lb-png" href="#" download data-ct-download>PNG</a>
+        <a class="btn-pill btn-pill-primary" id="ct-lb-pdf" href="#" download data-ct-download>
+          <span aria-hidden="true" class="material-symbols-outlined">download</span>
+          PDF
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text"></span>
+</div>
+
+<script src="../../shared/shell.js" defer></script>
+<script src="website.js" defer></script>
+<script src="card-templates.js" defer></script>
+</body>
+</html>

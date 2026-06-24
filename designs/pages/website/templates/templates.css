@@ -1,0 +1,313 @@
+/* ════════════════════════════════════════════════════════════════════
+   Evenzi · Website · Templates — page-specific CSS
+   Owner: designs/pages/website/templates/
+
+   Loaded by templates/index.html (gallery) + templates/<id>.html (detail).
+   Builds on shell.css (chrome, tokens, .dp-template-card, .modal-confirm-
+   cautionary, .status-badge) and ../website.css (.dp-template-card family,
+   [data-palette]/[data-font] → --dpp-* token cascade, .dpp-* hero content).
+
+   Generic primitives stay in shell/website. Everything here is specific
+   to the templates gallery + detail surface:
+   - .tpl-gallery-grid       gallery: 5 large cards, 1→2→3 col @640/980
+   - .tpl-detail / .tpl-aside detail two-column layout + sticky sidebar
+   - .tpl-hero / .tpl-page-mock  framed palette/font mocks (P1-5: neutral
+                              frame so light palettes don't clash with dark
+                              page chrome at full-bleed edges)
+   - .tpl-apply-bar          mobile sticky bottom Apply bar (P1-4 reach)
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Gallery grid ─────────────────────────────────────────────────────
+   Larger than the old picker tiles. Breakpoints aligned to the module's
+   640/980 rhythm (P2-1). Cards reuse .dp-template-card from website.css. */
+.tpl-gallery-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1rem;
+}
+@media (min-width:640px){
+  .tpl-gallery-grid{grid-template-columns:repeat(2, 1fr);gap:1.15rem}
+}
+@media (min-width:980px){
+  .tpl-gallery-grid{grid-template-columns:repeat(3, 1fr);gap:1.25rem}
+}
+
+/* Gallery cards are bigger than picker tiles — give the preview more room
+   and bump the couple-name to hero scale (P2-2). */
+.tpl-gallery-grid .dp-template-preview{aspect-ratio:4/3;padding:1.4rem 1.1rem}
+.tpl-gallery-grid .dp-template-name{font-size:1.4rem}
+@media (min-width:640px){
+  .tpl-gallery-grid .dp-template-name{font-size:1.55rem}
+}
+.tpl-gallery-grid .dp-template-meta{padding:.85rem 1rem 1rem}
+.tpl-gallery-grid .dp-template-title{font-size:.95rem}
+.tpl-gallery-grid .dp-template-tag{font-size:.72rem}
+
+/* Gallery intro line under the section-head sub (kept lightweight). */
+.tpl-gallery-note{
+  display:flex;align-items:center;gap:.5rem;
+  margin:0 0 1.25rem;
+  font-size:.82rem;color:var(--muted);
+}
+.tpl-gallery-note .material-symbols-outlined{font-size:18px;color:var(--brand)}
+
+/* ════════════════════════════════════════════════════════════════════
+   DETAIL PAGE
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Two-column on desktop; stacked on mobile. The previews wrapper carries
+   data-palette + data-font so --dpp-* cascades to hero + mocks only. */
+.tpl-detail{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1.5rem;
+  align-items:start;
+}
+@media (min-width:1024px){
+  .tpl-detail{grid-template-columns:minmax(0,1fr) 320px;gap:2rem}
+}
+
+/* ── Hero mock — neutral frame, palette island inside (P1-5) ──────────
+   The frame is --card (neutral, theme-aware). The screen inside renders
+   the template's --dpp-surface radial so a light palette sits in its own
+   island instead of bleeding into dark page chrome. */
+.tpl-hero{
+  border:1px solid var(--line);
+  border-radius:24px;
+  background:var(--card);
+  padding:.6rem;
+  box-shadow:var(--shadow-clay);
+  overflow:hidden;
+}
+.tpl-hero-screen{
+  border-radius:18px;
+  overflow:hidden;
+  background:
+    radial-gradient(120% 80% at 50% 0%, var(--dpp-primary-soft) 0%, var(--dpp-surface) 65%),
+    var(--dpp-surface);
+  min-height:340px;
+  display:flex;
+}
+@media (min-width:640px){
+  .tpl-hero-screen{min-height:420px}
+}
+/* Reuses .dp-preview-content + .dpp-* from website.css for the body. */
+.tpl-hero .dpp-couple{font-size:2rem}
+@media (min-width:640px){
+  .tpl-hero .dpp-couple{font-size:2.6rem}
+}
+
+/* ── "Across your pages" — 3 mini page mocks ─────────────────────────── */
+.tpl-mocks{margin-top:1.75rem}
+.tpl-mocks-head{
+  font-size:.7rem;text-transform:uppercase;letter-spacing:.16em;
+  font-weight:700;color:var(--muted);margin:0 0 .85rem;
+}
+.tpl-mock-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1rem;
+}
+/* 640 breakpoint to match the module's grid rhythm (post-build P1). */
+@media (min-width:640px){
+  .tpl-mock-grid{grid-template-columns:repeat(3, 1fr);gap:.85rem}
+}
+
+.tpl-page-mock{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--card);
+  padding:.5rem;
+  display:flex;flex-direction:column;gap:.5rem;
+}
+.tpl-page-mock-screen{
+  border-radius:11px;
+  overflow:hidden;
+  background:
+    radial-gradient(120% 70% at 50% 0%, var(--dpp-primary-soft) 0%, var(--dpp-surface) 70%),
+    var(--dpp-surface);
+  aspect-ratio:3/4;
+  padding:.8rem .7rem;
+  display:flex;flex-direction:column;gap:.5rem;
+  color:var(--dpp-ink);
+}
+.tpl-page-mock-label{
+  font-size:.7rem;font-weight:600;color:var(--ink-soft);
+  text-align:center;padding-bottom:.15rem;
+}
+
+/* Mock header — the couple name in the template heading font, small. */
+.tpl-mock-title{
+  font-family:var(--dpp-heading-font);
+  font-weight:700;font-size:.82rem;line-height:1.05;
+  letter-spacing:-.02em;color:var(--dpp-ink);
+  text-align:center;margin:0;
+}
+.tpl-mock-rule{
+  width:24px;height:1.5px;background:currentColor;opacity:.3;
+  margin:.1rem auto .25rem;
+}
+/* Generic skeleton bars tinted by palette ink. */
+.tpl-mock-bar{
+  height:7px;border-radius:9999px;
+  background:color-mix(in oklab, var(--dpp-ink) 16%, transparent);
+}
+.tpl-mock-bar.is-short{width:55%}
+.tpl-mock-bar.is-mid{width:75%}
+/* RSVP Yes/No pill pair. */
+.tpl-mock-pills{display:flex;gap:.35rem;margin-top:auto}
+.tpl-mock-pill{
+  flex:1;height:18px;border-radius:9999px;
+  border:1px solid color-mix(in oklab, var(--dpp-ink) 35%, transparent);
+}
+.tpl-mock-pill.is-primary{
+  background:var(--dpp-primary);
+  border-color:var(--dpp-primary);
+}
+/* Schedule timeline rows. */
+.tpl-mock-row{display:flex;align-items:center;gap:.4rem}
+.tpl-mock-dot{
+  width:7px;height:7px;border-radius:9999px;flex-shrink:0;
+  background:var(--dpp-primary);
+}
+/* Wedding-party avatar circles. */
+.tpl-mock-avatars{display:flex;justify-content:center;gap:.3rem;margin-top:.15rem}
+.tpl-mock-avatar{
+  width:20px;height:20px;border-radius:9999px;
+  background:color-mix(in oklab, var(--dpp-primary) 30%, var(--dpp-surface));
+  border:1.5px solid var(--dpp-surface);
+  box-shadow:0 0 0 1px color-mix(in oklab, var(--dpp-ink) 18%, transparent);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   SIDEBAR (aside) — sticky desktop, in-flow mobile
+   ════════════════════════════════════════════════════════════════════ */
+.tpl-aside{
+  display:flex;flex-direction:column;gap:1.1rem;
+}
+@media (min-width:1024px){
+  .tpl-aside{
+    position:sticky;
+    /* Clears the sticky floating nav (P1-4) — nav top is ~.85rem + height. */
+    top:6.5rem;
+    align-self:start;
+  }
+}
+.tpl-aside-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:1.25rem;
+  box-shadow:var(--shadow-clay);
+}
+.tpl-aside-name{
+  font-size:1.4rem;font-weight:700;color:var(--ink);
+  letter-spacing:-.01em;margin:0 0 .35rem;
+  overflow-wrap:break-word;          /* long names stay contained (P2-4) */
+}
+.tpl-aside-blurb{
+  font-size:.86rem;color:var(--muted);line-height:1.55;margin:0 0 1.1rem;
+}
+
+/* Meta rows — palette + font. */
+.tpl-meta-row{
+  display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+  padding:.7rem 0;
+  border-top:1px solid var(--line-soft);
+}
+.tpl-meta-label{
+  font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;
+  font-weight:700;color:var(--muted);
+}
+.tpl-meta-value{
+  font-size:.9rem;font-weight:600;color:var(--ink);
+  display:inline-flex;align-items:center;gap:.5rem;
+  min-width:0;overflow-wrap:break-word;   /* long font names stay contained (P2-4) */
+  text-align:right;
+}
+/* Font value renders in the actual heading font (set inline per page via
+   the [data-font] cascade on .tpl-meta-value-font). */
+.tpl-meta-value-font{font-family:var(--dpp-heading-font)}
+.tpl-meta-swatches{display:inline-flex;gap:.2rem}
+.tpl-meta-swatches span{
+  width:13px;height:13px;border-radius:9999px;
+  border:1px solid rgba(0,0,0,.10);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);
+}
+.tpl-aside-bodynote{
+  font-size:.72rem;color:var(--muted-soft);margin:.6rem 0 0;
+  display:flex;align-items:flex-start;gap:.4rem;line-height:1.45;
+}
+.dark .tpl-aside-bodynote{color:var(--muted)}
+.tpl-aside-bodynote .material-symbols-outlined{font-size:15px;flex-shrink:0;margin-top:1px}
+
+/* Apply CTA group (desktop in sidebar). */
+.tpl-aside-actions{
+  display:flex;flex-direction:column;gap:.7rem;margin-top:1.1rem;
+}
+.tpl-aside-actions .btn-pill{width:100%;justify-content:center}
+/* "Back to all templates" text link. */
+.tpl-back-link{
+  display:inline-flex;align-items:center;gap:.35rem;justify-content:center;
+  font-size:.82rem;font-weight:600;color:var(--muted);
+  padding:.4rem;border-radius:9999px;
+  transition:color .2s;
+}
+@media (hover:hover) and (pointer:fine){
+  .tpl-back-link:hover{color:var(--brand)}
+}
+.tpl-back-link:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* Current-template status (P1-3) — a non-interactive badge, NOT a disabled
+   button. Sits where the Apply CTA would be on other templates. */
+.tpl-current-state{
+  display:flex;flex-direction:column;gap:.6rem;align-items:stretch;
+}
+.tpl-current-badge{
+  justify-content:center;width:100%;
+  padding:.7rem 1rem;font-size:.78rem;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   MOBILE STICKY APPLY BAR (P1-4) — keeps the primary action reachable
+   without scrolling past the hero + 3 mocks. Hidden ≥1024px (the sticky
+   sidebar covers it there). On the current-template page this slot shows
+   the status badge instead of the Apply button.
+   ════════════════════════════════════════════════════════════════════ */
+.tpl-apply-bar{
+  position:fixed;left:0;right:0;bottom:0;z-index:60;
+  display:flex;gap:.6rem;align-items:center;
+  padding:.7rem 1rem calc(.7rem + env(safe-area-inset-bottom, 0px));
+  background:color-mix(in oklab, var(--card) 88%, transparent);
+  -webkit-backdrop-filter:blur(14px) saturate(1.4);
+  backdrop-filter:blur(14px) saturate(1.4);
+  border-top:1px solid var(--line);
+}
+.tpl-apply-bar .btn-pill{flex:1;justify-content:center}
+.tpl-apply-bar-meta{
+  display:flex;flex-direction:column;gap:.1rem;flex-shrink:0;min-width:0;
+}
+.tpl-apply-bar-name{font-size:.8rem;font-weight:700;color:var(--ink);white-space:nowrap}
+.tpl-apply-bar-tag{font-size:.66rem;color:var(--muted);white-space:nowrap}
+@media (min-width:1024px){
+  .tpl-apply-bar{display:none}
+}
+/* Reserve space so the fixed bar never covers page content / footer. */
+.tpl-detail-foot-spacer{height:5rem}
+@media (min-width:1024px){
+  .tpl-detail-foot-spacer{display:none}
+}
+
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .tpl-apply-bar{background:var(--card)}
+}
+
+/* The sticky Apply bar owns the bottom edge below 1024px. The help-FAB is
+   hidden ≤768px, but in the 769–1023 band it's shown and would clip behind
+   the bar (bar is z-60, FAB z-30) — lift it clear. Scoped to detail pages
+   (only they render .tpl-apply-bar) via :has, so the gallery is untouched. */
+@media (min-width:769px) and (max-width:1023px){
+  body:has(.tpl-apply-bar) .help-fab{
+    bottom:calc(env(safe-area-inset-bottom,0px) + 5.25rem + 3.75rem);
+  }
+}

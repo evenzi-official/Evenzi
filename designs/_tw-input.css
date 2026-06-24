@@ -1,0 +1,8 @@
+/*! GENERATED FILE — DO NOT EDIT BY HAND.
+    Source: designs/_tw-input.css + designs/tailwind.config.js
+    Regenerate after ANY change to utility-class usage in designs/**:
+      cd designs && npx -y tailwindcss@3.4.17 -c tailwind.config.js -i _tw-input.css -o shared/tailwind.css
+    Tailwind pinned to v3.4.17 on purpose — the configs are v3-style. Do NOT let it resolve to v4. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

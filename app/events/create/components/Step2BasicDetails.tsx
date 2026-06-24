@@ -1,93 +1,145 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useWizard } from '@/lib/contexts/WizardContext'
-import { validateDynamicFields } from '@/lib/validations/events'
+import { validateDynamicFields, EVENT_DATE_MIN_ISO, eventDateMaxISO } from '@/lib/validations/events'
+import type { FormSchemaField } from '@/lib/types/events'
+import { DatePicker } from './DatePicker'
 
 interface FieldErrors {
   [field: string]: string
 }
 
-function getHeadingSecondLine(slug: string | undefined, name: string): string {
-  switch (slug) {
-    case 'wedding': return 'your union.'
-    case 'birthday': return 'your birthday.'
-    case 'anniversary': return 'your anniversary.'
-    case 'corporate': return 'your event.'
-    default: return `your ${name.toLowerCase()}.`
-  }
-}
-
-const INPUT_STYLE: React.CSSProperties = {
-  width: '100%',
-  padding: '14px 20px',
-  fontSize: '14px',
-  color: '#1a1a1a',
-  background: '#ffffff',
-  border: '1.5px solid #e5e7eb',
-  borderRadius: '12px',
-  outline: 'none',
-  fontFamily: 'inherit',
-  transition: 'border-color 0.15s',
-}
-
-const INPUT_ERROR_STYLE: React.CSSProperties = {
-  ...INPUT_STYLE,
-  borderColor: 'var(--color-error)',
-}
-
-const LABEL_STYLE: React.CSSProperties = {
-  display: 'block',
-  fontSize: '13px',
-  fontWeight: 500,
-  color: '#374151',
-  marginBottom: '8px',
-}
-
-function FieldLabel({ htmlFor, children, required }: { htmlFor: string; children: React.ReactNode; required?: boolean }) {
-  return (
-    <label htmlFor={htmlFor} style={LABEL_STYLE}>
-      {children}
-      {required && <span style={{ color: 'var(--color-error)', marginLeft: '3px' }}>*</span>}
-    </label>
-  )
-}
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+// Sane upper bound on guest count (M12) — mirrors createEventSchema.guestCapacity.
+const GUEST_CAPACITY_MAX = 100000
 
 export default function Step2BasicDetails(): React.JSX.Element | null {
   const { state, dispatch } = useWizard()
-  if (!state.eventType) {
-    dispatch({ type: 'GO_TO_STEP', payload: 1 })
-    return null
-  }
   const eventType = state.eventType
-  const formSchema = eventType.formSchema
+  const formSchema = eventType?.formSchema ?? []
+
+  // No event type selected — bounce back to Step 1 (after hooks, to keep the
+  // hook order stable per the Rules of Hooks).
+  useEffect(() => {
+    if (!eventType) dispatch({ type: 'GO_TO_STEP', payload: 1 })
+  }, [eventType, dispatch])
 
   const [eventTitle, setEventTitle] = useState<string>(state.basicDetails.eventTitle ?? '')
   const [metadata, setMetadata] = useState<Record<string, string>>(
     () => state.basicDetails.metadata ?? {}
   )
-  const [primaryDate, setPrimaryDate] = useState<string>(state.basicDetails.primaryDate ?? '')
-  const [primaryVenue, setPrimaryVenue] = useState<string>(state.basicDetails.primaryVenue ?? '')
+  const [primaryDate, setPrimaryDate] = useState<string>(
+    state.basicDetails.primaryDate ?? ''
+  )
+  const [primaryVenue, setPrimaryVenue] = useState<string>(
+    state.basicDetails.primaryVenue ?? ''
+  )
   const [guestCapacity, setGuestCapacity] = useState<string>(
     state.basicDetails.guestCapacity != null ? String(state.basicDetails.guestCapacity) : ''
   )
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [guestCapacityError, setGuestCapacityError] = useState<string>('')
+  const [dateError, setDateError] = useState<string>('')
+
+  // Cover image state
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(
+    state.basicDetails.coverImageUrl ?? null
+  )
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string>('')
+  const [dragOver, setDragOver] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const dateMin = EVENT_DATE_MIN_ISO()
+  const dateMax = eventDateMaxISO()
+
+  // A witty, tasteful nudge that reacts to the typed guest count (M12). Returns
+  // null below the playful threshold so the helper line stays quiet for normal
+  // weddings.
+  function guestVibe(raw: string): string | null {
+    const n = parseInt(raw, 10)
+    if (isNaN(n) || n <= 0) return null
+    if (n > GUEST_CAPACITY_MAX) return `That’s a lot — we cap guest counts at ${GUEST_CAPACITY_MAX.toLocaleString('en-IN')}.`
+    if (n > 20000) return 'Planning a stadium wedding? 😄'
+    if (n > 2000) return 'Big celebration! 🎉'
+    return null
+  }
+  const guestHelper = guestVibe(guestCapacity)
 
   function handleMetadataChange(field: string, value: string): void {
     setMetadata((prev) => ({ ...prev, [field]: value }))
     if (fieldErrors[field]) {
-      setFieldErrors((prev) => { const n = { ...prev }; delete n[field]; return n })
+      setFieldErrors((prev) => { const next = { ...prev }; delete next[field]; return next })
     }
   }
 
-  function buildBasicDetails() {
+  async function uploadFile(file: File): Promise<void> {
+    setUploadError('')
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setUploadError('Only JPEG, PNG, WebP, or GIF images are allowed')
+      return
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setUploadError('Image must be under 5 MB')
+      return
+    }
+
+    setUploading(true)
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('/api/events/cover', { method: 'POST', body: formData })
+      if (!res.ok) {
+        let msg = 'Upload failed — please try again'
+        try {
+          const body = await res.json() as { error?: string }
+          if (body.error) msg = body.error
+        } catch { /* use default */ }
+        setUploadError(msg)
+        return
+      }
+      const { url } = await res.json() as { url: string }
+      setCoverImageUrl(url)
+    } catch {
+      setUploadError('Upload failed — please try again')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>): void {
+    const file = e.target.files?.[0]
+    if (!file) return
+    void uploadFile(file)
+  }
+
+  function handleDrop(e: React.DragEvent<HTMLDivElement>): void {
+    e.preventDefault()
+    setDragOver(false)
+    if (uploading) return
+    const file = e.dataTransfer.files?.[0]
+    if (file) void uploadFile(file)
+  }
+
+  function handleRemoveCover(): void {
+    setCoverImageUrl(null)
+    setUploadError('')
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  function buildBasicDetails(): typeof state.basicDetails {
     return {
       eventTitle: eventTitle.trim() || null,
       primaryDate: primaryDate.trim() || null,
       primaryVenue: primaryVenue.trim() || null,
       guestCapacity: guestCapacity.trim() !== '' ? parseInt(guestCapacity, 10) : null,
       metadata,
+      coverImageUrl,
     }
   }
 
@@ -105,7 +157,10 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
     if (guestCapacity.trim() !== '') {
       const parsed = parseInt(guestCapacity, 10)
       if (isNaN(parsed) || parsed <= 0 || !Number.isInteger(parsed)) {
-        setGuestCapacityError('Must be a positive whole number')
+        setGuestCapacityError('Guest capacity must be a positive whole number')
+        valid = false
+      } else if (parsed > GUEST_CAPACITY_MAX) {
+        setGuestCapacityError(`Guest count can’t exceed ${GUEST_CAPACITY_MAX.toLocaleString('en-IN')}`)
         valid = false
       } else {
         setGuestCapacityError('')
@@ -113,13 +168,26 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
     } else {
       setGuestCapacityError('')
     }
+    if (primaryDate.trim() !== '') {
+      if (primaryDate < dateMin) {
+        setDateError('Event date can’t be in the past')
+        valid = false
+      } else if (primaryDate > dateMax) {
+        setDateError('Event date must be within the next 5 years')
+        valid = false
+      } else {
+        setDateError('')
+      }
+    } else {
+      setDateError('')
+    }
     return valid
   }
 
   function handleContinue(): void {
     if (!validate()) return
     dispatch({ type: 'SET_BASIC_DETAILS', payload: buildBasicDetails() })
-    const nextStep = eventType.hasSubEvents ? 3 : state.totalSteps
+    const nextStep = eventType?.hasSubEvents ? 3 : state.totalSteps
     dispatch({ type: 'GO_TO_STEP', payload: nextStep })
   }
 
@@ -128,210 +196,222 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
     dispatch({ type: 'GO_TO_STEP', payload: 1 })
   }
 
-  const headingLine2 = getHeadingSecondLine(eventType.slug, eventType.name)
+  if (!eventType) return null
 
   return (
-    <section className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-10">
-
-      {/* Heading */}
-      <div className="text-center mb-10">
-        <h1
-          style={{
-            fontFamily: 'var(--font-manrope), sans-serif',
-            fontSize: '56px',
-            fontWeight: 700,
-            lineHeight: '1.1',
-            color: '#1a1a1a',
-            marginBottom: '0',
-          }}
-        >
-          Tell us about
-        </h1>
-        <h1
-          style={{
-            fontFamily: 'var(--font-manrope), sans-serif',
-            fontSize: '56px',
-            fontWeight: 700,
-            lineHeight: '1.1',
-            color: 'var(--color-text-primary)',
-            marginBottom: '24px',
-          }}
-        >
-          {headingLine2}
-        </h1>
-        <p
-          style={{
-            fontSize: '16px',
-            color: 'var(--color-text-secondary)',
-            lineHeight: '1.65',
-            maxWidth: '480px',
-            margin: '0 auto',
-          }}
-        >
-          We&apos;re curating a bespoke experience tailored to your unique journey. Let&apos;s start with the foundational details of your big day.
+    <section className="clay-card cc-card" aria-labelledby="cc-step2-title">
+      <header className="cc-card-head">
+        <p className="cc-card-eyebrow">
+          <span className="material-symbols-outlined icon-fill" aria-hidden="true">edit_note</span>
+          The essentials
         </p>
-      </div>
+        <h1 className="cc-card-title" id="cc-step2-title">
+          Tell us about <em>your event</em>
+        </h1>
+        <p className="cc-card-lead">
+          Start with the basics — we&apos;ll adapt the planning surface to match.
+        </p>
+      </header>
 
-      {/* Form */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
-        {/* Event Title */}
-        <div>
-          <FieldLabel htmlFor="event-title">Event Title</FieldLabel>
-          <input
-            id="event-title"
-            type="text"
-            value={eventTitle}
-            placeholder="e.g. Smith-Jones Wedding Gala"
-            onChange={(e) => setEventTitle(e.target.value)}
-            style={INPUT_STYLE}
-          />
-          <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
-            Note: If an event title is not provided, one will be automatically generated for you.
-          </p>
-        </div>
-
-        {/* Dynamic formSchema fields (partner names etc.) */}
-        {formSchema.length > 0 && (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: formSchema.length >= 2 ? '1fr 1fr' : '1fr',
-              gap: '16px',
-            }}
-          >
-            {formSchema.map((fieldDef) => (
-              <div key={fieldDef.field}>
-                <FieldLabel htmlFor={`field-${fieldDef.field}`} required={fieldDef.required}>
-                  {fieldDef.label}
-                </FieldLabel>
-                <input
-                  id={`field-${fieldDef.field}`}
-                  type={fieldDef.type === 'number' ? 'number' : 'text'}
-                  value={metadata[fieldDef.field] ?? ''}
-                  placeholder={fieldDef.placeholder ?? ''}
-                  onChange={(e) => handleMetadataChange(fieldDef.field, e.target.value)}
-                  style={fieldErrors[fieldDef.field] ? INPUT_ERROR_STYLE : INPUT_STYLE}
-                  aria-invalid={!!fieldErrors[fieldDef.field]}
-                />
-                {fieldErrors[fieldDef.field] && (
-                  <p style={{ fontSize: '12px', color: 'var(--color-error)', marginTop: '4px' }} role="alert">
-                    {fieldErrors[fieldDef.field]}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Event Date + Guest Count */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <div>
-            <FieldLabel htmlFor="primary-date">Event Date</FieldLabel>
-            <input
-              id="primary-date"
-              type="date"
-              value={primaryDate}
-              onChange={(e) => setPrimaryDate(e.target.value)}
-              style={INPUT_STYLE}
+      {/* Cover image upload — shell .dp-dropzone primitive (single image, M2) */}
+      <div className="form-group is-full" style={{ marginBottom: '0.5rem' }}>
+        <label className="form-label">Cover photo <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(optional)</span></label>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          style={{ display: 'none' }}
+          onChange={handleImageSelect}
+        />
+        {coverImageUrl ? (
+          <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', height: '180px', background: 'var(--line-soft)' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={coverImageUrl}
+              alt="Event cover"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             />
-          </div>
-          <div>
-            <FieldLabel htmlFor="guest-capacity">Guest Count</FieldLabel>
-            <input
-              id="guest-capacity"
-              type="number"
-              min={1}
-              value={guestCapacity}
-              placeholder="Estimated guests"
-              onChange={(e) => { setGuestCapacity(e.target.value); if (guestCapacityError) setGuestCapacityError('') }}
-              style={guestCapacityError ? INPUT_ERROR_STYLE : INPUT_STYLE}
-              aria-invalid={!!guestCapacityError}
-            />
-            {guestCapacityError && (
-              <p style={{ fontSize: '12px', color: 'var(--color-error)', marginTop: '4px' }} role="alert">
-                {guestCapacityError}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Venue Location */}
-        <div>
-          <FieldLabel htmlFor="primary-venue">Venue Location</FieldLabel>
-          <div style={{ position: 'relative' }}>
-            <span
-              aria-hidden="true"
+            <button
+              type="button"
+              onClick={handleRemoveCover}
+              aria-label="Remove cover photo"
               style={{
-                position: 'absolute',
-                left: '16px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: '#9ca3af',
-                pointerEvents: 'none',
-                lineHeight: 1,
+                position: 'absolute', top: '8px', right: '8px',
+                background: 'rgba(0,0,0,0.55)', border: 'none', borderRadius: '50%',
+                width: '32px', height: '32px', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', cursor: 'pointer', color: '#fff',
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 1.5C5.51 1.5 3.5 3.51 3.5 6c0 3.5 4.5 8.5 4.5 8.5S12.5 9.5 12.5 6c0-2.49-2.01-4.5-4.5-4.5Zm0 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z" fill="currentColor"/>
-              </svg>
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>close</span>
+            </button>
+          </div>
+        ) : (
+          <div
+            role="button"
+            tabIndex={0}
+            className={`dp-dropzone${dragOver ? ' is-dragover' : ''}`}
+            aria-disabled={uploading}
+            aria-label="Upload cover photo"
+            onClick={() => { if (!uploading) fileInputRef.current?.click() }}
+            onKeyDown={(e) => {
+              if ((e.key === 'Enter' || e.key === ' ') && !uploading) {
+                e.preventDefault()
+                fileInputRef.current?.click()
+              }
+            }}
+            onDragOver={(e) => { e.preventDefault(); if (!uploading) setDragOver(true) }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+          >
+            <span className="dp-dropzone-icon" aria-hidden="true">
+              <span className="material-symbols-outlined icon-fill">
+                {uploading ? 'progress_activity' : 'add_photo_alternate'}
+              </span>
+            </span>
+            <span className="dp-dropzone-title">
+              {uploading ? 'Uploading…' : 'Upload cover photo'}
+            </span>
+            <span className="dp-dropzone-hint">JPEG · PNG · WebP · GIF · up to 5 MB</span>
+          </div>
+        )}
+        {uploadError && (
+          <p className="form-error" role="alert" style={{ marginTop: '6px' }}>{uploadError}</p>
+        )}
+      </div>
+
+      <div className="cc-form-grid">
+        {/* Event title (optional) — full width, derives name when blank (M3) */}
+        <div className="form-group is-full">
+          <label className="form-label" htmlFor="cc-title">
+            Event title <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(optional)</span>
+          </label>
+          <input
+            id="cc-title"
+            type="text"
+            className="form-input"
+            value={eventTitle}
+            placeholder="e.g. Aaisha &amp; Taylan's Wedding"
+            maxLength={80}
+            autoComplete="off"
+            onChange={(e) => setEventTitle(e.target.value)}
+          />
+        </div>
+
+        {/* Dynamic schema fields (e.g. partner names) — design grouping, two-up */}
+        <div className="cc-partners-group">
+          {formSchema.map((fieldDef: FormSchemaField) => (
+            <div key={fieldDef.key} className="form-group">
+              <label className="form-label" htmlFor={`field-${fieldDef.key}`}>
+                {fieldDef.label}{fieldDef.required ? ' *' : ''}
+              </label>
+              <input
+                id={`field-${fieldDef.key}`}
+                type={fieldDef.type === 'number' ? 'number' : 'text'}
+                className="form-input"
+                value={metadata[fieldDef.key] ?? ''}
+                placeholder={fieldDef.placeholder ?? ''}
+                maxLength={fieldDef.type !== 'number' ? 80 : undefined}
+                autoComplete="off"
+                aria-invalid={!!fieldErrors[fieldDef.key]}
+                aria-describedby={fieldErrors[fieldDef.key] ? `err-${fieldDef.key}` : undefined}
+                onChange={(e) => handleMetadataChange(fieldDef.key, e.target.value)}
+              />
+              {fieldErrors[fieldDef.key] && (
+                <p className="form-error" id={`err-${fieldDef.key}`} role="alert">
+                  {fieldErrors[fieldDef.key]}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Event date — dark branded calendar (M4) */}
+        <div className="form-group">
+          <span className="form-label" id="cc-eventDate-label">Event date</span>
+          <DatePicker
+            value={primaryDate || null}
+            onChange={(iso) => { setPrimaryDate(iso); setDateError('') }}
+            min={dateMin}
+            max={dateMax}
+            labelId="cc-eventDate-label"
+          />
+          {dateError && (
+            <p className="form-error" role="alert" style={{ marginTop: '6px' }}>{dateError}</p>
+          )}
+        </div>
+
+        {/* Guest count */}
+        <div className="form-group">
+          <label className="form-label" htmlFor="cc-guestCount">Guest count</label>
+          <input
+            id="cc-guestCount"
+            type="number"
+            min={1}
+            max={GUEST_CAPACITY_MAX}
+            inputMode="numeric"
+            className="form-input"
+            value={guestCapacity}
+            placeholder="Estimated guests"
+            autoComplete="off"
+            aria-invalid={!!guestCapacityError}
+            aria-describedby={
+              guestCapacityError ? 'cc-guest-err' : guestHelper ? 'cc-guest-help' : undefined
+            }
+            onChange={(e) => {
+              // Clamp absurd values so they can never be stored (M12).
+              let next = e.target.value
+              const parsed = parseInt(next, 10)
+              if (!isNaN(parsed) && parsed > GUEST_CAPACITY_MAX) {
+                next = String(GUEST_CAPACITY_MAX)
+              }
+              setGuestCapacity(next)
+              if (guestCapacityError) setGuestCapacityError('')
+            }}
+          />
+          {guestCapacityError ? (
+            <p className="form-error" id="cc-guest-err" role="alert">{guestCapacityError}</p>
+          ) : guestHelper ? (
+            <p className="cc-form-helper" id="cc-guest-help" aria-live="polite">{guestHelper}</p>
+          ) : null}
+        </div>
+
+        {/* Venue — full width with place icon prefix */}
+        <div className="form-group is-full">
+          <label className="form-label" htmlFor="cc-venue">Venue location</label>
+          <div className="form-input form-input-group">
+            <span className="form-input-prefix cc-venue-prefix" aria-hidden="true">
+              <span className="material-symbols-outlined">place</span>
             </span>
             <input
-              id="primary-venue"
+              id="cc-venue"
               type="text"
+              className="form-input-field"
               value={primaryVenue}
               placeholder="Search for a city or venue"
+              autoComplete="off"
               onChange={(e) => setPrimaryVenue(e.target.value)}
-              style={{ ...INPUT_STYLE, paddingLeft: '40px' }}
             />
           </div>
+          <p className="cc-form-helper">
+            Tip — city names work too; pick a specific venue later from your dashboard.
+          </p>
         </div>
+      </div>
 
-        {/* Bottom note */}
-        <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', textAlign: 'center', lineHeight: '1.6' }}>
-          Note: Only partner names are required to proceed. All other details can be configured later from your dashboard.
-        </p>
-
-        {/* Actions */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', paddingTop: '8px' }}>
-          <button
-            type="button"
-            onClick={handleContinue}
-            style={{
-              padding: '18px 56px',
-              background: 'var(--color-text-primary)',
-              color: '#ffffff',
-              fontSize: '15px',
-              fontWeight: 600,
-              borderRadius: '9999px',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              fontFamily: 'var(--font-manrope), sans-serif',
-              transition: 'opacity 0.15s',
-            }}
-          >
-            Continue to Details
-            <span aria-hidden="true">→</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleBack}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '14px',
-              color: 'var(--color-text-secondary)',
-              padding: '4px 8px',
-            }}
-          >
-            ← Back
-          </button>
-        </div>
-
+      <div className="cc-actions">
+        <button type="button" className="cc-back-btn" onClick={handleBack}>
+          <span aria-hidden="true" className="material-symbols-outlined">arrow_back</span>
+          Back
+        </button>
+        <button
+          type="button"
+          className="btn-pill btn-pill-primary btn-pill-lg"
+          onClick={handleContinue}
+        >
+          <span>Continue</span>
+          <span aria-hidden="true" className="material-symbols-outlined">arrow_forward</span>
+          <span aria-hidden="true" className="btn-pill-spinner" />
+        </button>
       </div>
     </section>
   )

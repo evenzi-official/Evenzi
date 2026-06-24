@@ -1,16 +1,16 @@
 ---
 name: session-report
-description: End-of-session report — summarizes work done, token usage estimation, issues discovered, optimization suggestions. Called by /end-session before committing.
+description: End-of-session report — summarizes work done, token usage estimation, issues discovered, optimization suggestions. Called by /end-evenzi-session (Abhijith path) before committing.
 ---
 
 # Session Report — End-of-Session Summary
 
-Generates a comprehensive session report covering work accomplished, token usage, and optimization insights. Called by `/end-session` before the final commit.
+Generates a comprehensive session report covering work accomplished, token usage, and optimization insights. Called by `/end-evenzi-session` before the final commit.
 
 ## When to Invoke
 
 - At the end of every session, before committing
-- Called by `/end-session` as step 3
+- Called by `/end-evenzi-session` as step 3
 - Can also be invoked mid-session for a progress check
 
 ## Process
@@ -116,10 +116,10 @@ Create the `docs/session-reports/` directory if it doesn't exist.
 
 This creates a running history of session reports that can be analyzed over time for trends in token usage, productivity patterns, and optimization opportunities.
 
-## Integration with /end-session
+## Integration with /end-evenzi-session
 
 ```
-/end-session
+/end-evenzi-session
   1. Review git changes
   2. /clickup-pm (session-end)
   3. >>> /session-report → generate report <<<

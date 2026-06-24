@@ -1,21 +1,24 @@
 @import "tailwindcss";
+@import "../designs/shared/shell.css";
+@import "../designs/index.css";
+@import "../designs/pages/auth/auth.css";
+@import "../designs/pages/create-event/create-event.css";
+@import "../designs/pages/event-control/event-control.css";
+@import "../designs/pages/event-control/our-journey.css";
 
 :root {
   /* Brand colors — placeholder values, see docs/BRAND-GUIDELINES.md */
-  --color-primary: #BB0020;
+  --color-primary: #111827;
   --color-primary-hover: #1f2937;
   --color-bg-primary: #f9fafb;
   --color-bg-card: #ffffff;
-  --color-text-primary: #BB0020;
+  --color-text-primary: #111827;
   --color-text-secondary: #6b7280;
   --color-text-muted: #9ca3af;
   --color-border: #e5e7eb;
   --color-error: #ef4444;
   --color-error-bg: #fef2f2;
   --color-error-border: #fecaca;
-  --color-bg-primary-shade: rgba(187, 0, 32, 0.05);
-  --color-bg-primary-shade-border: rgba(187, 0, 32, 0.1);
-
 
   /* Spacing & radius */
   --radius-sm: 8px;
@@ -39,9 +42,75 @@
   --color-error: var(--color-error);
   --font-sans: var(--font-inter);
   --font-serif: var(--font-cormorant);
+  --font-display: var(--font-poppins, 'Poppins'), sans-serif;
 }
 
 body {
-  background: var(--color-bg-primary);
-  color: var(--color-text-primary);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Brand preloader — full-screen boot splash (components/ui/Preloader.tsx) */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  opacity: 1;
+  transition: opacity 0.6s ease;
+}
+.preloader.is-hiding { opacity: 0; pointer-events: none; }
+.preloader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+}
+.preloader-logo {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.75rem;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: var(--brand);
+}
+.preloader-bar {
+  position: relative;
+  width: 200px;
+  height: 3px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+  overflow: hidden;
+}
+.preloader-bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -40%;
+  width: 40%;
+  border-radius: 999px;
+  background: var(--brand);
+  animation: preloader-slide 1.1s ease-in-out infinite;
+}
+.preloader-tag {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  color: var(--muted);
+}
+@keyframes preloader-slide {
+  0%   { left: -40%; }
+  50%  { left: 60%; }
+  100% { left: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .preloader { transition: none; }
+  .preloader-bar-fill { animation: none; left: 0; width: 100%; opacity: 0.4; }
 }

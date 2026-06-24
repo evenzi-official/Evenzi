@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Website settings · Anya & Kabir</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="event-settings.css" />
+</head>
+<body data-page="event-settings" data-section="dashboard" data-es-page="website" class="bg-bg text-ink min-h-screen">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ────────────────────── FLOATING TOP NAV ────────────────────── -->
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../event-control/event-control.html" data-section="dashboard" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="../website/overview.html" data-section="website" class="nav-tab" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ────────────────────── FLOATING TOOL RAIL ────────────────────── -->
+<aside class="tool-rail" aria-label="Event tools">
+  <a href="../guests/guests.html" class="tr-btn" data-label="Guest management" data-page="guests" aria-label="Guest management">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+  </a>
+  <a href="../invitations/invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations" aria-label="Invitations">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
+  </a>
+  <a href="../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning" aria-label="Planning">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
+  </a>
+  <a href="../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media" aria-label="Media &amp; memories">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
+  </a>
+  <a href="general.html" class="tr-btn" data-label="Event settings" data-page="event-settings" aria-label="Event settings">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+  </a>
+  <span class="tr-divider" aria-hidden="true"></span>
+  <span class="tr-status" aria-hidden="true">
+    <span class="bc-live"></span>
+    LIVE
+  </span>
+</aside>
+
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb">
+    <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html">DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html">ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page"><span class="bc-dot" aria-hidden="true"></span> EVENT SETTINGS</li>
+    </ol>
+  </nav>
+</div>
+
+<div class="seg-wrap seg-wrap--page reveal">
+  <nav class="seg" aria-label="Event settings sections">
+    <a href="general.html" class="seg-item seg--page"><span class="material-symbols-outlined" aria-hidden="true">tune</span><span>General</span></a>
+    <a href="website.html" class="seg-item seg--page is-active" aria-current="page"><span class="material-symbols-outlined" aria-hidden="true">language</span><span>Website</span></a>
+    <a href="admins.html" class="seg-item seg--page"><span class="material-symbols-outlined" aria-hidden="true">groups</span><span>Admins</span></a>
+    <a href="guest-list.html" class="seg-item seg--page"><span class="material-symbols-outlined" aria-hidden="true">how_to_reg</span><span>Guest list</span></a>
+    <a href="registry.html" class="seg-item seg--page"><span class="material-symbols-outlined" aria-hidden="true">redeem</span><span>Registry</span></a>
+    <a href="plan-billing.html" class="seg-item seg--page"><span class="material-symbols-outlined" aria-hidden="true">credit_card</span><span>Plan &amp; billing</span></a>
+  </nav>
+</div>
+<main class="page-band reveal pt-6 md:pt-8 pb-24">
+
+  <div class="es-content">
+    <header class="es-content-head">
+      <div>
+        <h1 class="es-content-title">Website settings</h1>
+        <p class="es-content-lead">Control how your event website looks, behaves, and reaches the right people.</p>
+      </div>
+      <div class="es-content-actions">
+        <a class="btn-pill btn-pill-secondary" href="#" data-es-live-site>
+          <span aria-hidden="true" class="material-symbols-outlined">open_in_new</span>
+          View live site
+        </a>
+        <button type="button" class="btn-pill btn-pill-primary" data-es-save data-es-save-toast="WEBSITE SETTINGS SAVED">
+          <span aria-hidden="true" class="material-symbols-outlined">save</span>
+          Save changes
+          <span aria-hidden="true" class="btn-pill-spinner"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Countdown banner -->
+    <section class="es-section es-section--highlight">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">schedule</span>
+          Website expiry countdown
+        </h2>
+        <span class="es-section-tag">45 days remaining</span>
+      </header>
+      <p class="es-section-sub">Your event website stays online for 60 days after the event date. Renew anytime from <strong>Plan &amp; billing</strong> to keep your photos &amp; memories on a custom URL.</p>
+    </section>
+
+    <!-- Privacy & Access -->
+    <section class="es-section">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">lock</span>
+          Privacy &amp; access
+        </h2>
+        <p class="es-section-sub">Decide who can view your event page and how they verify their access.</p>
+      </header>
+
+      <div class="es-toggle-row">
+        <div class="es-toggle-body">
+          <span class="es-toggle-title">Password protect website</span>
+          <span class="es-toggle-desc">Visitors enter a password before they can see your event details.</span>
+        </div>
+        <button type="button" class="toggle-switch" role="switch" aria-checked="true" aria-label="Password protect website">
+          <span class="toggle-switch-thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="form-group es-field-spaced">
+        <label class="form-label" for="es-site-password">Website password</label>
+        <input id="es-site-password" type="text" class="form-input" value="welcome2026" maxlength="40" autocomplete="off"/>
+        <p class="form-helper">Tip — use a short word your families can remember. Avoid personal info.</p>
+      </div>
+    </section>
+
+    <!-- Search Engine Indexing -->
+    <section class="es-section">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">search</span>
+          Search engine indexing
+        </h2>
+        <p class="es-section-sub">Allow Google &amp; other search engines to index your website &amp; help guests find it.</p>
+      </header>
+      <div class="es-toggle-row">
+        <div class="es-toggle-body">
+          <span class="es-toggle-title">Allow search indexing</span>
+          <span class="es-toggle-desc">Off by default for privacy — turn on for public, ticketed events.</span>
+        </div>
+        <button type="button" class="toggle-switch" role="switch" aria-checked="false" aria-label="Allow search indexing">
+          <span class="toggle-switch-thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Pages -->
+    <section class="es-section">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">web</span>
+          Pages
+        </h2>
+        <a href="#" class="cc-review-edit">
+          <span aria-hidden="true" class="material-symbols-outlined">edit</span>
+          Modify all
+        </a>
+      </header>
+      <div class="es-pages">
+        <div class="es-page-row">
+          <span class="es-page-icon" aria-hidden="true"><span class="material-symbols-outlined icon-fill">home</span></span>
+          <div class="es-page-body">
+            <span class="es-page-name">Home</span>
+            <span class="es-page-status is-published">Published</span>
+          </div>
+          <button type="button" class="btn-pill btn-pill-secondary">
+            <span aria-hidden="true" class="material-symbols-outlined">edit</span> Edit
+          </button>
+        </div>
+        <div class="es-page-row">
+          <span class="es-page-icon" aria-hidden="true"><span class="material-symbols-outlined icon-fill">how_to_reg</span></span>
+          <div class="es-page-body">
+            <span class="es-page-name">RSVP</span>
+            <span class="es-page-status is-published">Published</span>
+          </div>
+          <button type="button" class="btn-pill btn-pill-secondary">
+            <span aria-hidden="true" class="material-symbols-outlined">edit</span> Edit
+          </button>
+        </div>
+        <div class="es-page-row">
+          <span class="es-page-icon" aria-hidden="true"><span class="material-symbols-outlined icon-fill">redeem</span></span>
+          <div class="es-page-body">
+            <span class="es-page-name">Registry</span>
+            <span class="es-page-status is-published">Published</span>
+          </div>
+          <button type="button" class="btn-pill btn-pill-secondary">
+            <span aria-hidden="true" class="material-symbols-outlined">edit</span> Edit
+          </button>
+        </div>
+        <div class="es-page-row">
+          <span class="es-page-icon" aria-hidden="true"><span class="material-symbols-outlined icon-fill">event</span></span>
+          <div class="es-page-body">
+            <span class="es-page-name">Story &amp; schedule</span>
+            <span class="es-page-status">Draft</span>
+          </div>
+          <button type="button" class="btn-pill btn-pill-secondary">
+            <span aria-hidden="true" class="material-symbols-outlined">edit</span> Edit
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Announcement Banner -->
+    <section class="es-section">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">campaign</span>
+          Announcement banner
+        </h2>
+        <p class="es-section-sub">Show a short message at the top of your website — venue updates, weather notes, dress code.</p>
+      </header>
+      <div class="es-toggle-row">
+        <div class="es-toggle-body">
+          <span class="es-toggle-title">Display announcement banner</span>
+          <span class="es-toggle-desc">Visible to all visitors on every page.</span>
+        </div>
+        <button type="button" class="toggle-switch" role="switch" aria-checked="false" aria-label="Display announcement banner">
+          <span class="toggle-switch-thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="form-group es-field-spaced">
+        <label class="form-label" for="es-banner-text">Banner text</label>
+        <textarea id="es-banner-text" class="form-textarea" maxlength="160" placeholder="e.g. Outdoor ceremony — please bring sunglasses ☀️"></textarea>
+        <p class="form-helper">Keep it under 160 characters for clean mobile rendering.</p>
+      </div>
+    </section>
+
+    <!-- Take Website Offline -->
+    <section class="es-section is-danger">
+      <header class="es-section-head">
+        <h2 class="es-section-title">
+          <span aria-hidden="true" class="material-symbols-outlined icon-fill">power_off</span>
+          Take website offline
+        </h2>
+        <p class="es-section-sub">Temporarily hide the public website. RSVPs, photos, and admin views stay accessible.</p>
+      </header>
+      <div class="es-toggle-row is-danger">
+        <div class="es-toggle-body">
+          <span class="es-toggle-title">Make site visible only to admins</span>
+          <span class="es-toggle-desc">Hide your event page from anyone without admin access.</span>
+        </div>
+        <button type="button" class="btn-pill btn-pill-danger" data-es-offline>
+          <span aria-hidden="true" class="material-symbols-outlined">power_settings_new</span>
+          Take offline
+          <span aria-hidden="true" class="btn-pill-spinner"></span>
+        </button>
+      </div>
+    </section>
+
+    <footer class="es-footer">
+      <span>© 2026 Evenzi · All rights reserved</span>
+      <div class="es-footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Help</a>
+      </div>
+    </footer>
+  </div>
+</main>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">SAVED</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="event-settings.js"></script>
+</body>
+</html>

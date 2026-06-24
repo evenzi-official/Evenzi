@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Invitations</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Anya & Kabir's Wedding · Invitation card designer on Evenzi." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<link rel="manifest" href="../../manifest.webmanifest" />
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<!-- Card display fonts (aesthetic, not layout-critical). PORTING NOTE: these load from the
+     Google CDN like the website template pages — vendor them (@font-face) for export fidelity
+     (html2canvas needs fonts.ready) when the real PNG-export build lands. -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="invitations.css" />
+</head>
+<body class="min-h-dvh bg-bg text-ink" data-page="invitations" data-view="gallery">
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../event-control/event-control.html" data-section="dashboard" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="../website/overview.html" data-section="website" class="nav-tab" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<aside class="tool-rail" aria-label="Event tools">
+  <a href="../guests/guests.html" class="tr-btn" data-label="Guest management" data-page="guests" aria-label="Guest management">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+  </a>
+  <a href="invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations" aria-label="Invitations">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
+  </a>
+  <a href="../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning" aria-label="Planning">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
+  </a>
+  <a href="../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media" aria-label="Media &amp; memories">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
+  </a>
+  <a href="../event-settings/general.html" class="tr-btn" data-label="Event settings" data-page="event-settings" aria-label="Event settings">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+  </a>
+  <span class="tr-divider" aria-hidden="true"></span>
+  <span class="tr-status" aria-hidden="true">
+    <span class="bc-live"></span>
+    LIVE
+  </span>
+</aside>
+
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event control" data-bc-back data-bc-back-label="EVENT CONTROL">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html" data-bc-link>ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        INVITATIONS
+      </li>
+    </ol>
+    <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
+    <button type="button" class="bc-copy" aria-label="Copy breadcrumb path" data-bc-copy data-bc-copy-path="evenzi://dashboard / anya-kabir / invitations">
+      <span aria-hidden="true" class="material-symbols-outlined" style="font-size:15px">content_copy</span>
+    </button>
+  </nav>
+</div>
+
+<main class="page-band pt-10 pb-24" id="inv-main">
+
+  <!-- ════ GALLERY ════ -->
+  <section class="inv-gallery" id="inv-gallery" aria-labelledby="inv-h">
+    <header class="section-head reveal">
+      <p class="section-head-eyebrow">Section</p>
+      <h1 class="section-head-title" id="inv-h">Invitations</h1>
+      <p class="section-head-sub">Pick a card, make it yours, and share it with your guests on WhatsApp.</p>
+    </header>
+
+    <div class="dp-filter-chips inv-filters reveal" id="inv-filters" role="radiogroup" aria-label="Filter cards by style"></div>
+    <div class="dp-tile-grid inv-grid reveal" id="inv-grid" aria-label="Invitation card templates"></div>
+  </section>
+
+  <!-- ════ EDITOR ════ -->
+  <section class="inv-editor" id="inv-editor" hidden aria-label="Card editor">
+    <div class="inv-editor-head reveal">
+      <button type="button" class="btn-pill btn-pill-secondary" id="inv-back">
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+        <span>Change template</span>
+      </button>
+      <span class="inv-autosave" id="inv-autosave" aria-live="polite">
+        <span aria-hidden="true" class="material-symbols-outlined">cloud_done</span> Saved
+      </span>
+    </div>
+
+    <p class="inv-edit-hint" id="inv-edit-hint">Tap any text on the card to edit it.</p>
+
+    <div class="inv-editor-stage reveal">
+      <div class="inv-card-frame" id="inv-card-frame">
+        <article class="inv-card" id="inv-card" aria-label="Invitation card preview"></article>
+      </div>
+    </div>
+
+    <!-- Floating text-size toolbar (appears when a text slot is focused) -->
+    <div class="inv-toolbar" id="inv-toolbar" role="toolbar" aria-label="Text size" hidden>
+      <button type="button" class="inv-tool-btn" id="inv-size-down" aria-label="Smaller text">
+        <span aria-hidden="true" class="material-symbols-outlined">text_decrease</span>
+      </button>
+      <span class="inv-tool-label" id="inv-size-label" aria-live="polite">Medium</span>
+      <button type="button" class="inv-tool-btn" id="inv-size-up" aria-label="Larger text">
+        <span aria-hidden="true" class="material-symbols-outlined">text_increase</span>
+      </button>
+    </div>
+
+    <div class="inv-actionbar reveal">
+      <button type="button" class="btn-pill btn-pill-secondary" id="inv-preview">
+        <span aria-hidden="true" class="material-symbols-outlined">visibility</span><span>Preview</span>
+      </button>
+      <button type="button" class="btn-pill btn-pill-secondary" id="inv-download">
+        <span aria-hidden="true" class="material-symbols-outlined">download</span><span>Download</span>
+      </button>
+      <button type="button" class="btn-pill btn-pill-primary" id="inv-share">
+        <span aria-hidden="true" class="material-symbols-outlined">share</span><span>Share on WhatsApp</span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<!-- hidden inputs: upload-your-own + per-card photo slot -->
+<label class="sr-only" for="inv-upload-input">Upload your own card image</label>
+<input type="file" id="inv-upload-input" class="sr-only" accept="image/jpeg,image/png" />
+<label class="sr-only" for="inv-photo-input">Add a photo to the card</label>
+<input type="file" id="inv-photo-input" class="sr-only" accept="image/jpeg,image/png" />
+
+<footer class="page-band mt-20 pt-10 pb-10 border-t border-line">
+  <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="flex items-center gap-3">
+      <span aria-hidden="true" class="w-9 h-9 shrink-0 rounded-full bg-brand text-white inline-flex items-center justify-center font-display font-bold">E</span>
+      <p class="text-sm text-muted font-semibold">© 2026 Evenzi · Capture · Share · Cherish</p>
+    </div>
+    <div class="flex items-center gap-6 text-xs font-bold tracking-widest text-muted uppercase">
+      <a href="#" class="hover:text-brand transition-colors">Privacy</a>
+      <a href="#" class="hover:text-brand transition-colors">Terms</a>
+      <a href="#" class="hover:text-brand transition-colors">Help</a>
+    </div>
+  </div>
+</footer>
+
+<button aria-label="Open help center" class="help-fab">
+  <span aria-hidden="true" class="material-symbols-outlined icon-fill">support_agent</span>
+</button>
+
+<!-- ───────── FULL PREVIEW LIGHTBOX ───────── -->
+<div class="modal-scrim modal-scrim-deep" id="inv-preview-modal" data-modal aria-hidden="true">
+  <div class="modal-card modal-image-lightbox inv-preview-card" role="dialog" aria-modal="true" aria-labelledby="inv-preview-title">
+    <button class="modal-lightbox-close" type="button" data-modal-close aria-label="Close preview">
+      <span aria-hidden="true" class="material-symbols-outlined">close</span>
+    </button>
+    <div class="inv-preview-stage" id="inv-preview-stage"></div>
+    <div class="modal-lightbox-bar">
+      <div class="modal-lightbox-meta">
+        <p class="modal-lightbox-title" id="inv-preview-title">Your invitation</p>
+        <p class="modal-lightbox-sub">This is what your guests will see.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───────── WHATSAPP SHARE CONFIRM ───────── -->
+<div class="modal-scrim" id="inv-share-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card inv-share-modal" role="dialog" aria-modal="true" aria-labelledby="inv-share-title">
+    <div class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="inv-share-title">Share on WhatsApp</h2>
+        <p class="modal-sub">Your card downloads, then attaches in WhatsApp with this message.</p>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Close">
+        <span aria-hidden="true" class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="inv-share-body">
+      <div class="inv-share-thumb" id="inv-share-thumb" aria-hidden="true"></div>
+      <div class="inv-share-msg">
+        <p class="inv-share-label">Message</p>
+        <p class="inv-share-text" id="inv-share-text"></p>
+        <p class="inv-share-note"><span aria-hidden="true" class="material-symbols-outlined">info</span> The card is an image — it attaches from your downloads. The link opens your RSVP page.</p>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="inv-share-confirm">
+        <span aria-hidden="true" class="material-symbols-outlined">download</span>Download &amp; open WhatsApp
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ───────── DISCARD-TEMPLATE CONFIRM ───────── -->
+<div class="modal-scrim" id="inv-discard-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="inv-discard-title">
+    <span class="modal-confirm-icon is-cautionary" aria-hidden="true"><span class="material-symbols-outlined">restart_alt</span></span>
+    <h2 class="modal-confirm-title" id="inv-discard-title">Change template?</h2>
+    <p class="modal-confirm-text">Your edits on this card will be cleared. Your other cards are unaffected.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Keep editing</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="inv-discard-confirm">Change template</button>
+    </div>
+  </div>
+</div>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">PATH COPIED</span>
+</div>
+
+<script src="../../shared/shell.js" defer></script>
+<script src="invitations.js" defer></script>
+</body>
+</html>

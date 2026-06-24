@@ -1,10 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { HeroGeometric } from "@/components/ui/hero-geometric";
 import { TextScrollAnimation } from "@/components/ui/text-scroll-animation";
 import IntroAnimation from "@/components/ui/scroll-morph-hero";
+import { PageFooter } from "@/components/layout/PageFooter";
 
 function Nav() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const handleSignup = () => {
     window.location.href = "/auth";
   };
@@ -13,8 +17,8 @@ function Nav() {
     <nav style={{ borderBottom: "1px solid #eeeeee", background: "#ffffff" }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
 
-        {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        {/* Logo — hidden on mobile when drawer is open */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", visibility: menuOpen ? "hidden" : "visible" }}>
           <div
             style={{
               width: "40px",
@@ -50,7 +54,7 @@ function Nav() {
           </span>
         </div>
 
-        {/* Nav links */}
+        {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-6">
           <a
             href="#features"
@@ -82,7 +86,128 @@ function Nav() {
             Sign In
           </button>
         </div>
+
+        {/* Hamburger button — mobile only */}
+        <button
+          className="md:hidden flex flex-col items-center justify-center gap-[5px]"
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          style={{
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            padding: "4px",
+          }}
+        >
+          {menuOpen ? (
+            /* X icon */
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <line x1="3" y1="3" x2="19" y2="19" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" />
+              <line x1="19" y1="3" x2="3" y2="19" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          ) : (
+            /* Hamburger icon */
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <line x1="3" y1="6" x2="19" y2="6" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" />
+              <line x1="3" y1="11" x2="19" y2="11" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" />
+              <line x1="3" y1="16" x2="19" y2="16" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          )}
+        </button>
       </div>
+
+      {/* Mobile right-side drawer */}
+      {menuOpen && (
+        <>
+          {/* Scrim */}
+          <div
+            className="md:hidden"
+            onClick={() => setMenuOpen(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.35)",
+              zIndex: 40,
+            }}
+          />
+          {/* Drawer panel */}
+          <div
+            className="md:hidden"
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: "72%",
+              maxWidth: "300px",
+              background: "#ffffff",
+              zIndex: 50,
+              display: "flex",
+              flexDirection: "column",
+              padding: "20px 24px 32px",
+              boxShadow: "-4px 0 24px rgba(0,0,0,0.10)",
+            }}
+          >
+            {/* Drawer header: logo + close */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "32px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#BB0020", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ fontSize: "14px", fontWeight: 800, color: "#fff", fontFamily: "var(--font-manrope), sans-serif" }}>E</span>
+                </div>
+                <span style={{ fontFamily: "var(--font-manrope), sans-serif", fontSize: "16px", fontWeight: 800, color: "#1a1a1a" }}>Evenzi</span>
+              </div>
+              <button
+                onClick={() => setMenuOpen(false)}
+                aria-label="Close menu"
+                style={{ background: "transparent", border: "none", cursor: "pointer", padding: "4px" }}
+              >
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                  <line x1="3" y1="3" x2="19" y2="19" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="19" y1="3" x2="3" y2="19" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Nav links */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              <a
+                href="#features"
+                onClick={() => setMenuOpen(false)}
+                style={{ fontSize: "15px", color: "#374151", textDecoration: "none", fontWeight: 500 }}
+              >
+                Features
+              </a>
+              <a
+                href="#about"
+                onClick={() => setMenuOpen(false)}
+                style={{ fontSize: "15px", color: "#374151", textDecoration: "none", fontWeight: 500 }}
+              >
+                About
+              </a>
+              <button
+                onClick={() => { setMenuOpen(false); handleSignup(); }}
+                style={{
+                  alignSelf: "flex-start",
+                  marginTop: "4px",
+                  padding: "9px 24px",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  color: "#BB0020",
+                  background: "transparent",
+                  border: "1.5px solid #BB0020",
+                  borderRadius: "9999px",
+                  cursor: "pointer",
+                  letterSpacing: "0.04em",
+                  fontFamily: "var(--font-manrope), sans-serif",
+                }}
+              >
+                Sign In
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </nav>
   );
 }
@@ -110,6 +235,7 @@ export default function Home() {
       />
       <TextScrollAnimation />
       <IntroAnimation />
+      <PageFooter />
     </div>
   );
 }

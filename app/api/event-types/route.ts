@@ -7,11 +7,14 @@ export async function GET() {
     const supabase = await createClient()
 
     const { data, error } = await supabase
+      .schema('config')
       .from('event_types')
       .select('*')
+      .eq('enabled', true)
       .order('display_order', { ascending: true })
 
     if (error) {
+      console.error('GET /api/event-types error:', error)
       return NextResponse.json(
         { error: 'Failed to fetch event types' },
         { status: 500 }
@@ -21,7 +24,8 @@ export async function GET() {
     const eventTypes = (data as EventTypeRow[]).map(mapEventTypeRow)
 
     return NextResponse.json({ eventTypes })
-  } catch {
+  } catch (error) {
+    console.error('GET /api/event-types error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

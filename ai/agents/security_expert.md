@@ -77,3 +77,10 @@ A single validation point is insufficient. Different code paths can bypass any s
 - Always verify auth middleware coverage
 - Apply defense-in-depth: one validation layer is never enough
 - Be specific about impact and fix for every finding
+
+
+---
+
+## Learnings
+
+<!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · Guest Management</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Anya & Kabir's Wedding · Guest Management on Evenzi." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Evenzi" />
+<meta name="application-name" content="Evenzi" />
+<link rel="manifest" href="../../manifest.webmanifest" />
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<link rel="stylesheet" href="../../shared/tailwind.css" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="guests.css" />
+</head>
+<body data-page="guests" data-section="dashboard">
+
+<!-- Top scroll-progress hairline -->
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ────────────────────── FLOATING TOP NAV ────────────────────── -->
+<nav class="floating-nav" aria-label="Main">
+  <div class="floating-nav-inner">
+    <a href="../../index.html" class="fn-logo-link" aria-label="Evenzi home">
+      <span class="fn-logo">EVENZI</span>
+      <span class="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
+        <span class="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
+      </span>
+    </a>
+
+    <div class="nav-tabs inline-flex" aria-label="Primary view">
+      <a href="../event-control/event-control.html" data-section="dashboard" class="nav-tab" aria-label="Dashboard">
+        <span aria-hidden="true" class="material-symbols-outlined icon-fill">dashboard</span>
+        <span class="nav-tab-label">Dashboard</span>
+      </a>
+      <a href="../website/overview.html" data-section="website" class="nav-tab" aria-label="Website">
+        <span aria-hidden="true" class="material-symbols-outlined">language</span>
+        <span class="nav-tab-label">Website</span>
+      </a>
+    </div>
+
+    <div class="fn-actions">
+      <button aria-label="Notifications, 1 unread" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined">notifications</span>
+        <span aria-hidden="true" class="fn-dot"></span>
+      </button>
+      <button id="theme-toggle" aria-label="Toggle dark mode" type="button" class="fn-icon-btn">
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+        <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+      </button>
+      <span class="fn-divider hidden sm:inline-block" aria-hidden="true"></span>
+      <button aria-label="Account menu" class="fn-avatar">A</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ────────────────────── FLOATING TOOL RAIL ────────────────────── -->
+<aside class="tool-rail" aria-label="Event tools">
+  <a href="guests.html" class="tr-btn" data-label="Guest management" data-page="guests" aria-label="Guest management">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">groups</span>
+  </a>
+  <a href="../invitations/invitations.html" class="tr-btn" data-label="Invitations" data-page="invitations" aria-label="Invitations">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">forward_to_inbox</span>
+  </a>
+  <a href="../planning/planning.html" class="tr-btn" data-label="Planning" data-page="planning" aria-label="Planning">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">checklist_rtl</span>
+  </a>
+  <a href="../media/media.html" class="tr-btn" data-label="Media &amp; memories" data-page="media" aria-label="Media &amp; memories">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">photo_library</span>
+  </a>
+  <a href="../event-settings/general.html" class="tr-btn" data-label="Event settings" data-page="event-settings" aria-label="Event settings">
+    <span aria-hidden="true" class="material-symbols-outlined icon-fill">settings</span>
+  </a>
+  <span class="tr-divider" aria-hidden="true"></span>
+  <span class="tr-status" aria-hidden="true">
+    <span class="bc-live"></span>
+    LIVE
+  </span>
+</aside>
+
+<!-- ────────────────────── BREADCRUMB ────────────────────── -->
+<div class="bc-wrap reveal">
+  <nav class="bc-shell" aria-label="Breadcrumb" id="evz-bc">
+    <a href="../event-control/event-control.html" class="bc-back" aria-label="Back to event control" data-bc-back data-bc-back-label="EVENT CONTROL">
+      <span aria-hidden="true" class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <ol class="bc-path">
+      <li><a href="../../index.html" data-bc-link>DASHBOARD</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li><a href="../event-control/event-control.html" data-bc-link>ANYA &amp; KABIR</a></li>
+      <li class="bc-sep" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3.5 1.5 L8.5 6 L3.5 10.5"/></svg></li>
+      <li class="bc-active" aria-current="page">
+        <span class="bc-dot" aria-hidden="true"></span>
+        GUESTS
+      </li>
+    </ol>
+    <span class="bc-divider hidden md:inline-block" aria-hidden="true"></span>
+    <button type="button" class="bc-copy" aria-label="Copy breadcrumb path" data-bc-copy data-bc-copy-path="evenzi://dashboard / anya-kabir / guests">
+      <span aria-hidden="true" class="material-symbols-outlined" style="font-size:15px">content_copy</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ────────────────────── PAGE BODY ────────────────────── -->
+<main class="page-band pt-6 md:pt-8 pb-24">
+
+  <!-- Section head -->
+  <header class="section-head reveal">
+    <p class="section-head-eyebrow">Section</p>
+    <div class="section-head-titlerow">
+      <h1 class="section-head-title">Guest Management</h1>
+      <button class="section-head-info" type="button" data-info-tip
+              aria-label="About Guest Management"
+              aria-describedby="gm-head-tip" aria-expanded="false">
+        <span class="material-symbols-outlined" aria-hidden="true">info</span>
+      </button>
+      <span class="section-head-tip" id="gm-head-tip" role="tooltip" hidden>Build your invitee list, track RSVPs as they arrive, and send WhatsApp invitations — all in one place.</span>
+    </div>
+  </header>
+
+  <!-- ── STATS BAR ── -->
+  <section class="gm-stats reveal" aria-label="Guest list summary">
+    <!-- Response-rate hero -->
+    <div class="clay-card gm-rate" role="group" aria-labelledby="gm-rate-label">
+      <span class="stat-icon"><span class="material-symbols-outlined icon-fill">how_to_reg</span></span>
+      <div class="min-w-0 w-full">
+        <p id="gm-rate-label" class="gm-rate-cap">RSVP response rate</p>
+        <p class="gm-rate-num"><span data-gm-rate>0</span>%</p>
+        <div class="pf-bar gm-rate-bar"><span data-gm-rate-fill></span></div>
+        <p class="gm-rate-sub"><span data-gm-responded>0</span> of <span data-gm-total>0</span> responded</p>
+      </div>
+    </div>
+
+    <!-- Count cards — one card per status (clickable filters) -->
+    <div class="gm-counts" role="group" aria-label="Guest counts by status">
+      <button type="button" class="clay-card gm-count" data-gm-jump="all" aria-pressed="true">
+        <span class="gm-count-num" data-gm-count="total">0</span>
+        <span class="gm-count-lbl">Total</span>
+      </button>
+      <button type="button" class="clay-card gm-count" data-gm-jump="confirmed" aria-pressed="false">
+        <span class="gm-count-num" data-gm-count="confirmed">0</span>
+        <span class="gm-count-lbl"><span class="gm-count-dot" data-status-dot="confirmed" aria-hidden="true"></span>Confirmed</span>
+      </button>
+      <button type="button" class="clay-card gm-count" data-gm-jump="declined" aria-pressed="false">
+        <span class="gm-count-num" data-gm-count="declined">0</span>
+        <span class="gm-count-lbl"><span class="gm-count-dot" data-status-dot="declined" aria-hidden="true"></span>Declined</span>
+      </button>
+      <button type="button" class="clay-card gm-count" data-gm-jump="pending" aria-pressed="false">
+        <span class="gm-count-num" data-gm-count="pending">0</span>
+        <span class="gm-count-lbl"><span class="gm-count-dot" data-status-dot="pending" aria-hidden="true"></span>Pending</span>
+      </button>
+      <button type="button" class="clay-card gm-count" data-gm-jump="maybe" aria-pressed="false">
+        <span class="gm-count-num" data-gm-count="maybe">0</span>
+        <span class="gm-count-lbl"><span class="gm-count-dot" data-status-dot="maybe" aria-hidden="true"></span>Maybe</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ── LIST CARD ── -->
+  <section class="clay-card gm-list-card reveal" aria-label="Guest list">
+
+    <!-- Toolbar -->
+    <div class="gm-toolbar">
+      <div class="form-input-search gm-search">
+        <span class="material-symbols-outlined" aria-hidden="true">search</span>
+        <input class="form-input" type="search" id="gm-search-input" placeholder="Search by name, phone, email…" aria-label="Search guests" autocomplete="off" />
+        <button class="form-input-search-clear" type="button" aria-label="Clear search">
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+        </button>
+      </div>
+
+      <div class="gm-toolbar-actions">
+        <button type="button" class="btn-pill btn-pill-secondary gm-icon-btn gm-send-btn" data-gm-open="gm-send-modal" aria-label="Send WhatsApp invitations">
+          <span class="material-symbols-outlined" aria-hidden="true">send</span>
+          <span class="gm-btn-label">Send invites</span>
+          <span class="gm-send-count" data-gm-uninvited-count hidden>0</span>
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary gm-icon-btn gm-import-btn" data-gm-open="gm-import-modal" aria-label="Import guests from CSV">
+          <span class="material-symbols-outlined" aria-hidden="true">upload_file</span>
+          <span class="gm-btn-label">Import</span>
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary gm-icon-btn gm-filter-btn" data-gm-filter-btn aria-haspopup="true" aria-expanded="false" aria-label="Filter by function or tag">
+          <span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
+          <span class="gm-btn-label">Filter</span>
+          <span class="gm-filter-count" data-gm-filter-count hidden>0</span>
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary gm-icon-btn gm-sort-btn" data-gm-sort aria-haspopup="true" aria-expanded="false" aria-label="Sort guests">
+          <span class="material-symbols-outlined" aria-hidden="true">swap_vert</span>
+          <span class="gm-btn-label gm-sort-label">Name A–Z</span>
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary gm-icon-btn gm-select-btn" data-gm-select-mode aria-label="Select multiple guests">
+          <span class="material-symbols-outlined" aria-hidden="true">checklist</span>
+          <span class="gm-btn-label">Select</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Status filter chips -->
+    <div class="dp-filter-chips gm-filters" role="radiogroup" aria-label="Filter by RSVP status">
+      <button type="button" class="dp-filter-chip is-active" role="radio" aria-checked="true" tabindex="0" data-gm-filter="all">All <span data-gm-chip="all">0</span></button>
+      <button type="button" class="dp-filter-chip" role="radio" aria-checked="false" tabindex="-1" data-gm-filter="confirmed">Confirmed <span data-gm-chip="confirmed">0</span></button>
+      <button type="button" class="dp-filter-chip" role="radio" aria-checked="false" tabindex="-1" data-gm-filter="declined">Declined <span data-gm-chip="declined">0</span></button>
+      <button type="button" class="dp-filter-chip" role="radio" aria-checked="false" tabindex="-1" data-gm-filter="pending">Pending <span data-gm-chip="pending">0</span></button>
+      <button type="button" class="dp-filter-chip" role="radio" aria-checked="false" tabindex="-1" data-gm-filter="maybe">Maybe <span data-gm-chip="maybe">0</span></button>
+    </div>
+
+    <!-- Zero-assigned warning banner -->
+    <div class="gm-warn-banner is-hidden" id="gm-unassigned-banner" role="status">
+      <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+      <span><strong data-gm-unassigned-count>0</strong> guests aren't invited to any function — they'll see nothing.</span>
+      <button type="button" class="gm-warn-review" data-gm-review-unassigned>Review</button>
+    </div>
+
+    <!-- Desktop column header -->
+    <div class="guest-row-head" aria-hidden="true">
+      <span></span>
+      <span>Guest</span>
+      <span class="grh-rsvp">RSVP</span>
+    </div>
+
+    <!-- The list (rendered by guests.js) -->
+    <ul class="guest-list" id="gm-list" role="list" aria-label="Guests" aria-busy="true"></ul>
+    <!-- polite SR announcer for filter/search result counts -->
+    <p class="sr-only" id="gm-live" role="status" aria-live="polite"></p>
+
+    <!-- Skeleton (shown on first load) -->
+    <div class="gm-skeleton" id="gm-skeleton" aria-hidden="true">
+      <div class="gm-skel-row"></div><div class="gm-skel-row"></div>
+      <div class="gm-skel-row"></div><div class="gm-skel-row"></div>
+    </div>
+
+    <!-- Empty: zero guests -->
+    <div class="empty-cta-card gm-empty" id="gm-empty-zero" hidden>
+      <span class="empty-cta-icon" aria-hidden="true"><span class="material-symbols-outlined">group_add</span></span>
+      <p class="empty-cta-title">No guests yet</p>
+      <p class="empty-cta-sub">Add your first guest, or import a spreadsheet to bring your whole list in at once.</p>
+      <div class="gm-empty-actions">
+        <button type="button" class="btn-pill btn-pill-primary" data-gm-add>
+          <span class="material-symbols-outlined" aria-hidden="true">person_add</span> Add your first guest
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary" data-gm-open="gm-import-modal">
+          <span class="material-symbols-outlined" aria-hidden="true">upload_file</span> Import CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty: no matches for filter/search -->
+    <div class="gm-empty gm-empty-filtered" id="gm-empty-filtered" hidden>
+      <span class="empty-cta-icon" aria-hidden="true"><span class="material-symbols-outlined">search_off</span></span>
+      <p class="empty-cta-title">No guests match</p>
+      <p class="empty-cta-sub" id="gm-empty-filtered-sub">Try a different search or filter.</p>
+      <button type="button" class="btn-pill btn-pill-secondary" data-gm-clear-filters>Clear filters</button>
+    </div>
+  </section>
+</main>
+
+<!-- ────────────────────── FOOTER ────────────────────── -->
+<footer class="page-band mt-20 pt-10 pb-10 border-t border-line">
+  <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="flex items-center gap-3">
+      <span aria-hidden="true" class="w-9 h-9 shrink-0 rounded-full bg-brand text-white inline-flex items-center justify-center font-display font-bold">E</span>
+      <p class="text-sm text-muted font-semibold">© 2026 Evenzi · Capture · Share · Cherish</p>
+    </div>
+    <div class="flex items-center gap-6 text-xs font-bold tracking-widest text-muted uppercase">
+      <a href="#" class="hover:text-brand transition-colors">Privacy</a>
+      <a href="#" class="hover:text-brand transition-colors">Terms</a>
+      <a href="#" class="hover:text-brand transition-colors">Help</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Bulk action bar (floating, bottom — Jira-style) -->
+<div class="gm-bulkbar" id="gm-bulkbar" role="toolbar" aria-label="Bulk actions" hidden>
+  <span class="gm-bulk-count"><span data-gm-sel-count>0</span> selected</span>
+  <button type="button" class="gm-bulk-selectall" data-gm-select-all>Select all</button>
+  <span class="gm-bulk-div" aria-hidden="true"></span>
+  <button type="button" class="gm-bulk-act" data-gm-bulk-tag disabled>
+    <span class="material-symbols-outlined" aria-hidden="true">sell</span><span class="gm-bulk-act-label">Tag</span>
+  </button>
+  <button type="button" class="gm-bulk-act" data-gm-bulk-assign disabled>
+    <span class="material-symbols-outlined" aria-hidden="true">event</span><span class="gm-bulk-act-label">Assign</span>
+  </button>
+  <button type="button" class="gm-bulk-act" data-gm-bulk-send disabled>
+    <span class="material-symbols-outlined" aria-hidden="true">send</span><span class="gm-bulk-act-label">Send</span>
+  </button>
+  <button type="button" class="gm-bulk-cancel" data-gm-bulk-cancel aria-label="Exit selection">
+    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+  </button>
+</div>
+
+<!-- Add-guest FAB (floating primary action) -->
+<button type="button" class="gm-add-fab" data-gm-add aria-label="Add guest" title="Add guest">
+  <span class="material-symbols-outlined" aria-hidden="true">person_add</span>
+</button>
+
+<!-- Help FAB -->
+<button aria-label="Open help center" class="help-fab">
+  <span aria-hidden="true" class="material-symbols-outlined icon-fill">support_agent</span>
+</button>
+
+<!-- Offline banner (network error) -->
+<div class="gm-offline" id="gm-offline" role="status" aria-live="polite" hidden>
+  <span class="material-symbols-outlined" aria-hidden="true">wifi_off</span>
+  Offline — we'll sync when you're back
+</div>
+
+<!-- Toast -->
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">PATH COPIED</span>
+</div>
+
+<!-- ══════════════════ MODALS ══════════════════ -->
+
+<!-- Add / Edit guest -->
+<div class="modal-scrim" id="gm-guest-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="gm-guest-h">
+    <header class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="gm-guest-h">Add guest</h2>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </header>
+    <form id="gm-guest-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="gm-f-name">Full name <span aria-hidden="true" class="req-mark">*</span></label>
+        <input id="gm-f-name" name="name" type="text" class="form-input" autocomplete="name" required />
+        <p class="form-error" id="gm-err-name" role="alert" hidden>
+          <span class="material-symbols-outlined" aria-hidden="true">error</span> Please enter a name.
+        </p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="gm-f-phone">Mobile number <span aria-hidden="true" class="req-mark">*</span></label>
+        <div class="form-input form-input-group">
+          <span class="form-input-prefix" aria-hidden="true">+91</span>
+          <input id="gm-f-phone" name="phone" type="tel" class="form-input-field" inputmode="numeric" autocomplete="tel" maxlength="10" placeholder="98765 43210" required />
+        </div>
+        <p class="form-error" id="gm-err-phone" role="alert" hidden>
+          <span class="material-symbols-outlined" aria-hidden="true">error</span> Enter a valid 10-digit mobile number.
+        </p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="gm-f-email">Email <span class="form-label-opt">(optional)</span></label>
+        <input id="gm-f-email" name="email" type="email" class="form-input" autocomplete="email" placeholder="name@example.com" />
+      </div>
+
+      <!-- Invited to functions (assignment — add + edit) -->
+      <div class="form-group">
+        <span class="form-label" id="gm-f-func-label">Invited to functions</span>
+        <p class="gm-field-help">Controls which functions this guest sees and RSVPs to.</p>
+        <div class="gm-func-list" id="gm-f-functions" role="group" aria-labelledby="gm-f-func-label"></div>
+        <p class="form-error" id="gm-f-func-warn" role="status" hidden>
+          <span class="material-symbols-outlined" aria-hidden="true">warning</span> This guest won't see any functions.
+        </p>
+        <p class="gm-func-preview" id="gm-f-func-preview" aria-live="polite"></p>
+      </div>
+
+      <!-- Tags (combobox: add existing or create new) -->
+      <div class="form-group">
+        <label class="form-label gm-tags-label" for="gm-f-tag-input">Tags <span class="form-label-opt">(optional)</span>
+          <button type="button" class="gm-manage-tags-link" data-gm-manage-tags>Manage tags</button>
+        </label>
+        <div class="tag-input" id="gm-f-tags">
+          <span class="tag-input-chips" id="gm-f-tag-chips"></span>
+          <input id="gm-f-tag-input" class="tag-input-field" type="text" role="combobox"
+                 aria-expanded="false" aria-autocomplete="list" aria-controls="gm-f-tag-listbox"
+                 autocomplete="off" autocapitalize="words" enterkeyhint="done" placeholder="Add a tag…" />
+        </div>
+        <ul class="tag-input-listbox" id="gm-f-tag-listbox" role="listbox" aria-label="Tag suggestions" hidden></ul>
+      </div>
+
+      <!-- RSVP setter (Edit mode only) -->
+      <div class="form-group gm-edit-only" id="gm-f-rsvp-group" hidden>
+        <span class="form-label" id="gm-f-rsvp-label">RSVP status</span>
+        <div class="radio-pill-group gm-rsvp-pills" role="radiogroup" aria-labelledby="gm-f-rsvp-label" id="gm-f-rsvp"></div>
+      </div>
+
+      <div class="gm-edit-only gm-invite-state" id="gm-f-invite" hidden></div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-pill btn-pill-danger gm-edit-only gm-remove-btn" id="gm-f-remove" data-gm-remove hidden>
+          <span class="material-symbols-outlined" aria-hidden="true">person_remove</span> Remove
+        </button>
+        <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+        <button type="submit" class="btn-pill btn-pill-primary" id="gm-f-save">Save guest</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Import CSV -->
+<div class="modal-scrim" id="gm-import-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="gm-import-h">
+    <header class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="gm-import-h">Import guests from a spreadsheet</h2>
+        <p class="modal-sub">CSV with columns: <strong>Name, Phone, Email</strong>.
+          <a href="#" class="gm-template-link" data-gm-template>Download template</a>
+        </p>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </header>
+
+    <div class="dp-dropzone" id="gm-dropzone" tabindex="0" role="button" aria-label="Choose a CSV file to upload">
+      <span class="dp-dropzone-icon" aria-hidden="true"><span class="material-symbols-outlined">upload_file</span></span>
+      <p class="dp-dropzone-title" id="gm-dropzone-title">Tap to choose a CSV file</p>
+      <p class="dp-dropzone-hint" id="gm-dropzone-hint">or drag it here · max 5 MB</p>
+      <input type="file" id="gm-file" accept=".csv,text/csv" class="sr-only" />
+    </div>
+
+    <p class="form-error" id="gm-import-error" role="alert" hidden>
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <span id="gm-import-error-text">We couldn't read that file.</span>
+    </p>
+    <p class="gm-import-result" id="gm-import-result" hidden></p>
+
+    <label class="form-check gm-consent">
+      <input type="checkbox" id="gm-consent" />
+      <span>I confirm I have these guests' consent to add their contact details to Evenzi.</span>
+    </label>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="gm-import-confirm" data-gm-import-confirm disabled>Import guests</button>
+    </div>
+  </div>
+</div>
+
+<!-- Send invitations confirm -->
+<div class="modal-scrim" id="gm-send-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card modal-confirm-affirmative" role="dialog" aria-modal="true" aria-labelledby="gm-send-h" aria-describedby="gm-send-text">
+    <button class="modal-close modal-close--corner" type="button" data-modal-close aria-label="Close">
+      <span class="material-symbols-outlined" aria-hidden="true">close</span>
+    </button>
+    <span class="modal-confirm-icon" aria-hidden="true"><span class="material-symbols-outlined">send</span></span>
+    <h2 class="modal-confirm-title" id="gm-send-h">Send WhatsApp invitations?</h2>
+    <p class="modal-confirm-text" id="gm-send-text">Each guest gets a personal RSVP link on WhatsApp. We'll only message guests who haven't been invited yet.</p>
+    <span class="modal-confirm-url" id="gm-send-count-line">0 guests will be invited</span>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="gm-send-confirm" data-gm-send-confirm>
+        <span class="material-symbols-outlined" aria-hidden="true">send</span> Send invitations
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Remove guest confirm -->
+<div class="modal-scrim" id="gm-remove-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="gm-remove-h">
+    <button class="modal-close modal-close--corner" type="button" data-modal-close aria-label="Close">
+      <span class="material-symbols-outlined" aria-hidden="true">close</span>
+    </button>
+    <span class="modal-confirm-icon is-cautionary" aria-hidden="true"><span class="material-symbols-outlined">person_remove</span></span>
+    <h2 class="modal-confirm-title" id="gm-remove-h">Remove this guest?</h2>
+    <p class="modal-confirm-text">Remove <strong id="gm-remove-name">this guest</strong> from your list. Their RSVP, if any, will be discarded. You can add them again later.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-secondary" data-modal-close>Cancel</button>
+      <button type="button" class="btn-pill btn-pill-primary" id="gm-remove-confirm" data-gm-remove-confirm>Remove guest</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tag manager -->
+<div class="modal-scrim" id="gm-tags-modal" data-modal aria-hidden="true">
+  <div class="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="gm-tagman-h">
+    <header class="modal-head">
+      <div class="modal-head-lead">
+        <h2 class="modal-title" id="gm-tagman-h">Manage tags</h2>
+        <p class="modal-sub">Used across all your guests.</p>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </header>
+    <div class="gm-tagman-add">
+      <input id="gm-tagman-input" class="form-input" type="text" placeholder="New tag name" autocomplete="off" enterkeyhint="done" autocapitalize="words" aria-label="New tag name" />
+      <button type="button" class="btn-pill btn-pill-secondary" data-gm-tagman-add>Add</button>
+    </div>
+    <ul class="gm-tagman-list" id="gm-tagman-list" aria-label="Tags"></ul>
+    <div class="modal-actions">
+      <button type="button" class="btn-pill btn-pill-primary" data-modal-close>Done</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="guests.js"></script>
+</body>
+</html>

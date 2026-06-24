@@ -48,13 +48,19 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname
 
+  // Dev-only playground (e.g. /dev/r2-test) — accessible without auth in development only.
+  const isDevPlayground =
+    process.env.NODE_ENV !== 'production' && pathname.startsWith('/dev')
+
   // Public paths — no auth required
   const isPublicPath =
     pathname === '/' ||
     pathname === '/auth' ||
     pathname.startsWith('/auth/callback') ||
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/api')
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/invite') ||   // guest invitation share URLs — no auth required
+    isDevPlayground
 
   // No user on non-public path → redirect to auth
   if (!user && !isPublicPath) {
@@ -66,7 +72,7 @@ export async function updateSession(request: NextRequest) {
   // User exists — check role for routing decisions
   if (user) {
     const profile = await getUserProfile(supabase, user.id)
-    const hasRole = profile?.role != null
+    const hasRole = profile?.role_slug != null
 
     // User with no role trying to access protected routes → role selection
     if (!hasRole && pathname !== '/auth/role-selection' && !isPublicPath) {
@@ -90,7 +96,7 @@ export async function updateSession(request: NextRequest) {
     }
 
     // Host-only routes — vendors cannot access event creation/management
-    if (hasRole && profile?.role !== 'host' && pathname.startsWith('/events')) {
+    if (hasRole && profile?.role_slug !== 'host' && pathname.startsWith('/events')) {
       const url = request.nextUrl.clone()
       url.pathname = '/home'
       return NextResponse.redirect(url)

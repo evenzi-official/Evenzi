@@ -39,6 +39,7 @@
   ],
   "exclude": [
     "node_modules",
-    "landing-page"
+    "landing-page",
+    "scripts"
   ]
 }

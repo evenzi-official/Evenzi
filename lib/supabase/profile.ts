@@ -2,13 +2,13 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 export interface UserProfile {
   id: string
-  role: 'host' | 'vendor' | null
+  role_slug: 'host' | 'vendor' | null
   display_name: string | null
   avatar_url: string | null
   onboarding_completed: boolean
 }
 
-const PROFILE_FIELDS = 'id, role, display_name, avatar_url, onboarding_completed'
+const PROFILE_FIELDS = 'id, role_slug, display_name, avatar_url, onboarding_completed'
 
 export async function getUserProfile(
   supabase: SupabaseClient,

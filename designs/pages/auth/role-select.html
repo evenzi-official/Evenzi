@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="../../favicon.ico" sizes="48x48" />
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Evenzi · How will you use the platform?</title>
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+<meta name="description" content="Pick your role on Evenzi — Host or Vendor." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="stylesheet" href="../../shared/shell.css" />
+<link rel="stylesheet" href="auth.css" />
+</head>
+<body data-page="role-select" class="page-bg page-shell">
+
+<header class="page-shell-header">
+  <a href="../../index.html" class="page-logo" aria-label="Evenzi home">Evenzi</a>
+  <div class="page-shell-actions">
+    <button id="theme-toggle" type="button" class="page-theme-toggle" aria-label="Toggle dark mode">
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-light">dark_mode</span>
+      <span aria-hidden="true" class="material-symbols-outlined theme-icon-dark">light_mode</span>
+    </button>
+    <a href="mailto:evenzi.official@gmail.com" class="page-help">Need help?</a>
+  </div>
+</header>
+
+<main class="page-main page-main-center page-main-wide">
+  <section class="clay-card role-select-card" aria-labelledby="role-title">
+    <header class="role-select-head">
+      <p class="role-select-eyebrow">
+        <span class="material-symbols-outlined icon-fill" aria-hidden="true">check_circle</span>
+        Welcome to Evenzi
+      </p>
+      <h1 class="auth-card-title" id="role-title">How will you use the platform?</h1>
+      <p class="auth-card-lead">Pick the role that fits you — we'll tailor the next steps and your home screen to match.</p>
+    </header>
+
+    <div class="role-grid radio-pill-group" role="radiogroup" aria-label="Select your role">
+      <button type="button" role="radio" class="radio-pill" aria-checked="false" tabindex="0" data-role="host">
+        <span class="role-pill-icon" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">celebration</span>
+        </span>
+        <span class="role-pill-body">
+          <span class="role-pill-name">Host / Event Owner</span>
+          <span class="role-pill-desc">Manage event details, guest lists, and create a beautiful event website. Collect all your memories in one place.</span>
+        </span>
+        <span class="role-pill-check" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">check</span>
+        </span>
+      </button>
+
+      <button type="button" role="radio" class="radio-pill" aria-checked="false" aria-disabled="true" tabindex="-1" data-role="vendor">
+        <span class="role-pill-icon" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">storefront</span>
+        </span>
+        <span class="role-pill-body">
+          <span class="role-pill-name">Vendor</span>
+          <span class="role-pill-desc">Manage your bookings, coordinate with hosts, and showcase your services to potential clients.</span>
+        </span>
+        <span class="role-tag-soon" aria-hidden="true">Coming soon</span>
+      </button>
+    </div>
+
+    <div class="role-continue">
+      <button type="button" class="btn-pill btn-pill-primary btn-pill-lg" data-role-continue disabled aria-disabled="true">
+        <span>Continue</span>
+        <span aria-hidden="true" class="material-symbols-outlined">arrow_forward</span>
+        <span aria-hidden="true" class="btn-pill-spinner"></span>
+      </button>
+    </div>
+  </section>
+
+  <a class="auth-back-link" href="auth.html" data-back>
+    <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+    Back to Login
+  </a>
+</main>
+
+<footer class="page-shell-footer">
+  © 2026 Evenzi · All rights reserved
+</footer>
+
+<div id="bc-toast" class="bc-toast" role="status" aria-live="polite">
+  <span class="bc-live" aria-hidden="true"></span>
+  <span id="bc-toast-text">CONTINUE AS HOST</span>
+</div>
+
+<script src="../../shared/shell.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+/* Invitations — card personalizer (gallery → pick → inline-edit → share).
+   The CARD is a LIGHT artifact and is DARK-MODE-IMMUNE: every card colour resolves
+   from its own --c-* template tokens (set per [data-tpl]), NEVER from global
+   --bg/--ink/--card. So the app chrome can be dark while the card stays light. */
+
+/* ───────────────────────── GALLERY ───────────────────────── */
+.inv-filters{margin:0 0 1.25rem;flex-wrap:wrap;gap:.5rem}
+.inv-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+@media (min-width:640px){ .inv-grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
+@media (min-width:1024px){ .inv-grid{grid-template-columns:repeat(4,minmax(0,1fr))} }
+
+/* a gallery tile = a mini card preview + a name */
+.inv-tile{
+  position:relative;display:flex;flex-direction:column;gap:.5rem;
+  background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left;color:inherit;
+}
+.inv-tile-card{
+  width:100%;aspect-ratio:1/1.414;border-radius:12px;overflow:hidden;
+  box-shadow:var(--shadow-clay);transition:transform .2s ease, box-shadow .2s ease;
+  background:#fff;
+}
+@media (hover:hover) and (pointer:fine){
+  .inv-tile:hover .inv-tile-card{transform:translateY(-3px);box-shadow:var(--shadow-clay-hover)}
+}
+.inv-tile:focus-visible{outline:none}
+.inv-tile:focus-visible .inv-tile-card{outline:2px solid var(--brand);outline-offset:3px}
+.inv-tile-name{font-size:.82rem;font-weight:600;color:var(--ink);padding:0 .15rem}
+.inv-tile-name .inv-tile-style{display:block;font-size:.68rem;font-weight:600;color:var(--muted);letter-spacing:.04em}
+
+/* upload-your-own — first tile, peer to templates */
+.inv-upload-tile .inv-tile-card{
+  background:var(--brand-tint);border:1.5px dashed color-mix(in oklab,var(--brand) 45%,var(--line));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;
+  color:var(--brand);text-align:center;padding:1rem;
+}
+.inv-upload-tile .inv-tile-card .material-symbols-outlined{font-size:34px}
+.inv-upload-tile .inv-up-title{font-weight:700;font-size:.9rem}
+.inv-upload-tile .inv-up-sub{font-size:.72rem;color:var(--muted);font-weight:500;line-height:1.3}
+
+/* ───────────────────────── EDITOR ───────────────────────── */
+.inv-editor-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.75rem}
+.inv-autosave{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:600;color:var(--muted)}
+.inv-autosave .material-symbols-outlined{font-size:17px;color:var(--success,#22c55e)}
+.inv-edit-hint{font-size:.8rem;color:var(--muted);text-align:center;margin:0 0 1rem}
+@media (hover:hover) and (pointer:fine){ .inv-edit-hint::after{content:" Hover shows the editable areas."} }
+
+.inv-editor-stage{display:flex;justify-content:center;padding:0 0 1.5rem}
+
+/* A5 portrait card frame — soft neutral mat + shadow, dark-mode-immune wrapper */
+.inv-card-frame{
+  width:100%;max-width:400px;border-radius:16px;
+  padding:0;background:transparent;
+}
+.inv-card{
+  --c-bg:#ffffff; --c-ink:#1f2937; --c-accent:#b08d57; --c-soft:#6b7280;
+  --c-heading:'Cormorant Garamond',Georgia,serif; --c-body:'Poppins',sans-serif;
+  --c-scale:1;
+  width:100%;aspect-ratio:1/1.414;box-sizing:border-box;
+  background:var(--c-bg);color:var(--c-ink);font-family:var(--c-body);
+  border-radius:10px;box-shadow:0 12px 40px -12px rgba(0,0,0,.35),0 0 0 1px rgba(0,0,0,.04);
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  padding:9% 8%;overflow:hidden;position:relative;
+}
+/* card frame is colour-isolated from app theme */
+.dark .inv-card{box-shadow:0 16px 50px -12px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.06)}
+
+/* ── template token sets (locked per template; host edits text only) ── */
+.inv-card[data-tpl="eternal"]{--c-bg:#fbf7f2;--c-ink:#2a2622;--c-accent:#b08d57;--c-soft:#8a7f72;--c-heading:'Cormorant Garamond',Georgia,serif}
+.inv-card[data-tpl="saffron"]{--c-bg:#fdf6ea;--c-ink:#5a1216;--c-accent:#c1881f;--c-soft:#9a7b53;--c-heading:'Playfair Display',Georgia,serif}
+.inv-card[data-tpl="eucalyptus"]{--c-bg:#f2f6f2;--c-ink:#2f3b30;--c-accent:#6f8f6a;--c-soft:#6f7a6c;--c-heading:'Cormorant Garamond',Georgia,serif}
+.inv-card[data-tpl="noir"]{--c-bg:#ffffff;--c-ink:#161616;--c-accent:#b0b0b0;--c-soft:#6f6f6f;--c-heading:'Playfair Display',Georgia,serif}
+.inv-card[data-tpl="rosewater"]{--c-bg:#fdf4f3;--c-ink:#3b2730;--c-accent:#c2698b;--c-soft:#9c7d86;--c-heading:'Cormorant Garamond',Georgia,serif}
+.inv-card[data-tpl="bloom"]{--c-bg:#fffdfb;--c-ink:#2b2b2b;--c-accent:#b06a4f;--c-soft:#9a9a9a;--c-heading:'Cormorant Garamond',Georgia,serif}
+.inv-card[data-tpl="moments"]{--c-bg:#f7f4f1;--c-ink:#2b2520;--c-accent:#8a7256;--c-soft:#8a8076;--c-heading:'Playfair Display',Georgia,serif}
+
+/* editable text slots — --s = per-slot size multiplier set by the floating toolbar */
+.inv-slot{
+  --s:1;
+  display:block;max-width:100%;outline:none;border-radius:4px;
+  transition:background .15s ease,box-shadow .15s ease;
+  overflow-wrap:anywhere;
+}
+.inv-slot.is-sz-s{--s:.85}
+.inv-slot.is-sz-l{--s:1.2}
+.inv-slot:empty::before{content:attr(data-ph);color:var(--c-soft);opacity:.6}
+@media (hover:hover) and (pointer:fine){
+  .inv-slot:hover{background:color-mix(in oklab,var(--c-accent) 9%,transparent);box-shadow:0 0 0 1px color-mix(in oklab,var(--c-accent) 22%,transparent)}
+}
+.inv-slot:focus{background:color-mix(in oklab,var(--c-accent) 12%,transparent);box-shadow:0 0 0 2px color-mix(in oklab,var(--c-accent) 55%,transparent)}
+
+.inv-eyebrow{font-size:calc(.62rem*var(--c-scale)*var(--s));letter-spacing:.32em;text-transform:uppercase;color:var(--c-accent);font-weight:600;margin-bottom:6%}
+.inv-couple{font-family:var(--c-heading);font-size:calc(2.1rem*var(--c-scale)*var(--s));line-height:1.05;font-weight:600;color:var(--c-ink);margin:0}
+.inv-amp{font-family:var(--c-heading);font-style:italic;font-size:calc(1.15rem*var(--c-scale));color:var(--c-accent);margin:2% 0;font-weight:500}
+.inv-invite{font-size:calc(.74rem*var(--c-scale)*var(--s));color:var(--c-soft);line-height:1.6;margin:7% 0 5%;max-width:80%}
+.inv-date{font-size:calc(.92rem*var(--c-scale)*var(--s));font-weight:600;letter-spacing:.04em;color:var(--c-ink);margin:0}
+.inv-time{font-size:calc(.72rem*var(--c-scale)*var(--s));color:var(--c-soft);margin:1.5% 0 0}
+.inv-rule{width:34px;height:1px;background:var(--c-accent);opacity:.6;margin:6% 0}
+.inv-venue{font-size:calc(.74rem*var(--c-scale)*var(--s));color:var(--c-ink);line-height:1.5;margin:0}
+.inv-message{font-family:var(--c-heading);font-style:italic;font-size:calc(.82rem*var(--c-scale)*var(--s));color:var(--c-accent);margin:6% 0 0;max-width:85%}
+
+/* photo templates */
+.inv-card[data-layout="photo"]{padding:0;justify-content:flex-end}
+.inv-card[data-layout="photo"] .inv-card-photo{position:absolute;inset:0 0 42% 0}
+.inv-card[data-layout="photo"] .inv-card-body{position:relative;width:100%;background:var(--c-bg);padding:7% 8% 9%;border-radius:18px 18px 10px 10px;display:flex;flex-direction:column;align-items:center}
+.inv-card-photo{background:var(--c-soft);cursor:pointer;overflow:hidden}
+.inv-card-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.inv-card-photo-empty{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;color:#fff;background:linear-gradient(135deg,color-mix(in oklab,var(--c-accent) 70%,#000),var(--c-accent))}
+.inv-card-photo-empty .material-symbols-outlined{font-size:30px}
+.inv-card-photo-empty span:last-child{font-size:.7rem;font-weight:600;font-family:var(--c-body)}
+@media (hover:hover) and (pointer:fine){ .inv-card-photo:hover .inv-card-photo-empty{filter:brightness(1.06)} }
+
+/* uploaded-card view: just frame the host's image, no text editing */
+.inv-card[data-mode="upload"]{padding:0;background:#f3f4f6}
+.inv-card[data-mode="upload"] img{width:100%;height:100%;object-fit:cover;display:block;border-radius:10px}
+
+/* ───────── floating text-size toolbar ───────── */
+.inv-toolbar{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(env(safe-area-inset-bottom,0px) + 84px);z-index:60;
+  display:inline-flex;align-items:center;gap:.25rem;padding:.3rem .4rem;
+  background:var(--dark-card);color:#fff;border-radius:9999px;
+  box-shadow:0 10px 30px -8px rgba(0,0,0,.5);
+}
+.inv-tool-btn{
+  width:38px;height:38px;border-radius:9999px;border:0;background:transparent;color:#fff;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.inv-tool-btn .material-symbols-outlined{font-size:20px}
+@media (hover:hover) and (pointer:fine){ .inv-tool-btn:hover{background:rgba(255,255,255,.16)} }
+.inv-tool-btn:focus-visible{outline:2px solid #fff;outline-offset:1px}
+.inv-tool-label{font-size:.74rem;font-weight:600;min-width:58px;text-align:center;letter-spacing:.02em}
+
+/* ───────── sticky action bar ───────── */
+.inv-actionbar{
+  position:sticky;bottom:0;z-index:40;
+  display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;
+  padding:.85rem 0 calc(env(safe-area-inset-bottom,0px) + .85rem);
+  background:linear-gradient(to top,var(--bg) 72%,transparent);
+}
+.inv-actionbar .btn-pill{min-height:44px}   /* primary CTAs ≥44px touch target */
+@media (max-width:560px){
+  .inv-actionbar .btn-pill{flex:1 1 auto;justify-content:center}
+  .inv-actionbar .btn-pill span:not(.material-symbols-outlined){font-size:.82rem}
+}
+
+/* ───────── share modal ───────── */
+.inv-share-body{display:flex;gap:1rem;align-items:flex-start;margin:.4rem 0 1rem}
+.inv-share-thumb{flex:0 0 auto;width:84px;aspect-ratio:1/1.414;border-radius:8px;overflow:hidden;box-shadow:var(--shadow-clay)}
+.inv-share-thumb .inv-card{box-shadow:none;border-radius:8px}
+.inv-share-msg{min-width:0}
+.inv-share-label{font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-soft);margin:0 0 .3rem}
+.inv-share-text{font-size:.84rem;color:var(--ink);line-height:1.5;margin:0;white-space:pre-wrap}
+.inv-share-note{display:flex;gap:.4rem;align-items:flex-start;font-size:.72rem;color:var(--muted);margin:.6rem 0 0;line-height:1.4}
+.inv-share-note .material-symbols-outlined{font-size:15px;flex-shrink:0;margin-top:1px}
+
+/* preview lightbox stage */
+.inv-preview-stage{display:flex;justify-content:center;padding:1.5rem}
+.inv-preview-stage .inv-card{max-width:340px}
+
+/* download processing state on the button */
+.inv-actionbar .btn-pill.is-busy{pointer-events:none;opacity:.75}
+
+@media (prefers-reduced-motion:reduce){
+  .inv-tile-card,.inv-slot{transition:none}
+}
