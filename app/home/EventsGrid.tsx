@@ -320,11 +320,13 @@ export default function EventsGrid({ events, userDisplay, hasError = false }: Pr
           to the home filter row so both segs split the row evenly (50/50) with the
           space-between gap — edge-to-edge, no dead space, matching the left group. */}
       <style>{`
-        .home-filter-row .seg.seg--fill {
-          flex: 1 1 0;
-          min-width: 0;
-          max-width: none;
-          margin-right: 0;
+        @media (min-width: 768px) {
+          .home-filter-row .seg.seg--fill {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: none;
+            margin-right: 0;
+          }
         }
       `}</style>
       <ScrollProgress />

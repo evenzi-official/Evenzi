@@ -191,7 +191,7 @@ export function Step3SubEvents({ initialSubEventTypes }: Step3SubEventsProps): R
         <input
           type="search"
           value={searchQuery}
-          placeholder="Search ceremonies, rituals, moments…"
+          placeholder="Search celebrations…"
           aria-label="Search celebrations"
           onChange={(e) => setSearchQuery(e.target.value)}
         />

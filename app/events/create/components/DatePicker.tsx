@@ -53,6 +53,15 @@ export function DatePicker(props: DatePickerProps): React.JSX.Element {
   } = props
   const [open, setOpen] = useState(false)
 
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
   const selected = useMemo(() => fromISO(value), [value])
   const triggerLabel = selected
     ? selected.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })

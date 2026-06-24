@@ -98,7 +98,7 @@ export function Step1EventType({ eventTypes }: Step1EventTypeProps): React.JSX.E
         </button>
 
         <div className="flex-1 min-w-0">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-[.85rem] sm:gap-4" role="radiogroup" aria-label="Event type">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-[.85rem] sm:gap-4" role="radiogroup" aria-label="Event type">
             {visibleCards.map((eventType) => (
               <EventTypeCard
                 key={eventType.id}
