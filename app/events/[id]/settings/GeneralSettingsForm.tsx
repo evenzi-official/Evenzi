@@ -14,12 +14,15 @@ const PARTNER_2_KEY = 'partner_2_name'
 const CITY_KEY = 'city'
 
 export interface GeneralSettingsEvent {
-  id: string
-  name: string | null
-  primaryDate: string | null
-  primaryVenue: string | null
-  city: string | null
-  eventDetails: Record<string, string>
+  id:              string
+  name:            string | null
+  primaryDate:     string | null
+  primaryVenue:    string | null
+  city:            string | null
+  eventDetails:    Record<string, string>
+  tagline:         string | null
+  showOnDashboard: boolean
+  discoverable:    boolean
 }
 
 type ToastTone = 'success' | 'error'
@@ -38,6 +41,11 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
   const [eventDate, setEventDate] = useState(event.primaryDate ?? '')
   const [venue, setVenue] = useState(event.primaryVenue ?? '')
   const [city, setCity] = useState(event.city ?? '')
+  const [tagline, setTagline] = useState(event.tagline ?? '')
+
+  const [showOnDashboard, setShowOnDashboard] = useState(event.showOnDashboard)
+  const [allowTicketSales, setAllowTicketSales] = useState(false)
+  const [discoverable, setDiscoverable] = useState(event.discoverable)
 
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -91,7 +99,6 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
       event_details: {
         [PARTNER_1_KEY]: nullify(partnerOne),
         [PARTNER_2_KEY]: nullify(partnerTwo),
-        // City/location has no dedicated column — it lives in the event_details bag.
         [CITY_KEY]: nullify(city),
       },
     }
@@ -104,14 +111,25 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
 
     setSaving(true)
     try {
-      const res = await fetch(`/api/events/${event.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsed.data),
-      })
+      const [evRes, gsRes] = await Promise.all([
+        fetch(`/api/events/${event.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(parsed.data),
+        }),
+        fetch(`/api/events/${event.id}/general-settings`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tagline:          nullify(tagline),
+            show_on_dashboard: showOnDashboard,
+            discoverable,
+          }),
+        }),
+      ])
 
-      if (!res.ok) {
-        flashToast(res.status === 404 ? 'Event not found.' : 'Could not save changes.', 'error')
+      if (!evRes.ok || !gsRes.ok) {
+        flashToast(!evRes.ok && evRes.status === 404 ? 'Event not found.' : 'Could not save changes.', 'error')
         return
       }
 
@@ -191,7 +209,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
               <FormInput
                 id="es-partner-one"
                 type="text"
-                placeholder="Name"
+                placeholder="e.g. Anya Singh"
                 value={partnerOne}
                 onChange={(e) => setPartnerOne(e.target.value)}
               />
@@ -200,24 +218,11 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
               <FormInput
                 id="es-partner-two"
                 type="text"
-                placeholder="Name"
+                placeholder="e.g. Kabir Mehta"
                 value={partnerTwo}
                 onChange={(e) => setPartnerTwo(e.target.value)}
               />
             </FormGroup>
-          </div>
-        </section>
-
-        {/* Date & venue */}
-        <section className="es-section">
-          <header className="es-section-head">
-            <h2 className="es-section-title">
-              <span aria-hidden="true" className="material-symbols-outlined icon-fill">calendar_today</span>
-              Date &amp; venue
-            </h2>
-            <p className="es-section-sub">When and where the main celebration takes place.</p>
-          </header>
-          <div className="es-field-grid">
             <FormGroup id="es-date" label="Event date">
               <FormInput
                 id="es-date"
@@ -225,6 +230,14 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
                 value={eventDate}
                 onChange={(e) => setEventDate(e.target.value)}
               />
+            </FormGroup>
+            <FormGroup id="es-event-type" label="Event type">
+              <div className="form-select">
+                <select id="es-event-type" defaultValue="Wedding" disabled>
+                  <option>Wedding</option>
+                </select>
+                <span aria-hidden="true" className="material-symbols-outlined form-select-chevron">expand_more</span>
+              </div>
             </FormGroup>
             <FormGroup id="es-venue" label="Venue name">
               <FormInput
@@ -235,7 +248,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
                 onChange={(e) => setVenue(e.target.value)}
               />
             </FormGroup>
-            <FormGroup id="es-location" label="City / location" full>
+            <FormGroup id="es-location" label="City / location">
               <FormInput
                 id="es-location"
                 type="text"
@@ -244,11 +257,95 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
                 onChange={(e) => setCity(e.target.value)}
               />
             </FormGroup>
+            <FormGroup id="es-tagline" label="Tagline (optional)" helper="Shown under the event title on the public website and invites." full>
+              <FormInput
+                id="es-tagline"
+                type="text"
+                placeholder="A few words about the celebration"
+                maxLength={80}
+                value={tagline}
+                onChange={(e) => setTagline(e.target.value)}
+              />
+            </FormGroup>
           </div>
         </section>
 
+        {/* Event list rules */}
+        <section className="es-section">
+          <header className="es-section-head">
+            <h2 className="es-section-title">
+              <span aria-hidden="true" className="material-symbols-outlined icon-fill">visibility</span>
+              Event list rules
+            </h2>
+            <p className="es-section-sub">Choose how this event appears on your dashboard and to potential viewers.</p>
+          </header>
+
+          <div className="es-toggle-row">
+            <div className="es-toggle-body">
+              <span className="es-toggle-title">Show this event on my dashboard</span>
+              <span className="es-toggle-desc">Hide while you&apos;re still planning; turn back on when ready to share.</span>
+            </div>
+            <button
+              type="button"
+              className="toggle-switch"
+              role="switch"
+              aria-checked={showOnDashboard}
+              aria-label="Show this event on my dashboard"
+              onClick={() => setShowOnDashboard(v => !v)}
+            >
+              <span className="toggle-switch-thumb" aria-hidden="true" />
+            </button>
+          </div>
+
+          <div className="es-toggle-row">
+            <div className="es-toggle-body">
+              <span className="es-toggle-title">Allow ticket sales</span>
+              <span className="es-toggle-desc">Enable paid tickets and an integrated checkout on the public site.</span>
+            </div>
+            <button
+              type="button"
+              className="toggle-switch"
+              role="switch"
+              aria-checked={allowTicketSales}
+              aria-label="Allow ticket sales"
+              onClick={() => setAllowTicketSales(v => !v)}
+            >
+              <span className="toggle-switch-thumb" aria-hidden="true" />
+            </button>
+          </div>
+
+          <div className="es-toggle-row">
+            <div className="es-toggle-body">
+              <span className="es-toggle-title">Discoverable in Evenzi search</span>
+              <span className="es-toggle-desc">Let friends find your public page when they search Evenzi by name.</span>
+            </div>
+            <button
+              type="button"
+              className="toggle-switch"
+              role="switch"
+              aria-checked={discoverable}
+              aria-label="Discoverable in Evenzi search"
+              onClick={() => setDiscoverable(v => !v)}
+            >
+              <span className="toggle-switch-thumb" aria-hidden="true" />
+            </button>
+          </div>
+        </section>
+
+        {/* Help card */}
+        <div className="es-help-card">
+          <div className="es-help-body">
+            <span className="es-help-title">Need help with these settings?</span>
+            <span className="es-help-desc">Our support team can walk you through anything that&apos;s not making sense.</span>
+          </div>
+          <button type="button" className="btn-pill btn-pill-secondary">
+            <span aria-hidden="true" className="material-symbols-outlined">support_agent</span>
+            Contact support
+          </button>
+        </div>
+
         {/* Danger zone */}
-        <section className="es-section es-section--danger">
+        <section className="es-section is-danger">
           <header className="es-section-head">
             <h2 className="es-section-title">
               <span aria-hidden="true" className="material-symbols-outlined icon-fill">warning</span>
@@ -256,22 +353,31 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
             </h2>
             <p className="es-section-sub">Irreversible actions — proceed with caution.</p>
           </header>
-          <div className="es-danger-row">
-            <div>
-              <p className="font-display font-semibold text-sm text-ink">Delete this event</p>
-              <p className="text-xs text-muted mt-0.5">Permanently removes all data, guests, and media. Cannot be undone.</p>
+          <div className="es-toggle-row is-danger">
+            <div className="es-toggle-body">
+              <span className="es-toggle-title">Delete this event</span>
+              <span className="es-toggle-desc">This action is permanent and cannot be undone. All RSVPs, photos, and registry data go with it.</span>
             </div>
             <button
               ref={deleteTriggerRef}
               type="button"
-              className="btn-pill btn-pill-danger shrink-0"
+              className="btn-pill btn-pill-danger"
               onClick={() => setConfirmOpen(true)}
             >
-              <span aria-hidden="true" className="material-symbols-outlined">delete_forever</span>
+              <span aria-hidden="true" className="material-symbols-outlined">delete</span>
               Delete event
             </button>
           </div>
         </section>
+
+        <footer className="es-footer">
+          <span>© 2026 Evenzi · All rights reserved</span>
+          <div className="es-footer-links">
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Help</a>
+          </div>
+        </footer>
       </div>
 
       {/* Delete confirmation — reuses the shell .modal-confirm-cautionary primitive */}

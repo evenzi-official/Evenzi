@@ -6,25 +6,34 @@ import { GeneralSettingsForm, type GeneralSettingsEvent } from './GeneralSetting
 export default async function GeneralSettingsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
-  const { data: event } = await supabase
-    .from('events')
-    .select('id, name, primary_date, primary_venue, event_details')
-    .eq('id', id)
-    .is('deleted_at', null)
-    .single()
+
+  const [{ data: event }, { data: gs }] = await Promise.all([
+    supabase
+      .from('events')
+      .select('id, name, primary_date, primary_venue, event_details')
+      .eq('id', id)
+      .is('deleted_at', null)
+      .single(),
+    supabase
+      .from('event_general_settings')
+      .select('tagline, show_on_dashboard, discoverable')
+      .eq('event_id', id)
+      .single(),
+  ])
   if (!event) redirect('/home')
 
-  // Variable fields (partner names etc.) live in events.event_details (jsonb).
   const eventDetails = (event.event_details ?? {}) as Record<string, string>
 
   const initial: GeneralSettingsEvent = {
-    id: event.id,
-    name: event.name,
-    primaryDate: event.primary_date,
-    primaryVenue: event.primary_venue,
-    // City/location isn't a dedicated column — it's part of the event_details bag.
-    city: eventDetails['city'] ?? null,
+    id:               event.id,
+    name:             event.name,
+    primaryDate:      event.primary_date,
+    primaryVenue:     event.primary_venue,
+    city:             eventDetails['city'] ?? null,
     eventDetails,
+    tagline:          gs?.tagline          ?? null,
+    showOnDashboard:  gs?.show_on_dashboard ?? true,
+    discoverable:     gs?.discoverable      ?? false,
   }
 
   return (

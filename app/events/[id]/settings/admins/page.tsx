@@ -1,60 +1,76 @@
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { PageFooter } from '@/components/layout/PageFooter'
+import { AdminsContent } from './AdminsContent'
 
-export default function AdminsSettingsPage() {
+function initials(name: string | null | undefined): string {
+  if (!name) return '?'
+  return name.trim().split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('')
+}
+
+export default async function AdminsSettingsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const supabase = await createClient()
+
+  const { data: ev } = await supabase
+    .from('events')
+    .select('id, user_id')
+    .eq('id', id)
+    .is('deleted_at', null)
+    .single()
+  if (!ev) redirect('/home')
+
+  // Fetch owner profile
+  const { data: ownerProfile } = await supabase
+    .from('user_profiles')
+    .select('display_name, email')
+    .eq('id', ev.user_id)
+    .single()
+
+  // Fetch collaborators (left join with user_profiles via user_id if accepted)
+  const { data: collabRows } = await supabase
+    .from('event_collaborators')
+    .select('id, user_id, invited_email, role, status')
+    .eq('event_id', id)
+    .order('created_at', { ascending: true })
+
+  // Fetch profiles for accepted collaborators
+  const acceptedUserIds = (collabRows ?? [])
+    .filter(r => r.user_id != null)
+    .map(r => r.user_id as string)
+
+  const profilesById = new Map<string, { display_name: string | null; email: string | null }>()
+  if (acceptedUserIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('id, display_name, email')
+      .in('id', acceptedUserIds)
+    for (const p of profiles ?? []) profilesById.set(p.id, p)
+  }
+
+  const collaborators = (collabRows ?? []).map(r => {
+    const profile = r.user_id ? profilesById.get(r.user_id) : null
+    const name = profile?.display_name ?? r.invited_email ?? 'Unknown'
+    const email = profile?.email ?? r.invited_email ?? ''
+    return {
+      id: r.id as string,
+      displayName: name,
+      email,
+      role: r.role as string,
+      status: r.status as 'active' | 'pending',
+      initials: initials(name),
+    }
+  })
+
   return (
     <main className="page-band reveal pt-6 md:pt-8 pb-24">
-      <div className="es-content">
-        <header className="es-content-head">
-          <div>
-            <h1 className="es-content-title">Admins</h1>
-            <p className="es-content-lead">Manage who can access and edit this event.</p>
-          </div>
-          <div className="es-content-actions">
-            <button type="button" className="btn-pill btn-pill-primary">
-              <span aria-hidden="true" className="material-symbols-outlined">person_add</span>
-              Invite admin
-              <span aria-hidden="true" className="btn-pill-spinner" />
-            </button>
-          </div>
-        </header>
-
-        {/* Owner row */}
-        <section className="es-section">
-          <header className="es-section-head">
-            <h2 className="es-section-title">
-              <span aria-hidden="true" className="material-symbols-outlined icon-fill">groups</span>
-              Team members
-            </h2>
-            <p className="es-section-sub">People who can manage this event alongside you.</p>
-          </header>
-
-          <div className="scrollable-list">
-            <div className="admin-row">
-              <span className="admin-avatar" aria-hidden="true">A</span>
-              <div className="admin-meta">
-                <p className="font-display font-semibold text-sm text-ink">You (Owner)</p>
-                <p className="text-xs text-muted">—</p>
-              </div>
-              <span className="status-badge status-badge--live">Owner</span>
-            </div>
-          </div>
-        </section>
-
-        {/* Invite section */}
-        <section className="es-section">
-          <header className="es-section-head">
-            <h2 className="es-section-title">
-              <span aria-hidden="true" className="material-symbols-outlined icon-fill">mail</span>
-              Pending invites
-            </h2>
-          </header>
-          <div className="empty-cta-card">
-            <span className="empty-cta-icon" aria-hidden="true"><span className="material-symbols-outlined">person_add</span></span>
-            <p className="empty-cta-title">No pending invites</p>
-            <p className="empty-cta-sub">Invite collaborators to help manage your event.</p>
-          </div>
-        </section>
-      </div>
+      <AdminsContent
+        eventId={id}
+        ownerName={ownerProfile?.display_name ?? 'Owner'}
+        ownerEmail={ownerProfile?.email ?? ''}
+        ownerInitials={initials(ownerProfile?.display_name)}
+        collaborators={collaborators}
+      />
       <PageFooter />
     </main>
   )
