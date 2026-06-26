@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Manrope, Cormorant_Garamond, Poppins } from "next/font/google";
+import { Inter, Manrope, Cormorant_Garamond, Poppins, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { RevealObserver } from "@/components/layout/RevealObserver";
 import { Preloader } from "@/components/ui/Preloader";
@@ -30,6 +30,13 @@ const poppins = Poppins({
   display: "swap",
 });
 
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Evenzi — Plan, Manage & Celebrate Your Events",
   description: "Create events, manage guest lists, send invitations, and build beautiful event websites. All in one place.",
@@ -53,7 +60,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         />
       </head>
-      <body className={`${inter.variable} ${manrope.variable} ${cormorantGaramond.variable} ${poppins.variable} antialiased`}>
+      <body className={`${inter.variable} ${manrope.variable} ${cormorantGaramond.variable} ${poppins.variable} ${playfairDisplay.variable} antialiased`}>
         <Preloader />
         <RevealObserver />
         {children}

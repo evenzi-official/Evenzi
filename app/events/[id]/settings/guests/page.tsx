@@ -1,73 +1,33 @@
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { PageFooter } from '@/components/layout/PageFooter'
-import { ToggleSwitch } from '@/components/ui/ToggleSwitch'
+import { GuestListContent } from './GuestListContent'
 
-export default function GuestListSettingsPage() {
+export default async function GuestListSettingsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const supabase = await createClient()
+
+  const { data: ev } = await supabase.from('events').select('id').eq('id', id).is('deleted_at', null).single()
+  if (!ev) redirect('/home')
+
+  const { data: gs } = await supabase
+    .from('event_guest_settings')
+    .select('rsvp_enabled, allow_plus_ones, max_plus_ones_per_invite, collect_dietary_notes, default_guest_message')
+    .eq('event_id', id)
+    .single()
+
   return (
     <main className="page-band reveal pt-6 md:pt-8 pb-24">
-      <div className="es-content">
-        <header className="es-content-head">
-          <div>
-            <h1 className="es-content-title">Guest list</h1>
-            <p className="es-content-lead">Configure RSVP options, dietary questions, and guest-list behaviour.</p>
-          </div>
-          <div className="es-content-actions">
-            <button type="button" className="btn-pill btn-pill-primary">
-              <span aria-hidden="true" className="material-symbols-outlined">save</span>
-              Save changes
-              <span aria-hidden="true" className="btn-pill-spinner" />
-            </button>
-          </div>
-        </header>
-
-        {/* RSVP settings */}
-        <section className="es-section">
-          <header className="es-section-head">
-            <h2 className="es-section-title">
-              <span aria-hidden="true" className="material-symbols-outlined icon-fill">how_to_reg</span>
-              RSVP settings
-            </h2>
-          </header>
-          <div className="es-toggle-list">
-            <div className="es-toggle-row">
-              <div>
-                <p className="font-display font-semibold text-sm text-ink">Allow +1 responses</p>
-                <p className="text-xs text-muted">Let guests indicate if they are bringing a plus one.</p>
-              </div>
-              <ToggleSwitch id="allow-plus-one" defaultChecked />
-            </div>
-            <div className="es-toggle-row">
-              <div>
-                <p className="font-display font-semibold text-sm text-ink">Collect dietary preferences</p>
-                <p className="text-xs text-muted">Ask guests about dietary restrictions during RSVP.</p>
-              </div>
-              <ToggleSwitch id="dietary-prefs" defaultChecked />
-            </div>
-            <div className="es-toggle-row">
-              <div>
-                <p className="font-display font-semibold text-sm text-ink">Collect hotel booking preference</p>
-                <p className="text-xs text-muted">Show accommodation options in the RSVP form.</p>
-              </div>
-              <ToggleSwitch id="hotel-pref" />
-            </div>
-          </div>
-        </section>
-
-        {/* Export */}
-        <section className="es-section">
-          <header className="es-section-head">
-            <h2 className="es-section-title">
-              <span aria-hidden="true" className="material-symbols-outlined icon-fill">download</span>
-              Export
-            </h2>
-            <p className="es-section-sub">Download your guest list as a spreadsheet.</p>
-          </header>
-          <button type="button" className="btn-pill btn-pill-secondary">
-            <span aria-hidden="true" className="material-symbols-outlined">download</span>
-            Export CSV
-            <span aria-hidden="true" className="btn-pill-spinner" />
-          </button>
-        </section>
-      </div>
+      <GuestListContent
+        eventId={id}
+        initial={{
+          rsvpEnabled:          gs?.rsvp_enabled             ?? true,
+          allowPlusOnes:        gs?.allow_plus_ones          ?? true,
+          maxPlusOnesPerInvite: gs?.max_plus_ones_per_invite ?? 2,
+          collectDietaryNotes:  gs?.collect_dietary_notes    ?? true,
+          defaultGuestMessage:  gs?.default_guest_message    ?? '',
+        }}
+      />
       <PageFooter />
     </main>
   )

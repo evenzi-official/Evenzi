@@ -2183,14 +2183,14 @@ html{scroll-behavior:smooth}
   }
   .modal-scrim:not(.modal-static) .modal-card .modal-title{margin-top:.85rem}
   .modal-scrim:not(.modal-static) .modal-actions{
-    flex-direction:column-reverse;align-items:stretch;
+    flex-direction:row;align-items:stretch;
     /* Sticky footer (actions) so primary CTAs stay reachable */
     position:sticky;bottom:0;
     background:linear-gradient(180deg, transparent 0, var(--card) 30%);
     margin:1rem -1.5rem -1.25rem;
-    padding:.75rem 1.5rem calc(1.25rem + env(safe-area-inset-bottom,0px));
+    padding:.75rem 1.5rem 0;
   }
-  .modal-scrim:not(.modal-static) .modal-actions .btn-pill{justify-content:center;width:100%;height:44px;padding:0 1rem}
+  .modal-scrim:not(.modal-static) .modal-actions .btn-pill{justify-content:center;flex:1;height:44px;padding:0 1rem}
 }
 /* Static showcase variant — disable fixed positioning so it can sit inline */
 .modal-static{

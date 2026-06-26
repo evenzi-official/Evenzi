@@ -7,20 +7,15 @@ export function RevealObserver() {
   const pathname = usePathname()
 
   useEffect(() => {
-    const els = Array.from(document.querySelectorAll<HTMLElement>(".reveal"))
-    if (!els.length) return
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      els.forEach((el) => el.classList.add("in"))
-      return
-    }
-
-    if (!("IntersectionObserver" in window)) {
-      els.forEach((el) => el.classList.add("in"))
+    if (prefersReduced || !("IntersectionObserver" in window)) {
+      document.querySelectorAll<HTMLElement>(".reveal").forEach((el) => el.classList.add("in"))
       return
     }
 
     const vh = window.innerHeight || document.documentElement.clientHeight
+
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -33,16 +28,35 @@ export function RevealObserver() {
       { threshold: 0.08 }
     )
 
-    els.forEach((el) => {
+    function scanEl(el: HTMLElement): void {
+      if (el.classList.contains("in")) return
       const rect = el.getBoundingClientRect()
       if (rect.top < vh && rect.bottom > 0) {
         el.classList.add("in")
       } else {
         io.observe(el)
       }
-    })
+    }
 
-    return () => io.disconnect()
+    // Scan elements already in the DOM (covers client-side nav)
+    document.querySelectorAll<HTMLElement>(".reveal").forEach(scanEl)
+
+    // Pick up .reveal elements that stream in after the loading skeleton is replaced
+    const mo = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (!(node instanceof HTMLElement)) continue
+          if (node.classList.contains("reveal")) scanEl(node)
+          node.querySelectorAll<HTMLElement>(".reveal").forEach(scanEl)
+        }
+      }
+    })
+    mo.observe(document.body, { childList: true, subtree: true })
+
+    return () => {
+      io.disconnect()
+      mo.disconnect()
+    }
   }, [pathname])
 
   return null
