@@ -128,7 +128,7 @@ function HeroGeometric({
         />
       </div>
 
-      <div className="relative z-10 w-full flex flex-col items-center px-4 md:px-6">
+      <div className="relative z-[60] w-full flex flex-col items-center px-4 md:px-6">
         <div className="w-full max-w-4xl text-center">
           {badge && (
             <motion.div
