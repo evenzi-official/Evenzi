@@ -221,7 +221,7 @@ function Nav() {
 export default function Home() {
   return (
     <div className="min-h-screen" style={{ background: "#FAFAFA" }}>
-      <FlyCanvas />
+      <FlyCanvas sizeVw={0.307} />
       <Nav />
       <HeroGeometric
         titleClassName="text-[clamp(32px,5vw,68px)] leading-[1.1]"
