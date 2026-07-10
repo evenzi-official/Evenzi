@@ -4,6 +4,33 @@
 
 ---
 
+## ✅ DONE — Full E2E QA pass + P0 auth-dep fix + onboarding-gate spec · 2026-06-30
+
+Session report: `docs/session-reports/2026-06-30-session-report.md`. Full QA: `qa/2026-06-30-full-test-pass.md` (+ `qa/screens-2026-06-30/`). Spec: `docs/superpowers/specs/2026-06-30-profile-completion-onboarding-gate-design.md`. **No ClickUp writes** — sign-offs + bug-filing deferred to founder triage.
+
+**🚨 P0 FIXED — `@supabase/ssr` stale install.** `0.1.0` was installed vs `^0.10.0` required (lockfile correct; stale parent `node_modules`). v0.1.0 lacks the `getAll/setAll` cookie API → **all local auth silently broken** (sessions never persist). The earlier "Google PKCE" + "OTP session_not_found" were symptoms. **Fix = `npm install`** (done in worktree). ⚠️ **Anyone on a stale checkout must `npm install`.** Consider a fresh-worktree `npm ci` guard.
+
+**E2E results — PASS (live + DB):** auth/session/middleware · create wizard (→ event + 3 sub-events + 12 tasks + 1 budget) · edit (2-table persist) · delete (soft-delete) · hub wired reads · settings backends · RLS/validation · responsive 360–1440 · dark mode. `website_password_hash` never writable/leaked.
+
+**Bugs to triage into ClickUp (9):**
+1. **P1** — Journey page never lists sub-events (flow break; hub links here → dead end).
+2. **P2** — Mobile delete-confirm modal untappable (tool-rail intercepts; stacking-context trap, scrim z=80 loses to rail ancestor).
+3. **P2** — `PUT /api/events/[id]` `name:""` → 500 (should 400).
+4. **P2** — `PATCH website-settings` enable-password → 500 (CHECK `ck_website_password_required`). *(#3+#4: routes don't map PG 23502/23514 → 400; one helper fixes the class.)*
+5. **P2** — Breadcrumb hydration mismatch (`reveal in` server vs client) on hub.
+6. **P2** — Dashboard greeting blank/wrong (`display_name` unused) → **onboarding-gate spec fixes this**.
+7. **P2** — Registry tab fake-saves (no API); website password field dead; admins invite sends no email; ticket-sales toggle cosmetic.
+8. **P3** — hub SVG `transform-origin`; hardcoded "EVENT" type label; collab/notif/account dead buttons; hub budget/RSVP/activity stubs.
+
+**▶ Next:**
+1. Founder merges own parallel findings → triage all into ClickUp.
+2. Decide the 6 approval-gate sign-offs (edit/delete/hub-reads PASS; journey P1 + mobile-modal P2 route back to Dheeraj).
+3. **Onboarding-gate:** review/approve the spec → `writing-plans` → `/council plan` → Cursor build. (Schema already supports it — `user_profiles.display_name/avatar_url/email/phone/location/onboarding_completed` all exist; no migration.)
+4. Standing fixes: the 500-mapping helper; fresh-worktree `npm ci` guard.
+5. **QA test-login helper:** save the password-grant → cookie-inject recipe (in the QA doc) as a reusable local-auth helper for future Playwright QA.
+
+---
+
 ## ✅ DONE — QA pass + create-wizard overhaul + dashboard/UX fixes · 2026-06-23
 
 Large QA + fix session (Abhijith). Multi-agent audit + two founder manual passes (M1–M16) → fixes across the in-scope screens, **verified live (Playwright + DB)**. All on `Dev-Vibe` + `Dev-Vibe-Testing` (commits `0e72a70`→`87c74c5`). App-code `tsc`: 0 errors. Full rolling status: **`qa/QA-SUMMARY.md`** (+ `qa/manual-findings.md`, `qa/in-scope-screens-findings.md`, `qa/FIX-PLAN.md`, `qa/EVENZI-TEST-PLAYBOOK.md`).

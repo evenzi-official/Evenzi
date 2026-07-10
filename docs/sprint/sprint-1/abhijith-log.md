@@ -9,3 +9,7 @@
 
 ## 2026-06-23
 - **End** 16:36 — QA pass + create-wizard overhaul + dashboard/UX + error-boundary; all on Dev-Vibe + Testing (0e72a70→87c74c5); docs synced; app-tsc 0 errors
+
+## 2026-06-30
+- **Start** 08:07 — picking up: TBD (next-up per NEXT-SESSION = Event Settings FE integration); Dheeraj sync: nothing to sync (no dheeraj-progress.md yet)
+- **End**   (2026-07-01) — QA review of Dheeraj's 6 approval-gate tasks → escalated to full E2E pass (UI+API+DB); + onboarding-gate brainstorm/spec. **P0 fixed:** @supabase/ssr 0.1.0 vs ^0.10.0 (stale node_modules) broke all local auth → `npm install`. 9 bugs logged (1 P1, 6 P2, incl. 2 API 500-mapping + mobile modal stacking). tasks updated: none (ClickUp sign-offs/bug-filing deferred to founder triage); docs updated: NEXT-SESSION.md, session report, qa/2026-06-30-full-test-pass.md, spec (onboarding gate); report: docs/session-reports/2026-06-30-session-report.md; next: triage findings→ClickUp, decide 6 sign-offs, implement onboarding-gate spec
