@@ -31,6 +31,22 @@ Session report: `docs/session-reports/2026-06-30-session-report.md`. Full QA: `q
 
 ---
 
+## ▶ START HERE NEXT — User Settings data model (brainstorm in progress · 2026-06-25)
+
+Brainstorm started (Abhijith, teaching mode) for the **User Settings** data-model slice (ClickUp `Data Modeling: User Settings` `86d2k1myh` under Feature `86d2k1m04`). **Interrupted before the spec was written** — decisions locked, spec/council/plan/migrations still to do. Full decision record is a comment on `86d2k1myh`.
+
+**Framing finding — most of User Settings is already modeled.** `public.user_profiles` covers Profile (display_name, avatar_url, email, phone, location, role_slug); `public.user_preferences` covers Notifications (email/push/sms). Security (password, 2FA) + linked accounts (Google) = **Supabase Auth-managed** (`auth.users` / `auth.identities`), not our tables (D8). `delete_user_account()` was already **[PLANNED]**. So this slice = promote [PLANNED]→[NOW] + harden self-service RLS + build the deletion path + resolve design↔schema conflicts — **not new feature tables.**
+
+**Decisions locked:**
+1. **Account deletion = Full RPC + soft-delete first** — grace-window (deactivate + `deletion_scheduled_for` now, hard cascade purge after window). Needs request/cancel/execute RPCs + pg_cron sweep + RLS/middleware blocking soft-deleted users. R2 file purge = documented TODO until prod `/api/storage/*` lands.
+2. **Notification channels = replace SMS → WhatsApp** — migrate `user_preferences.sms_alerts` → `whatsapp_alerts` (keep boolean + default). Channels: Email / Push / WhatsApp. SMS card in the design was a placeholder.
+
+**Open question — resolve FIRST next session (it sizes the slice):** email/phone editing. `user_profiles.email/phone` are read-only verified mirrors of `auth.users` (D3); the design shows them editable. Options: (a) **display-name + avatar + location + prefs only; email/phone read-only** [recommended MVP]; (b) full identity-change flow via Supabase Auth re-verification + re-mirror trigger [heavier, its own slice]; (c) editable, no re-verify [rejected — breaks D3].
+
+**Then:** answer (a/b/c) → write spec in `docs/superpowers/specs/` → `/council design` → `/writing-plans` → migrations → smoke test → types → doc sync. Confirm in the plan: grace-window length (default 30d) + capture deletion reason (default yes). Design prototype: `designs/pages/settings/` (settings.html/css/js). Live user tables: DATA-MODEL.md §Tables (`user_profiles` L384, `user_preferences` L403).
+
+---
+
 ## ✅ DONE — QA pass + create-wizard overhaul + dashboard/UX fixes · 2026-06-23
 
 Large QA + fix session (Abhijith). Multi-agent audit + two founder manual passes (M1–M16) → fixes across the in-scope screens, **verified live (Playwright + DB)**. All on `Dev-Vibe` + `Dev-Vibe-Testing` (commits `0e72a70`→`87c74c5`). App-code `tsc`: 0 errors. Full rolling status: **`qa/QA-SUMMARY.md`** (+ `qa/manual-findings.md`, `qa/in-scope-screens-findings.md`, `qa/FIX-PLAN.md`, `qa/EVENZI-TEST-PLAYBOOK.md`).
