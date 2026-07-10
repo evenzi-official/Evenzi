@@ -9,3 +9,7 @@
 
 ## 2026-06-23
 - **End** 16:36 — QA pass + create-wizard overhaul + dashboard/UX + error-boundary; all on Dev-Vibe + Testing (0e72a70→87c74c5); docs synced; app-tsc 0 errors
+
+## 2026-06-25
+- **Start** 13:00 — picking up: TBD (3 features in review: Event CRUD wizard, Host Dashboard, Event Mgmt Hub; live next-up = Event Settings FE integration); Dheeraj sync: nothing to sync (no dheeraj-progress.md)
+- **End**   13:01 — User Settings data-model **brainstorm only** (interrupted before spec). 2 decisions locked (deletion = full RPC + soft-delete first; notif channels = replace SMS→WhatsApp); 1 open question (email/phone editable vs read-only mirror). Decisions preserved: comment on ClickUp `86d2k1myh` + NEXT-SESSION.md "START HERE NEXT". No code/spec/migrations landed. tasks updated: 86d2k1myh (comment only, stays backlog); docs updated: NEXT-SESSION.md, abhijith-log.md, sprint digests (regen at start); report: none (micro-session, no code); next: answer the email/phone open question → spec → council → plan → migrations
