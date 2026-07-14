@@ -32,7 +32,7 @@ Walked all four live in-browser (desktop render + section structure + network/st
 | **Mivon** | `uithemez.com/i/mivon_html/onepage-creative-agency.html` | Creative **agency** one-pager | jQuery 3.6 + GSAP ScrollSmoother/ScrollTrigger + Bootstrap 5 + Swiper + Magnific-popup + image-trail | Dark, heavy scroll animation, portfolio/works/team/blog |
 | **Azurio** | `mixdesign.dev/themeforest/azurio/index-design-studio.html` | Dark creative **studio / portfolio** | Static HTML, bundled `libs.min.js`/`app.min.js`, **WebGL 3D** (glass-blob hero) | Premium, 3D hero, day/night toggle, big bold type |
 | **Xfolio** | `wowtheme7.com/tf/xfolio/index-one-page.html` | Personal **CV / résumé** portfolio | jQuery 3.7 + GSAP SplitText/ScrollSmoother + Bootstrap + Swiper + vanilla-tilt | Dark, red accent, "I'm Subrata", 3D floaties |
-| **Cunnet** | `html.aqlova.com/cunnet-demo/cunnet/index-digital-light.html` | Creative **portfolio agency** | jQuery + Bootstrap + **Three.js** + split-type + custom cursor + Swiper | Light, bold typographic ("We Build Bold"), red accent |
+| **Cunnet** (light + dark) | light: `html.aqlova.com/cunnet-demo/cunnet/index-digital-light.html` · dark: `html.aqlova.com/cunnet-demo/cunnet/index-dark.html` | Creative **portfolio agency** (multipage demo incl. Shop) | jQuery + Bootstrap + **Three.js** + split-type + custom cursor + Swiper | Ships **both a light and a dark** homepage variant, bold typographic ("We Build Bold"), red accent |
 
 ### Observations
 
