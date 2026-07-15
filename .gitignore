@@ -53,3 +53,6 @@ next-env.d.ts
 
 # Ad-hoc debug screenshots at repo root
 /overview-*.png
+
+# Template intake — theme mirrors + Lovable build (large, non-app; inspection only)
+/sandbox/
