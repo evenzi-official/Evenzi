@@ -3,6 +3,7 @@
 > **Audience:** Dheeraj (frontend) + anyone wiring file uploads (photos, videos, invitation cards, avatars) into an Evenzi feature.
 > **Status (2026-06-13):** Foundation built + verified end-to-end. Private (signed-URL) path fully working. See §3.
 > **Design spec:** [`docs/superpowers/specs/2026-06-13-cloudflare-r2-storage-design.md`](superpowers/specs/2026-06-13-cloudflare-r2-storage-design.md)
+> **Cost analysis:** [`docs/media/media-storage-platform-analysis.md`](media/media-storage-platform-analysis.md) — why R2/Cloudflare vs Bunny/ImageKit/Cloudinary/Mux for the photo+video album workload (+ an interactive cost forecaster).
 
 ---
 
