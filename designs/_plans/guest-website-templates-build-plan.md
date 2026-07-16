@@ -1,8 +1,22 @@
 # Guest Website Templates — Build Plan (design-first → React)
 
-> **Goal.** Ship **4 guest-facing event-website templates** (the scrollable `/e/<slug>` site a guest opens from WhatsApp) — wedding-flavoured for MVP, mobile-first + first-class desktop. Approach: **design in pure HTML/CSS/JS first** (in `designs/`, the established Evenzi prototype path), get each template fitting our needs, **then convert to React/Next.js** at `app/e/[slug]/`.
+> **Goal.** Ship **5 guest-facing event-website templates** (the scrollable `/e/<slug>` site a guest opens from WhatsApp) — wedding-flavoured for MVP, mobile-first + first-class desktop. Approach: **design in pure HTML/CSS/JS first** (in `designs/`, the established Evenzi prototype path), get each template fitting our needs, **then convert to React/Next.js** at `app/e/[slug]/`. (The Lovable-build template is already React — it takes a port-and-refine path instead of HTML-first.)
 >
-> **Owner:** Abhijith · **Started:** 2026-07-14 · **Status:** Phase 0 done · Phase 1 (design lock) pending sign-off
+> **Owner:** Abhijith · **Started:** 2026-07-14 · **Status:** Phase 0 done · Phase 1 design lock DONE (lineup below) · Phase 2 build next
+
+---
+
+## 0. Template lineup (locked 2026-07-14)
+
+Five distinct wedding moods, each mined from one source. We take the source's layout/type/motion feel and apply our own wedding palette (mine + rebuild — not a copy).
+
+| # | Mood | Source | Palette lane | Path | Notes |
+|---|---|---|---|---|---|
+| 1 | **Bold Festive** | **Lovable build** | maroon + gold | already React → port + refine | Also the Phase-4 React blueprint (section components + `themes.ts` + `weddingData`). Add missing Venue & Wedding Party; verify unlock gate. |
+| 2 | **Midnight Elegant** | Azurio | dark + metallic | HTML-first → React | Strip WebGL/3D; rebuild from visual ref |
+| 3 | **Classic Editorial** | Mivon | ivory/champagne + serif | HTML-first → React | Editorial magazine layout; readable CSS |
+| 4 | **Minimal Modern** | Xfolio | clean off-white + 1 accent | HTML-first → React | Cleanest base; true one-page demos |
+| 5 | **Blush Romantic** | Cunnet | soft pink + cream | HTML-first → React | Cunnet's layout, our soft-pink palette |
 >
 > **Related:** [`digital-presence-plan.md`](digital-presence-plan.md) · [`event-website-template-sourcing.md`](event-website-template-sourcing.md) · [`../_prompts/guest-site-bold-festive-kerala.lovable.md`](../_prompts/guest-site-bold-festive-kerala.lovable.md) · [`event-website-gaps.md`](../../docs/data-model/event-website-gaps.md) (G1–G11) · ClickUp Feature `86d2jwzge` (Digital Presence) / component "Digital Presence: Event Templates" (P0)
 
@@ -47,9 +61,9 @@ A **well-structured** React project (740 KB extracted) — matches the recommend
 |---|---|---|---|
 | **0 · Intake** ✅ | gitignored sandbox → extract 5 zips → inventory (this doc) | Claude | done |
 | **1 · Design lock** | Section spine (10, incl. the 2 the Lovable build missed) · map 4 themes → 4 distinct wedding looks · shared HTML skeleton (one section structure, a CSS token-set per template, on `shell.css`) · lift-vs-rebuild call per theme | Claude → **founder sign-off** | ← next |
-| **2 · Template #1 (pure HTML)** | Repurpose theme #1 → wedding guest-site in `designs/pages/website/guest-site/` (or per-template dir): mobile+desktop, our sections, mock unlock/RSVP, heavy JS stripped, reuse shell primitives | **Cursor** builds · Antigravity QA · Claude review | founder review |
-| **3 · Templates #2–4 (HTML)** | Repeat per theme, one at a time | **Cursor** · Antigravity · Claude | per-template review |
-| **4 · Convert HTML → React/Next** | Port approved templates to `app/e/[slug]/` using the Lovable component architecture as blueprint (one section skeleton, 4 token-sets); swap TanStack→Next App Router; reconcile Tailwind | **Cursor** · Claude review | — |
+| **2 · First build** | Either (a) **Lovable → Next.js port** (lands the React architecture + `app/e/[slug]` skeleton + section contracts early, since it already exists — add Venue & Wedding Party, verify unlock gate) — recommended to front-load the blueprint; or (b) first **HTML template** (Xfolio → Minimal Modern, easiest base) to prove the design-first flow | **Cursor** builds · Antigravity QA · Claude review | founder review |
+| **3 · Remaining 4 HTML templates** | Repurpose each theme → wedding guest-site in `designs/pages/website/guest-site/<template>/`: mobile+desktop, our 10 sections, mock unlock/RSVP, heavy JS stripped, reuse shell primitives. One at a time. | **Cursor** · Antigravity · Claude | per-template review |
+| **4 · Convert HTML → React/Next** | Port approved HTML templates into `app/e/[slug]/` using the Lovable component architecture as blueprint (one section skeleton, 5 token-sets); swap TanStack→Next App Router; reconcile Tailwind | **Cursor** · Claude review | — |
 | **5 · Host picker + QA + licensing** | Design-tab template picker (**gated on G5 `event_website_design` data-model slice** for persistence) · cross-device/perf QA on real phones · **licensing verified before shipping any theme-derived asset** | Antigravity · Claude | licensing gate |
 
 ## 4. Editor split
@@ -59,13 +73,15 @@ A **well-structured** React project (740 KB extracted) — matches the recommend
 - **Antigravity:** Phase 3 + 5 automated testing (responsive, a11y, visual regression, cross-template, real-device).
 - **Founder (Abhijith):** file-moving/extraction, design taste calls, licensing decision, running Cursor/Antigravity with Claude's handoffs.
 
-## 5. Phase 1 — open decisions (resolve next)
+## 5. Phase 1 — design lock (RESOLVED 2026-07-14)
 
-1. **Theme → wedding-mood mapping.** The 4 are stylistically similar (bold modern agency; 3 dark, 1 light). Which wedding mood does each become — and do they give enough range, or do we reshape some (e.g. one classic-romance, one minimal, one festive, one dark-elegant)?
-2. **Section spine — confirm the 10:** Hero · Announcement · Story · Schedule/Itinerary · Venue & Travel · Wedding Party · Gallery · Q&A · RSVP · Footer (Countdown inside Hero). Keep all for every template, or vary per template?
-3. **Shared skeleton mechanism.** One HTML section structure + a CSS custom-property token-set per template (mirrors the Lovable `themes.ts` idea in pure CSS), so templates differ by tokens/layout-variant, not forked markup.
-4. **Lift-vs-rebuild per theme** — Xfolio/Mivon (readable CSS) likely lift more; Azurio/Cunnet (minified/WebGL) likely rebuild-from-visual-ref.
-5. **`designs/` home** — one dir per template under `designs/pages/website/guest-site/<template>/`, or a shared skeleton + per-template CSS.
+1. **Theme → wedding-mood mapping** — locked; see §0 lineup. 5 distinct moods (Bold Festive / Midnight Elegant / Classic Editorial / Minimal Modern / Blush Romantic). Lovable = 5th template + React blueprint; Mivon nudged to "Classic Editorial" (ivory/serif) so Cunnet owns the blush lane.
+2. **Section spine — the 10 (all templates):** Hero(+Countdown) · Announcement · Story · Schedule/Itinerary · Venue & Travel · Wedding Party · Gallery · Q&A · RSVP · Footer. Same spine every template; they differ by look, not sections.
+3. **Shared skeleton mechanism** — one HTML section structure + a **CSS custom-property token-set per template** (pure-CSS mirror of the Lovable `themes.ts` idea), all on `shell.css`; templates differ by tokens/layout-variant, not forked markup.
+4. **Lift-vs-rebuild per theme** — Xfolio/Mivon (readable CSS) lift more; Azurio/Cunnet (minified/WebGL) rebuild-from-visual-ref.
+5. **`designs/` home** — one dir per template under `designs/pages/website/guest-site/<template>/`, sharing a common skeleton + per-template token CSS.
+
+### Open (Phase 2 kickoff): which template builds first — the Lovable→Next port (front-loads the React blueprint) or the easiest HTML template (Xfolio → Minimal Modern)?
 
 ## 6. Licensing gate (unresolved — blocks shipping, not designing)
 
