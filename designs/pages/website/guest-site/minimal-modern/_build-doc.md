@@ -1,4 +1,6 @@
-# Cursor Build-Doc — Guest Wedding Website · Template #1 "Minimal Modern"
+# Cursor Build-Doc — Guest Wedding Website · "Minimal Modern"
+
+> ⚠️ **SUPERSEDED AS FIRST BUILD (2026-07-14).** Midnight Elegant (Azurio) now leads. Also: the "strip heavy JS / keep it light" framing below is **overridden by the immersive creative mandate** (see `designs/_plans/guest-website-templates-build-plan.md` §Creative mandate) — even "Minimal Modern" should be immersive-minimal (Apple-style scroll cinematics via GSAP + Lenis), not static. **Revise this doc before building this template.**
 
 > **Paste this whole file into Cursor.** It is self-contained — the receiving tool has no access to the planning chat.
 

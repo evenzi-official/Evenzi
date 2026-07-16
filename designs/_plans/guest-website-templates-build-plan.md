@@ -27,9 +27,15 @@ Five distinct wedding moods, each mined from one source. We take the source's la
 **Design-first, then convert.** Build the templates as pure HTML/CSS/JS prototypes in `designs/` (fitting our wedding structure + brand), get them approved, *then* port to React/Next.js in one clean rebuild — rather than fighting a jQuery→React conversion and a redesign at once. This matches how the whole Evenzi `designs/` → `app/` pipeline already works (see PORT-MAP.md).
 
 **Three refinements:**
-1. **"Repurpose" = mine + rebuild, not edit-in-place.** The theme sources are HTTrack site-mirrors (rewritten URLs, cache junk, heavy agency JS). We lift the *visual system* (type, palette, layout, motion feel) and rebuild the wedding structure cleanly on `designs/shared/shell.css`, not untangle the mirror DOM. Lift-vs-rebuild confirmed per theme in Phase 1.
-2. **Strip the heavy JS.** ScrollSmoother, WebGL/Three.js, image-trails, custom cursors, preloaders — gut them. A WhatsApp-opened mobile invite can't carry that weight. Keep only light scroll-reveal.
-3. **The Lovable build is the React-conversion blueprint.** Its section-component split + `themes.ts` token registry + `weddingData` are the structural model for the final React port (Phase 4) — reused, not discarded.
+1. **"Repurpose" = mine + rebuild, not edit-in-place.** The theme sources are HTTrack site-mirrors (rewritten URLs, cache junk). We lift the *visual system + animation system* (type, palette, layout, motion, WebGL) and rebuild the wedding structure cleanly, not untangle the mirror DOM. Lift-vs-rebuild confirmed per theme.
+2. **Go immersive — heavy and beautiful is the mandate** (see §Creative mandate). Keep and *amplify* the themes' scroll cinematics, WebGL, GSAP. The prior "strip the JS" stance is **reversed.** Stack for the design phase: **GSAP + ScrollTrigger + Lenis + Three.js** (vanilla). Do it *well*: a fast-painting hero on first WhatsApp tap, richness revealed progressively on scroll, `prefers-reduced-motion` fallback, tuned for high-end mobile (esp. iOS Safari WebGL).
+3. **The Lovable build is the React-conversion blueprint.** Its section-component split + `themes.ts` token registry + `weddingData` are the structural model for the final React port (Phase 4). React-phase motion stack: **Framer Motion** (already in the Lovable build) + `@react-three/fiber` + `@gsap/react` + `lenis/react`.
+
+### Creative mandate (locked 2026-07-14)
+
+The guest website **is the product's primary marketing surface**, not a utility. One event reaches **1000+ guests**; the site's beauty is what converts them into new Evenzi users — the growth engine is viral, guest-seen-site → sign-up. The audience is **premium / high-end devices**. Therefore: **design for maximum beauty and immersion — scroll-driven cinematics, camera flights, WebGL, rich motion.** Do not down-scope for the low-common-denominator device. "Heavy done well" (fast perceived load + progressive reveal + reduced-motion fallback) is the bar, on both mobile and desktop.
+
+**Tooling installed/available:** `scroll-world` skill (`~/.claude/skills/scroll-world`; free scroll-engine, paid Higgsfield world-gen — use as engine reference). Vanilla immersive stack: GSAP (all plugins free) + Lenis + Three.js (+ Spline for no-code 3D). React stack: Framer Motion + @react-three/fiber + @gsap/react + lenis/react. Also: magicui + 21st.dev MCPs for animated React components.
 
 ## 2. Assets in hand (Phase 0 inventory)
 
@@ -81,7 +87,9 @@ A **well-structured** React project (740 KB extracted) — matches the recommend
 4. **Lift-vs-rebuild per theme** — Xfolio/Mivon (readable CSS) lift more; Azurio/Cunnet (minified/WebGL) rebuild-from-visual-ref.
 5. **`designs/` home** — one dir per template under `designs/pages/website/guest-site/<template>/`, sharing a common skeleton + per-template token CSS.
 
-### Open (Phase 2 kickoff): which template builds first — the Lovable→Next port (front-loads the React blueprint) or the easiest HTML template (Xfolio → Minimal Modern)?
+### Phase 2 first build — RESOLVED (2026-07-14): **Midnight Elegant (Azurio)** leads
+
+Under the immersive creative mandate, we lead with the most jaw-dropping template to set the animation bar all others match. **Template #2 (Midnight Elegant / Azurio)** builds first, immersive, hand-built **GSAP + ScrollTrigger + Lenis + Three.js** in `designs/`. Build-doc: `designs/pages/website/guest-site/midnight-elegant/_build-doc.md`. (Minimal Modern / Xfolio build-doc exists but is no longer first, and its "strip JS / light" framing is superseded by the immersive mandate — revise when we reach it.)
 
 ## 6. Licensing gate (unresolved — blocks shipping, not designing)
 
