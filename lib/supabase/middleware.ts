@@ -13,7 +13,8 @@ export async function updateSession(request: NextRequest) {
       pathname === '/' ||
       pathname.startsWith('/auth') ||
       pathname.startsWith('/_next') ||
-      pathname.startsWith('/api')
+      pathname.startsWith('/api') ||
+      pathname.startsWith('/wedding-invitation-temp-')
     ) {
       return NextResponse.next()
     }
@@ -60,6 +61,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/invite') ||   // guest invitation share URLs — no auth required
+    pathname.startsWith('/wedding-invitation-temp-') || // invitation template previews — public
     isDevPlayground
 
   // No user on non-public path → redirect to auth
