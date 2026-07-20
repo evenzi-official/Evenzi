@@ -17,3 +17,9 @@
 ## 2026-06-30
 - **Start** 08:07 — picking up: TBD (next-up per NEXT-SESSION = Event Settings FE integration); Dheeraj sync: nothing to sync (no dheeraj-progress.md yet)
 - **End**   (2026-07-01) — QA review of Dheeraj's 6 approval-gate tasks → escalated to full E2E pass (UI+API+DB); + onboarding-gate brainstorm/spec. **P0 fixed:** @supabase/ssr 0.1.0 vs ^0.10.0 (stale node_modules) broke all local auth → `npm install`. 9 bugs logged (1 P1, 6 P2, incl. 2 API 500-mapping + mobile modal stacking). tasks updated: 9 bugs filed to QA & Bugs (86d3nejgj…86d3nejve); ClickUp sign-offs deferred to founder triage; docs updated: NEXT-SESSION.md, session report, qa/2026-06-30-full-test-pass.md, spec (onboarding gate); report: docs/session-reports/2026-06-30-session-report.md; next: triage findings→ClickUp, decide 6 sign-offs, implement onboarding-gate spec
+
+## 2026-07-10
+- **Start** 13:44 — picking up: Digital Presence — Event Templates brainstorm (ClickUp `86d2jwzge`, component "Digital Presence: Event Templates", P0, 3-4 pre-built website templates per event type); goal: brainstorm template themes/color palettes → author Lovable prompts for scratch designs; Dheeraj sync: nothing to sync (no dheeraj-progress.md); ClickUp state unchanged since 2026-06-25 (0 new in-progress/review, digest timestamp refreshed only)
+
+## 2026-07-14
+- **Start** 11:50 — Dheeraj sync: nothing to sync (no dheeraj-progress.md); ClickUp MCP not connected this session — briefing from last-synced digest (no live pull / regen possible); prior 2026-07-10 session had a Start with no End (Digital Presence template design, produced untracked `docs/data-model/event-website-gaps.md`); picking up: TBD

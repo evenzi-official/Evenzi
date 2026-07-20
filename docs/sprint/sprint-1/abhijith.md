@@ -1,4 +1,4 @@
-# Sprint 1 — Abhijith digest (generated 2026-06-25 13:00)
+# Sprint 1 — Abhijith digest (generated 2026-07-10 — no ClickUp state changes since 2026-06-25)
 
 ## In progress
 - Data Model Foundation + Supabase backend (86d3bay3j) — High — CORE schema live on dev; per-feature data models landed (Event Settings D40–D48 next-up = FE integration)
