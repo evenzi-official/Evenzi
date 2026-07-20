@@ -2,11 +2,11 @@
 
 > **Goal.** Ship **5 guest-facing event-website templates** (the scrollable `/e/<slug>` site a guest opens from WhatsApp) — wedding-flavoured for MVP, mobile-first + first-class desktop. Approach: **design in pure HTML/CSS/JS first** (in `designs/`, the established Evenzi prototype path), get each template fitting our needs, **then convert to React/Next.js** at `app/e/[slug]/`. (The Lovable-build template is already React — it takes a port-and-refine path instead of HTML-first.)
 >
-> **Owner:** Abhijith · **Started:** 2026-07-14 · **Status:** Phase 0 done · Phase 1 design lock DONE (lineup below) · Phase 2 build next
+> **Owner:** Abhijith · **Started:** 2026-07-20 · **Status:** Phase 0 done · Phase 1 design lock DONE (lineup below) · Phase 2 build next
 
 ---
 
-## 0. Template lineup (locked 2026-07-14)
+## 0. Template lineup (locked 2026-07-20)
 
 Five distinct wedding moods, each mined from one source. We take the source's layout/type/motion feel and apply our own wedding palette (mine + rebuild — not a copy).
 
@@ -22,7 +22,7 @@ Five distinct wedding moods, each mined from one source. We take the source's la
 
 ---
 
-## 1. Strategy (locked with founder 2026-07-14)
+## 1. Strategy (locked with founder 2026-07-20)
 
 **Design-first, then convert.** Build the templates as pure HTML/CSS/JS prototypes in `designs/` (fitting our wedding structure + brand), get them approved, *then* port to React/Next.js in one clean rebuild — rather than fighting a jQuery→React conversion and a redesign at once. This matches how the whole Evenzi `designs/` → `app/` pipeline already works (see PORT-MAP.md).
 
@@ -31,7 +31,7 @@ Five distinct wedding moods, each mined from one source. We take the source's la
 2. **Go immersive — heavy and beautiful is the mandate** (see §Creative mandate). Keep and *amplify* the themes' scroll cinematics, WebGL, GSAP. The prior "strip the JS" stance is **reversed.** Stack for the design phase: **GSAP + ScrollTrigger + Lenis + Three.js** (vanilla). Do it *well*: a fast-painting hero on first WhatsApp tap, richness revealed progressively on scroll, `prefers-reduced-motion` fallback, tuned for high-end mobile (esp. iOS Safari WebGL).
 3. **The Lovable build is the React-conversion blueprint.** Its section-component split + `themes.ts` token registry + `weddingData` are the structural model for the final React port (Phase 4). React-phase motion stack: **Framer Motion** (already in the Lovable build) + `@react-three/fiber` + `@gsap/react` + `lenis/react`.
 
-### Creative mandate (locked 2026-07-14)
+### Creative mandate (locked 2026-07-20)
 
 The guest website **is the product's primary marketing surface**, not a utility. One event reaches **1000+ guests**; the site's beauty is what converts them into new Evenzi users — the growth engine is viral, guest-seen-site → sign-up. The audience is **premium / high-end devices**. Therefore: **design for maximum beauty and immersion — scroll-driven cinematics, camera flights, WebGL, rich motion.** Do not down-scope for the low-common-denominator device. "Heavy done well" (fast perceived load + progressive reveal + reduced-motion fallback) is the bar, on both mobile and desktop.
 
@@ -79,7 +79,7 @@ A **well-structured** React project (740 KB extracted) — matches the recommend
 - **Antigravity:** Phase 3 + 5 automated testing (responsive, a11y, visual regression, cross-template, real-device).
 - **Founder (Abhijith):** file-moving/extraction, design taste calls, licensing decision, running Cursor/Antigravity with Claude's handoffs.
 
-## 5. Phase 1 — design lock (RESOLVED 2026-07-14)
+## 5. Phase 1 — design lock (RESOLVED 2026-07-20)
 
 1. **Theme → wedding-mood mapping** — locked; see §0 lineup. 5 distinct moods (Bold Festive / Midnight Elegant / Classic Editorial / Minimal Modern / Blush Romantic). Lovable = 5th template + React blueprint; Mivon nudged to "Classic Editorial" (ivory/serif) so Cunnet owns the blush lane.
 2. **Section spine — the 10 (all templates):** Hero(+Countdown) · Announcement · Story · Schedule/Itinerary · Venue & Travel · Wedding Party · Gallery · Q&A · RSVP · Footer. Same spine every template; they differ by look, not sections.
@@ -87,9 +87,30 @@ A **well-structured** React project (740 KB extracted) — matches the recommend
 4. **Lift-vs-rebuild per theme** — Xfolio/Mivon (readable CSS) lift more; Azurio/Cunnet (minified/WebGL) rebuild-from-visual-ref.
 5. **`designs/` home** — one dir per template under `designs/pages/website/guest-site/<template>/`, sharing a common skeleton + per-template token CSS.
 
-### Phase 2 first build — RESOLVED (2026-07-14): **Midnight Elegant (Azurio)** leads
+### Phase 2 first build — RESOLVED (2026-07-20): **Midnight Elegant (Azurio)** leads
 
 Under the immersive creative mandate, we lead with the most jaw-dropping template to set the animation bar all others match. **Template #2 (Midnight Elegant / Azurio)** builds first, immersive, hand-built **GSAP + ScrollTrigger + Lenis + Three.js** in `designs/`. Build-doc: `designs/pages/website/guest-site/midnight-elegant/_build-doc.md`. (Minimal Modern / Xfolio build-doc exists but is no longer first, and its "strip JS / light" framing is superseded by the immersive mandate — revise when we reach it.)
+
+## Built
+
+### Template #2 — Midnight Elegant · shipped 2026-07-20 (pending sign-off)
+
+**Live:** https://evenzi-official.github.io/Evenzi/pages/website/guest-site/midnight-elegant/
+**Files:** `designs/pages/website/guest-site/midnight-elegant/{index.html, midnight-elegant.css, midnight-elegant.js}` (703 / 1255 / 669 lines). Commit `179d321`.
+
+What shipped:
+- Dark midnight + gold luxe system via `--me-*` tokens; Cormorant Garamond display serif vendored (4 weights) for the couple's names.
+- All 10 sections with the Kerala demo content (Brindo Sylen & Sreelekshmy M, Kochi, 26 Jan 2027).
+- Motion stack vendored locally under `designs/shared/vendor/` (no CDN): GSAP + ScrollTrigger + SplitText, Lenis, Three.js.
+- Three.js hero scene **dynamically imported** so the hero paints first and WebGL layers in progressively.
+- Mock unlock gate (phone / password / skip-demo), countdown, gallery lightbox, RSVP — all client-side.
+- No inline CSS/JS. New primitives backfilled into `designs/components.html`.
+
+Verified live: 8/8 asset URLs 200 · zero console errors · hero + countdown + particle field render · unlock modal opens and demo-unlock reveals private sections and persists · mobile 375px sticky gold RSVP bar · story section renders.
+
+**Deferred / still owed:** full Claude code+spec review across all 10 sections; **Antigravity responsive/a11y/perf pass**; real-device 60fps check; desktop breakpoint verification (1024/1280/1440). **Deployed ≠ signed off.**
+
+---
 
 ## 6. Licensing gate (unresolved — blocks shipping, not designing)
 

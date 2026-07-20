@@ -2,7 +2,7 @@
 
 > **Purpose.** Records how we're deciding to source the pre-built **guest-facing event website templates** (the scrollable `/e/<slug>` site a guest opens from WhatsApp). Captures the two candidate paths under evaluation — (A) purchase premium HTML themes and convert, (B) AI scratch-build via Lovable — plus a hands-on analysis of the 4 ThemeForest themes Abhijith shortlisted.
 >
-> **Owner:** Abhijith · **Opened:** 2026-07-14 · **Status:** OPEN (decision deferred — "we can see from there")
+> **Owner:** Abhijith · **Opened:** 2026-07-20 · **Status:** OPEN (decision deferred — "we can see from there")
 >
 > **Related:** [`digital-presence-plan.md`](digital-presence-plan.md) · [`event-website-gaps.md`](../../docs/data-model/event-website-gaps.md) · [`guest-site-bold-festive-kerala.lovable.md`](../_prompts/guest-site-bold-festive-kerala.lovable.md) · ClickUp Feature `86d2jwzge` (Digital Presence) / component "Digital Presence: Event Templates" (P0)
 
@@ -23,7 +23,7 @@ The real scrollable guest site (`/e/<slug>`) **has never been built** — only h
 
 **Decision status:** OPEN. The Lovable prompt is written and usable, but the founder isn't satisfied that Lovable's output matches the intended look, and prefers not to scratch-code. Purchasing + converting premium themes is the current lean, pending this analysis.
 
-## 3. Shortlisted ThemeForest themes — hands-on analysis (2026-07-14)
+## 3. Shortlisted ThemeForest themes — hands-on analysis (2026-07-20)
 
 Walked all four live in-browser (desktop render + section structure + network/stack inspection).
 

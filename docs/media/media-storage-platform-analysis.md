@@ -2,7 +2,7 @@
 
 > **Purpose.** Compares the candidate platforms for storing and delivering **wedding photo + video albums** (the Media & Memories module) under a realistic Indian-wedding workload. Captures the findings of the interactive cost forecaster shipped alongside this doc so the analysis is readable without running the tool.
 >
-> **Owner:** Abhijith · **Added:** 2026-07-14 · **Status:** Reference (directional planning, not quotes)
+> **Owner:** Abhijith · **Added:** 2026-07-20 · **Status:** Reference (directional planning, not quotes)
 >
 > **Interactive tool:** [`wedding-media-cost-forecaster.html`](wedding-media-cost-forecaster.html) — open in a browser; tune the workload sliders (weddings/month, photos, video minutes, viewers, quality, horizon) and see projected monthly cost per platform in USD or INR.
 >

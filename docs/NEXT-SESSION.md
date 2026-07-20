@@ -31,7 +31,30 @@ Session report: `docs/session-reports/2026-06-30-session-report.md`. Full QA: `q
 
 ---
 
-## ▶ START HERE NEXT — User Settings data model (brainstorm in progress · 2026-06-25)
+## ▶ START HERE NEXT — Guest website templates: review + continue the lineup (2026-07-20)
+
+**Template #2 "Midnight Elegant" is BUILT and LIVE** — but **not yet signed off**.
+Live: https://evenzi-official.github.io/Evenzi/pages/website/guest-site/midnight-elegant/
+
+Full context: [`designs/_plans/guest-website-templates-build-plan.md`](../designs/_plans/guest-website-templates-build-plan.md) · report: [`docs/session-reports/2026-07-20-session-report.md`](session-reports/2026-07-20-session-report.md)
+
+**⭐ New creative mandate (read this first):** the guest website is Evenzi's **primary marketing surface** — 1000+ guests per event see it and convert. Audience is premium/high-end devices. So designs go **maximally immersive** (scroll cinematics, WebGL, rich motion). The earlier "strip the heavy JS / keep it light" rule is **reversed**. Qualifier: "heavy done well" — fast hero paint, progressive reveal, `prefers-reduced-motion` fallback.
+
+**5-template lineup (locked):** 1 Bold Festive (Lovable build, already React) · 2 **Midnight Elegant (Azurio) — BUILT** · 3 Classic Editorial (Mivon) · 4 Minimal Modern (Xfolio) · 5 Blush Romantic (Cunnet).
+Stack: **GSAP + Lenis + Three.js** (vanilla design phase) → **Framer Motion + @react-three/fiber** (React phase). Sources extracted to gitignored `sandbox/templates-intake/`.
+
+**Do next, in order:**
+1. **Review Midnight Elegant** — full Claude code/spec review (all 10 sections) + **Antigravity** responsive/a11y/perf pass. Deployed ≠ done.
+2. **Inspect incoming `fbc4969`** (`wedding-invitation-temp-1`, scroll-driven reveal from another contributor) — check for overlap/duplication with our templates.
+3. **Revise** `designs/pages/website/guest-site/minimal-modern/_build-doc.md` — it still carries the superseded "strip JS / light" framing; bring it to the immersive mandate before building.
+4. **Build templates #3–5** (one at a time: Cursor builds → Claude reviews → Antigravity tests).
+5. **Port the Lovable build** (Bold Festive) into `app/e/[slug]/` — lands the React architecture for all templates.
+6. **Resolve ThemeForest licensing** — the supplied zips are HTTrack **mirrors, not purchases**. Blocks *shipping* theme-derived code (not designing).
+7. **Reconnect ClickUp** — MCP was down all of 2026-07-20; nothing synced to Feature `86d2jwzge`.
+
+---
+
+## ▶ PREVIOUSLY QUEUED — User Settings data model (brainstorm in progress · 2026-06-25)
 
 Brainstorm started (Abhijith, teaching mode) for the **User Settings** data-model slice (ClickUp `Data Modeling: User Settings` `86d2k1myh` under Feature `86d2k1m04`). **Interrupted before the spec was written** — decisions locked, spec/council/plan/migrations still to do. Full decision record is a comment on `86d2k1myh`.
 
