@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Brindo &amp; Sreelekshmy · 26 Jan 2027 · Kochi</title>
+  <meta name="description" content="Two families, two faiths, one forever — join Brindo &amp; Sreelekshmy in Kochi." />
+  <meta name="theme-color" content="#0B0E14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" href="../../../../favicon.ico" sizes="48x48" />
+
+  <!-- Vendored motion stack (no CDN) -->
+  <link rel="stylesheet" href="../../../../shared/vendor/lenis/lenis.css" />
+  <link rel="stylesheet" href="midnight-elegant.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "../../../../shared/vendor/three/three.module.min.js"
+    }
+  }
+  </script>
+</head>
+<body class="me-body" data-page="guest-site-midnight-elegant" data-template="midnight-elegant">
+
+  <a class="me-skip" href="#me-main">Skip to content</a>
+
+  <div class="me-scroll-progress" id="me-scroll-progress" aria-hidden="true"></div>
+
+  <!-- ═══════════════════════════════════════════
+       1. HERO (public) — poster paints first; WebGL layers in
+       ═══════════════════════════════════════════ -->
+  <header class="me-hero" id="me-hero" data-section="hero">
+    <div class="me-hero-poster" aria-hidden="true">
+      <img
+        src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1600&q=80&auto=format&fit=crop"
+        alt=""
+        width="1600"
+        height="2400"
+        fetchpriority="high"
+        decoding="async"
+      />
+      <div class="me-hero-poster-scrim"></div>
+    </div>
+    <canvas class="me-hero-canvas" id="me-hero-canvas" aria-hidden="true"></canvas>
+    <div class="me-hero-glow" aria-hidden="true"></div>
+
+    <div class="me-hero-inner">
+      <p class="me-eyebrow me-eyebrow--hero">With the blessings of our families</p>
+      <h1 class="me-hero-names" id="me-hero-names" aria-label="Brindo and Sreelekshmy">
+        <span class="me-hero-name" data-split>Brindo</span>
+        <span class="me-hero-amp" aria-hidden="true">&amp;</span>
+        <span class="me-hero-name" data-split>Sreelekshmy</span>
+      </h1>
+      <p class="me-hero-date">26 · 01 · 2027 — Kochi, Kerala</p>
+      <p class="me-hero-tagline">Two families, two faiths, one forever — join us in Kochi.</p>
+
+      <div class="me-countdown" id="me-countdown" role="timer" aria-live="polite" aria-atomic="true" aria-label="Countdown to the wedding">
+        <div class="me-countdown-tile">
+          <span class="me-countdown-num" data-unit="days">00</span>
+          <span class="me-countdown-label">Days</span>
+        </div>
+        <div class="me-countdown-tile">
+          <span class="me-countdown-num" data-unit="hours">00</span>
+          <span class="me-countdown-label">Hrs</span>
+        </div>
+        <div class="me-countdown-tile">
+          <span class="me-countdown-num" data-unit="mins">00</span>
+          <span class="me-countdown-label">Mins</span>
+        </div>
+        <div class="me-countdown-tile">
+          <span class="me-countdown-num" data-unit="secs">00</span>
+          <span class="me-countdown-label">Secs</span>
+        </div>
+      </div>
+
+      <button type="button" class="me-btn me-btn--gold" id="me-unlock-open" aria-haspopup="dialog" aria-controls="me-unlock-sheet">
+        Unlock Guest Details
+      </button>
+
+      <p class="me-hero-scroll-cue" aria-hidden="true">
+        <span class="me-hero-scroll-line"></span>
+        Scroll
+      </p>
+    </div>
+  </header>
+
+  <!-- Unlock bottom-sheet (mock — any submit/skip reveals) -->
+  <div class="me-sheet-scrim" id="me-unlock-scrim" hidden></div>
+  <div
+    class="me-sheet"
+    id="me-unlock-sheet"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="me-unlock-title"
+    hidden
+  >
+    <div class="me-sheet-handle" aria-hidden="true"></div>
+    <h2 class="me-sheet-title" id="me-unlock-title">Unlock guest details</h2>
+    <p class="me-sheet-sub">Enter your phone or the invitation password. Demo: any value works.</p>
+    <form class="me-unlock-form" id="me-unlock-form" novalidate>
+      <div class="me-field">
+        <label class="me-label" for="me-unlock-phone">Phone number</label>
+        <input class="me-input" type="tel" id="me-unlock-phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="+91 98765 43210" />
+      </div>
+      <p class="me-or" aria-hidden="true">or</p>
+      <div class="me-field">
+        <label class="me-label" for="me-unlock-pass">Invitation password</label>
+        <input class="me-input" type="password" id="me-unlock-pass" name="password" autocomplete="off" placeholder="••••••••" />
+      </div>
+      <button type="submit" class="me-btn me-btn--gold me-btn--block">View Invitation</button>
+      <button type="button" class="me-btn me-btn--ghost me-btn--block" id="me-unlock-skip">Skip / demo unlock</button>
+    </form>
+    <button type="button" class="me-sheet-close" id="me-unlock-close" aria-label="Close">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+
+  <main id="me-main">
+    <!-- Private tier — revealed after unlock -->
+    <div id="me-private" class="me-private is-locked" hidden aria-hidden="true">
+
+      <!-- ═══════════════════════════════════════════
+           2. ANNOUNCEMENT
+           ═══════════════════════════════════════════ -->
+      <aside class="me-announce" id="me-announce" data-section="announce" role="status">
+        <p class="me-announce-text">We can’t wait to celebrate with you! Scroll down for schedule, venue &amp; to RSVP.</p>
+        <button type="button" class="me-announce-dismiss" id="me-announce-dismiss" aria-label="Dismiss announcement">
+          <span aria-hidden="true">×</span>
+        </button>
+      </aside>
+
+      <!-- ═══════════════════════════════════════════
+           3. OUR STORY
+           ═══════════════════════════════════════════ -->
+      <section class="me-section me-story" id="story" data-section="story">
+        <div class="me-band">
+          <header class="me-section-head">
+            <p class="me-eyebrow">Our Story</p>
+            <h2 class="me-title">How We Took Off</h2>
+          </header>
+
+          <div class="me-story-grid">
+            <div class="me-story-copy">
+              <p>They met the way the best stories start — unexpectedly, at work. Sreelekshmy had spent years in the sky as cabin crew before moving into a corporate role, and that's where a certain aviation-obsessed operations enthusiast couldn't stop finding reasons to talk to her. He knew every aircraft by its silhouette; she knew every airport by its 3 AM coffee. Somewhere between shared shifts and endless conversations about runways and layovers, work turned into something that felt a lot like home.</p>
+              <p>Then she went back to what she loved — flying — and he stayed on the ground keeping operations running, and somehow the distance only made them surer. Two people, two faiths, one very well-coordinated flight plan. On the 26th of January, with the blessings of both our families, we're finally cleared for forever — and we'd love for you to be on board.</p>
+            </div>
+            <div class="me-story-media">
+              <figure class="me-story-fig me-story-fig--a">
+                <img
+                  src="https://images.unsplash.com/photo-1519741497674-611481863552?w=900&q=80&auto=format&fit=crop"
+                  alt="Brindo and Sreelekshmy — posed portrait"
+                  width="900"
+                  height="1200"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+              <figure class="me-story-fig me-story-fig--b">
+                <img
+                  src="https://images.unsplash.com/photo-1529634597503-139d3726dea3?w=900&q=80&auto=format&fit=crop"
+                  alt="Brindo and Sreelekshmy — candid moment"
+                  width="900"
+                  height="1100"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            </div>
+          </div>
+
+          <ol class="me-flight-path" aria-label="Our journey milestones">
+            <li class="me-flight-stop">
+              <span class="me-flight-dot" aria-hidden="true"></span>
+              <strong>Met at work</strong>
+              <span>Where corporate schedules and aviation talk collided.</span>
+            </li>
+            <li class="me-flight-stop">
+              <span class="me-flight-dot" aria-hidden="true"></span>
+              <strong>First flight together</strong>
+              <span>The trip that made it official.</span>
+            </li>
+            <li class="me-flight-stop">
+              <span class="me-flight-dot" aria-hidden="true"></span>
+              <strong>Cleared for forever</strong>
+              <span>26 Jan 2027, Kochi.</span>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           4. SCHEDULE / ITINERARY
+           ═══════════════════════════════════════════ -->
+      <section class="me-section me-schedule" id="schedule" data-section="schedule">
+        <div class="me-band">
+          <header class="me-section-head">
+            <p class="me-eyebrow">The Celebrations</p>
+            <h2 class="me-title">Our Wedding Itinerary</h2>
+          </header>
+
+          <div class="me-schedule-day" data-day="fri">
+            <h3 class="me-day-label">Friday · 22 Jan</h3>
+            <article class="me-event-card">
+              <div class="me-event-icon" aria-hidden="true">✦</div>
+              <div class="me-event-body">
+                <h4 class="me-event-name">Nischayam &amp; Blessing</h4>
+                <p class="me-event-meta"><time datetime="2027-01-22T18:00">Fri, 22 Jan 2027 · 6:00 PM</time></p>
+                <p class="me-event-venue">Sreelekshmy’s Residence, Tripunithura</p>
+                <span class="me-chip">Traditional, festive</span>
+                <p class="me-event-note">An intimate betrothal with both families’ blessings.</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="me-schedule-day" data-day="sat">
+            <h3 class="me-day-label">Saturday · 23 Jan</h3>
+            <div class="me-event-grid">
+              <article class="me-event-card">
+                <div class="me-event-icon" aria-hidden="true">✿</div>
+                <div class="me-event-body">
+                  <h4 class="me-event-name">Mehendi</h4>
+                  <p class="me-event-meta"><time datetime="2027-01-23T11:00">Sat, 23 Jan 2027 · 11:00 AM</time></p>
+                  <p class="me-event-venue">Poolside Lawn, Le Meridien Kochi</p>
+                  <span class="me-chip">Yellow &amp; green florals</span>
+                  <p class="me-event-note">Henna, music &amp; a lazy afternoon together.</p>
+                </div>
+              </article>
+              <article class="me-event-card">
+                <div class="me-event-icon" aria-hidden="true">♪</div>
+                <div class="me-event-body">
+                  <h4 class="me-event-name">Sangeet</h4>
+                  <p class="me-event-meta"><time datetime="2027-01-23T19:00">Sat, 23 Jan 2027 · 7:00 PM</time></p>
+                  <p class="me-event-venue">Grand Ballroom, Le Meridien Kochi</p>
+                  <span class="me-chip">Cocktail / Indo-western</span>
+                  <p class="me-event-note">Dance floor open — “sky’s the limit”.</p>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="me-schedule-day" data-day="tue">
+            <h3 class="me-day-label">Tuesday · 26 Jan</h3>
+            <div class="me-event-grid me-event-grid--3">
+              <article class="me-event-card">
+                <div class="me-event-icon" aria-hidden="true">🪔</div>
+                <div class="me-event-body">
+                  <h4 class="me-event-name">Muhurtham</h4>
+                  <p class="me-event-meta"><time datetime="2027-01-26T08:00">Tue, 26 Jan 2027 · 8:00 AM</time></p>
+                  <p class="me-event-venue">Sree Kalyana Mandapam, Tripunithura</p>
+                  <span class="me-chip">Kasavu / traditional Kerala</span>
+                  <p class="me-event-note">The Hindu ceremony, followed by a Sadhya on banana leaf.</p>
+                </div>
+              </article>
+              <article class="me-event-card">
+                <div class="me-event-icon" aria-hidden="true">✝</div>
+                <div class="me-event-body">
+                  <h4 class="me-event-name">Nuptial Mass</h4>
+                  <p class="me-event-meta"><time datetime="2027-01-26T16:00">Tue, 26 Jan 2027 · 4:00 PM</time></p>
+                  <p class="me-event-venue">Santa Cruz Basilica, Fort Kochi</p>
+                  <span class="me-chip">Formal / church elegant</span>
+                  <p class="me-event-note">The Christian ceremony &amp; exchange of vows.</p>
+                </div>
+              </article>
+              <article class="me-event-card">
+                <div class="me-event-icon" aria-hidden="true">🥂</div>
+                <div class="me-event-body">
+                  <h4 class="me-event-name">Reception</h4>
+                  <p class="me-event-meta"><time datetime="2027-01-26T19:00">Tue, 26 Jan 2027 · 7:00 PM</time></p>
+                  <p class="me-event-venue">Bolgatty Palace, Bolgatty Island</p>
+                  <span class="me-chip">Cocktail / festive</span>
+                  <p class="me-event-note">Dinner, dancing &amp; one big celebration for all of us.</p>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           5. VENUE & TRAVEL
+           ═══════════════════════════════════════════ -->
+      <section class="me-section me-venue" id="venue" data-section="venue">
+        <div class="me-band">
+          <header class="me-section-head">
+            <p class="me-eyebrow">Getting There</p>
+            <h2 class="me-title">Venue &amp; Travel</h2>
+          </header>
+
+          <div class="me-venue-primary">
+            <div class="me-map-placeholder" role="img" aria-label="Map placeholder for Bolgatty Palace, Kochi">
+              <img
+                src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1200&q=75&auto=format&fit=crop"
+                alt="Wedding venue décor at dusk"
+                width="1200"
+                height="700"
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="me-map-label">Bolgatty Palace · Kochi</span>
+            </div>
+            <div class="me-venue-address">
+              <h3 class="me-venue-name">Bolgatty Palace</h3>
+              <p>Mulavukad, Bolgatty Island,<br />Kochi, Kerala 682504</p>
+              <a class="me-btn me-btn--outline" href="https://maps.google.com/?q=Bolgatty+Palace+Kochi" target="_blank" rel="noopener noreferrer">Open in Maps</a>
+            </div>
+          </div>
+
+          <div class="me-travel-grid">
+            <article class="me-travel-card">
+              <h3 class="me-travel-title">Airport</h3>
+              <p><strong>Cochin International (COK)</strong>, Nedumbassery</p>
+              <p class="me-muted">~35 km / ~60 min from the city</p>
+            </article>
+            <article class="me-travel-card">
+              <h3 class="me-travel-title">Railway</h3>
+              <p><strong>Ernakulam Junction (South)</strong></p>
+              <p class="me-muted">~8 km from most venues</p>
+            </article>
+          </div>
+
+          <h3 class="me-subhead">Where to Stay</h3>
+          <div class="me-hotel-grid">
+            <article class="me-hotel-card">
+              <h4>Grand Hyatt Kochi Bolgatty</h4>
+              <p class="me-muted">5★ · beside the reception venue</p>
+              <button type="button" class="me-btn me-btn--ghost me-btn--sm">Book</button>
+            </article>
+            <article class="me-hotel-card">
+              <h4>Le Meridien Kochi</h4>
+              <p class="me-muted">5★ · Mehendi &amp; Sangeet venue</p>
+              <button type="button" class="me-btn me-btn--ghost me-btn--sm">Book</button>
+            </article>
+            <article class="me-hotel-card">
+              <h4>Fragrant Nature Kochi</h4>
+              <p class="me-muted">4★ boutique · Marine Drive</p>
+              <button type="button" class="me-btn me-btn--ghost me-btn--sm">Book</button>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           6. WEDDING PARTY
+           ═══════════════════════════════════════════ -->
+      <section class="me-section me-party" id="party" data-section="party">
+        <div class="me-band">
+          <header class="me-section-head">
+            <p class="me-eyebrow">Our Favourite People</p>
+            <h2 class="me-title">The Wedding Party</h2>
+          </header>
+
+          <div class="me-seg me-seg--fill" role="radiogroup" aria-label="Wedding party side" id="me-party-seg">
+            <button type="button" role="radio" class="me-seg-item is-active" aria-checked="true" data-side="bride">Bride’s Side</button>
+            <button type="button" role="radio" class="me-seg-item" aria-checked="false" data-side="groom">Groom’s Side</button>
+          </div>
+
+          <div class="me-party-panels">
+            <div class="me-party-panel is-active" id="me-party-bride" data-side="bride" role="tabpanel">
+              <ul class="me-party-grid">
+                <li class="me-person">
+                  <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80&auto=format&fit=crop" alt="" width="400" height="400" loading="lazy" decoding="async" />
+                  <h3>Latha Mohanan</h3>
+                  <p>Mother of the Bride</p>
+                </li>
+                <li class="me-person">
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80&auto=format&fit=crop" alt="" width="400" height="400" loading="lazy" decoding="async" />
+                  <h3>Mohanan Nair</h3>
+                  <p>Father of the Bride</p>
+                </li>
+                <li class="me-person">
+                  <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80&auto=format&fit=crop" alt="" width="400" height="400" loading="lazy" decoding="async" />
+                  <h3>Gopika M</h3>
+                  <p>Sister of the Bride · Maid of Honour</p>
+                </li>
+              </ul>
+            </div>
+            <div class="me-party-panel" id="me-party-groom" data-side="groom" role="tabpanel" hidden>
+              <ul class="me-party-grid">
+                <li class="me-person">
+                  <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80&auto=format&fit=crop" alt="" width="400" height="400" loading="lazy" decoding="async" />
+                  <h3>Elsy Sylen</h3>
+                  <p>Mother of the Groom</p>
+                </li>
+                <li class="me-person">
+                  <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80&auto=format&fit=crop" alt="" width="400" height="400" loading="lazy" decoding="async" />
+                  <h3>Sylen Joseph</h3>
+                  <p>Father of the Groom</p>
+                </li>
+                <li class="me-person">
+                  <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80&auto=format&fit=crop" alt="" width="400" height="400" loading="lazy" decoding="async" />
+                  <h3>Brian Sylen</h3>
+                  <p>Brother of the Groom · Best Man</p>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Desktop: both sides visible -->
+          <div class="me-party-desktop" aria-hidden="true">
+            <div>
+              <h3 class="me-party-side-label">Bride’s Side</h3>
+              <ul class="me-party-grid">
+                <li class="me-person">
+                  <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80&auto=format&fit=crop" alt="" width="400" height="400" loading="lazy" />
+                  <h3>Latha Mohanan</h3>
+                  <p>Mother of the Bride</p>
+                </li>
+                <li class="me-person">
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80&auto=format&fit=crop" alt="" width="400" height="400" loading="lazy" />
+                  <h3>Mohanan Nair</h3>
+                  <p>Father of the Bride</p>
+                </li>
+                <li class="me-person">
+                  <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80&auto=format&fit=crop" alt="" width="400" height="400" loading="lazy" />
+                  <h3>Gopika M</h3>
+                  <p>Sister of the Bride · Maid of Honour</p>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="me-party-side-label">Groom’s Side</h3>
+              <ul class="me-party-grid">
+                <li class="me-person">
+                  <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80&auto=format&fit=crop" alt="" width="400" height="400" loading="lazy" />
+                  <h3>Elsy Sylen</h3>
+                  <p>Mother of the Groom</p>
+                </li>
+                <li class="me-person">
+                  <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80&auto=format&fit=crop" alt="" width="400" height="400" loading="lazy" />
+                  <h3>Sylen Joseph</h3>
+                  <p>Father of the Groom</p>
+                </li>
+                <li class="me-person">
+                  <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80&auto=format&fit=crop" alt="" width="400" height="400" loading="lazy" />
+                  <h3>Brian Sylen</h3>
+                  <p>Brother of the Groom · Best Man</p>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           7. GALLERY
+           ═══════════════════════════════════════════ -->
+      <section class="me-section me-gallery" id="gallery" data-section="gallery">
+        <div class="me-band">
+          <header class="me-section-head">
+            <p class="me-eyebrow">Moments</p>
+            <h2 class="me-title">A Few Of Our Favourites</h2>
+          </header>
+
+          <div class="me-gallery-track" id="me-gallery-track">
+            <button type="button" class="me-gallery-item" data-index="0" aria-label="Open gallery photo 1: Mehendi hands">
+              <img src="https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800&q=80&auto=format&fit=crop" alt="Mehendi hands" width="800" height="1000" loading="lazy" decoding="async" />
+            </button>
+            <button type="button" class="me-gallery-item" data-index="1" aria-label="Open gallery photo 2: Haldi ceremony">
+              <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=80&auto=format&fit=crop" alt="Haldi ceremony" width="800" height="600" loading="lazy" decoding="async" />
+            </button>
+            <button type="button" class="me-gallery-item" data-index="2" aria-label="Open gallery photo 3: Sangeet dance">
+              <img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&q=80&auto=format&fit=crop" alt="Sangeet dance" width="800" height="1000" loading="lazy" decoding="async" />
+            </button>
+            <button type="button" class="me-gallery-item" data-index="3" aria-label="Open gallery photo 4: Ceremony">
+              <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&q=80&auto=format&fit=crop" alt="Indian wedding ceremony" width="800" height="600" loading="lazy" decoding="async" />
+            </button>
+            <button type="button" class="me-gallery-item" data-index="4" aria-label="Open gallery photo 5: Reception">
+              <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&q=80&auto=format&fit=crop" alt="Wedding reception" width="800" height="1000" loading="lazy" decoding="async" />
+            </button>
+            <button type="button" class="me-gallery-item" data-index="5" aria-label="Open gallery photo 6: Sadhya">
+              <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80&auto=format&fit=crop" alt="Kerala wedding feast" width="800" height="600" loading="lazy" decoding="async" />
+            </button>
+            <button type="button" class="me-gallery-item" data-index="6" aria-label="Open gallery photo 7: Bride in kasavu">
+              <img src="https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800&q=75&auto=format&fit=crop&sat=-20" alt="Bride in kasavu" width="800" height="1000" loading="lazy" decoding="async" />
+            </button>
+            <button type="button" class="me-gallery-item" data-index="7" aria-label="Open gallery photo 8: Jewellery">
+              <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80&auto=format&fit=crop" alt="Wedding jewellery" width="800" height="600" loading="lazy" decoding="async" />
+            </button>
+            <button type="button" class="me-gallery-item" data-index="8" aria-label="Open gallery photo 9: Jasmine flowers">
+              <img src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&q=80&auto=format&fit=crop" alt="Wedding flowers and jasmine" width="800" height="1000" loading="lazy" decoding="async" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lightbox -->
+      <div class="me-lightbox-scrim" id="me-lightbox-scrim" hidden></div>
+      <div class="me-lightbox" id="me-lightbox" role="dialog" aria-modal="true" aria-label="Gallery lightbox" hidden>
+        <button type="button" class="me-lightbox-close" id="me-lightbox-close" aria-label="Close lightbox"><span aria-hidden="true">×</span></button>
+        <button type="button" class="me-lightbox-nav me-lightbox-prev" id="me-lightbox-prev" aria-label="Previous photo">‹</button>
+        <img class="me-lightbox-img" id="me-lightbox-img" src="" alt="" />
+        <button type="button" class="me-lightbox-nav me-lightbox-next" id="me-lightbox-next" aria-label="Next photo">›</button>
+        <p class="me-lightbox-caption" id="me-lightbox-caption"></p>
+      </div>
+
+      <!-- ═══════════════════════════════════════════
+           8. Q & A
+           ═══════════════════════════════════════════ -->
+      <section class="me-section me-qa" id="qa" data-section="qa">
+        <div class="me-band me-band--narrow">
+          <header class="me-section-head">
+            <p class="me-eyebrow">Good to Know</p>
+            <h2 class="me-title">Questions &amp; Answers</h2>
+          </header>
+
+          <div class="me-accordion" id="me-accordion">
+            <div class="me-acc-item">
+              <h3>
+                <button type="button" class="me-acc-trigger" aria-expanded="false" aria-controls="me-acc-1" id="me-acc-btn-1">
+                  What should I wear?
+                  <span class="me-acc-icon" aria-hidden="true">+</span>
+                </button>
+              </h3>
+              <div class="me-acc-panel" id="me-acc-1" role="region" aria-labelledby="me-acc-btn-1" hidden>
+                <p>Each function has a dress-code chip on the itinerary — comfortable, festive, and phone-ready for photos! For the Muhurtham, traditional Kerala attire (kasavu) is very welcome.</p>
+              </div>
+            </div>
+            <div class="me-acc-item">
+              <h3>
+                <button type="button" class="me-acc-trigger" aria-expanded="false" aria-controls="me-acc-2" id="me-acc-btn-2">
+                  Are kids invited?
+                  <span class="me-acc-icon" aria-hidden="true">+</span>
+                </button>
+              </h3>
+              <div class="me-acc-panel" id="me-acc-2" role="region" aria-labelledby="me-acc-btn-2" hidden>
+                <p>We love your little ones — they’re welcome at all functions. The Sangeet runs late, so plan naps accordingly!</p>
+              </div>
+            </div>
+            <div class="me-acc-item">
+              <h3>
+                <button type="button" class="me-acc-trigger" aria-expanded="false" aria-controls="me-acc-3" id="me-acc-btn-3">
+                  Is there parking?
+                  <span class="me-acc-icon" aria-hidden="true">+</span>
+                </button>
+              </h3>
+              <div class="me-acc-panel" id="me-acc-3" role="region" aria-labelledby="me-acc-btn-3" hidden>
+                <p>Yes, valet/parking is available at Le Meridien and Bolgatty Palace. The Basilica has limited street parking — carpooling is easier.</p>
+              </div>
+            </div>
+            <div class="me-acc-item">
+              <h3>
+                <button type="button" class="me-acc-trigger" aria-expanded="false" aria-controls="me-acc-4" id="me-acc-btn-4">
+                  Veg or non-veg?
+                  <span class="me-acc-icon" aria-hidden="true">+</span>
+                </button>
+              </h3>
+              <div class="me-acc-panel" id="me-acc-4" role="region" aria-labelledby="me-acc-btn-4" hidden>
+                <p>The Muhurtham features a traditional vegetarian <strong>Sadhya</strong> on banana leaf. Reception has both veg and non-veg. Tell us any allergies in your RSVP.</p>
+              </div>
+            </div>
+            <div class="me-acc-item">
+              <h3>
+                <button type="button" class="me-acc-trigger" aria-expanded="false" aria-controls="me-acc-5" id="me-acc-btn-5">
+                  Two ceremonies — do I attend both?
+                  <span class="me-acc-icon" aria-hidden="true">+</span>
+                </button>
+              </h3>
+              <div class="me-acc-panel" id="me-acc-5" role="region" aria-labelledby="me-acc-btn-5" hidden>
+                <p>You’re warmly invited to all of it. Come for what you can; the Reception is where everyone reunites.</p>
+              </div>
+            </div>
+            <div class="me-acc-item">
+              <h3>
+                <button type="button" class="me-acc-trigger" aria-expanded="false" aria-controls="me-acc-6" id="me-acc-btn-6">
+                  When should I RSVP by?
+                  <span class="me-acc-icon" aria-hidden="true">+</span>
+                </button>
+              </h3>
+              <div class="me-acc-panel" id="me-acc-6" role="region" aria-labelledby="me-acc-btn-6" hidden>
+                <p>Please respond by <strong>31 December 2026</strong> so we can plan seating and Sadhya counts.</p>
+              </div>
+            </div>
+            <div class="me-acc-item">
+              <h3>
+                <button type="button" class="me-acc-trigger" aria-expanded="false" aria-controls="me-acc-7" id="me-acc-btn-7">
+                  Getting there &amp; staying?
+                  <span class="me-acc-icon" aria-hidden="true">+</span>
+                </button>
+              </h3>
+              <div class="me-acc-panel" id="me-acc-7" role="region" aria-labelledby="me-acc-btn-7" hidden>
+                <p>Fly into Cochin (COK) or take the train to Ernakulam Junction. See “Where to Stay” for hotels near the venues.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           9. RSVP
+           ═══════════════════════════════════════════ -->
+      <section class="me-section me-rsvp" id="rsvp" data-section="rsvp">
+        <div class="me-band me-band--rsvp">
+          <header class="me-section-head">
+            <p class="me-eyebrow">Will You Join Us</p>
+            <h2 class="me-title">RSVP</h2>
+          </header>
+
+          <form class="me-rsvp-form" id="me-rsvp-form" novalidate>
+            <p class="me-rsvp-as">Responding as <strong>Aravind &amp; family</strong></p>
+
+            <fieldset class="me-rsvp-events">
+              <legend class="me-visually-hidden">Per-event attendance</legend>
+              <div class="me-rsvp-row">
+                <span class="me-rsvp-event-name">Nischayam &amp; Blessing</span>
+                <div class="me-toggle" role="group" aria-label="Nischayam attendance">
+                  <button type="button" class="me-toggle-btn is-active" data-value="yes" aria-pressed="true">Yes</button>
+                  <button type="button" class="me-toggle-btn" data-value="no" aria-pressed="false">No</button>
+                </div>
+              </div>
+              <div class="me-rsvp-row">
+                <span class="me-rsvp-event-name">Mehendi</span>
+                <div class="me-toggle" role="group" aria-label="Mehendi attendance">
+                  <button type="button" class="me-toggle-btn is-active" data-value="yes" aria-pressed="true">Yes</button>
+                  <button type="button" class="me-toggle-btn" data-value="no" aria-pressed="false">No</button>
+                </div>
+              </div>
+              <div class="me-rsvp-row">
+                <span class="me-rsvp-event-name">Sangeet</span>
+                <div class="me-toggle" role="group" aria-label="Sangeet attendance">
+                  <button type="button" class="me-toggle-btn is-active" data-value="yes" aria-pressed="true">Yes</button>
+                  <button type="button" class="me-toggle-btn" data-value="no" aria-pressed="false">No</button>
+                </div>
+              </div>
+              <div class="me-rsvp-row">
+                <span class="me-rsvp-event-name">Muhurtham</span>
+                <div class="me-toggle" role="group" aria-label="Muhurtham attendance">
+                  <button type="button" class="me-toggle-btn is-active" data-value="yes" aria-pressed="true">Yes</button>
+                  <button type="button" class="me-toggle-btn" data-value="no" aria-pressed="false">No</button>
+                </div>
+              </div>
+              <div class="me-rsvp-row">
+                <span class="me-rsvp-event-name">Nuptial Mass</span>
+                <div class="me-toggle" role="group" aria-label="Nuptial Mass attendance">
+                  <button type="button" class="me-toggle-btn is-active" data-value="yes" aria-pressed="true">Yes</button>
+                  <button type="button" class="me-toggle-btn" data-value="no" aria-pressed="false">No</button>
+                </div>
+              </div>
+              <div class="me-rsvp-row">
+                <span class="me-rsvp-event-name">Reception</span>
+                <div class="me-toggle" role="group" aria-label="Reception attendance">
+                  <button type="button" class="me-toggle-btn is-active" data-value="yes" aria-pressed="true">Yes</button>
+                  <button type="button" class="me-toggle-btn" data-value="no" aria-pressed="false">No</button>
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="me-stepper-wrap">
+              <label class="me-label" for="me-plus-ones-display">Plus-ones</label>
+              <div class="me-stepper" role="group" aria-label="Plus-ones, 0 to 2">
+                <button type="button" class="me-stepper-btn" id="me-plus-minus" aria-label="Decrease plus-ones">−</button>
+                <output class="me-stepper-val" id="me-plus-ones-display" for="me-plus-minus me-plus-plus" aria-live="polite">0</output>
+                <button type="button" class="me-stepper-btn" id="me-plus-plus" aria-label="Increase plus-ones">+</button>
+              </div>
+              <input type="hidden" id="me-plus-ones" name="plusOnes" value="0" />
+            </div>
+
+            <div class="me-field">
+              <label class="me-label" for="me-rsvp-note">Message (optional)</label>
+              <textarea class="me-input me-textarea" id="me-rsvp-note" name="note" rows="3" placeholder="Leave the couple a note…"></textarea>
+            </div>
+
+            <button type="submit" class="me-btn me-btn--gold me-btn--block">Submit RSVP</button>
+          </form>
+
+          <div class="me-rsvp-success" id="me-rsvp-success" hidden role="status" aria-live="polite">
+            <p class="me-rsvp-success-icon" aria-hidden="true">✈️</p>
+            <p class="me-rsvp-success-text">Thank you! Your RSVP is on its way. ✈️ We can’t wait to see you in Kochi.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           10. FOOTER
+           ═══════════════════════════════════════════ -->
+      <footer class="me-footer" id="footer" data-section="footer">
+        <div class="me-band">
+          <p class="me-footer-mono">B &amp; S</p>
+          <p class="me-footer-names">Brindo &amp; Sreelekshmy</p>
+          <p class="me-footer-meta">26 January 2027 · Kochi · #BrindoWedsSreelekshmy</p>
+          <button type="button" class="me-btn me-btn--outline" id="me-download-card">Download our invitation card</button>
+          <p class="me-footer-brand">Made with <span aria-hidden="true">💛</span><span class="me-visually-hidden">love</span> on Evenzi</p>
+        </div>
+      </footer>
+    </div>
+  </main>
+
+  <!-- Sticky RSVP CTA (mobile, unlocked only) -->
+  <div class="me-sticky-rsvp" id="me-sticky-rsvp" hidden>
+    <a class="me-btn me-btn--gold me-btn--block" href="#rsvp">RSVP</a>
+  </div>
+
+  <div class="me-visually-hidden" id="me-live" aria-live="polite"></div>
+
+  <!-- Classic UMD vendors (before page module) -->
+  <script src="../../../../shared/vendor/gsap/gsap.min.js"></script>
+  <script src="../../../../shared/vendor/gsap/ScrollTrigger.min.js"></script>
+  <script src="../../../../shared/vendor/gsap/SplitText.min.js"></script>
+  <script src="../../../../shared/vendor/lenis/lenis.min.js"></script>
+  <script type="module" src="midnight-elegant.js"></script>
+</body>
+</html>
