@@ -29,6 +29,36 @@
   <div class="me-scroll-progress" id="me-scroll-progress" aria-hidden="true"></div>
 
   <!-- ═══════════════════════════════════════════
+       0. INTRO — click to play; on ended → hero
+       ═══════════════════════════════════════════ -->
+  <div
+    class="me-intro"
+    id="me-intro"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="me-intro-title"
+  >
+    <video
+      class="me-intro-video"
+      id="me-intro-video"
+      playsinline
+      preload="auto"
+      aria-hidden="true"
+    >
+      <source src="media/intro.mp4" type="video/mp4" />
+    </video>
+    <div class="me-intro-scrim" aria-hidden="true"></div>
+    <div class="me-intro-ui">
+      <p class="me-intro-eyebrow" id="me-intro-title">Brindo &amp; Sreelekshmy</p>
+      <button type="button" class="me-intro-play" id="me-intro-play">
+        <span class="me-intro-play-icon" aria-hidden="true"></span>
+        <span class="me-intro-play-label">Tap to enter</span>
+      </button>
+      <button type="button" class="me-intro-skip" id="me-intro-skip">Skip intro</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
        1. HERO (public) — poster paints first; WebGL layers in
        ═══════════════════════════════════════════ -->
   <header class="me-hero" id="me-hero" data-section="hero">

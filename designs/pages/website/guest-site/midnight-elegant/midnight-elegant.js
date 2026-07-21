@@ -25,6 +25,95 @@ function announce(msg) {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Intro video — click to play; on ended → hero                               */
+/* -------------------------------------------------------------------------- */
+function initIntro(onReady) {
+  const intro = $("#me-intro");
+  const video = $("#me-intro-video");
+  const playBtn = $("#me-intro-play");
+  const skipBtn = $("#me-intro-skip");
+  let finished = false;
+
+  function finishIntro() {
+    if (finished) return;
+    finished = true;
+    document.body.classList.remove("is-intro-active");
+    if (!intro) {
+      onReady();
+      return;
+    }
+    intro.classList.add("is-exiting");
+    intro.setAttribute("aria-hidden", "true");
+    const done = () => {
+      intro.classList.add("is-done");
+      intro.hidden = true;
+      if (video) {
+        try {
+          video.pause();
+        } catch {
+          /* ignore */
+        }
+      }
+      const hero = $("#me-hero");
+      if (hero) {
+        hero.scrollIntoView({ behavior: "auto", block: "start" });
+      }
+      announce("Welcome — you are at the invitation hero");
+      onReady();
+    };
+    if (REDUCE) {
+      done();
+      return;
+    }
+    window.setTimeout(done, 700);
+  }
+
+  if (!intro || !video || !playBtn) {
+    onReady();
+    return;
+  }
+
+  /* Reduced motion: skip cinematic; land on hero immediately */
+  if (REDUCE) {
+    finishIntro();
+    return;
+  }
+
+  document.body.classList.add("is-intro-active");
+  playBtn.focus();
+
+  function startPlayback() {
+    intro.classList.add("is-playing");
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.then === "function") {
+      playPromise.catch(() => {
+        intro.classList.remove("is-playing");
+        announce("Tap again to play the intro");
+      });
+    }
+  }
+
+  playBtn.addEventListener("click", startPlayback);
+  /* Whole stage is also a play target (common cinematic UX) */
+  intro.addEventListener("click", (e) => {
+    if (finished || intro.classList.contains("is-playing")) return;
+    if (e.target === skipBtn || skipBtn.contains(e.target)) return;
+    startPlayback();
+  });
+
+  skipBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    finishIntro();
+  });
+
+  video.addEventListener("ended", finishIntro);
+  video.addEventListener("error", () => {
+    announce("Intro unavailable — continuing to invitation");
+    finishIntro();
+  });
+}
+
+/* -------------------------------------------------------------------------- */
 /* Countdown                                                                  */
 /* -------------------------------------------------------------------------- */
 function initCountdown() {
@@ -650,16 +739,18 @@ function boot() {
   initGallery();
   initRsvp();
 
-  const lenis = initSmoothScroll();
-  initMotion(lenis);
+  /* Intro first — hero SplitText / Lenis / WebGL start after video ends (or skip) */
+  initIntro(() => {
+    const lenis = initSmoothScroll();
+    initMotion(lenis);
 
-  /* Defer WebGL so poster paints first */
-  if ("requestIdleCallback" in window) {
-    requestIdleCallback(() => initHeroWebGL(), { timeout: 1200 });
-  } else {
-    window.setTimeout(initHeroWebGL, 200);
-  }
-  initAmbientAccent();
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(() => initHeroWebGL(), { timeout: 1200 });
+    } else {
+      window.setTimeout(initHeroWebGL, 200);
+    }
+    initAmbientAccent();
+  });
 }
 
 if (document.readyState === "loading") {

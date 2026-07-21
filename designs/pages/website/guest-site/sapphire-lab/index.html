@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Brindo &amp; Sreelekshmy · Sapphire Lab · 26 Jan 2027</title>
+  <meta name="description" content="Flight BS-2027 — join Brindo &amp; Sreelekshmy in Kochi. Royal Aviation invitation." />
+  <meta name="theme-color" content="#112250" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" href="../../../../favicon.ico" sizes="48x48" />
+  <link rel="stylesheet" href="../../../../shared/vendor/lenis/lenis.css" />
+  <link rel="stylesheet" href="sapphire-lab.css" />
+</head>
+<body class="sp-body" data-page="guest-site-sapphire-lab" data-template="sapphire-lab">
+
+  <a class="sp-skip" href="#sp-main">Skip to content</a>
+  <div class="sp-scroll-progress" id="sp-scroll-progress" aria-hidden="true"></div>
+
+  <!-- 0. INTRO -->
+  <div
+    class="sp-intro"
+    id="sp-intro"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="sp-intro-title"
+  >
+    <video class="sp-intro-video" id="sp-intro-video" playsinline preload="auto" aria-hidden="true">
+      <source src="media/intro.mp4" type="video/mp4" />
+    </video>
+    <div class="sp-intro-scrim" aria-hidden="true"></div>
+    <div class="sp-intro-ui">
+      <p class="sp-intro-eyebrow" id="sp-intro-title">Flight BS-2027</p>
+      <button type="button" class="sp-intro-play" id="sp-intro-play">
+        <span class="sp-intro-play-icon" aria-hidden="true"></span>
+        <span class="sp-intro-play-label">Tap to board</span>
+      </button>
+      <button type="button" class="sp-intro-skip" id="sp-intro-skip">Skip intro</button>
+    </div>
+  </div>
+
+  <!-- 1. HERO — boarding pass -->
+  <header class="sp-hero" id="sp-hero" data-section="hero">
+    <svg class="sp-hero-grid" aria-hidden="true">
+      <defs>
+        <pattern id="sp-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#sp-grid)" />
+    </svg>
+
+    <div class="sp-hero-inner">
+      <div class="sp-flight-topline">
+        <span>FLIGHT BS-2027 · GATE 26</span>
+        <span class="sp-flight-topline-end">BOARDING · 26 JAN 2027</span>
+      </div>
+
+      <div class="sp-ticket" role="img" aria-label="Boarding pass for Brindo and Sreelekshmy">
+        <div class="sp-ticket-side sp-ticket-side--groom">
+          <p class="sp-ticket-label">Passenger — Groom</p>
+          <p class="sp-ticket-name">Brindo</p>
+          <div class="sp-ticket-route" aria-hidden="true">
+            <span>HIS</span>
+            <span class="sp-ticket-rule"></span>
+            <span>→</span>
+            <span class="sp-ticket-rule"></span>
+            <span>HERS</span>
+          </div>
+        </div>
+        <div class="sp-ticket-perf" aria-hidden="true">
+          <span class="sp-ticket-notch sp-ticket-notch--top"></span>
+          <span class="sp-ticket-notch sp-ticket-notch--bottom"></span>
+        </div>
+        <div class="sp-ticket-side sp-ticket-side--bride">
+          <p class="sp-ticket-label">Passenger — Bride</p>
+          <p class="sp-ticket-name">Sreelekshmy</p>
+          <p class="sp-ticket-meta">SEAT 26A · CLASS FIRST</p>
+        </div>
+      </div>
+
+      <div class="sp-depart">
+        <p class="sp-depart-label">Departure in</p>
+        <div class="sp-countdown" id="sp-countdown" role="timer" aria-live="polite" aria-atomic="true" aria-label="Countdown to the wedding">
+          <div class="sp-countdown-tile">
+            <span class="sp-countdown-num" data-unit="days">00</span>
+            <span class="sp-countdown-label">Days</span>
+          </div>
+          <div class="sp-countdown-tile">
+            <span class="sp-countdown-num" data-unit="hours">00</span>
+            <span class="sp-countdown-label">Hrs</span>
+          </div>
+          <div class="sp-countdown-tile">
+            <span class="sp-countdown-num" data-unit="mins">00</span>
+            <span class="sp-countdown-label">Min</span>
+          </div>
+          <div class="sp-countdown-tile">
+            <span class="sp-countdown-num" data-unit="secs">00</span>
+            <span class="sp-countdown-label">Sec</span>
+          </div>
+        </div>
+        <button type="button" class="sp-btn sp-btn--gold" id="sp-unlock-open" aria-haspopup="dialog" aria-controls="sp-unlock-sheet">
+          Check In
+        </button>
+        <a class="sp-proceed" id="sp-proceed" href="#sp-announce" hidden>Proceed to gate ↓</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Unlock sheet -->
+  <div class="sp-sheet-scrim" id="sp-unlock-scrim" hidden></div>
+  <div
+    class="sp-sheet"
+    id="sp-unlock-sheet"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="sp-unlock-title"
+    hidden
+  >
+    <div class="sp-sheet-handle" aria-hidden="true"></div>
+    <h2 class="sp-sheet-title" id="sp-unlock-title">Check in for guest details</h2>
+    <p class="sp-sheet-sub">Enter your phone or invitation password. Demo: any value works.</p>
+    <form class="sp-unlock-form" id="sp-unlock-form" novalidate>
+      <div class="sp-field">
+        <label class="sp-label" for="sp-unlock-phone">Phone number</label>
+        <input class="sp-input" type="tel" id="sp-unlock-phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="+91 98765 43210" />
+      </div>
+      <p class="sp-or" aria-hidden="true">or</p>
+      <div class="sp-field">
+        <label class="sp-label" for="sp-unlock-pass">Invitation password</label>
+        <input class="sp-input" type="password" id="sp-unlock-pass" name="password" autocomplete="off" placeholder="••••••••" />
+      </div>
+      <button type="submit" class="sp-btn sp-btn--gold sp-btn--block">View boarding pass</button>
+      <button type="button" class="sp-btn sp-btn--ghost sp-btn--block" id="sp-unlock-skip">Skip / demo unlock</button>
+    </form>
+    <button type="button" class="sp-sheet-close" id="sp-unlock-close" aria-label="Close">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+
+  <main id="sp-main">
+    <div id="sp-private" class="sp-private is-locked" hidden aria-hidden="true">
+
+      <div class="sp-banner" id="sp-announce" role="status">
+        <div class="sp-banner-inner">
+          <p class="sp-banner-text">We can’t wait to celebrate with you! Scroll down for schedule, venue &amp; to RSVP.</p>
+          <button type="button" class="sp-banner-dismiss" id="sp-banner-dismiss" aria-label="Dismiss">×</button>
+        </div>
+      </div>
+
+      <!-- STORY — Flight log -->
+      <section class="sp-section sp-story" id="story" data-section="story" aria-labelledby="story-title">
+        <div class="sp-wrap">
+          <p class="sp-mono-label sp-mono-label--navy">Flight log · Chapter 01</p>
+          <h2 class="sp-h2 sp-h2--navy" id="story-title">How we took off.</h2>
+          <div class="sp-story-grid">
+            <figure class="sp-story-fig">
+              <img
+                src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&h=1200&q=80"
+                alt=""
+                width="900"
+                height="1200"
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="sp-story-stamp" aria-hidden="true">LOG · 26.01.2027</span>
+            </figure>
+            <div class="sp-story-copy">
+              <p>They met the way the best stories start — unexpectedly, at work. Sreelekshmy had spent years in the sky as cabin crew before moving into a corporate role, and that’s where a certain aviation-obsessed operations enthusiast couldn’t stop finding reasons to talk to her. He knew every aircraft by its silhouette; she knew every airport by its 3 AM coffee. Somewhere between shared shifts and endless conversations about runways and layovers, work turned into something that felt a lot like home.</p>
+              <p>Then she went back to what she loved — flying — and he stayed on the ground keeping operations running, and somehow the distance only made them surer. Two people, two faiths, one very well-coordinated flight plan. On the 26th of January, with the blessings of both our families, we’re finally cleared for forever — and we’d love for you to be on board.</p>
+            </div>
+          </div>
+          <div class="sp-flight-log">
+            <p class="sp-mono-label">Route · His → Hers</p>
+            <div class="sp-flight-log-grid">
+              <div class="sp-flight-stop">
+                <div class="sp-flight-stop-head"><span class="sp-flight-num">01</span><span class="sp-flight-code">MET</span></div>
+                <p class="sp-flight-title">Met at work</p>
+                <p class="sp-flight-note">where corporate schedules and aviation talk collided.</p>
+              </div>
+              <div class="sp-flight-stop">
+                <div class="sp-flight-stop-head"><span class="sp-flight-num">02</span><span class="sp-flight-code">1ST</span></div>
+                <p class="sp-flight-title">First flight together</p>
+                <p class="sp-flight-note">the trip that made it official.</p>
+              </div>
+              <div class="sp-flight-stop">
+                <div class="sp-flight-stop-head"><span class="sp-flight-num">03</span><span class="sp-flight-code">FWD</span></div>
+                <p class="sp-flight-title">Cleared for forever</p>
+                <p class="sp-flight-note">26 Jan 2027, Kochi.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCHEDULE — Departure manifest -->
+      <section class="sp-section sp-schedule" id="schedule" data-section="schedule" aria-labelledby="schedule-title">
+        <div class="sp-wrap sp-wrap--wide">
+          <p class="sp-mono-label">Departure manifest</p>
+          <h2 class="sp-h2 sp-h2--light" id="schedule-title">Six flights. One celebration.</h2>
+          <p class="sp-schedule-lead">Present this pass at each gate. Boarding begins promptly — dress-codes strictly enforced by the couple.</p>
+          <div class="sp-pass-grid">
+
+            <article class="sp-pass">
+              <div class="sp-pass-main">
+                <div class="sp-pass-top">
+                  <p class="sp-pass-id">Boarding pass · 01</p>
+                  <span class="sp-pass-chip">Ring</span>
+                </div>
+                <h3 class="sp-pass-name">Nischayam &amp; Blessing</h3>
+                <div class="sp-pass-meta">
+                  <div><p class="sp-pass-k">Date</p><p class="sp-pass-v">22 Jan 2027</p></div>
+                  <div><p class="sp-pass-k">Time</p><p class="sp-pass-v">6:00 PM</p></div>
+                  <div><p class="sp-pass-k">Gate</p><p class="sp-pass-v">03</p></div>
+                </div>
+                <p class="sp-pass-venue">Sreelekshmy’s Residence, Tripunithura</p>
+                <p class="sp-pass-dress">Dress · Traditional, festive</p>
+              </div>
+              <div class="sp-pass-stub" aria-hidden="true">
+                <span class="sp-pass-notch sp-pass-notch--top"></span>
+                <span class="sp-pass-notch sp-pass-notch--bottom"></span>
+                <p class="sp-pass-k">Seat</p>
+                <p class="sp-pass-seat">01A</p>
+                <div class="sp-barcode"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              </div>
+            </article>
+
+            <article class="sp-pass">
+              <div class="sp-pass-main">
+                <div class="sp-pass-top">
+                  <p class="sp-pass-id">Boarding pass · 02</p>
+                  <span class="sp-pass-chip">Henna</span>
+                </div>
+                <h3 class="sp-pass-name">Mehendi</h3>
+                <div class="sp-pass-meta">
+                  <div><p class="sp-pass-k">Date</p><p class="sp-pass-v">23 Jan 2027</p></div>
+                  <div><p class="sp-pass-k">Time</p><p class="sp-pass-v">11:00 AM</p></div>
+                  <div><p class="sp-pass-k">Gate</p><p class="sp-pass-v">06</p></div>
+                </div>
+                <p class="sp-pass-venue">Poolside Lawn, Le Meridien Kochi</p>
+                <p class="sp-pass-dress">Dress · Yellow &amp; green florals</p>
+              </div>
+              <div class="sp-pass-stub" aria-hidden="true">
+                <span class="sp-pass-notch sp-pass-notch--top"></span>
+                <span class="sp-pass-notch sp-pass-notch--bottom"></span>
+                <p class="sp-pass-k">Seat</p>
+                <p class="sp-pass-seat">02A</p>
+                <div class="sp-barcode"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              </div>
+            </article>
+
+            <article class="sp-pass">
+              <div class="sp-pass-main">
+                <div class="sp-pass-top">
+                  <p class="sp-pass-id">Boarding pass · 03</p>
+                  <span class="sp-pass-chip">Music</span>
+                </div>
+                <h3 class="sp-pass-name">Sangeet</h3>
+                <div class="sp-pass-meta">
+                  <div><p class="sp-pass-k">Date</p><p class="sp-pass-v">23 Jan 2027</p></div>
+                  <div><p class="sp-pass-k">Time</p><p class="sp-pass-v">7:00 PM</p></div>
+                  <div><p class="sp-pass-k">Gate</p><p class="sp-pass-v">09</p></div>
+                </div>
+                <p class="sp-pass-venue">Grand Ballroom, Le Meridien Kochi</p>
+                <p class="sp-pass-dress">Dress · Cocktail / Indo-western</p>
+              </div>
+              <div class="sp-pass-stub" aria-hidden="true">
+                <span class="sp-pass-notch sp-pass-notch--top"></span>
+                <span class="sp-pass-notch sp-pass-notch--bottom"></span>
+                <p class="sp-pass-k">Seat</p>
+                <p class="sp-pass-seat">03A</p>
+                <div class="sp-barcode"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              </div>
+            </article>
+
+            <article class="sp-pass">
+              <div class="sp-pass-main">
+                <div class="sp-pass-top">
+                  <p class="sp-pass-id">Boarding pass · 04</p>
+                  <span class="sp-pass-chip">Lamp</span>
+                </div>
+                <h3 class="sp-pass-name">Muhurtham</h3>
+                <div class="sp-pass-meta">
+                  <div><p class="sp-pass-k">Date</p><p class="sp-pass-v">26 Jan 2027</p></div>
+                  <div><p class="sp-pass-k">Time</p><p class="sp-pass-v">8:00 AM</p></div>
+                  <div><p class="sp-pass-k">Gate</p><p class="sp-pass-v">12</p></div>
+                </div>
+                <p class="sp-pass-venue">Sree Kalyana Mandapam, Tripunithura</p>
+                <p class="sp-pass-dress">Dress · Kasavu / traditional Kerala</p>
+              </div>
+              <div class="sp-pass-stub" aria-hidden="true">
+                <span class="sp-pass-notch sp-pass-notch--top"></span>
+                <span class="sp-pass-notch sp-pass-notch--bottom"></span>
+                <p class="sp-pass-k">Seat</p>
+                <p class="sp-pass-seat">04A</p>
+                <div class="sp-barcode"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              </div>
+            </article>
+
+            <article class="sp-pass">
+              <div class="sp-pass-main">
+                <div class="sp-pass-top">
+                  <p class="sp-pass-id">Boarding pass · 05</p>
+                  <span class="sp-pass-chip">Church</span>
+                </div>
+                <h3 class="sp-pass-name">Nuptial Mass</h3>
+                <div class="sp-pass-meta">
+                  <div><p class="sp-pass-k">Date</p><p class="sp-pass-v">26 Jan 2027</p></div>
+                  <div><p class="sp-pass-k">Time</p><p class="sp-pass-v">4:00 PM</p></div>
+                  <div><p class="sp-pass-k">Gate</p><p class="sp-pass-v">15</p></div>
+                </div>
+                <p class="sp-pass-venue">Santa Cruz Basilica, Fort Kochi</p>
+                <p class="sp-pass-dress">Dress · Formal / church elegant</p>
+              </div>
+              <div class="sp-pass-stub" aria-hidden="true">
+                <span class="sp-pass-notch sp-pass-notch--top"></span>
+                <span class="sp-pass-notch sp-pass-notch--bottom"></span>
+                <p class="sp-pass-k">Seat</p>
+                <p class="sp-pass-seat">05A</p>
+                <div class="sp-barcode"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              </div>
+            </article>
+
+            <article class="sp-pass">
+              <div class="sp-pass-main">
+                <div class="sp-pass-top">
+                  <p class="sp-pass-id">Boarding pass · 06</p>
+                  <span class="sp-pass-chip">Champagne</span>
+                </div>
+                <h3 class="sp-pass-name">Reception</h3>
+                <div class="sp-pass-meta">
+                  <div><p class="sp-pass-k">Date</p><p class="sp-pass-v">26 Jan 2027</p></div>
+                  <div><p class="sp-pass-k">Time</p><p class="sp-pass-v">7:00 PM</p></div>
+                  <div><p class="sp-pass-k">Gate</p><p class="sp-pass-v">18</p></div>
+                </div>
+                <p class="sp-pass-venue">Bolgatty Palace, Bolgatty Island</p>
+                <p class="sp-pass-dress">Dress · Cocktail / festive</p>
+              </div>
+              <div class="sp-pass-stub" aria-hidden="true">
+                <span class="sp-pass-notch sp-pass-notch--top"></span>
+                <span class="sp-pass-notch sp-pass-notch--bottom"></span>
+                <p class="sp-pass-k">Seat</p>
+                <p class="sp-pass-seat">06A</p>
+                <div class="sp-barcode"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              </div>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- VENUE -->
+      <section class="sp-section sp-venue" id="venue" data-section="venue" aria-labelledby="venue-title">
+        <div class="sp-wrap sp-wrap--wide">
+          <p class="sp-mono-label sp-mono-label--navy">Getting there</p>
+          <h2 class="sp-h2 sp-h2--navy" id="venue-title">Venue &amp; Travel</h2>
+          <div class="sp-venue-grid">
+            <figure class="sp-venue-map">
+              <img
+                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&h=900&q=80"
+                alt="Bolgatty Palace venue"
+                width="1600"
+                height="900"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption class="sp-venue-map-cap">
+                <span class="sp-pass-chip">Main venue</span>
+                <p class="sp-venue-map-name">Bolgatty Palace</p>
+              </figcaption>
+            </figure>
+            <div class="sp-venue-card">
+              <p class="sp-pass-k">Address</p>
+              <p class="sp-venue-name">Bolgatty Palace</p>
+              <p class="sp-venue-addr">Mulavukad, Bolgatty Island, Kochi, Kerala 682504</p>
+              <a class="sp-btn sp-btn--navy" href="#">Open in Maps</a>
+            </div>
+          </div>
+          <h3 class="sp-subhead">Getting Here</h3>
+          <div class="sp-travel-grid">
+            <div class="sp-travel-card">
+              <p class="sp-pass-k">Airport</p>
+              <p class="sp-travel-name">Cochin International (COK)</p>
+              <p class="sp-travel-detail">Nedumbassery — ~35 km / ~60 min from the city.</p>
+            </div>
+            <div class="sp-travel-card">
+              <p class="sp-pass-k">Railway</p>
+              <p class="sp-travel-name">Ernakulam Junction (South)</p>
+              <p class="sp-travel-detail">~8 km from most venues.</p>
+            </div>
+          </div>
+          <h3 class="sp-subhead">Where to Stay</h3>
+          <div class="sp-hotel-grid">
+            <div class="sp-hotel-card">
+              <span class="sp-hotel-stars">5★</span>
+              <p class="sp-travel-name">Grand Hyatt Kochi Bolgatty</p>
+              <p class="sp-travel-detail">Beside the reception venue.</p>
+              <a class="sp-btn sp-btn--outline" href="#">Book</a>
+            </div>
+            <div class="sp-hotel-card">
+              <span class="sp-hotel-stars">5★</span>
+              <p class="sp-travel-name">Le Meridien Kochi</p>
+              <p class="sp-travel-detail">Mehendi &amp; Sangeet venue.</p>
+              <a class="sp-btn sp-btn--outline" href="#">Book</a>
+            </div>
+            <div class="sp-hotel-card">
+              <span class="sp-hotel-stars">4★</span>
+              <p class="sp-travel-name">Fragrant Nature Kochi</p>
+              <p class="sp-travel-detail">Boutique · Marine Drive.</p>
+              <a class="sp-btn sp-btn--outline" href="#">Book</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PARTY -->
+      <section class="sp-section sp-party" id="party" data-section="party" aria-labelledby="party-title">
+        <div class="sp-wrap sp-wrap--wide">
+          <p class="sp-mono-label sp-mono-label--navy">Our favourite people</p>
+          <h2 class="sp-h2 sp-h2--navy" id="party-title">The Wedding Party</h2>
+          <div class="sp-party-tabs" role="tablist" aria-label="Wedding party side">
+            <button type="button" class="sp-party-tab is-active" role="tab" aria-selected="true" data-party-tab="bride" id="sp-tab-bride">Bride’s Side</button>
+            <button type="button" class="sp-party-tab" role="tab" aria-selected="false" data-party-tab="groom" id="sp-tab-groom">Groom’s Side</button>
+          </div>
+          <div class="sp-party-panel is-active" data-party-panel="bride" role="tabpanel" aria-labelledby="sp-tab-bride">
+            <p class="sp-party-side-title">Bride’s Side</p>
+            <div class="sp-party-grid">
+              <figure class="sp-person"><img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=600&h=600&q=80" alt="Latha Mohanan" width="600" height="600" loading="lazy" /><figcaption><span class="sp-person-name">Latha Mohanan</span><span class="sp-person-role">Mother of the Bride</span></figcaption></figure>
+              <figure class="sp-person"><img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=600&h=600&q=80" alt="Mohanan Nair" width="600" height="600" loading="lazy" /><figcaption><span class="sp-person-name">Mohanan Nair</span><span class="sp-person-role">Father of the Bride</span></figcaption></figure>
+              <figure class="sp-person"><img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=600&h=600&q=80" alt="Gopika M" width="600" height="600" loading="lazy" /><figcaption><span class="sp-person-name">Gopika M</span><span class="sp-person-role">Sister of the Bride · Maid of Honour</span></figcaption></figure>
+            </div>
+          </div>
+          <div class="sp-party-panel" data-party-panel="groom" role="tabpanel" aria-labelledby="sp-tab-groom" hidden>
+            <p class="sp-party-side-title">Groom’s Side</p>
+            <div class="sp-party-grid">
+              <figure class="sp-person"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&h=600&q=80" alt="Elsy Sylen" width="600" height="600" loading="lazy" /><figcaption><span class="sp-person-name">Elsy Sylen</span><span class="sp-person-role">Mother of the Groom</span></figcaption></figure>
+              <figure class="sp-person"><img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=600&h=600&q=80" alt="Sylen Joseph" width="600" height="600" loading="lazy" /><figcaption><span class="sp-person-name">Sylen Joseph</span><span class="sp-person-role">Father of the Groom</span></figcaption></figure>
+              <figure class="sp-person"><img src="https://images.unsplash.com/photo-1509927083803-4bd519298ac4?auto=format&fit=crop&w=600&h=600&q=80" alt="Brian Sylen" width="600" height="600" loading="lazy" /><figcaption><span class="sp-person-name">Brian Sylen</span><span class="sp-person-role">Brother of the Groom · Best Man</span></figcaption></figure>
+            </div>
+          </div>
+          <div class="sp-party-desktop">
+            <div>
+              <p class="sp-party-side-title">Bride’s Side</p>
+              <div class="sp-party-grid">
+                <figure class="sp-person"><img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=600&h=600&q=80" alt="" width="600" height="600" loading="lazy" /><figcaption><span class="sp-person-name">Latha Mohanan</span><span class="sp-person-role">Mother of the Bride</span></figcaption></figure>
+                <figure class="sp-person"><img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=600&h=600&q=80" alt="" width="600" height="600" loading="lazy" /><figcaption><span class="sp-person-name">Mohanan Nair</span><span class="sp-person-role">Father of the Bride</span></figcaption></figure>
+                <figure class="sp-person"><img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=600&h=600&q=80" alt="" width="600" height="600" loading="lazy" /><figcaption><span class="sp-person-name">Gopika M</span><span class="sp-person-role">Sister · Maid of Honour</span></figcaption></figure>
+              </div>
+            </div>
+            <div>
+              <p class="sp-party-side-title">Groom’s Side</p>
+              <div class="sp-party-grid">
+                <figure class="sp-person"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&h=600&q=80" alt="" width="600" height="600" loading="lazy" /><figcaption><span class="sp-person-name">Elsy Sylen</span><span class="sp-person-role">Mother of the Groom</span></figcaption></figure>
+                <figure class="sp-person"><img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=600&h=600&q=80" alt="" width="600" height="600" loading="lazy" /><figcaption><span class="sp-person-name">Sylen Joseph</span><span class="sp-person-role">Father of the Groom</span></figcaption></figure>
+                <figure class="sp-person"><img src="https://images.unsplash.com/photo-1509927083803-4bd519298ac4?auto=format&fit=crop&w=600&h=600&q=80" alt="" width="600" height="600" loading="lazy" /><figcaption><span class="sp-person-name">Brian Sylen</span><span class="sp-person-role">Brother · Best Man</span></figcaption></figure>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GALLERY -->
+      <section class="sp-section sp-gallery" id="gallery" data-section="gallery" aria-labelledby="gallery-title">
+        <div class="sp-wrap sp-wrap--wide">
+          <p class="sp-mono-label sp-mono-label--navy">Moments</p>
+          <h2 class="sp-h2 sp-h2--navy" id="gallery-title">A Few Of Our Favourites</h2>
+          <div class="sp-gallery-masonry" id="sp-gallery-grid">
+            <button type="button" class="sp-gallery-item" data-gallery-i="0"><img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&h=1100&q=80" alt="Gallery 1" loading="lazy" /></button>
+            <button type="button" class="sp-gallery-item" data-gallery-i="1"><img src="https://images.unsplash.com/photo-1591604466107-ec97de577aff?auto=format&fit=crop&w=800&h=800&q=80" alt="Gallery 2" loading="lazy" /></button>
+            <button type="button" class="sp-gallery-item" data-gallery-i="2"><img src="https://images.unsplash.com/photo-1583939411023-14783179e581?auto=format&fit=crop&w=800&h=1000&q=80" alt="Gallery 3" loading="lazy" /></button>
+            <button type="button" class="sp-gallery-item" data-gallery-i="3"><img src="https://images.unsplash.com/photo-1587467512961-120760940315?auto=format&fit=crop&w=800&h=1200&q=80" alt="Gallery 4" loading="lazy" /></button>
+            <button type="button" class="sp-gallery-item" data-gallery-i="4"><img src="https://images.unsplash.com/photo-1519657337289-077653f724ed?auto=format&fit=crop&w=800&h=900&q=80" alt="Gallery 5" loading="lazy" /></button>
+            <button type="button" class="sp-gallery-item" data-gallery-i="5"><img src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=800&h=800&q=80" alt="Gallery 6" loading="lazy" /></button>
+            <button type="button" class="sp-gallery-item" data-gallery-i="6"><img src="https://images.unsplash.com/photo-1554568218-0f1715e72254?auto=format&fit=crop&w=800&h=1100&q=80" alt="Gallery 7" loading="lazy" /></button>
+            <button type="button" class="sp-gallery-item" data-gallery-i="7"><img src="https://images.unsplash.com/photo-1554080353-a576cf803bda?auto=format&fit=crop&w=800&h=800&q=80" alt="Gallery 8" loading="lazy" /></button>
+            <button type="button" class="sp-gallery-item" data-gallery-i="8"><img src="https://images.unsplash.com/photo-1509610973147-232dfea52a97?auto=format&fit=crop&w=800&h=1000&q=80" alt="Gallery 9" loading="lazy" /></button>
+          </div>
+        </div>
+      </section>
+
+      <div class="sp-lightbox" id="sp-lightbox" hidden>
+        <button type="button" class="sp-lightbox-close" id="sp-lightbox-close" aria-label="Close">×</button>
+        <button type="button" class="sp-lightbox-nav sp-lightbox-nav--prev" id="sp-lightbox-prev" aria-label="Previous">‹</button>
+        <img class="sp-lightbox-img" id="sp-lightbox-img" alt="" />
+        <button type="button" class="sp-lightbox-nav sp-lightbox-nav--next" id="sp-lightbox-next" aria-label="Next">›</button>
+      </div>
+
+      <!-- Q&A -->
+      <section class="sp-section sp-qa" id="qa" data-section="qa" aria-labelledby="qa-title">
+        <div class="sp-wrap">
+          <p class="sp-mono-label sp-mono-label--navy">Good to know</p>
+          <h2 class="sp-h2 sp-h2--navy" id="qa-title">Questions &amp; Answers</h2>
+          <div class="sp-acc" id="sp-acc">
+            <div class="sp-acc-item">
+              <button type="button" class="sp-acc-btn" aria-expanded="false">What should I wear?<span class="sp-acc-icon" aria-hidden="true">+</span></button>
+              <div class="sp-acc-panel" hidden><p>Each function has a dress-code chip on the itinerary — comfortable, festive, and phone-ready for photos! For the Muhurtham, traditional Kerala attire (kasavu) is very welcome.</p></div>
+            </div>
+            <div class="sp-acc-item">
+              <button type="button" class="sp-acc-btn" aria-expanded="false">Are kids invited?<span class="sp-acc-icon" aria-hidden="true">+</span></button>
+              <div class="sp-acc-panel" hidden><p>We love your little ones — they’re welcome at all functions. The Sangeet runs late, so plan naps accordingly!</p></div>
+            </div>
+            <div class="sp-acc-item">
+              <button type="button" class="sp-acc-btn" aria-expanded="false">Is there parking?<span class="sp-acc-icon" aria-hidden="true">+</span></button>
+              <div class="sp-acc-panel" hidden><p>Yes, valet/parking is available at Le Meridien and Bolgatty Palace. The Basilica has limited street parking — carpooling is easier.</p></div>
+            </div>
+            <div class="sp-acc-item">
+              <button type="button" class="sp-acc-btn" aria-expanded="false">Veg or non-veg?<span class="sp-acc-icon" aria-hidden="true">+</span></button>
+              <div class="sp-acc-panel" hidden><p>The Muhurtham features a traditional vegetarian Sadhya on banana leaf. Reception has both veg and non-veg. Tell us any allergies in your RSVP.</p></div>
+            </div>
+            <div class="sp-acc-item">
+              <button type="button" class="sp-acc-btn" aria-expanded="false">Two ceremonies — do I attend both?<span class="sp-acc-icon" aria-hidden="true">+</span></button>
+              <div class="sp-acc-panel" hidden><p>You’re warmly invited to all of it. Come for what you can; the Reception is where everyone reunites.</p></div>
+            </div>
+            <div class="sp-acc-item">
+              <button type="button" class="sp-acc-btn" aria-expanded="false">When should I RSVP by?<span class="sp-acc-icon" aria-hidden="true">+</span></button>
+              <div class="sp-acc-panel" hidden><p>Please respond by 31 December 2026 so we can plan seating and Sadhya counts.</p></div>
+            </div>
+            <div class="sp-acc-item">
+              <button type="button" class="sp-acc-btn" aria-expanded="false">Getting there &amp; staying?<span class="sp-acc-icon" aria-hidden="true">+</span></button>
+              <div class="sp-acc-panel" hidden><p>Fly into Cochin (COK) or take the train to Ernakulam Junction. See “Where to Stay” for hotels near the venues.</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RSVP -->
+      <section class="sp-section sp-rsvp" id="rsvp" data-section="rsvp" aria-labelledby="rsvp-title">
+        <div class="sp-wrap">
+          <p class="sp-mono-label sp-mono-label--navy">Will you join us</p>
+          <h2 class="sp-h2 sp-h2--navy" id="rsvp-title">RSVP</h2>
+          <form class="sp-rsvp-card" id="sp-rsvp-form">
+            <div id="sp-rsvp-fields">
+              <p class="sp-pass-k">Responding as</p>
+              <p class="sp-rsvp-as">Aravind &amp; family</p>
+              <div class="sp-rsvp-events">
+                <div class="sp-rsvp-row" data-event="nischayam">
+                  <div><p class="sp-rsvp-ev">Nischayam &amp; Blessing</p><p class="sp-pass-k">Fri, 22 Jan 2027 · 6:00 PM</p></div>
+                  <div class="sp-rsvp-toggle" role="group" aria-label="Nischayam RSVP"><button type="button" data-ans="yes">Yes</button><button type="button" data-ans="no">No</button></div>
+                </div>
+                <div class="sp-rsvp-row" data-event="mehendi">
+                  <div><p class="sp-rsvp-ev">Mehendi</p><p class="sp-pass-k">Sat, 23 Jan 2027 · 11:00 AM</p></div>
+                  <div class="sp-rsvp-toggle" role="group" aria-label="Mehendi RSVP"><button type="button" data-ans="yes">Yes</button><button type="button" data-ans="no">No</button></div>
+                </div>
+                <div class="sp-rsvp-row" data-event="sangeet">
+                  <div><p class="sp-rsvp-ev">Sangeet</p><p class="sp-pass-k">Sat, 23 Jan 2027 · 7:00 PM</p></div>
+                  <div class="sp-rsvp-toggle" role="group" aria-label="Sangeet RSVP"><button type="button" data-ans="yes">Yes</button><button type="button" data-ans="no">No</button></div>
+                </div>
+                <div class="sp-rsvp-row" data-event="muhurtham">
+                  <div><p class="sp-rsvp-ev">Muhurtham</p><p class="sp-pass-k">Tue, 26 Jan 2027 · 8:00 AM</p></div>
+                  <div class="sp-rsvp-toggle" role="group" aria-label="Muhurtham RSVP"><button type="button" data-ans="yes">Yes</button><button type="button" data-ans="no">No</button></div>
+                </div>
+                <div class="sp-rsvp-row" data-event="mass">
+                  <div><p class="sp-rsvp-ev">Nuptial Mass</p><p class="sp-pass-k">Tue, 26 Jan 2027 · 4:00 PM</p></div>
+                  <div class="sp-rsvp-toggle" role="group" aria-label="Mass RSVP"><button type="button" data-ans="yes">Yes</button><button type="button" data-ans="no">No</button></div>
+                </div>
+                <div class="sp-rsvp-row" data-event="reception">
+                  <div><p class="sp-rsvp-ev">Reception</p><p class="sp-pass-k">Tue, 26 Jan 2027 · 7:00 PM</p></div>
+                  <div class="sp-rsvp-toggle" role="group" aria-label="Reception RSVP"><button type="button" data-ans="yes">Yes</button><button type="button" data-ans="no">No</button></div>
+                </div>
+              </div>
+              <div class="sp-rsvp-plus">
+                <div><p class="sp-rsvp-ev">Plus-ones</p><p class="sp-pass-k">Bringing anyone? (max 2)</p></div>
+                <div class="sp-rsvp-stepper">
+                  <button type="button" id="sp-plus-minus" aria-label="Fewer">−</button>
+                  <span id="sp-plus-count" class="sp-plus-count">0</span>
+                  <button type="button" id="sp-plus-plus" aria-label="More">+</button>
+                </div>
+              </div>
+              <div class="sp-field">
+                <label class="sp-label" for="sp-rsvp-note">Note for the couple</label>
+                <textarea class="sp-input sp-textarea" id="sp-rsvp-note" rows="3" placeholder="Allergies, song requests, travel plans…"></textarea>
+              </div>
+              <button type="submit" class="sp-btn sp-btn--gold sp-btn--block">Submit RSVP</button>
+            </div>
+            <div id="sp-rsvp-success" hidden>
+              <p class="sp-h2 sp-h2--navy">You’re cleared for boarding.</p>
+              <p class="sp-lead">Thanks — we’ve logged your RSVP. See you in Kochi.</p>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <footer class="sp-foot-rich">
+        <p class="sp-foot-mono">B &amp; S</p>
+        <p class="sp-foot-meta">26 · 01 · 2027 · Kochi, Kerala</p>
+        <p class="sp-foot-hash">#BrindoWedsSreelekshmy</p>
+        <button type="button" class="sp-btn sp-btn--navy">Download our invitation card</button>
+        <p class="sp-foot-made">Made with Evenzi · Sapphire Lab · upgrade sandbox</p>
+      </footer>
+
+    </div>
+  </main>
+
+  <div class="sp-sticky-rsvp" id="sp-sticky-rsvp" hidden>
+    <a class="sp-btn sp-btn--gold sp-btn--block" href="#rsvp">RSVP</a>
+  </div>
+
+  <div class="sp-visually-hidden" id="sp-live" aria-live="polite"></div>
+
+  <script src="../../../../shared/vendor/gsap/gsap.min.js"></script>
+  <script src="../../../../shared/vendor/gsap/ScrollTrigger.min.js"></script>
+  <script src="../../../../shared/vendor/lenis/lenis.min.js"></script>
+  <script src="sapphire-lab.js"></script>
+</body>
+</html>

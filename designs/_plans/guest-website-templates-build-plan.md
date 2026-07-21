@@ -12,11 +12,12 @@ Five distinct wedding moods, each mined from one source. We take the source's la
 
 | # | Mood | Source | Palette lane | Path | Notes |
 |---|---|---|---|---|---|
-| 1 | **Bold Festive** | **Lovable build** | maroon + gold | already React → port + refine | Also the Phase-4 React blueprint (section components + `themes.ts` + `weddingData`). Add missing Venue & Wedding Party; verify unlock gate. |
-| 2 | **Midnight Elegant** | Azurio | dark + metallic | HTML-first → React | Strip WebGL/3D; rebuild from visual ref |
+| 1 | **Bold Festive** | **Lovable Kasavu** | maroon + gold | already React → port + refine | Also the Phase-4 React blueprint (section components + `themes.ts` + `weddingData`). Add missing Venue & Wedding Party; verify unlock gate. |
+| 2 | **Midnight Elegant** | Azurio | dark + metallic | HTML-first → React | Immersive flagship (GSAP + Lenis + Three); shipped pending sign-off |
 | 3 | **Classic Editorial** | Mivon | ivory/champagne + serif | HTML-first → React | Editorial magazine layout; readable CSS |
 | 4 | **Minimal Modern** | Xfolio | clean off-white + 1 accent | HTML-first → React | Cleanest base; true one-page demos |
 | 5 | **Blush Romantic** | Cunnet | soft pink + cream | HTML-first → React | Cunnet's layout, our soft-pink palette |
+| 6 | **Royal Aviation / Sapphire** | **Lovable Sapphire** | navy + gold + cream ticket | HTML-first → React | **Locked 2026-07-21 as 6th.** Boarding-pass hero + intro video. Plan: [`guest-site-sapphire-boarding-pass.md`](guest-site-sapphire-boarding-pass.md). Sibling to ME — do not merge. |
 >
 > **Related:** [`digital-presence-plan.md`](digital-presence-plan.md) · [`event-website-template-sourcing.md`](event-website-template-sourcing.md) · [`../_prompts/guest-site-bold-festive-kerala.lovable.md`](../_prompts/guest-site-bold-festive-kerala.lovable.md) · [`event-website-gaps.md`](../../docs/data-model/event-website-gaps.md) (G1–G11) · ClickUp Feature `86d2jwzge` (Digital Presence) / component "Digital Presence: Event Templates" (P0)
 
