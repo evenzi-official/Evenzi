@@ -50,53 +50,21 @@
     </video>
     <div class="sp-intro-scrim" aria-hidden="true"></div>
     <div class="sp-intro-ui">
-      <p class="sp-intro-eyebrow" id="sp-intro-title">Flight BS-2027</p>
-      <button type="button" class="sp-intro-play" id="sp-intro-play">
-        <span class="sp-intro-play-icon" aria-hidden="true"></span>
-        <span class="sp-intro-play-label">Tap to board</span>
-      </button>
-      <button type="button" class="sp-intro-skip" id="sp-intro-skip">Skip intro</button>
+      <button type="button" class="sp-intro-skip" id="sp-intro-skip" aria-label="Skip intro video">Skip</button>
+      <div class="sp-intro-dock" aria-labelledby="sp-intro-title">
+        <p class="sp-intro-eyebrow" id="sp-intro-title">
+          <span class="sp-intro-eyebrow-code">Flight BS-2027</span>
+          <span class="sp-intro-eyebrow-rule" aria-hidden="true"></span>
+        </p>
+        <button type="button" class="sp-intro-play" id="sp-intro-play">
+          <span class="sp-intro-play-icon" aria-hidden="true"></span>
+          <span class="sp-intro-play-label">Tap to board</span>
+        </button>
+      </div>
     </div>
   </div>
 
   <a class="sp-skip" href="#sp-hero" id="sp-skip">Skip to boarding pass</a>
-
-  <header class="sp-hero" id="sp-hero" data-section="hero">
-    <h1 class="sp-visually-hidden">Brindo &amp; Sreelekshmy — Wedding, 26 January 2027, Kochi</h1>
-    <div class="sp-page-grid" aria-hidden="true">
-      <svg><defs><pattern id="sp-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#sp-grid)"/></svg>
-    </div>
-    <div class="sp-hero-inner">
-      <div class="sp-flight-topline">
-        <span>FLIGHT BS-2027 · GATE 26</span>
-        <span class="sp-flight-topline-end">BOARDING · 26 JAN 2027</span>
-      </div>
-      <div class="sp-ticket" role="img" aria-label="Boarding pass for Brindo and Sreelekshmy">
-        <div class="sp-ticket-side sp-ticket-side--groom">
-          <p class="sp-ticket-label">Passenger — Groom</p>
-          <p class="sp-ticket-name">Brindo</p>
-          <div class="sp-ticket-route" aria-hidden="true"><span>HIS</span><span class="sp-ticket-rule"></span><span>→</span><span class="sp-ticket-rule"></span><span>HERS</span></div>
-        </div>
-        <div class="sp-ticket-perf" aria-hidden="true"><span class="sp-ticket-notch sp-ticket-notch--top"></span><span class="sp-ticket-notch sp-ticket-notch--bottom"></span></div>
-        <div class="sp-ticket-side sp-ticket-side--bride">
-          <p class="sp-ticket-label">Passenger — Bride</p>
-          <p class="sp-ticket-name">Sreelekshmy</p>
-          <p class="sp-ticket-meta">SEAT 26A · CLASS FIRST</p>
-        </div>
-      </div>
-      <div class="sp-depart">
-        <p class="sp-depart-label">Departure in</p>
-        <div class="sp-countdown" id="sp-countdown" role="timer" aria-live="polite">
-          <div class="sp-countdown-tile"><span class="sp-countdown-num" data-unit="days">00</span><span class="sp-countdown-label">Days</span></div>
-          <div class="sp-countdown-tile"><span class="sp-countdown-num" data-unit="hours">00</span><span class="sp-countdown-label">Hrs</span></div>
-          <div class="sp-countdown-tile"><span class="sp-countdown-num" data-unit="mins">00</span><span class="sp-countdown-label">Min</span></div>
-          <div class="sp-countdown-tile"><span class="sp-countdown-num" data-unit="secs">00</span><span class="sp-countdown-label">Sec</span></div>
-        </div>
-        <button type="button" class="sp-btn sp-btn--gold" id="sp-unlock-open" aria-haspopup="dialog" aria-controls="sp-unlock-sheet">Check In</button>
-        <a class="sp-proceed" id="sp-proceed" href="#sp-announce" hidden>Proceed to gate ↓</a>
-      </div>
-    </div>
-  </header>
 
   <div class="sp-sheet-scrim" id="sp-unlock-scrim" hidden></div>
   <div class="sp-sheet" id="sp-unlock-sheet" role="dialog" aria-modal="true" aria-labelledby="sp-unlock-title" hidden>
@@ -157,10 +125,10 @@
 
     <!-- ==================== Start Navbar ==================== -->
     <nav class="navbar navbar-expand-lg sp-nav">
-        <div class="container align-items-center">
-            <a class="logo w-100px" href="#sp-hero">
-                <img src="assets/imgs/logo-light.svg" alt="Brindo &amp; Sreelekshmy" data-sp-logo>
-            </a>
+        <div class="container sp-nav-shell align-items-center">
+            <div class="sp-nav-meta sp-nav-meta--start">
+                <span class="sp-nav-flight">Flight BS-2027 · Gate 26</span>
+            </div>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="icon-bar"><i class="fas fa-bars"></i></span>
@@ -175,11 +143,14 @@
                     <li class="nav-item"><a class="nav-link" href="#rsvp"><span class="rolling-text">RSVP</span></a></li>
                 </ul>
             </div>
-            <div class="dark-mode-icon">
-                <button type="button" class="theme-icon" aria-label="Toggle dark and light mode">
-                    <i aria-hidden="true" class="pe-7s-moon moon" title="Toggle between dark and light mode"></i>
-                    <i aria-hidden="true" class="pe-7s-sun sun" title="Toggle between dark and light mode"></i>
-                </button>
+            <div class="sp-nav-meta sp-nav-meta--end">
+                <span class="sp-nav-boarding">Boarding · 26 Jan 2027</span>
+                <div class="dark-mode-icon">
+                    <button type="button" class="theme-icon" aria-label="Toggle dark and light mode">
+                        <i aria-hidden="true" class="pe-7s-moon moon" title="Toggle between dark and light mode"></i>
+                        <i aria-hidden="true" class="pe-7s-sun sun" title="Toggle between dark and light mode"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
@@ -192,6 +163,121 @@
 
 
         <div id="smooth-content">
+
+            <header class="sp-hero" id="sp-hero" data-section="hero">
+                <h1 class="sp-visually-hidden">Brindo &amp; Sreelekshmy — Wedding, 26 January 2027, Kochi</h1>
+                <div class="sp-page-grid" aria-hidden="true">
+                    <svg><defs><pattern id="sp-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#sp-grid)"/></svg>
+                </div>
+                <div class="sp-hero-inner">
+                    <article class="sp-ticket" id="sp-ticket" aria-labelledby="sp-ticket-groom-name sp-ticket-bride-name">
+                        <header class="sp-ticket-meta">
+                            <div class="sp-ticket-meta-left">
+                                <div class="sp-ticket-field">
+                                    <span class="sp-ticket-k">Flight</span>
+                                    <span class="sp-ticket-v">BS-2027</span>
+                                </div>
+                                <div class="sp-ticket-field">
+                                    <span class="sp-ticket-k">Gate</span>
+                                    <span class="sp-ticket-v">26</span>
+                                </div>
+                            </div>
+                            <div class="sp-ticket-field sp-ticket-field--end">
+                                <span class="sp-ticket-k">Boarding starts on</span>
+                                <span class="sp-ticket-v">26 Jan 2027</span>
+                            </div>
+                        </header>
+
+                        <div class="sp-ticket-names">
+                            <span class="sp-ticket-watermark" aria-hidden="true">Wedding</span>
+                            <div class="sp-ticket-groom">
+                                <p class="sp-ticket-label">Passenger — Groom</p>
+                                <p class="sp-ticket-name" id="sp-ticket-groom-name">Brindo</p>
+                            </div>
+                            <div class="sp-ticket-bride">
+                                <p class="sp-ticket-label">Passenger — Bride</p>
+                                <p class="sp-ticket-name" id="sp-ticket-bride-name">Sreelekshmy</p>
+                            </div>
+                        </div>
+
+                        <div class="sp-ticket-flight">
+                            <p class="sp-ticket-route" aria-hidden="true">
+                                <span>His</span>
+                                <span class="sp-ticket-route-gap"></span>
+                                <span>Hers →</span>
+                            </p>
+
+                            <div
+                                class="sp-ticket-progress"
+                                id="sp-countdown"
+                                role="progressbar"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                                aria-valuenow="0"
+                                aria-labelledby="sp-ticket-status"
+                            >
+                                <div class="sp-ticket-track">
+                                    <div class="sp-ticket-fill" id="sp-ticket-fill">
+                                        <span class="sp-ticket-ripple sp-ticket-ripple--a" aria-hidden="true"></span>
+                                        <span class="sp-ticket-ripple sp-ticket-ripple--b" aria-hidden="true"></span>
+                                        <span class="sp-ticket-plane" aria-hidden="true">
+                                            <span class="sp-ticket-plane-ripple" aria-hidden="true"></span>
+                                            <svg viewBox="0 0 24 24" width="18" height="18" focusable="false">
+                                                <path
+                                                    fill="currentColor"
+                                                    d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
+                                                />
+                                            </svg>
+                                        </span>
+                                        <span class="sp-ticket-inflight" id="sp-ticket-inflight" aria-hidden="true">In flight</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sp-ticket-stats">
+                                <p class="sp-ticket-stat">
+                                    <span class="sp-ticket-k">Eta</span>
+                                    <span class="sp-ticket-v">26 Jan</span>
+                                </p>
+                                <p class="sp-ticket-stat sp-ticket-stat--status" id="sp-ticket-status">
+                                    <span class="sp-ticket-k">Status</span>
+                                    <span class="sp-ticket-v sp-ticket-v--accent" id="sp-ticket-days">—d left</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="sp-ticket-perf" aria-hidden="true"></div>
+
+                        <footer class="sp-ticket-foot">
+                            <div class="sp-ticket-seat">
+                                <div class="sp-ticket-field">
+                                    <span class="sp-ticket-k">Seat</span>
+                                    <span class="sp-ticket-v">26A</span>
+                                </div>
+                                <div class="sp-ticket-field">
+                                    <span class="sp-ticket-k">Class</span>
+                                    <span class="sp-ticket-v">First</span>
+                                </div>
+                            </div>
+                            <div class="sp-ticket-seat sp-ticket-seat--end">
+                                <div class="sp-ticket-field">
+                                    <span class="sp-ticket-k">Seat</span>
+                                    <span class="sp-ticket-v">26B</span>
+                                </div>
+                                <div class="sp-ticket-field">
+                                    <span class="sp-ticket-k">Class</span>
+                                    <span class="sp-ticket-v">First</span>
+                                </div>
+                            </div>
+                        </footer>
+                    </article>
+
+                    <div class="sp-depart">
+                        <button type="button" class="sp-checkin" id="sp-unlock-open" aria-haspopup="dialog" aria-controls="sp-unlock-sheet">Check In</button>
+                        <a class="sp-proceed" id="sp-proceed" href="#sp-announce" hidden>Proceed to gate ↓</a>
+                    </div>
+                </div>
+            </header>
 
             <div id="sp-private" class="sp-private is-locked" hidden aria-hidden="true">
             <main class="o-hidden">
@@ -271,7 +357,7 @@
 <!-- ==================== Start Announce ==================== -->
 
                 <div class="main-marq xlrg with-shad" id="sp-announce" data-section="announce" role="region" aria-label="Announcement">
-                    <div class="slide-har st1 opacity-5">
+                    <div class="slide-har st1 opacity-5" aria-hidden="true">
                         <div class="box d-flex align-items-center">
                             <div class="item"><span class="sp-marq-text">We can’t wait to celebrate with you!</span></div>
                             <div class="item"><div class="w-70px"><img src="assets/imgs/star.svg" alt=""></div></div>
@@ -310,10 +396,27 @@
                 <!-- ==================== End Announce ==================== -->
 
 <!-- ==================== Start Manifest ==================== -->
+                <div class="sp-mf-track" id="sp-mf-track">
+                    <div class="sp-mf-flight" id="sp-mf-flight" aria-hidden="true">
+                        <svg class="sp-mf-svg" viewBox="0 0 100 100" preserveAspectRatio="none" id="sp-mf-svg">
+                            <path class="sp-mf-curve" id="sp-mf-curve" fill="none" d="M 49.30 2.30 C 53.83 4.96, 81.90 13.79, 76.50 18.26 C 71.10 22.73, 16.26 25.52, 16.92 29.12 C 17.59 32.72, 79.67 36.44, 80.47 39.84 C 81.26 43.24, 21.90 45.97, 21.71 49.52 C 21.52 53.06, 80.27 57.60, 79.33 61.13 C 78.38 64.65, 16.27 67.04, 16.02 70.65 C 15.77 74.27, 67.51 80.78, 77.80 82.81" />
+                            <g class="sp-mf-trail" id="sp-mf-trail"></g>
+                            <g class="sp-mf-plane" id="sp-mf-plane" fill="currentColor">
+                                <g id="sp-mf-plane-scale" transform="scale(1)">
+                                    <g id="sp-mf-plane-craft" transform="scale(0.1) translate(-48 -28)">
+                                        <path d="M4 28 L88 12 L56 26 Z" opacity="0.7" />
+                                        <path d="M4 28 L88 12 L48 38 Z" opacity="1" />
+                                        <path d="M4 28 L88 12" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" opacity="0.45" />
+                                        <path d="M4 28 L48 38 L26 46 Z" opacity="0.55" />
+                                    </g>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
                 <section class="features p-0" id="schedule" data-section="schedule">
                     <div class="container">
                         <div class="sec-head text-align-center stack-title text-uppercase md-hide">
-                            <h2>manifest</h2>
+                            <h2>man<span class="sp-mf-eye" id="sp-mf-eye">i</span>fest</h2>
                         </div>
                         <div class="sec-head mb-80px">
                             <span class="butn-bord-sm mb-15px">Departure manifest</span>
@@ -550,6 +653,7 @@
                         </div>
                     </div>
                 </section>
+                </div>
 
                 <!-- ==================== End Wedding Party ==================== -->
 

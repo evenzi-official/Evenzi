@@ -4,35 +4,62 @@
 
 ---
 
-## ▶ START HERE NEXT — Sapphire × Mivon corrections + playground merge (2026-07-22)
+## ▶ START HERE NEXT — Plan runway takeoff + glass boarding pass (2026-07-22 evening)
 
-Session report: [`docs/session-reports/2026-07-22-session-report.md`](session-reports/2026-07-22-session-report.md)
+Session report: [`docs/session-reports/2026-07-22b-session-report.md`](session-reports/2026-07-22b-session-report.md)
 
-### Context (this session)
+**Mode:** clarify → **plan** → implement (do not jump straight to build).
 
-- **Sapphire × Mivon lab** built at `designs/pages/website/guest-site/sapphire-mivon/`
-  - Mivon `home-main` + assets; Sapphire behavior only in `sapphire-overlay.css` + `sapphire-bridge.js`
-  - Sections: intro/hero/unlock, story, announce, manifest (Approach pin + passes), party, gallery, Q&A, RSVP (Mivon contact form)
-  - Plan: [`guest-site-sapphire-mivon-merge.md`](../designs/_plans/guest-site-sapphire-mivon-merge.md)
-  - QA: [`qa/sapphire-mivon-remediation-2026-07-22.md`](../qa/sapphire-mivon-remediation-2026-07-22.md)
-- **Playground** (not yet merged into mivon): paper-plane preview, floaters kit, `sapphire-sandbox/`
-  - Plans: [`guest-site-paper-plane-preview.md`](../designs/_plans/guest-site-paper-plane-preview.md) · [`guest-site-sapphire-floaters-kit.md`](../designs/_plans/guest-site-sapphire-floaters-kit.md)
-- **Stable sapphire** + **sapphire-lab** still exist for section-by-section upgrades
+### 1. Runway takeoff — plan where it lives
 
-### Do next, in order
+Sandbox bake already exists: `sapphire-lab/sapphire-sandbox.html#demo-a` (“A Runway” — taxi → climb + tangent nose). Floaters kit notes it as Demo A.
 
-1. **Founder corrections** — visual/copy/flow pass on `sapphire-mivon/` (Abhijith has a correction list)
-2. **Playground → mivon** — port chosen floaters (paper plane + snake trail) per floaters kit; landmark hops, start gate TBD
-3. **On hold until design** — `#venue`, sticky RSVP bar, full wedding party grid, couple logo mark
-4. Later: promote winners to stable `sapphire/` · Figma re-capture · ClickUp `86d2jwzge` · Antigravity QA
+**Next session job:** plan (not build yet) where/how to **incorporate runway takeoff into the live guest spine** (`sapphire-mivon/`). Candidate beats to discuss:
+
+| Candidate | Why it might fit |
+|-----------|------------------|
+| Hero unlock → “Proceed to gate” | First motion after check-in |
+| After boarding-pass card / before Story | Continuity with flight metaphor |
+| Manifest → Party handoff | After paper-plane dodge parks |
+| Party / gallery transition | Secondary soar |
+
+Lock: trigger (scroll vs click), one-shot vs scrub, reduced-motion fallback, whether it replaces or coexists with `#sp-mf-flight`.
+
+### 2. Front boarding-pass card — glass + looping video
+
+Target: hero ticket in `sapphire-mivon/` (`.sp-ticket`).
+
+| Change | Intent |
+|--------|--------|
+| Background **video** behind the card (or inside card plane) | Atmosphere; **loop** forever |
+| **Glassmorphic** card | Frosted / translucent over video |
+| Keep countdown + names + progress | Content stays; material changes |
+
+Open questions for planning: video asset source + size, poster fallback, `prefers-reduced-motion` (static poster?), dark/light, performance on mobile.
+
+### Already shipped this evening (context)
+
+- Manifest paper-plane dodge → mivon (`#sp-mf-track` / `#schedule`+`#party`); path locked; guide UI stripped; scroll stutter tuned
+- Boarding-pass name wrap fix (`SREELEKSHMY` nowrap + smaller clamp)
+- Plans: [`guest-site-manifest-paper-plane-dodge.md`](../designs/_plans/guest-site-manifest-paper-plane-dodge.md) · [`guest-site-boarding-pass-countdown-card.md`](../designs/_plans/guest-site-boarding-pass-countdown-card.md)
 
 ### Quick commands
 
 ```bash
 npm run design
-# http://localhost:4000/pages/website/guest-site/sapphire-mivon/
-# http://localhost:4000/pages/website/guest-site/sapphire-lab/paper-plane-preview.html
+# Live:  http://localhost:4000/pages/website/guest-site/sapphire-mivon/index.html
+# Bake:  http://localhost:4000/pages/website/guest-site/sapphire-lab/sapphire-sandbox.html#demo-a
+# Pass:  http://localhost:4000/pages/website/guest-site/sapphire-lab/sapphire-sandbox.html#demo-pass-stitch
 ```
+
+---
+
+## ▶ PREVIOUSLY QUEUED — Sapphire × Mivon corrections + playground merge (2026-07-22)
+
+Session report: [`docs/session-reports/2026-07-22-session-report.md`](session-reports/2026-07-22-session-report.md)
+
+- Manifest floaters merge largely **done** (see evening report). Remaining: founder visual polish; venue / sticky RSVP / party grid still on hold until designed.
+- Stable sapphire + lab still available for section upgrades.
 
 ---
 
@@ -40,8 +67,7 @@ npm run design
 
 Session report: [`docs/session-reports/2026-07-21-session-report.md`](session-reports/2026-07-21-session-report.md)
 
-- Sapphire stable + lab clone; Mivon merge now superseded by **sapphire-mivon** lab above
-- Classic Editorial / 4.zip plan still in [`guest-site-classic-editorial-mivon.md`](../designs/_plans/guest-site-classic-editorial-mivon.md) — paused while mivon merge lab is active
+- Classic Editorial / 4.zip plan still in [`guest-site-classic-editorial-mivon.md`](../designs/_plans/guest-site-classic-editorial-mivon.md) — paused while mivon lab is active
 
 ---
 

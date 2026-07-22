@@ -4,6 +4,8 @@
  */
 (function () {
   const WEDDING_DATE = new Date("2027-01-26T00:00:00+05:30");
+  /** Placeholder until publish / first-invite date is locked */
+  const COUNTDOWN_ORIGIN = new Date("2026-06-01T00:00:00+05:30");
   const UNLOCK_KEY = "evenzi-spm-unlocked-brindo-sree";
   const REDUCE = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const $ = (sel, root = document) => root.querySelector(sel);
@@ -169,8 +171,14 @@
           }, 80);
           return;
         }
+        scheduleScrollRefresh();
         const hero = $("#sp-hero");
-        if (hero) hero.scrollIntoView({ behavior: "auto", block: "start" });
+        const smoother = window.ScrollSmoother && window.ScrollSmoother.get && window.ScrollSmoother.get();
+        if (smoother && typeof smoother.scrollTo === "function") {
+          smoother.scrollTo(0, false);
+        } else if (hero) {
+          hero.scrollIntoView({ behavior: "auto", block: "start" });
+        }
       };
       if (REDUCE) {
         done();
@@ -218,28 +226,62 @@
   }
 
   function initCountdown() {
-    const root = $("#sp-countdown");
-    if (!root) return;
-    const daysEl = root.querySelector('[data-unit="days"]');
-    const hoursEl = root.querySelector('[data-unit="hours"]');
-    const minsEl = root.querySelector('[data-unit="mins"]');
-    const secsEl = root.querySelector('[data-unit="secs"]');
-    const pad = (n) => String(Math.max(0, n)).padStart(2, "0");
-    function tick() {
-      let diff = WEDDING_DATE.getTime() - Date.now();
-      if (diff < 0) diff = 0;
-      const secs = Math.floor(diff / 1000);
-      const days = Math.floor(secs / 86400);
-      const hours = Math.floor((secs % 86400) / 3600);
-      const mins = Math.floor((secs % 3600) / 60);
-      const remSecs = secs % 60;
-      if (daysEl) daysEl.textContent = pad(days);
-      if (hoursEl) hoursEl.textContent = pad(hours);
-      if (minsEl) minsEl.textContent = pad(mins);
-      if (secsEl) secsEl.textContent = pad(remSecs);
+    const bar = $("#sp-countdown");
+    const fill = $("#sp-ticket-fill");
+    const days = $("#sp-ticket-days");
+    const inflight = $("#sp-ticket-inflight");
+    if (!bar || !fill || !days) return;
+
+    const MS_DAY = 86400000;
+
+    function clamp01(n) {
+      return Math.min(1, Math.max(0, n));
     }
-    tick();
-    window.setInterval(tick, 1000);
+
+    function daysLeft(now) {
+      return Math.max(0, Math.ceil((WEDDING_DATE.getTime() - now.getTime()) / MS_DAY));
+    }
+
+    function progressAt(now) {
+      const span = WEDDING_DATE.getTime() - COUNTDOWN_ORIGIN.getTime();
+      if (span <= 0) return 1;
+      return clamp01((now.getTime() - COUNTDOWN_ORIGIN.getTime()) / span);
+    }
+
+    function render() {
+      const now = new Date();
+      const pct = Math.round(progressAt(now) * 100);
+      const left = daysLeft(now);
+      const arrived = now.getTime() >= WEDDING_DATE.getTime();
+
+      fill.style.width = `${pct}%`;
+      bar.setAttribute("aria-valuenow", String(pct));
+
+      if (arrived) {
+        days.textContent = "Arrived";
+        if (inflight) inflight.hidden = true;
+        bar.setAttribute("aria-valuetext", "Arrived 26 January");
+      } else {
+        days.textContent = `${left}d left`;
+        if (inflight) inflight.hidden = pct <= 0;
+        bar.setAttribute("aria-valuetext", `${left} days until 26 January`);
+      }
+    }
+
+    render();
+
+    if (REDUCE) return;
+
+    let timer = window.setInterval(render, 60000);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        window.clearInterval(timer);
+        timer = 0;
+        return;
+      }
+      render();
+      if (!timer) timer = window.setInterval(render, 60000);
+    });
   }
 
   function initUnlock() {
@@ -280,6 +322,7 @@
       closeSheet();
       announce("Guest details unlocked");
       scheduleScrollRefresh();
+      initManifestFlight();
       window.requestAnimationFrame(() => scrollToEl($("#sp-announce") || $("#story")));
     }
 
@@ -347,31 +390,22 @@
 
   function initThemeChrome() {
     const nav = document.querySelector(".sp-nav");
-    const logo = document.querySelector(".sp-nav .logo img[data-sp-logo], .sp-nav .logo img");
     const hero = document.getElementById("sp-hero");
     const themeBtn = document.querySelector(".theme-icon");
-    if (!nav || !logo) return;
+    if (!nav) return;
 
-    const LOGO_DARK = "assets/imgs/logo-dark.svg";
-    const LOGO_LIGHT = "assets/imgs/logo-light.svg";
-
-    function syncLogo() {
+    function syncNavChrome() {
       const onHero = hero ? hero.getBoundingClientRect().bottom > 72 : false;
       nav.classList.toggle("sp-nav--on-hero", onHero);
-      if (onHero || document.body.classList.contains("light")) {
-        logo.src = LOGO_DARK;
-        return;
-      }
-      logo.src = LOGO_LIGHT;
     }
 
-    syncLogo();
-    window.addEventListener("scroll", syncLogo, { passive: true });
-    themeBtn?.addEventListener("click", () => window.setTimeout(syncLogo, 0));
+    syncNavChrome();
+    window.addEventListener("scroll", syncNavChrome, { passive: true });
+    themeBtn?.addEventListener("click", () => window.setTimeout(syncNavChrome, 0));
 
     if (hero && "IntersectionObserver" in window) {
       const io = new IntersectionObserver(
-        () => syncLogo(),
+        () => syncNavChrome(),
         { root: null, threshold: [0, 0.15, 0.5, 1] }
       );
       io.observe(hero);
@@ -429,17 +463,223 @@
     }, 300);
   }
 
+  let manifestFlightInited = false;
+
+  function initManifestFlight() {
+    if (manifestFlightInited) {
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+      return;
+    }
+    const schedule = $("#schedule");
+    const track = $("#sp-mf-track") || schedule;
+    const curve = $("#sp-mf-curve");
+    const trail = $("#sp-mf-trail");
+    const plane = $("#sp-mf-plane");
+    const scaleEl = $("#sp-mf-plane-scale");
+    const craft = $("#sp-mf-plane-craft");
+    if (!schedule || !track || !curve || !trail || !plane) return;
+    if (!window.gsap || !window.ScrollTrigger) return;
+
+    manifestFlightInited = true;
+    const gsap = window.gsap;
+    const ScrollTrigger = window.ScrollTrigger;
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* Final founder bake 2026-07-22 — Manifest→Party track space */
+    const POINTS = [
+      { x: 49.3, y: 2.3 },
+      { x: 76.5, y: 18.3 },
+      { x: 16.9, y: 29.1 },
+      { x: 80.5, y: 39.8 },
+      { x: 21.7, y: 49.5 },
+      { x: 79.3, y: 61.1 },
+      { x: 16, y: 70.7 },
+      { x: 77.8, y: 82.8 },
+    ];
+    const PLANE_SIZE = 0.1;
+    const NOSE_OFFSET = 25;
+    const ZOOM_UNTIL = 0.02;
+    const SAMPLE = 2.4;
+    const DASH_LIFE_MS = 1400;
+    const MAX_TRAIL = 48;
+
+    if (craft) craft.setAttribute("transform", `scale(${PLANE_SIZE}) translate(-48 -28)`);
+
+    let totalLen = 0;
+    let lastSampleLen = 0;
+    let lastT = -1;
+    const segments = [];
+
+    function fmt(n) {
+      return (Math.round(n * 100) / 100).toFixed(2);
+    }
+
+    function pointsToPath(pts) {
+      if (pts.length < 2) return "";
+      const p = pts.map((pt) => ({ x: pt.x, y: pt.y }));
+      const cr = [p[0], ...p, p[p.length - 1]];
+      let d = `M ${fmt(p[0].x)} ${fmt(p[0].y)}`;
+      for (let i = 1; i < cr.length - 2; i += 1) {
+        const p0 = cr[i - 1];
+        const p1 = cr[i];
+        const p2 = cr[i + 1];
+        const p3 = cr[i + 2];
+        d += ` C ${fmt(p1.x + (p2.x - p0.x) / 6)} ${fmt(p1.y + (p2.y - p0.y) / 6)}, ${fmt(p2.x - (p3.x - p1.x) / 6)} ${fmt(p2.y - (p3.y - p1.y) / 6)}, ${fmt(p2.x)} ${fmt(p2.y)}`;
+      }
+      return d;
+    }
+
+    function clearTrail() {
+      lastSampleLen = 0;
+      while (segments.length) {
+        const seg = segments.pop();
+        seg.el.remove();
+      }
+    }
+
+    function measure() {
+      try {
+        totalLen = curve.getTotalLength();
+      } catch {
+        totalLen = 0;
+      }
+      return totalLen;
+    }
+
+    curve.setAttribute("d", pointsToPath(POINTS));
+    measure();
+
+    function tangentAt(len) {
+      if (totalLen <= 0) return 0;
+      const a = Math.max(0, len - 1);
+      const b = Math.min(totalLen, len + 1);
+      const p0 = curve.getPointAtLength(a);
+      const p1 = curve.getPointAtLength(b);
+      return Math.atan2(p1.y - p0.y, p1.x - p0.x) * (180 / Math.PI);
+    }
+
+    function zoomScale(t) {
+      if (t <= 0) return 0.35;
+      if (t >= ZOOM_UNTIL) return 1;
+      return 0.35 + (0.65 * t) / ZOOM_UNTIL;
+    }
+
+    function trimTrailTo(targetLen) {
+      for (let i = segments.length - 1; i >= 0; i -= 1) {
+        if (segments[i].endLen > targetLen + 0.5) {
+          segments[i].el.remove();
+          segments.splice(i, 1);
+        }
+      }
+      if (segments.length) lastSampleLen = Math.max(...segments.map((s) => s.endLen));
+      else lastSampleLen = 0;
+    }
+
+    function pruneTrail() {
+      while (segments.length > MAX_TRAIL) {
+        const seg = segments.shift();
+        seg.el.remove();
+      }
+    }
+
+    function spawnDashesToward(targetLen, now) {
+      if (REDUCE || totalLen <= 0 || targetLen <= lastSampleLen + 0.35) return;
+      let from = lastSampleLen;
+      while (from < targetLen) {
+        const to = Math.min(from + SAMPLE, targetLen);
+        const p0 = curve.getPointAtLength(from);
+        const p1 = curve.getPointAtLength(to);
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("class", "sp-mf-trail-seg");
+        line.setAttribute("x1", String(p0.x));
+        line.setAttribute("y1", String(p0.y));
+        line.setAttribute("x2", String(p1.x));
+        line.setAttribute("y2", String(p1.y));
+        line.style.opacity = "1";
+        trail.appendChild(line);
+        segments.push({ el: line, born: now, endLen: to });
+        from = to;
+      }
+      lastSampleLen = targetLen;
+      pruneTrail();
+    }
+
+    function ageTrail(now) {
+      if (REDUCE) return;
+      for (let i = 0; i < segments.length; i += 1) {
+        const seg = segments[i];
+        const life = 1 - (now - seg.born) / DASH_LIFE_MS;
+        seg.el.style.opacity = life <= 0 ? "0.35" : String(Math.max(0.35, Math.min(1, life)));
+      }
+    }
+
+    function applyProgress(t) {
+      if (totalLen <= 0) measure();
+      if (totalLen <= 0) return;
+      const clamped = Math.min(Math.max(t, 0), 1);
+      if (Math.abs(clamped - lastT) < 0.0008) return;
+      lastT = clamped;
+      const now = performance.now();
+      const len = clamped * totalLen;
+      const pt = curve.getPointAtLength(len);
+      const rot = tangentAt(len) + NOSE_OFFSET;
+      plane.setAttribute("transform", `translate(${pt.x} ${pt.y}) rotate(${rot})`);
+      if (scaleEl) scaleEl.setAttribute("transform", `scale(${zoomScale(clamped)})`);
+      if (len < lastSampleLen - 0.5) trimTrailTo(len);
+      else spawnDashesToward(len, now);
+      ageTrail(now);
+    }
+
+    if (REDUCE) {
+      applyProgress(1);
+      return;
+    }
+
+    /* Single driver: ST scrub lag = fluid with ScrollSmoother; no parallel rAF */
+    ScrollTrigger.create({
+      trigger: track,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 0.85,
+      invalidateOnRefresh: true,
+      onRefresh() {
+        measure();
+        clearTrail();
+        lastT = -1;
+      },
+      onUpdate(self) {
+        applyProgress(self.progress);
+      },
+    });
+
+    applyProgress(0);
+
+    window.addEventListener(
+      "load",
+      () => {
+        measure();
+        lastT = -1;
+        applyProgress(0);
+        ScrollTrigger.refresh();
+      },
+      { once: true }
+    );
+  }
+
   syncSkipLink();
   syncNavGate();
 
   initIntro(() => {
     initCountdown();
     initUnlock();
+    initManifestFlight();
     syncSkipLink();
     syncNavGate();
     initNavAnchors();
     initThemeChrome();
     initRsvp();
     initHashScroll();
+    scheduleScrollRefresh();
+    window.addEventListener("load", scheduleScrollRefresh, { once: true });
   });
 })();

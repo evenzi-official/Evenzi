@@ -26,17 +26,334 @@
   <header class="sb-top">
     <h1>Sapphire sandbox</h1>
     <p class="sb-lead">
-      Full-viewport section sims for <strong>How we took off</strong> + floaters.
-      Scroll down / up — motion reverses. <strong>A</strong> runway · <strong>C</strong> soar · <strong>D</strong> markers · <strong>M1–M4</strong> paper plane.
+      Full-viewport section sims for <strong>How we took off</strong> + floaters +
+      <strong>boarding-pass countdown card</strong>.
+      Scroll down / up — motion reverses. <strong>Pass</strong> · <strong>Manifest flight</strong> · <strong>A</strong> runway · <strong>C</strong> soar · <strong>D</strong> markers · <strong>M1–M4</strong> paper plane.
     </p>
     <ul class="sb-toc">
+      <li><a href="#demo-pass">Boarding pass</a></li>
+      <li><a href="#demo-pass-stitch">Pass · Stitch</a></li>
+      <li><a href="#demo-manifest-flight">Manifest flight</a></li>
       <li><a href="#demo-a">A Runway</a></li>
       <li><a href="#demo-c">C Soar</a></li>
       <li><a href="#demo-d">D Markers</a></li>
       <li><a href="#m1">M1–M4 floaters</a></li>
       <li><a href="index.html">← Sapphire lab</a></li>
     </ul>
+    <button type="button" class="sb-theme-toggle" id="sb-theme-toggle" aria-pressed="false" aria-label="Toggle dark mode">
+      Theme: Light
+    </button>
   </header>
+
+  <!-- ========== Boarding pass · one-card countdown (full-page hero) ========== -->
+  <section class="sb-pass-demo" id="demo-pass" aria-labelledby="pass-title">
+    <h2 class="sb-visually-hidden" id="pass-title">Boarding pass + ETA</h2>
+    <p class="sb-pass-demo-note" aria-hidden="true">
+      <span class="sb-badge">Hero · countdown card</span>
+    </p>
+
+    <div class="sb-pass-stage">
+      <article class="sb-pass" id="sb-pass" aria-labelledby="sb-pass-groom-name sb-pass-bride-name">
+        <header class="sb-pass-head">
+          <span>Flight BS-2027 · Gate 26</span>
+          <span>Boarding starts on · 26 Jan 2027</span>
+        </header>
+
+        <div class="sb-pass-names">
+          <div class="sb-pass-groom">
+            <p class="sb-pass-label">Passenger — Groom</p>
+            <p class="sb-pass-name" id="sb-pass-groom-name">Brindo</p>
+          </div>
+          <div class="sb-pass-bride">
+            <p class="sb-pass-label">Passenger — Bride</p>
+            <p class="sb-pass-name" id="sb-pass-bride-name">Sreelekshmy</p>
+          </div>
+        </div>
+
+        <p class="sb-pass-route" aria-hidden="true">
+          <span>HIS</span>
+          <span class="sb-pass-route-line"></span>
+          <span class="sb-pass-route-arrow">→</span>
+          <span>HERS</span>
+        </p>
+
+        <div
+          class="sb-pass-progress"
+          id="sb-pass-progress"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          aria-labelledby="sb-pass-eta"
+        >
+          <div class="sb-pass-track">
+            <div class="sb-pass-fill" id="sb-pass-fill">
+              <span class="sb-pass-ripple sb-pass-ripple--a" aria-hidden="true"></span>
+              <span class="sb-pass-ripple sb-pass-ripple--b" aria-hidden="true"></span>
+              <span class="sb-pass-plane" aria-hidden="true">
+                <span class="sb-pass-plane-ripple" aria-hidden="true"></span>
+                <svg viewBox="0 0 24 24" width="18" height="18" focusable="false">
+                  <path
+                    fill="currentColor"
+                    d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
+                  />
+                </svg>
+              </span>
+            </div>
+          </div>
+          <p class="sb-pass-eta" id="sb-pass-eta">ETA 26 JAN · —d left</p>
+        </div>
+
+        <footer class="sb-pass-foot">
+          <span>Seat 26A · Class First</span>
+          <span>Seat 26B · Class First</span>
+        </footer>
+      </article>
+
+      <button type="button" class="sb-pass-checkin" id="sb-pass-checkin" aria-describedby="sb-pass-checkin-hint">
+        Check In
+      </button>
+      <p class="sb-pass-checkin-hint" id="sb-pass-checkin-hint">Unlock guest details (sandbox stub)</p>
+    </div>
+  </section>
+
+  <!-- ========== Boarding pass · Stitch bake (label/value + watermark) ========== -->
+  <section class="sb-st-demo" id="demo-pass-stitch" aria-labelledby="st-pass-title">
+    <h2 class="sb-visually-hidden" id="st-pass-title">Boarding pass · Stitch layout</h2>
+    <p class="sb-pass-demo-note" aria-hidden="true">
+      <span class="sb-badge">Stitch · spacing bake</span>
+    </p>
+
+    <div class="sb-st-stage">
+      <article class="sb-st" id="sb-st" aria-labelledby="sb-st-groom-name sb-st-bride-name">
+        <header class="sb-st-meta">
+          <div class="sb-st-meta-left">
+            <div class="sb-st-field">
+              <span class="sb-st-k">Flight</span>
+              <span class="sb-st-v">BS-2027</span>
+            </div>
+            <div class="sb-st-field">
+              <span class="sb-st-k">Gate</span>
+              <span class="sb-st-v">26</span>
+            </div>
+          </div>
+          <div class="sb-st-field sb-st-field--end">
+            <span class="sb-st-k">Boarding starts on</span>
+            <span class="sb-st-v">26 Jan 2027</span>
+          </div>
+        </header>
+
+        <div class="sb-st-names">
+          <span class="sb-st-watermark" aria-hidden="true">Wedding</span>
+          <div class="sb-st-groom">
+            <p class="sb-st-label">Passenger — Groom</p>
+            <p class="sb-st-name" id="sb-st-groom-name">Brindo</p>
+          </div>
+          <div class="sb-st-bride">
+            <p class="sb-st-label">Passenger — Bride</p>
+            <p class="sb-st-name" id="sb-st-bride-name">Sreelekshmy</p>
+          </div>
+        </div>
+
+        <div class="sb-st-flight">
+          <p class="sb-st-route" aria-hidden="true">
+            <span>His</span>
+            <span class="sb-st-route-gap"></span>
+            <span>Hers →</span>
+          </p>
+
+          <div
+            class="sb-st-progress"
+            id="sb-st-progress"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            aria-labelledby="sb-st-status"
+          >
+            <div class="sb-st-track">
+              <div class="sb-st-fill" id="sb-st-fill">
+                <span class="sb-st-ripple sb-st-ripple--a" aria-hidden="true"></span>
+                <span class="sb-st-ripple sb-st-ripple--b" aria-hidden="true"></span>
+                <span class="sb-st-plane" aria-hidden="true">
+                  <span class="sb-st-plane-ripple" aria-hidden="true"></span>
+                  <svg viewBox="0 0 24 24" width="18" height="18" focusable="false">
+                    <path
+                      fill="currentColor"
+                      d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
+                    />
+                  </svg>
+                </span>
+                <span class="sb-st-inflight" id="sb-st-inflight" aria-hidden="true">In flight</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sb-st-stats">
+            <p class="sb-st-stat">
+              <span class="sb-st-k">Eta</span>
+              <span class="sb-st-v">26 Jan</span>
+            </p>
+            <p class="sb-st-stat sb-st-stat--status" id="sb-st-status">
+              <span class="sb-st-k">Status</span>
+              <span class="sb-st-v sb-st-v--accent" id="sb-st-days">—d left</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="sb-st-perf" aria-hidden="true"></div>
+
+        <footer class="sb-st-foot">
+          <div class="sb-st-seat">
+            <div class="sb-st-field">
+              <span class="sb-st-k">Seat</span>
+              <span class="sb-st-v">26A</span>
+            </div>
+            <div class="sb-st-field">
+              <span class="sb-st-k">Class</span>
+              <span class="sb-st-v">First</span>
+            </div>
+          </div>
+          <div class="sb-st-seat sb-st-seat--end">
+            <div class="sb-st-field">
+              <span class="sb-st-k">Seat</span>
+              <span class="sb-st-v">26B</span>
+            </div>
+            <div class="sb-st-field">
+              <span class="sb-st-k">Class</span>
+              <span class="sb-st-v">First</span>
+            </div>
+          </div>
+        </footer>
+      </article>
+
+      <button type="button" class="sb-pass-checkin" id="sb-st-checkin" aria-describedby="sb-st-checkin-hint">
+        Check In
+      </button>
+      <p class="sb-pass-checkin-hint" id="sb-st-checkin-hint">Unlock guest details (sandbox stub)</p>
+    </div>
+  </section>
+
+  <!-- ========== Manifest paper-plane dodge ========== -->
+  <section class="mf-demo" id="demo-manifest-flight" aria-labelledby="mf-title">
+    <div class="sb-method-head mf-demo-head">
+      <span class="sb-badge">Manifest · paper plane</span>
+      <h2 id="mf-title">Dodge the boarding passes</h2>
+      <p>Pinned stage: path + cards stay put. Scroll only flies the plane. Drag beads to shape the route.</p>
+    </div>
+
+    <div class="mf-scroll" id="mf-scroll" data-demo="manifest-flight">
+      <div class="mf-stage" id="mf-stage">
+        <div class="mf-float-layer is-front" id="mf-layer">
+          <svg class="mf-svg is-guide" viewBox="0 0 100 100" preserveAspectRatio="none" id="mf-svg" aria-hidden="true">
+            <path class="sb-curve" id="mf-curve" d="M 50 10 L 50 92" />
+            <g class="sb-trail" id="mf-trail"></g>
+            <g class="sb-plane-wrap" id="mf-plane" fill="currentColor">
+              <g id="mf-plane-scale" transform="scale(1)">
+                <g id="mf-plane-craft" transform="scale(0.1) translate(-48 -28)">
+                  <path d="M4 28 L88 12 L56 26 Z" opacity="0.7" />
+                  <path d="M4 28 L88 12 L48 38 Z" opacity="1" />
+                  <path d="M4 28 L88 12" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" opacity="0.45" />
+                  <path d="M4 28 L48 38 L26 46 Z" opacity="0.55" />
+                </g>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div class="mf-edit-overlay" id="mf-edit-overlay" aria-hidden="false">
+          <!-- handles injected by JS -->
+        </div>
+
+        <div class="mf-controls-dock" id="mf-controls-dock">
+          <aside class="sb-a-controls mf-controls" id="mf-controls" aria-label="Manifest path drag editor">
+            <p class="sb-a-controls-title">Drag beads on path</p>
+            <p class="mf-help">Stage is pinned — only the plane moves on scroll. Drag Eye · 01–06 · Park, then Copy JSON.</p>
+            <label class="sb-a-row">
+              <span>Preview t</span>
+              <input type="range" data-k="previewT" min="0" max="100" value="0" />
+              <output data-o="previewT">0</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Plane size</span>
+              <input type="range" data-k="planeSize" min="8" max="28" value="10" />
+              <output data-o="planeSize">10</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Nose °</span>
+              <input type="range" data-k="noseOffset" min="-180" max="180" value="25" />
+              <output data-o="noseOffset">25</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Zoom until%</span>
+              <input type="range" data-k="zoomUntil" min="0" max="40" value="2" />
+              <output data-o="zoomUntil">2</output>
+            </label>
+            <label class="sb-a-check">
+              <input type="checkbox" data-k="flipY" />
+              <span>Flip Y (upside down)</span>
+            </label>
+            <label class="sb-a-check">
+              <input type="checkbox" data-k="showGuide" checked />
+              <span>Show guide path</span>
+            </label>
+            <label class="sb-a-check">
+              <input type="checkbox" data-k="showHandles" checked />
+              <span>Show drag beads</span>
+            </label>
+            <label class="sb-a-check">
+              <input type="checkbox" data-k="scrubScroll" checked />
+              <span>Scroll flies plane (pin)</span>
+            </label>
+            <div class="sb-a-actions">
+              <button type="button" id="mf-copy-cfg">Copy JSON</button>
+              <button type="button" id="mf-reset-cfg">Reset</button>
+            </div>
+          </aside>
+        </div>
+
+        <header class="mf-stack-title" id="mf-stack-title">
+          <h3 class="mf-watermark" aria-hidden="true">
+            <span>Man</span><span class="mf-eye" id="mf-eye">i</span><span>fest</span>
+          </h3>
+          <p class="mf-kicker">Departure manifest · six flights</p>
+          <p class="sb-status mf-status" id="mf-status" data-done="0">Scroll · 0%</p>
+        </header>
+
+        <div class="mf-cards" id="mf-cards">
+          <article class="mf-card mf-card--left" data-mf-card="0">
+            <p class="mf-card-id">01</p>
+            <h4>Nischayam</h4>
+          </article>
+          <article class="mf-card mf-card--right" data-mf-card="1">
+            <p class="mf-card-id">02</p>
+            <h4>Mehendi</h4>
+          </article>
+          <article class="mf-card mf-card--left" data-mf-card="2">
+            <p class="mf-card-id">03</p>
+            <h4>Sangeet</h4>
+          </article>
+          <article class="mf-card mf-card--right" data-mf-card="3">
+            <p class="mf-card-id">04</p>
+            <h4>Muhurtham</h4>
+          </article>
+          <article class="mf-card mf-card--left" data-mf-card="4">
+            <p class="mf-card-id">05</p>
+            <h4>Nuptial Mass</h4>
+          </article>
+          <article class="mf-card mf-card--right" data-mf-card="5">
+            <p class="mf-card-id">06</p>
+            <h4>Reception</h4>
+          </article>
+        </div>
+
+        <aside class="mf-park" id="mf-park">
+          <p class="mf-card-id">Park</p>
+          <h4>Wedding party</h4>
+        </aside>
+      </div>
+    </div>
+  </section>
 
   <!-- ========== A Runway takeoff ========== -->
   <section class="sb-method" id="demo-a" aria-labelledby="a-title">
