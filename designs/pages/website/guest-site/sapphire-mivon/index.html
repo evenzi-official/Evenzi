@@ -166,7 +166,35 @@
 
             <header class="sp-hero" id="sp-hero" data-section="hero">
                 <h1 class="sp-visually-hidden">Brindo &amp; Sreelekshmy — Wedding, 26 January 2027, Kochi</h1>
-                <div class="sp-page-grid" aria-hidden="true">
+                <div class="sp-hero-media" aria-hidden="true">
+                    <picture>
+                        <source srcset="media/hero-bg/poster.webp?v=36" type="image/webp" />
+                        <img
+                            class="sp-hero-poster"
+                            id="sp-hero-poster"
+                            src="media/hero-bg/poster.jpg?v=36"
+                            alt=""
+                            width="1920"
+                            height="1080"
+                            decoding="async"
+                            fetchpriority="high"
+                        />
+                    </picture>
+                    <video
+                        class="sp-hero-video"
+                        id="sp-hero-video"
+                        muted
+                        loop
+                        playsinline
+                        preload="metadata"
+                        poster="media/hero-bg/poster.jpg?v=36"
+                    >
+                        <source media="(max-width: 767px)" src="media/hero-bg/hero-720.mp4?v=36" type="video/mp4" />
+                        <source src="media/hero-bg/hero-1080.mp4?v=36" type="video/mp4" />
+                    </video>
+                </div>
+                <div class="sp-hero-scrim" aria-hidden="true"></div>
+                <div class="sp-page-grid sp-page-grid--hero" aria-hidden="true">
                     <svg><defs><pattern id="sp-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#sp-grid)"/></svg>
                 </div>
                 <div class="sp-hero-inner">
@@ -302,17 +330,31 @@
                     </div>
                 </div>
 
-                <div class="serv-style4 pt-0">
-                    <div class="container">
-                        <div class="sec-head bord mb-80px" data-ui-animate data-delay="0.2">
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <h2 class="fs-60 text-uppercase"><span class="opacity-7 d-inline">Route</span>
-                                        <br> His → Hers.
-                                    </h2>
+                <!-- HIS → HERS runway takeoff (sandbox #demo-a port) -->
+                <div class="sp-route-scroll" id="sp-route-scroll" aria-label="Route HIS to HERS — scroll to take off">
+                    <div class="sp-route-sticky" id="sp-route-sticky">
+                        <div class="sp-route-scene" id="sp-route-scene">
+                            <div class="sp-route-copy">
+                                <p class="sp-route-eyebrow">Route</p>
+                                <h2 class="sp-route-title" id="sp-route-title">
+                                    <span class="sp-route-his">His</span>
+                                    <span class="sp-route-arrow" aria-hidden="true">→</span>
+                                    <span class="sp-route-hers">Hers.</span>
+                                </h2>
+                                <p class="sp-route-phase" id="sp-route-status" data-done="0">Scroll · taxi</p>
+                            </div>
+                            <div class="sp-route-runway" aria-hidden="true">
+                                <div class="sp-route-runway-lights">
+                                    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
                                 </div>
                             </div>
+                            <img class="sp-route-jet" id="sp-route-jet" src="media/jet.png" alt="" width="256" height="256" />
                         </div>
+                    </div>
+                </div>
+
+                <div class="serv-style4 pt-80px">
+                    <div class="container">
                         <div class="row">
                             <div class="col-lg-4 md-mb30" data-ui-animate data-delay="0.4" data-direction="left">
                                 <div class="item v-align-between">

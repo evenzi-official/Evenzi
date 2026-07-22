@@ -33,6 +33,7 @@
     <ul class="sb-toc">
       <li><a href="#demo-pass">Boarding pass</a></li>
       <li><a href="#demo-pass-stitch">Pass · Stitch</a></li>
+      <li><a href="#demo-pass-glass">Pass · Glass video</a></li>
       <li><a href="#demo-manifest-flight">Manifest flight</a></li>
       <li><a href="#demo-a">A Runway</a></li>
       <li><a href="#demo-c">C Soar</a></li>
@@ -231,6 +232,89 @@
         Check In
       </button>
       <p class="sb-pass-checkin-hint" id="sb-st-checkin-hint">Unlock guest details (sandbox stub)</p>
+    </div>
+  </section>
+
+  <!-- ========== Boarding pass · glass + hero video ========== -->
+  <section class="sb-glass-demo" id="demo-pass-glass" aria-labelledby="glass-pass-title">
+    <div class="sb-method-head">
+      <span class="sb-badge">Hero · glass + video</span>
+      <h2 id="glass-pass-title">Glass boarding pass over flight B-roll</h2>
+      <p>Full-section looping video · Liquid Glass ticket · mute / pause offscreen / reduced-motion → poster</p>
+    </div>
+    <div class="sb-glass-hero" id="sb-glass-hero">
+      <div class="sb-glass-media" aria-hidden="true">
+        <picture>
+          <source srcset="media/hero-bg/poster.webp?v=36" type="image/webp" />
+          <img class="sb-glass-poster" src="media/hero-bg/poster.jpg?v=36" alt="" width="1920" height="1080" decoding="async" />
+        </picture>
+        <video class="sb-glass-video" id="sb-glass-video" muted loop playsinline preload="metadata" poster="media/hero-bg/poster.jpg?v=36">
+          <source media="(max-width: 767px)" src="media/hero-bg/hero-720.mp4?v=36" type="video/mp4" />
+          <source src="media/hero-bg/hero-1080.mp4?v=36" type="video/mp4" />
+        </video>
+      </div>
+      <div class="sb-glass-scrim" aria-hidden="true"></div>
+      <div class="sb-glass-inner">
+        <article class="sb-st sb-st--glass" id="sb-glass-pass" aria-labelledby="sb-glass-groom sb-glass-bride">
+          <header class="sb-st-meta">
+            <div class="sb-st-meta-left">
+              <div class="sb-st-field">
+                <span class="sb-st-k">Flight</span>
+                <span class="sb-st-v">BS-2027</span>
+              </div>
+              <div class="sb-st-field">
+                <span class="sb-st-k">Gate</span>
+                <span class="sb-st-v">26</span>
+              </div>
+            </div>
+            <div class="sb-st-field sb-st-field--end">
+              <span class="sb-st-k">Boarding starts on</span>
+              <span class="sb-st-v">26 Jan 2027</span>
+            </div>
+          </header>
+          <div class="sb-st-names">
+            <span class="sb-st-watermark" aria-hidden="true">Wedding</span>
+            <div class="sb-st-groom">
+              <p class="sb-st-label">Passenger — Groom</p>
+              <p class="sb-st-name" id="sb-glass-groom">Brindo</p>
+            </div>
+            <div class="sb-st-bride">
+              <p class="sb-st-label">Passenger — Bride</p>
+              <p class="sb-st-name" id="sb-glass-bride">Sreelekshmy</p>
+            </div>
+          </div>
+          <div class="sb-st-flight">
+            <p class="sb-st-route" aria-hidden="true">
+              <span>His</span>
+              <span class="sb-st-route-gap"></span>
+              <span>Hers →</span>
+            </p>
+            <div class="sb-st-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="42" aria-label="Days until wedding">
+              <div class="sb-st-track">
+                <div class="sb-st-fill" style="width:42%">
+                  <span class="sb-st-plane" aria-hidden="true">✈</span>
+                </div>
+              </div>
+            </div>
+            <div class="sb-st-stats">
+              <p class="sb-st-stat"><span class="sb-st-k">Eta</span><span class="sb-st-v">26 Jan</span></p>
+              <p class="sb-st-stat"><span class="sb-st-k">Status</span><span class="sb-st-v sb-st-v--accent">187d left</span></p>
+            </div>
+          </div>
+          <div class="sb-st-perf" aria-hidden="true"></div>
+          <footer class="sb-st-foot">
+            <div class="sb-st-seat">
+              <div class="sb-st-field"><span class="sb-st-k">Seat</span><span class="sb-st-v">26A</span></div>
+              <div class="sb-st-field"><span class="sb-st-k">Class</span><span class="sb-st-v">First</span></div>
+            </div>
+            <div class="sb-st-seat sb-st-seat--end">
+              <div class="sb-st-field"><span class="sb-st-k">Seat</span><span class="sb-st-v">26B</span></div>
+              <div class="sb-st-field"><span class="sb-st-k">Class</span><span class="sb-st-v">First</span></div>
+            </div>
+          </footer>
+        </article>
+        <p class="sb-glass-note">Sandbox bake — glass wash ~58%. Tune after live review (G5).</p>
+      </div>
     </div>
   </section>
 

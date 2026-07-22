@@ -1007,7 +1007,69 @@
   initTheme();
   initBoardingPass();
   initStitchPass();
+  initGlassHeroVideo();
 })();
+
+function initGlassHeroVideo() {
+  const hero = document.getElementById("sb-glass-hero");
+  const video = document.getElementById("sb-glass-video");
+  if (!hero || !video) return;
+
+  const REDUCE = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const saveData = !!(conn && conn.saveData);
+  const slowNet = !!(conn && (conn.effectiveType === "2g" || conn.effectiveType === "slow-2g"));
+  if (REDUCE || saveData || slowNet) {
+    hero.classList.add("is-poster-only");
+    return;
+  }
+
+  let playing = false;
+  function tryPlay() {
+    if (document.hidden) return;
+    const p = video.play();
+    if (p && typeof p.then === "function") {
+      p.then(() => {
+        playing = true;
+        video.classList.add("is-ready");
+      }).catch(() => {
+        hero.classList.add("is-poster-only");
+      });
+    } else {
+      playing = true;
+      video.classList.add("is-ready");
+    }
+  }
+  function tryPause() {
+    if (!playing) return;
+    try {
+      video.pause();
+    } catch (_) {}
+    playing = false;
+  }
+
+  video.addEventListener("loadeddata", () => video.classList.add("is-ready"));
+
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        const e = entries[0];
+        if (!e) return;
+        if (e.isIntersecting && e.intersectionRatio >= 0.1) tryPlay();
+        else tryPause();
+      },
+      { threshold: [0, 0.1, 0.25] }
+    );
+    io.observe(hero);
+  } else {
+    tryPlay();
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) tryPause();
+    else if (hero.getBoundingClientRect().bottom > 40) tryPlay();
+  });
+}
 
 /**
  * Theme toggle — light / dark for pass card bake

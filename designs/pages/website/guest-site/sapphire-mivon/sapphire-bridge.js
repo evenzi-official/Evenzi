@@ -666,12 +666,211 @@
     );
   }
 
+  function initHeroVideo() {
+    const hero = $("#sp-hero");
+    const video = $("#sp-hero-video");
+    if (!hero || !video) return;
+
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const saveData = !!(conn && conn.saveData);
+    const slowNet = !!(conn && (conn.effectiveType === "2g" || conn.effectiveType === "slow-2g"));
+    const posterOnly = REDUCE || saveData || slowNet;
+
+    if (posterOnly) {
+      hero.classList.add("is-poster-only");
+      return;
+    }
+
+    let playing = false;
+
+    function tryPlay() {
+      if (posterOnly || document.hidden) return;
+      const p = video.play();
+      if (p && typeof p.then === "function") {
+        p.then(() => {
+          playing = true;
+          video.classList.add("is-ready");
+        }).catch(() => {
+          hero.classList.add("is-poster-only");
+        });
+      } else {
+        playing = true;
+        video.classList.add("is-ready");
+      }
+    }
+
+    function tryPause() {
+      if (!playing) return;
+      try {
+        video.pause();
+      } catch (_) {}
+      playing = false;
+    }
+
+    video.addEventListener("loadeddata", () => {
+      video.classList.add("is-ready");
+    });
+
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          const e = entries[0];
+          if (!e) return;
+          if (e.isIntersecting && e.intersectionRatio >= 0.1) tryPlay();
+          else tryPause();
+        },
+        { threshold: [0, 0.1, 0.25] }
+      );
+      io.observe(hero);
+    } else {
+      tryPlay();
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) tryPause();
+      else if (hero.getBoundingClientRect().bottom > 40) tryPlay();
+    });
+
+    const unlockSheet = $("#sp-unlock-sheet");
+    if (unlockSheet && "MutationObserver" in window) {
+      const mo = new MutationObserver(() => {
+        const open = !unlockSheet.hidden && unlockSheet.getAttribute("aria-hidden") !== "true";
+        if (open) tryPause();
+        else if (hero.getBoundingClientRect().bottom > 40) tryPlay();
+      });
+      mo.observe(unlockSheet, { attributes: true, attributeFilter: ["hidden", "aria-hidden", "class"] });
+    }
+  }
+
+  function initRouteTakeoff() {
+    const root = $("#sp-route-scroll");
+    const jet = $("#sp-route-jet");
+    const status = $("#sp-route-status");
+    if (!root || !jet) return;
+
+    const cfg = {
+      levelRot: 154,
+      noseOffset: 161,
+      runwayY: 79,
+      p0x: 8,
+      p1x: 42,
+      p2x: 100,
+      p2y: 28,
+      taxiShare: 63,
+      jetSize: 23,
+      liftSoft: 92,
+      flipY: true,
+    };
+
+    function lerp(a, b, s) {
+      return a + (b - a) * s;
+    }
+
+    function quadPoint(a, b, c, s) {
+      const u = 1 - s;
+      return {
+        x: u * u * a.x + 2 * u * s * b.x + s * s * c.x,
+        y: u * u * a.y + 2 * u * s * b.y + s * s * c.y,
+      };
+    }
+
+    function quadTangentDeg(a, b, c, s) {
+      const dx = 2 * (1 - s) * (b.x - a.x) + 2 * s * (c.x - b.x);
+      const dy = 2 * (1 - s) * (b.y - a.y) + 2 * s * (c.y - b.y);
+      return (Math.atan2(dy, dx) * 180) / Math.PI;
+    }
+
+    function climbControl(p1x, runwayY, p2x, p2y, soft) {
+      return {
+        x: lerp(p1x, p2x, 0.35 + soft * 0.35),
+        y: lerp(runwayY, p2y, 0.08 + (1 - soft) * 0.35),
+      };
+    }
+
+    function sample(t) {
+      const clamped = Math.min(Math.max(t, 0), 1);
+      const taxiShare = cfg.taxiShare / 100;
+      const soft = cfg.liftSoft / 100;
+      let x;
+      let y;
+      let rot;
+      let climbU = 0;
+
+      if (clamped <= taxiShare) {
+        const s = taxiShare === 0 ? 0 : clamped / taxiShare;
+        x = lerp(cfg.p0x, cfg.p1x, s);
+        y = cfg.runwayY;
+        rot = cfg.levelRot;
+      } else {
+        const s = (clamped - taxiShare) / (1 - taxiShare);
+        climbU = s;
+        const p1 = { x: cfg.p1x, y: cfg.runwayY };
+        const p2 = { x: cfg.p2x, y: cfg.p2y };
+        const ctrl = climbControl(cfg.p1x, cfg.runwayY, cfg.p2x, cfg.p2y, soft);
+        const pt = quadPoint(p1, ctrl, p2, s);
+        x = pt.x;
+        y = pt.y;
+        const climbTan = quadTangentDeg(p1, ctrl, p2, s);
+        const climbRot = climbTan + cfg.noseOffset;
+        const rotBlendLen = 0.25 + soft * 0.45;
+        const blend = Math.min(s / rotBlendLen, 1);
+        const ease = blend * blend * (3 - 2 * blend);
+        rot = lerp(cfg.levelRot, climbRot, ease);
+      }
+
+      const scale = 1 - climbU * 0.28;
+      const opacity = clamped < 0.9 ? 1 : Math.max(0, 1 - (clamped - 0.9) / 0.1);
+      return { x, y, rot, scale, opacity, taxiShare };
+    }
+
+    function place(t) {
+      const { x, y, rot, scale, opacity, taxiShare } = sample(t);
+      const flip = cfg.flipY ? " scaleY(-1)" : "";
+      jet.style.left = x + "%";
+      jet.style.top = y + "%";
+      jet.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${scale})${flip}`;
+      jet.style.opacity = String(opacity);
+      if (status) {
+        const pct = Math.round(Math.min(Math.max(t, 0), 1) * 100);
+        const phase = t <= taxiShare ? "taxi" : "climb";
+        status.textContent =
+          t >= 0.99
+            ? "His → Hers · cleared"
+            : "His → Hers · " + phase + " " + pct + "%";
+        status.dataset.done = t >= 0.99 ? "1" : "0";
+      }
+    }
+
+    if (REDUCE || !window.gsap || !window.ScrollTrigger) {
+      place(0.7);
+      return;
+    }
+
+    const gsap = window.gsap;
+    const ScrollTrigger = window.ScrollTrigger;
+    gsap.registerPlugin(ScrollTrigger);
+
+    ScrollTrigger.create({
+      trigger: root,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 0.85,
+      onUpdate(self) {
+        place(self.progress);
+      },
+    });
+
+    place(0);
+  }
+
   syncSkipLink();
   syncNavGate();
 
   initIntro(() => {
     initCountdown();
     initUnlock();
+    initHeroVideo();
+    initRouteTakeoff();
     initManifestFlight();
     syncSkipLink();
     syncNavGate();

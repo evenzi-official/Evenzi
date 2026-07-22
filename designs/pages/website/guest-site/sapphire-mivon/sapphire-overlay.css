@@ -297,13 +297,75 @@
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  background: transparent; /* page grid shows through */
+  background: #0b1a33;
   color: var(--sp-ink);
   overflow: hidden;
 }
+
+.sp-hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sp-hero-poster,
+.sp-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+}
+
+.sp-hero-media picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.sp-hero-video {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.sp-hero-video.is-ready {
+  opacity: 1;
+}
+
+.sp-hero.is-poster-only .sp-hero-video {
+  display: none;
+}
+
+.sp-hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 254, 248, 0.28) 0%, rgba(255, 254, 248, 0) 28%),
+    linear-gradient(0deg, rgba(11, 26, 51, 0.42) 0%, rgba(11, 26, 51, 0.08) 38%, transparent 62%),
+    radial-gradient(ellipse 70% 55% at 50% 58%, rgba(11, 26, 51, 0.22), transparent 70%);
+}
+
+body:not(.light) .sp-hero-scrim {
+  background:
+    linear-gradient(180deg, rgba(8, 16, 32, 0.45) 0%, transparent 32%),
+    linear-gradient(0deg, rgba(8, 16, 32, 0.55) 0%, rgba(8, 16, 32, 0.15) 40%, transparent 65%),
+    radial-gradient(ellipse 70% 55% at 50% 58%, rgba(8, 16, 32, 0.35), transparent 70%);
+}
+
+.sp-page-grid--hero {
+  z-index: 2;
+  opacity: 0.045;
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .sp-hero-inner {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   box-sizing: border-box;
   width: 100%;
   max-width: none;
@@ -448,7 +510,7 @@ body:not(.light) .sp-nav:not(.sp-nav--on-hero) .sp-nav-boarding {
   flex-shrink: 0;
 }
 
-/* Boarding pass ticket — Stitch spacing bake */
+/* Boarding pass ticket — glass over hero video */
 .sp-ticket {
   position: relative;
   display: flex;
@@ -458,12 +520,48 @@ body:not(.light) .sp-nav:not(.sp-nav--on-hero) .sp-nav-boarding {
   max-width: 900px;
   margin-inline: auto;
   padding: 2.25rem 1.75rem 1.85rem;
-  background: #fff;
   color: #0a0a0a;
-  border: 0;
+  border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 28px;
-  box-shadow: 0 28px 70px -32px rgba(17, 34, 80, 0.28);
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 254, 248, 0.55) 48%, rgba(255, 255, 255, 0.48) 100%);
+  box-shadow:
+    0 28px 70px -32px rgba(17, 34, 80, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 1px rgba(17, 34, 80, 0.06);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
   overflow: visible;
+}
+
+body:not(.light) .sp-ticket {
+  color: #f4f6fa;
+  border-color: rgba(255, 255, 255, 0.18);
+  background:
+    linear-gradient(155deg, rgba(20, 32, 56, 0.78) 0%, rgba(12, 22, 42, 0.68) 100%);
+  box-shadow:
+    0 28px 70px -28px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.25);
+  --sp-ticket-muted: #9aa3b2;
+}
+
+body:not(.light) .sp-ticket-v,
+body:not(.light) .sp-ticket-name {
+  color: #f4f6fa;
+}
+
+body:not(.light) .sp-ticket-watermark {
+  color: rgba(255, 255, 255, 0.08);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sp-ticket {
+    background: rgba(255, 254, 248, 0.94);
+  }
+  body:not(.light) .sp-ticket {
+    background: rgba(12, 22, 42, 0.94);
+  }
 }
 
 .sp-ticket-meta {
@@ -1902,3 +2000,176 @@ body.light #gallery.bg-light .butn-bord-sm {
 .home-main .sp-nav.sp-nav--on-hero .icon-bar {
   color: var(--sp-ink) !important;
 }
+
+/* --- HIS → HERS runway takeoff (sandbox A port) --------------------------- */
+.sp-route-scroll {
+  position: relative;
+  width: 100%;
+  height: 260vh;
+  margin-block: 2rem 0;
+}
+
+.sp-route-sticky {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100dvh;
+  height: 100svh;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  overflow: hidden;
+}
+
+.sp-route-scene {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  height: 100%;
+  background: transparent; /* match story / cards wash — no sky panel */
+  border-radius: 0;
+}
+
+body:not(.light) .sp-route-scene {
+  background: transparent;
+}
+
+.sp-route-copy {
+  position: absolute;
+  top: max(5.25rem, calc(env(safe-area-inset-top) + 4.25rem));
+  left: 0;
+  right: 0;
+  z-index: 3;
+  padding-inline: max(1.25rem, env(safe-area-inset-left)) max(1.25rem, env(safe-area-inset-right));
+  text-align: center;
+  pointer-events: none;
+}
+
+.sp-route-eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(26, 58, 122, 0.65);
+}
+
+body:not(.light) .sp-route-eyebrow {
+  color: rgba(232, 238, 248, 0.55);
+}
+
+.sp-route-title {
+  margin: 0;
+  font-size: clamp(2.75rem, 9vw, 5.5rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--sp-ink, #0a0a0a);
+}
+
+body:not(.light) .sp-route-title {
+  color: #f4f6fa;
+}
+
+.sp-route-arrow {
+  display: inline-block;
+  margin-inline: 0.15em;
+  color: var(--sp-navy, #1a3a7a);
+  font-weight: 500;
+}
+
+body:not(.light) .sp-route-arrow {
+  color: #9eb6e0;
+}
+
+.sp-route-hers {
+  display: inline-block;
+  padding: 0.05em 0.2em;
+  background: rgba(140, 180, 230, 0.35);
+  border-radius: 0.12em;
+}
+
+body:not(.light) .sp-route-hers {
+  background: rgba(80, 120, 190, 0.35);
+}
+
+.sp-route-phase {
+  margin: 1rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(26, 58, 122, 0.75);
+}
+
+body:not(.light) .sp-route-phase {
+  color: rgba(232, 238, 248, 0.7);
+}
+
+.sp-route-phase[data-done="1"] {
+  color: #2f6b4f;
+}
+
+.sp-route-runway {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18%;
+  height: clamp(3.5rem, 8vw, 5.5rem);
+  background: linear-gradient(180deg, #4a5568 0%, #2d3748 55%, #1a202c 100%);
+  box-shadow: 0 12px 32px rgba(17, 34, 80, 0.22);
+  transform: perspective(520px) rotateX(48deg);
+  transform-origin: center bottom;
+  z-index: 0;
+}
+
+.sp-route-runway-lights {
+  position: absolute;
+  inset: 35% 8% auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.sp-route-runway-lights span {
+  flex: 1;
+  height: 3px;
+  max-width: 2.5rem;
+  border-radius: 1px;
+  background: rgba(255, 220, 120, 0.85);
+  box-shadow: 0 0 6px rgba(255, 200, 80, 0.55);
+}
+
+.sp-route-jet {
+  position: absolute;
+  left: 8%;
+  top: 79%;
+  z-index: 2;
+  width: min(18vw, 14rem);
+  height: auto;
+  transform: translate(-50%, -50%);
+  will-change: transform, left, top, opacity;
+  pointer-events: none;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-route-scroll {
+    height: 100dvh;
+    height: 100svh;
+  }
+}
+
+@media (max-width: 767px) {
+  .sp-route-scroll {
+    height: 220vh;
+  }
+  .sp-route-jet {
+    width: min(32vw, 9.5rem);
+  }
+  .sp-route-title {
+    font-size: clamp(2.25rem, 12vw, 3.25rem);
+  }
+}
+
