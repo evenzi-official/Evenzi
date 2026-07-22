@@ -28,3 +28,8 @@
 ## 2026-07-21
 - **Start** — no `/start-evenzi-session` (jumped in); design path: Figma + guest-site Sapphire
 - **End**   22:45 — Sapphire full guest site (6th mood) + sapphire-lab clone + ME intro video + Figma captures (ME + SP) + Mivon/Classic Editorial plan; tasks updated: none (design pre-task, Feature `86d2jwzge`); digests not regenerated; docs updated: NEXT-SESSION.md, session report, guest-website-templates-build-plan.md, 4 design plans, components.html; report: docs/session-reports/2026-07-21-session-report.md; next: finish Sapphire via lab → first intake design Classic Editorial from 4.zip/Mivon
+- **Start** 22:57 — picking up: finish Sapphire (lab) → Classic Editorial/Mivon per NEXT-SESSION; Dheeraj sync: nothing to sync (no dheeraj-progress.md); ClickUp MCP not connected — briefing from last digests (no live pull / regen)
+
+## 2026-07-22
+- **Start** — continued sapphire-mivon merge (no formal start-evenzi-session); design path
+- **End**   14:46 — Sapphire × Mivon lab shipped: full guest spine at `sapphire-mivon/` (manifest Approach pin, RSVP via Mivon contact form, QA remediation P0/P1); scroll/RSVP overlap fixed; paper-plane playground + floaters kit plans; tasks updated: none (design pre-task, ClickUp MCP unavailable); digests not regenerated; docs updated: NEXT-SESSION.md, guest-site-sapphire-mivon-merge.md (## Built), session report, qa/*; report: docs/session-reports/2026-07-22-session-report.md; next: founder corrections on mivon lab + playground floaters merge + venue/sticky RSVP when designed

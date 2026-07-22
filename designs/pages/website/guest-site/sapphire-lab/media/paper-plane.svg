@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 56" fill="none" role="img" aria-label="Paper plane">
+  <!--
+    Plane only (no trail). Nose points +X so MotionPath / rotate follow the path naturally.
+    Tint via CSS currentColor, e.g.:
+      .sp-paper-plane { color: #C9A24E; width: 3rem; height: auto; }
+    Prefer inline <svg> or <use> for currentColor; <img src> stays the baked fills below.
+  -->
+  <g class="sp-paper-plane__craft" transform="translate(4 4)">
+    <!-- Far wing (thin top sliver) -->
+    <path
+      class="sp-paper-plane__wing-far"
+      d="M0 24 L84 8 L52 22 Z"
+      fill="currentColor"
+      opacity="0.55"
+    />
+    <!-- Near / main wing -->
+    <path
+      class="sp-paper-plane__wing-near"
+      d="M0 24 L84 8 L44 34 Z"
+      fill="currentColor"
+      opacity="0.92"
+    />
+    <!-- Center fold crease -->
+    <path
+      class="sp-paper-plane__fold"
+      d="M0 24 L84 8"
+      stroke="currentColor"
+      stroke-width="1.25"
+      stroke-linecap="round"
+      opacity="0.35"
+    />
+    <!-- Underside keel / grip -->
+    <path
+      class="sp-paper-plane__keel"
+      d="M0 24 L44 34 L22 42 Z"
+      fill="currentColor"
+      opacity="0.4"
+    />
+  </g>
+</svg>

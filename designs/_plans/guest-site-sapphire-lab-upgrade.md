@@ -87,6 +87,12 @@ Capture URL: local `http://localhost:4000/pages/website/guest-site/sapphire/` vi
 
 ---
 
+## Theme note (lab · 2026-07-21)
+
+Light pass in **lab only**: vanilla white `--sp-bg` (#FFFEF8), blue `--sp-navy` as secondary, gold demoted to tertiary. Stable `sapphire/` still dark until promote.
+
+---
+
 ## Execution order
 
 1. Clone → `sapphire-lab/`

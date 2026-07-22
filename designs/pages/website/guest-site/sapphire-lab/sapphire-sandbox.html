@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Sapphire sandbox · floaters &amp; jet demos</title>
+  <meta name="theme-color" content="#fffef8" />
+  <link rel="stylesheet" href="../../../../shared/vendor/lenis/lenis.css" />
+  <link rel="stylesheet" href="sapphire-sandbox.css" />
+</head>
+<body>
+  <a class="sb-skip" href="#demo-a">Skip to demos</a>
+  <div class="sb-live" id="sb-live" aria-live="polite"></div>
+
+  <div class="sb-page-grid" aria-hidden="true">
+    <svg>
+      <defs>
+        <pattern id="sb-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="0.5" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#sb-grid)" />
+    </svg>
+  </div>
+
+  <header class="sb-top">
+    <h1>Sapphire sandbox</h1>
+    <p class="sb-lead">
+      Full-viewport section sims for <strong>How we took off</strong> + floaters.
+      Scroll down / up — motion reverses. <strong>A</strong> runway · <strong>C</strong> soar · <strong>D</strong> markers · <strong>M1–M4</strong> paper plane.
+    </p>
+    <ul class="sb-toc">
+      <li><a href="#demo-a">A Runway</a></li>
+      <li><a href="#demo-c">C Soar</a></li>
+      <li><a href="#demo-d">D Markers</a></li>
+      <li><a href="#m1">M1–M4 floaters</a></li>
+      <li><a href="index.html">← Sapphire lab</a></li>
+    </ul>
+  </header>
+
+  <!-- ========== A Runway takeoff ========== -->
+  <section class="sb-method" id="demo-a" aria-labelledby="a-title">
+    <div class="sb-method-head">
+      <span class="sb-badge">A · story set piece</span>
+      <h2 id="a-title">Runway takeoff</h2>
+      <p>Scroll to taxi → accelerate → climb. For “How we took off.”</p>
+    </div>
+    <div class="sb-scroll" id="a-scroll">
+      <div class="sb-sticky">
+        <div class="sb-jet-scene" id="a-scene">
+          <p class="sb-jet-label">A · level taxi → climb &amp; fly off · scroll ↔</p>
+          <svg class="sb-takeoff-guide" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path id="a-guide-path" d="M 6 72 H 62 L 94 12" fill="none" stroke="rgba(26,58,122,0.35)" stroke-width="0.35" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <div class="sb-runway" aria-hidden="true">
+            <div class="sb-runway-lights">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <img class="sb-jet sb-jet--runway" id="a-jet" src="media/jet.png" alt="" width="256" height="256" />
+          <p class="sb-status" id="a-status" data-done="0">Scroll · 0%</p>
+
+          <aside class="sb-a-controls" id="a-controls" aria-label="Flight alignment controls">
+            <p class="sb-a-controls-title">Align flight</p>
+            <label class="sb-a-row">
+              <span>Preview t</span>
+              <input type="range" data-k="previewT" min="0" max="100" value="0" />
+              <output data-o="previewT">0</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Level rot°</span>
+              <input type="range" data-k="levelRot" min="0" max="360" value="154" />
+              <output data-o="levelRot">154</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Climb offset°</span>
+              <input type="range" data-k="noseOffset" min="0" max="360" value="161" />
+              <output data-o="noseOffset">161</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Runway Y%</span>
+              <input type="range" data-k="runwayY" min="40" max="90" value="79" />
+              <output data-o="runwayY">79</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Taxi start X%</span>
+              <input type="range" data-k="p0x" min="0" max="40" value="8" />
+              <output data-o="p0x">8</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Lift-off X%</span>
+              <input type="range" data-k="p1x" min="30" max="85" value="42" />
+              <output data-o="p1x">42</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Fly-off X%</span>
+              <input type="range" data-k="p2x" min="50" max="100" value="100" />
+              <output data-o="p2x">100</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Fly-off Y%</span>
+              <input type="range" data-k="p2y" min="0" max="50" value="28" />
+              <output data-o="p2y">28</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Taxi share%</span>
+              <input type="range" data-k="taxiShare" min="20" max="80" value="63" />
+              <output data-o="taxiShare">63</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Jet size%</span>
+              <input type="range" data-k="jetSize" min="8" max="40" value="23" />
+              <output data-o="jetSize">23</output>
+            </label>
+            <label class="sb-a-row">
+              <span>Lift soft%</span>
+              <input type="range" data-k="liftSoft" min="0" max="100" value="92" />
+              <output data-o="liftSoft">92</output>
+            </label>
+            <label class="sb-a-check">
+              <input type="checkbox" data-k="flipY" checked />
+              <span>Flip Y (upright)</span>
+            </label>
+            <label class="sb-a-check">
+              <input type="checkbox" data-k="scrubScroll" checked />
+              <span>Follow page scroll</span>
+            </label>
+            <div class="sb-a-actions">
+              <button type="button" id="a-copy-cfg">Copy values</button>
+              <button type="button" id="a-reset-cfg">Reset</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== C Parallax soar ========== -->
+  <section class="sb-method" id="demo-c" aria-labelledby="c-title">
+    <div class="sb-method-head">
+      <span class="sb-badge">C · lighter motion</span>
+      <h2 id="c-title">Parallax soar</h2>
+      <p>No runway — jet drifts across on scroll (diagonal climb).</p>
+    </div>
+    <div class="sb-soar-track" id="c-scroll">
+      <div class="sb-soar-sticky">
+        <div class="sb-soar-scene">
+          <p class="sb-jet-label">C · full-width soar · scroll ↔ reverse</p>
+          <img class="sb-jet sb-jet--soar" id="c-jet" src="media/jet.png" alt="" width="256" height="256" />
+          <p class="sb-status" id="c-status" data-done="0">Scroll · 0%</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== D Milestone markers ========== -->
+  <section class="sb-method" id="demo-d" aria-labelledby="d-title">
+    <div class="sb-method-head">
+      <span class="sb-badge">D · flight-log stops</span>
+      <h2 id="d-title">Milestone markers</h2>
+      <p>Jet highlights the active flight-log stop (IO).</p>
+    </div>
+    <div class="sb-landmarks" id="d-scroll">
+      <article class="sb-landmark is-active" data-stop="0">
+        <img class="sb-jet-marker" src="media/jet.png" alt="" width="128" height="128" />
+        <div>
+          <h3>01 · First meeting</h3>
+          <p>Kochi · unexpected layover</p>
+        </div>
+      </article>
+      <article class="sb-landmark" data-stop="1">
+        <img class="sb-jet-marker" src="media/jet.png" alt="" width="128" height="128" />
+        <div>
+          <h3>02 · Long-haul yes</h3>
+          <p>Proposal · gate confirmed</p>
+        </div>
+      </article>
+      <article class="sb-landmark" data-stop="2">
+        <img class="sb-jet-marker" src="media/jet.png" alt="" width="128" height="128" />
+        <div>
+          <h3>03 · Final approach</h3>
+          <p>Wedding week · wheels down</p>
+          <p class="sb-status sb-status--spaced" id="d-status" data-done="0">Active stop · 01</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ========== M1–M4 paper plane (kept) ========== -->
+  <section class="sb-method" id="m1" aria-labelledby="m1-title">
+    <div class="sb-method-head">
+      <span class="sb-badge">M1</span>
+      <h2 id="m1-title">Vanilla scroll scrub · paper plane</h2>
+      <p>Native scroll → path progress + snake trail.</p>
+    </div>
+    <div class="sb-scroll" id="m1-scroll" data-demo="m1">
+      <div class="sb-sticky">
+        <div class="sb-stage">
+          <p class="sb-jet-label">M1 · full-width · scroll ↔ reverse</p>
+          <svg class="sb-svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <path class="sb-curve" id="m1-curve" d="M 48 300 C 160 300, 220 80, 320 160 S 480 40, 592 72" />
+            <g class="sb-trail" id="m1-trail"></g>
+            <g class="sb-plane-wrap" id="m1-plane" fill="currentColor">
+              <g transform="scale(0.55) translate(-48 -28)">
+                <path d="M4 28 L88 12 L56 26 Z" opacity="0.55" />
+                <path d="M4 28 L88 12 L48 38 Z" opacity="0.92" />
+                <path d="M4 28 L88 12" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" opacity="0.35" />
+                <path d="M4 28 L48 38 L26 46 Z" opacity="0.4" />
+              </g>
+            </g>
+          </svg>
+          <p class="sb-status" id="m1-status" data-done="0">Scroll · 0%</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-method" id="m2" aria-labelledby="m2-title">
+    <div class="sb-method-head">
+      <span class="sb-badge">M2</span>
+      <h2 id="m2-title">GSAP ScrollTrigger scrub</h2>
+      <p>Vendored GSAP + ST. No Lenis.</p>
+    </div>
+    <div class="sb-scroll" id="m2-scroll" data-demo="m2">
+      <div class="sb-sticky">
+        <div class="sb-stage">
+          <p class="sb-jet-label">M2 · full-width · scroll ↔ reverse</p>
+          <svg class="sb-svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <path class="sb-curve" id="m2-curve" d="M 48 300 C 160 300, 220 80, 320 160 S 480 40, 592 72" />
+            <g class="sb-trail" id="m2-trail"></g>
+            <g class="sb-plane-wrap" id="m2-plane" fill="currentColor">
+              <g transform="scale(0.55) translate(-48 -28)">
+                <path d="M4 28 L88 12 L56 26 Z" opacity="0.55" />
+                <path d="M4 28 L88 12 L48 38 Z" opacity="0.92" />
+                <path d="M4 28 L88 12" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" opacity="0.35" />
+                <path d="M4 28 L48 38 L26 46 Z" opacity="0.4" />
+              </g>
+            </g>
+          </svg>
+          <p class="sb-status" id="m2-status" data-done="0">Scroll · 0%</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-method" id="m3" aria-labelledby="m3-title">
+    <div class="sb-method-head">
+      <span class="sb-badge">M3 · Sapphire stack</span>
+      <h2 id="m3-title">Lenis + ScrollTrigger</h2>
+      <p>Same stack as Sapphire guest site.</p>
+    </div>
+    <div class="sb-scroll" id="m3-scroll" data-demo="m3">
+      <div class="sb-sticky">
+        <div class="sb-stage">
+          <p class="sb-jet-label">M3 · full-width · scroll ↔ reverse</p>
+          <svg class="sb-svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <path class="sb-curve" id="m3-curve" d="M 48 300 C 160 300, 220 80, 320 160 S 480 40, 592 72" />
+            <g class="sb-trail" id="m3-trail"></g>
+            <g class="sb-plane-wrap" id="m3-plane" fill="currentColor">
+              <g transform="scale(0.55) translate(-48 -28)">
+                <path d="M4 28 L88 12 L56 26 Z" opacity="0.55" />
+                <path d="M4 28 L88 12 L48 38 Z" opacity="0.92" />
+                <path d="M4 28 L88 12" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" opacity="0.35" />
+                <path d="M4 28 L48 38 L26 46 Z" opacity="0.4" />
+              </g>
+            </g>
+          </svg>
+          <p class="sb-status" id="m3-status" data-done="0">Scroll · 0%</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-method" id="m4" aria-labelledby="m4-title">
+    <div class="sb-method-head">
+      <span class="sb-badge">M4 · landmark hops</span>
+      <h2 id="m4-title">Paper-plane landmark hops</h2>
+      <p>Hero → Schedule → RSVP stubs + mixed z.</p>
+    </div>
+    <div class="sb-float-layer is-behind" id="m4-layer" aria-hidden="true">
+      <svg class="sb-svg" viewBox="0 0 100 100" preserveAspectRatio="none" id="m4-svg">
+        <path class="sb-curve" id="m4-curve" d="M 8 22 C 35 22, 40 48, 50 50 S 65 78, 92 78" />
+        <g class="sb-trail" id="m4-trail"></g>
+        <g class="sb-plane-wrap" id="m4-plane" fill="currentColor">
+          <g transform="scale(0.08) translate(-48 -28)">
+            <path d="M4 28 L88 12 L56 26 Z" opacity="0.55" />
+            <path d="M4 28 L88 12 L48 38 Z" opacity="0.92" />
+            <path d="M4 28 L88 12" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" opacity="0.35" />
+            <path d="M4 28 L48 38 L26 46 Z" opacity="0.4" />
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="sb-landmarks" id="m4-scroll" data-demo="m4">
+      <article class="sb-landmark" id="lm-hero">
+        <div>
+          <h3>Hero</h3>
+          <p>Landmark 0 · plane behind</p>
+        </div>
+      </article>
+      <article class="sb-landmark" id="lm-schedule">
+        <div>
+          <h3>Schedule</h3>
+          <p>Landmark 1 · flips front</p>
+        </div>
+      </article>
+      <article class="sb-landmark" id="lm-rsvp">
+        <div>
+          <h3>RSVP</h3>
+          <p>Landmark 2 · park</p>
+          <p class="sb-status" id="m4-status" data-done="0">Scroll landmarks · 0%</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="sb-foot">
+    Lab site: <a href="index.html">sapphire-lab/</a> · Kit:
+    <code>_plans/guest-site-sapphire-floaters-kit.md</code>
+  </footer>
+
+  <script src="../../../../shared/vendor/gsap/gsap.min.js"></script>
+  <script src="../../../../shared/vendor/gsap/ScrollTrigger.min.js"></script>
+  <script src="../../../../shared/vendor/lenis/lenis.min.js"></script>
+  <script src="sapphire-sandbox.js"></script>
+</body>
+</html>
