@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wedding Media Platform Cost Forecaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4EEE2; --paper-2:#EFE7D6; --ink:#2A1A1D; --ink-soft:#6B5A54;
+    --maroon:#7A1E2B; --maroon-deep:#5A121C; --marigold:#E39B1E;
+    --mehendi:#2E6B52; --indigo:#3B5BA5; --plum:#8A5A8F;
+    --line:#D8CBB4; --card:#FBF7EE;
+    --shadow:0 1px 0 rgba(90,18,28,.04), 0 12px 30px -18px rgba(42,26,29,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:radial-gradient(120% 90% at 100% 0%, rgba(227,155,30,.10), transparent 55%),
+      radial-gradient(120% 100% at 0% 100%, rgba(46,107,82,.08), transparent 50%), var(--paper);
+    color:var(--ink); font-family:"Inter",system-ui,sans-serif;
+    font-feature-settings:"tnum" 1; line-height:1.5; -webkit-font-smoothing:antialiased;
+    padding:20px 15px 60px; max-width:780px; margin:0 auto;
+  }
+  .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--maroon);font-weight:600;margin:0 0 8px;display:flex;align-items:center;gap:8px}
+  .eyebrow::before{content:"";height:1px;background:var(--line);flex:0 0 22px}
+  .eyebrow::after{content:"";height:1px;background:var(--line);flex:1}
+  h1{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:clamp(29px,7.5vw,44px);line-height:1.02;margin:0 0 10px;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:var(--maroon)}
+  .thesis{font-size:14px;color:var(--ink-soft);margin:0 0 18px;max-width:56ch}
+  .thesis b{color:var(--ink);font-weight:600}
+
+  .cur-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+  .seg{display:inline-flex;background:var(--paper-2);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .seg button{border:none;background:transparent;font:inherit;font-weight:600;font-size:13px;padding:6px 16px;border-radius:7px;color:var(--ink-soft);cursor:pointer}
+  .seg button.on{background:var(--maroon);color:#FBF7EE}
+  .fx{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft)}
+  .fx input{width:64px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:12.5px;background:var(--card);color:var(--ink)}
+
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:24px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;box-shadow:var(--shadow)}
+  .card .k{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;margin-bottom:6px}
+  .card .v{font-family:"Cormorant Garamond",serif;font-size:27px;font-weight:600;line-height:1;color:var(--maroon-deep)}
+  .card .sub{font-size:11px;color:var(--ink-soft);margin-top:5px}
+  .card.accent{background:linear-gradient(160deg,#7A1E2B,#5A121C);border-color:#5A121C}
+  .card.accent .k{color:#F0C36B}
+  .card.accent .v{color:#FBF7EE}
+  .card.accent .sub{color:#E9D8C6}
+
+  section{margin-bottom:26px}
+  .label-row{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 12px;gap:10px}
+  .section-title{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:600}
+  .hint{font-size:11.5px;color:var(--ink-soft);text-align:right}
+
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:13px 15px}
+  .full{grid-column:1/-1}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--ink);margin-bottom:6px}
+  .field .val{color:var(--maroon)}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--marigold) 0 var(--fill,50%),var(--line) var(--fill,50%) 100%);outline:none;margin:2px 0}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;height:20px;width:20px;border-radius:50%;background:var(--maroon);border:3px solid #FBF7EE;box-shadow:0 2px 6px rgba(90,18,28,.4);cursor:pointer}
+  input[type=range]::-moz-range-thumb{height:20px;width:20px;border-radius:50%;background:var(--maroon);border:3px solid #FBF7EE;cursor:pointer}
+  .toggle{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+  .toggle input{width:0;height:0;opacity:0;position:absolute}
+  .switch{width:40px;height:23px;border-radius:20px;background:var(--line);position:relative;flex:0 0 auto;transition:.18s}
+  .switch::after{content:"";position:absolute;top:2.5px;left:2.5px;width:18px;height:18px;border-radius:50%;background:#FBF7EE;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:.18s}
+  .toggle input:checked + .switch{background:var(--mehendi)}
+  .toggle input:checked + .switch::after{transform:translateX(17px)}
+  .toggle .t-txt{font-size:12.5px;font-weight:600}
+  .toggle .t-sub{font-size:11px;color:var(--ink-soft);font-weight:400}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 14px;box-shadow:var(--shadow)}
+  svg{display:block;width:100%;height:auto;overflow:visible}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:20px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;transition:.12s;opacity:.42}
+  .chip.on{opacity:1}
+  .chip .dot{width:9px;height:9px;border-radius:3px;flex:0 0 auto}
+  .chip s{text-decoration:none}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+  .tab{font-size:12px;font-weight:600;padding:6px 12px;border-radius:9px;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);cursor:pointer}
+  .tab.on{background:var(--ink);color:#FBF7EE;border-color:var(--ink)}
+  .month-pick{display:flex;align-items:center;gap:12px;margin:2px 0 16px}
+  .month-pick .m-val{font-family:"Cormorant Garamond",serif;font-size:19px;color:var(--maroon);min-width:92px}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+  .bd th,.bd td{text-align:left;padding:9px 4px;border-bottom:1px solid var(--line)}
+  .bd th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+  .bd td.n{text-align:right;font-weight:500}
+  .bd td.bar-cell{width:32%;padding-right:10px}
+  .minibar{height:9px;border-radius:5px;min-width:2px}
+  tr.total td{border-top:2px solid var(--ink);border-bottom:none;font-weight:700;padding-top:11px}
+  tr.total td:first-child{font-family:"Cormorant Garamond",serif;font-size:16px}
+  .verdict{font-size:12.5px;color:var(--ink-soft);margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+  .verdict b{color:var(--ink)}
+
+  /* comparison matrix */
+  .scrollnote{font-size:11px;color:var(--ink-soft);margin-bottom:8px}
+  .matrix-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+  table.mx{min-width:640px;font-size:12px}
+  table.mx th,table.mx td{padding:10px 11px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:top}
+  table.mx thead th{font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);position:sticky;top:0;background:var(--paper-2)}
+  table.mx td.plat{white-space:normal;min-width:150px;position:sticky;left:0;background:var(--card);border-right:1px solid var(--line)}
+  table.mx td.plat b{font-size:13px;display:block}
+  table.mx td.plat span{font-size:10.5px;color:var(--ink-soft)}
+  .pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--mehendi);color:#FBF7EE;margin-top:4px}
+  .yes{color:var(--mehendi);font-weight:700}
+  .no{color:#B5433F;font-weight:700}
+  .part{color:var(--marigold);font-weight:700}
+  .mnote{white-space:normal;font-size:11px;color:var(--ink-soft);min-width:180px}
+
+  details{margin-top:22px;border-top:1px solid var(--line);padding-top:14px}
+  summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--maroon);list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"+ ";font-weight:700}
+  details[open] summary::before{content:"– "}
+  .rates{font-size:12.5px;color:var(--ink-soft);margin-top:12px;line-height:1.7}
+  .rates code{background:var(--paper-2);padding:1px 6px;border-radius:5px;color:var(--ink);font-size:12px}
+  .foot{font-size:11px;color:var(--ink-soft);margin-top:26px;text-align:center;line-height:1.6}
+  @media (max-width:480px){ .controls{grid-template-columns:1fr} .card .v{font-size:24px} }
+</style>
+</head>
+<body>
+  <p class="eyebrow">Platform cost model &middot; photo + video albums</p>
+  <h1>The <em>wedding album</em><br>platform bill</h1>
+  <p class="thesis">Five platforms, one Indian-wedding workload. The twist: <b>image-first optimizers</b> (Cloudinary, ImageKit) charge premium per-GB rates that make video streaming expensive, while <b>delivery-first infra</b> (Bunny, Cloudflare) is far cheaper — until viewers watch high-res, where flat per-minute pricing catches up. Tune it below.</p>
+
+  <div class="cur-row">
+    <div class="seg" id="cur-seg">
+      <button data-cur="USD" class="on">USD $</button>
+      <button data-cur="INR">INR ₹</button>
+    </div>
+    <div class="fx" id="fx-box">1 USD = <input type="number" id="fx" value="95.5" step="0.5" min="1"> INR</div>
+  </div>
+
+  <div class="cards">
+    <div class="card accent">
+      <div class="k">Cheapest @ M<span id="hz-lbl">24</span></div>
+      <div class="v" id="c-best">$0</div>
+      <div class="sub" id="c-best-sub">—</div>
+    </div>
+    <div class="card">
+      <div class="k">Priciest @ M<span id="hz-lbl2">24</span></div>
+      <div class="v" id="c-worst">$0</div>
+      <div class="sub" id="c-worst-sub">—</div>
+    </div>
+    <div class="card">
+      <div class="k">Cost spread</div>
+      <div class="v" id="c-spread">0×</div>
+      <div class="sub">cheapest vs priciest</div>
+    </div>
+    <div class="card">
+      <div class="k" id="unit-k">Per wedding (winner)</div>
+      <div class="v" id="c-unit">$0</div>
+      <div class="sub">active window + archive/mo</div>
+    </div>
+  </div>
+
+  <section>
+    <div class="label-row"><span class="section-title">Your workload</span><span class="hint">Indian-wedding defaults</span></div>
+    <div class="controls">
+      <div class="field"><label>New weddings / month: <span class="val" id="v-wed">10</span></label><input type="range" id="wed" min="1" max="200" step="1" value="10"></div>
+      <div class="field"><label>Monthly growth: <span class="val" id="v-grow">5%</span></label><input type="range" id="grow" min="0" max="20" step="1" value="5"></div>
+      <div class="field"><label>Photos / wedding: <span class="val" id="v-photos">2,500</span></label><input type="range" id="photos" min="200" max="6000" step="100" value="2500"></div>
+      <div class="field"><label>Avg photo size: <span class="val" id="v-size">8 MB</span></label><input type="range" id="size" min="2" max="25" step="1" value="8"></div>
+      <div class="field"><label>Curated video / wedding: <span class="val" id="v-vid">120 min</span></label><input type="range" id="vid" min="5" max="360" step="5" value="120"></div>
+      <div class="field"><label>Delivered quality: <span class="val" id="v-bitrate">12 MB/min</span></label><input type="range" id="bitrate" min="4" max="40" step="1" value="12"></div>
+      <div class="field"><label>Unique viewers / wedding: <span class="val" id="v-view">250</span></label><input type="range" id="view" min="20" max="1500" step="10" value="250"></div>
+      <div class="field"><label>Video watched / viewer: <span class="val" id="v-watch">30 min</span></label><input type="range" id="watch" min="2" max="120" step="1" value="30"></div>
+      <div class="field"><label>Forecast horizon: <span class="val" id="v-hz">24 mo</span></label><input type="range" id="hz" min="6" max="60" step="1" value="24"></div>
+      <div class="field full"><label class="toggle"><input type="checkbox" id="raw"><span class="switch"></span><span><span class="t-txt">Archive raw footage</span><br><span class="t-sub">+600 min/wedding stored (rarely streamed)</span></span></label></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label-row"><span class="section-title">Monthly cost by platform</span><span class="hint">tap a chip to hide/show</span></div>
+    <div class="panel">
+      <svg id="chart" viewBox="0 0 700 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected monthly cost by platform"></svg>
+      <div class="chips" id="chips"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label-row"><span class="section-title">What you pay for</span></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="month-pick"><span class="m-val" id="pick-lbl">Month 24</span><input type="range" id="pick" min="1" max="24" step="1" value="24" style="flex:1"></div>
+    <div class="panel">
+      <table class="bd"><thead><tr><th>Line item</th><th class="bar-cell"></th><th class="n">/ month</th></tr></thead><tbody id="breakdown"></tbody></table>
+      <div class="verdict" id="verdict"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label-row"><span class="section-title">Feature &amp; base-price matrix</span></div>
+    <p class="scrollnote">Everything an album needs: store originals, optimize photos, transcode + stream video, deliver via CDN, control access. Scroll the table sideways &rarr;</p>
+    <div class="matrix-wrap">
+      <table class="mx">
+        <thead><tr>
+          <th>Platform</th><th>Entry / min</th><th>Storage</th><th>Delivery</th>
+          <th>Transcode + ABR</th><th>Image optimize</th><th>DRM</th><th>India edge</th><th>Next.js</th><th>Best for</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td class="plat"><b>Cloudflare</b><span>R2 + Stream + Image Transforms</span><div class="pill">cheapest infra</div></td>
+            <td>~$0 (free tier)</td><td>R2 $0.015/GB<br>Stream $0.005/min</td><td>R2 egress FREE<br>Stream $1/1k min</td>
+            <td class="yes">✓ HLS/DASH</td><td class="yes">✓</td><td class="part">~ signed URLs</td><td class="yes">✓ India PoPs</td><td class="part">~ loader + HLS</td><td class="mnote">Lowest cost at high resolution (flat per-minute video). Assemble-it-yourself.</td>
+          </tr>
+          <tr>
+            <td class="plat"><b>Bunny.net</b><span>Storage + Stream + Optimizer</span><div class="pill">value pick</div></td>
+            <td>$1/mo min</td><td>$0.005–0.01/GB</td><td>$0.01/GB (NA/EU)<br>$0.03/GB (Asia)</td>
+            <td class="yes">✓ free H.264 1080p</td><td class="yes">✓ Optimizer</td><td class="yes">✓ MediaCage (paid)</td><td class="yes">✓ Asia PoPs</td><td class="part">~ URL-based</td><td class="mnote">Cheapest for mobile-res streaming. Per-GB, so cost rises with 4K.</td>
+          </tr>
+          <tr>
+            <td class="plat"><b>ImageKit</b><span>India HQ · image + video</span></td>
+            <td>Free · Lite $9 · Pro $89</td><td>incl; +$0.09/GB</td><td>incl; +$0.45/GB</td>
+            <td class="yes">✓ (VPU-priced)</td><td class="yes">✓✓ core strength</td><td class="part">~ signed URLs</td><td class="yes">✓✓ India HQ</td><td class="yes">✓ official SDK</td><td class="mnote">Great image optimization + India latency. Video gets pricey (VPU + $0.45/GB).</td>
+          </tr>
+          <tr>
+            <td class="plat"><b>Cloudinary</b><span>full media pipeline</span></td>
+            <td>Free 25cr · Plus ~$89 · Adv ~$249</td><td>credits</td><td>credits (~$0.40/GB eq)</td>
+            <td class="yes">✓</td><td class="yes">✓✓</td><td class="part">~</td><td class="yes">✓ global</td><td class="yes">✓ next-cloudinary</td><td class="mnote">Most features, fastest to ship, most expensive for heavy viewing.</td>
+          </tr>
+          <tr>
+            <td class="plat"><b>Mux</b><span>video specialist (+ R2 for photos)</span></td>
+            <td>pay-as-you-go</td><td>$0.003/min video<br>R2 $0.015/GB photos</td><td>$0.0008–0.0048/min by res</td>
+            <td class="yes">✓✓ best-in-class</td><td class="no">✗ video only</td><td class="yes">✓ Mux DRM</td><td class="yes">✓ global</td><td class="yes">✓✓ next-video</td><td class="mnote">Premium video DX. Needs a separate image layer.</td>
+          </tr>
+          <tr>
+            <td class="plat"><b>Gumlet</b><span>India/SG · image + video</span></td>
+            <td>Free (100min/250GB) · tiered</td><td>plan minutes</td><td>plan bandwidth</td>
+            <td class="yes">✓ up to 4K HDR</td><td class="yes">✓ Gumlet Image</td><td class="yes">✓✓ Widevine/FairPlay</td><td class="yes">✓✓ India/SG</td><td class="part">~ API/embed</td><td class="mnote">Strong DRM + India latency in one dashboard. Plan-capped, not pure usage.</td>
+          </tr>
+          <tr>
+            <td class="plat"><b>AWS</b><span>S3 + CloudFront + MediaConvert</span></td>
+            <td>pay-as-you-go</td><td>S3 $0.023/GB</td><td>CloudFront ~$0.085/GB</td>
+            <td class="yes">✓ MediaConvert</td><td class="part">~ build w/ Lambda</td><td class="yes">✓</td><td class="yes">✓ India edge</td><td class="no">✗ DIY</td><td class="mnote">Maximum control, maximum ops overhead + egress bills. Overkill here.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <details>
+    <summary>How the math works &amp; what's approximate</summary>
+    <div class="rates">
+      <p style="margin:0 0 8px"><b>Per-unit rates (2026):</b> Cloudflare R2 <code>$0.015/GB</code> + free egress, Stream <code>$5/1k min stored, $1/1k min delivered</code>, Image Transforms <code>$0.50/1k, 5k free</code>. Bunny storage <code>$0.005–0.01/GB</code>, CDN <code>~$0.02/GB blended</code>, transcoding free. ImageKit Pro <code>$89</code> incl 225GB bw + 225GB storage; overage <code>$0.45/GB bw, $0.09/GB storage, $9/10k VPU</code>. Cloudinary modelled as credits at <code>~$0.40/credit</code>. Mux <code>$0.0075/min encode, $0.003/min store, ~$0.0025/min deliver</code>.</p>
+      <p style="margin:0 0 8px"><b>Physical assumptions:</b> stored video <code>~20 MB/min</code> (ABR ladder), delivered video = your quality slider (default <code>12 MB/min</code>, mobile-weighted), each viewer pulls <code>~85 MB</code> of images. Viewing is front-loaded: 60% of a wedding's views in month 1, 25% in month 2, the rest trickling over 10 months.</p>
+      <p style="margin:0"><b>Treat rankings as directional, not quotes.</b> Cross-platform totals swing on the MB/min assumptions and (for Cloudinary) the credit mapping. The tool is for understanding <i>shape and order of magnitude</i> — always confirm against each provider's own calculator before committing.</p>
+    </div>
+  </details>
+
+  <p class="foot">Estimates for planning only. Rates current as of 2026 and subject to change. FX rate is editable above and moves daily.</p>
+
+<script>
+(function(){
+  var P = {
+    stored:20, imgPayload:85,
+    cf:{r2:0.015, sStore:5/1000, sDel:1/1000, tr:0.50/1000, trFree:5000, write:4.50/1e6},
+    bunny:{photo:0.01, vid:0.005, cdn:0.02},
+    ik:{base:89, incBW:225, incStore:225, incVPU:5000, bwOver:0.45, stOver:0.09, vpuOver:9/10000, vpuPerMin:120},
+    cld:{credit:0.40},
+    mux:{enc:0.0075, store:0.003, deliver:0.0025, r2:0.015, tr:0.50/1000, trFree:5000}
+  };
+  var W=[0.60,0.25]; for(var i=0;i<10;i++) W.push(0.15/10);
+
+  var PLATS=[
+    {id:"cf",   name:"Cloudflare", color:"#7A1E2B", dash:false},
+    {id:"bunny",name:"Bunny.net",  color:"#2E6B52", dash:false},
+    {id:"ik",   name:"ImageKit",   color:"#3B5BA5", dash:false},
+    {id:"cld",  name:"Cloudinary", color:"#E39B1E", dash:true},
+    {id:"mux",  name:"Mux + R2",   color:"#8A5A8F", dash:false}
+  ];
+  var visible={cf:1,bunny:1,ik:1,cld:1,mux:1};
+  var activeTab="cf";
+  var cur={code:"USD", sym:"$", rate:1};
+
+  function costs(id,q){
+    if(id==="cf"){
+      var r2=q.photoGBtot*P.cf.r2, ss=q.vidStoreMinTot*P.cf.sStore, sd=q.vidMinDel*P.cf.sDel,
+          tr=Math.max(0,q.transforms-P.cf.trFree)*P.cf.tr, ops=q.opsCount*P.cf.write;
+      return {total:r2+ss+sd+tr+ops, items:[
+        ["Video delivery (Stream)",sd,"#7A1E2B"],["Video storage (Stream)",ss,"#E39B1E"],
+        ["Image transforms",tr,"#C9A96A"],["Photo storage (R2)",r2,"#C9A96A"],["Upload ops",ops,"#C9A96A"]]};
+    }
+    if(id==="bunny"){
+      var st=q.photoGBtot*P.bunny.photo + q.vidStoreGBtot*P.bunny.vid,
+          del=(q.vidGBDel+q.imgGBDel)*P.bunny.cdn, t=Math.max(1,st+del);
+      return {total:t, items:[
+        ["CDN delivery (video+image)",del,"#7A1E2B"],
+        ["Video storage",q.vidStoreGBtot*P.bunny.vid,"#E39B1E"],
+        ["Photo storage",q.photoGBtot*P.bunny.photo,"#C9A96A"],
+        ["Transcoding","FREE","#2E6B52"]]};
+    }
+    if(id==="ik"){
+      var bw=q.vidGBDel+q.imgGBDel, stg=q.photoGBtot+q.vidStoreGBtot, vpu=q.encodeMin*P.ik.vpuPerMin,
+          bo=Math.max(0,bw-P.ik.incBW)*P.ik.bwOver, so=Math.max(0,stg-P.ik.incStore)*P.ik.stOver,
+          vo=Math.max(0,vpu-P.ik.incVPU)*P.ik.vpuOver;
+      return {total:P.ik.base+bo+so+vo, items:[
+        ["Base plan (Pro)",P.ik.base,"#3B5BA5"],["Bandwidth overage",bo,"#7A1E2B"],
+        ["Video processing (VPU)",vo,"#E39B1E"],["Storage overage",so,"#C9A96A"]]};
+    }
+    if(id==="cld"){
+      var stC=(q.photoGBtot+q.vidStoreGBtot)*P.cld.credit, bwC=(q.imgGBDel+q.vidGBDel)*P.cld.credit,
+          trC=(q.transforms/1000)*P.cld.credit;
+      return {total:stC+bwC+trC, items:[
+        ["Delivery bandwidth",bwC,"#7A1E2B"],["Storage",stC,"#E39B1E"],["Transforms",trC,"#C9A96A"]]};
+    }
+    if(id==="mux"){
+      var enc=q.encodeMin*P.mux.enc, ms=q.vidStoreMinTot*P.mux.store, md=q.vidMinDel*P.mux.deliver,
+          r2=q.photoGBtot*P.mux.r2, tr=Math.max(0,q.transforms-P.mux.trFree)*P.mux.tr;
+      return {total:enc+ms+md+r2+tr, items:[
+        ["Video delivery (Mux)",md,"#7A1E2B"],["Video encoding (Mux)",enc,"#E39B1E"],
+        ["Video storage (Mux)",ms,"#C9A96A"],["Photos: R2 + transforms",r2+tr,"#C9A96A"]]};
+    }
+  }
+
+  var el=function(id){return document.getElementById(id)};
+  var R={};
+  ["wed","grow","photos","size","vid","bitrate","view","watch","hz","raw","pick","fx"].forEach(function(id){R[id]=el(id)});
+
+  function money(v){
+    if(v==="FREE"||typeof v!=="number") return "FREE";
+    var x=v*cur.rate;
+    if(cur.code==="INR"){ return "₹"+Math.round(x).toLocaleString("en-IN"); }
+    if(x>=1000) return "$"+Math.round(x).toLocaleString();
+    if(x>=100) return "$"+Math.round(x);
+    return "$"+x.toFixed(x<10?2:1);
+  }
+  function fillRange(inp){ if(inp.type!=="range")return; var p=(inp.value-inp.min)/(inp.max-inp.min)*100; inp.style.setProperty("--fill",p+"%"); }
+
+  function model(){
+    var wed=+R.wed.value,g=+R.grow.value/100,photos=+R.photos.value,size=+R.size.value,
+        vid=+R.vid.value,bitrate=+R.bitrate.value,viewers=+R.view.value,watch=+R.watch.value,
+        hz=+R.hz.value,raw=R.raw.checked;
+    var photoGBperWed=photos*size/1024, vidStoreMinPerWed=vid+(raw?600:0);
+    var newArr=[],cum=0,months=[],qArr=[];
+    for(var m=0;m<hz;m++){ newArr.push(Math.max(1,Math.round(wed*Math.pow(1+g,m)))); }
+    for(var m=0;m<hz;m++){
+      cum+=newArr[m];
+      var photoGBtot=cum*photoGBperWed, vidStoreMinTot=cum*vidStoreMinPerWed,
+          vidStoreGBtot=vidStoreMinTot*P.stored/1024;
+      var vidMinDel=0, imgWt=0, active=0;
+      for(var b=0;b<=m;b++){ var age=m-b,w=(age<W.length?W[age]:0); if(w<=0)continue;
+        vidMinDel+=newArr[b]*viewers*watch*w; imgWt+=newArr[b]*viewers*w; if(age<=1)active+=newArr[b]; }
+      var q={ photoGBtot:photoGBtot, vidStoreMinTot:vidStoreMinTot, vidStoreGBtot:vidStoreGBtot,
+        vidMinDel:vidMinDel, vidGBDel:vidMinDel*bitrate/1024, imgGBDel:imgWt*P.imgPayload/1024,
+        encodeMin:newArr[m]*vid, transforms:active*photos*2, opsCount:newArr[m]*photos };
+      qArr.push(q);
+      var row={}; PLATS.forEach(function(p){ row[p.id]=costs(p.id,q).total; }); months.push(row);
+    }
+    // per-wedding unit econ for current cheapest at horizon
+    var last=months[hz-1], best=PLATS[0].id, bestV=Infinity;
+    PLATS.forEach(function(p){ if(last[p.id]<bestV){bestV=last[p.id];best=p.id;} });
+    return {months:months,qArr:qArr,hz:hz,newArr:newArr,cum:cum,best:best,photoGBperWed:photoGBperWed,vidStoreMinPerWed:vidStoreMinPerWed,
+            viewers:viewers,watch:watch,bitrate:bitrate,photos:photos};
+  }
+
+  function drawChart(D){
+    var svg=el("chart"),w=700,h=300,pad={l:cur.code==="INR"?62:52,r:14,t:16,b:34},n=D.hz;
+    var maxV=0;
+    D.months.forEach(function(r){ PLATS.forEach(function(p){ if(visible[p.id]) maxV=Math.max(maxV,r[p.id]); }); });
+    maxV=maxV*1.12||1;
+    var X=function(i){return pad.l+(n<=1?0:i*(w-pad.l-pad.r)/(n-1))};
+    var Y=function(v){return h-pad.b-Math.min(v,maxV)/maxV*(h-pad.t-pad.b)};
+    var g='',steps=4;
+    for(var s=0;s<=steps;s++){ var val=maxV*s/steps,y=Y(val);
+      g+='<line x1="'+pad.l+'" y1="'+y+'" x2="'+(w-pad.r)+'" y2="'+y+'" stroke="#D8CBB4" stroke-width="1" '+(s===0?'':'stroke-dasharray="2 4"')+'/>';
+      var lab=cur.code==="INR"?("₹"+(val>=1000?Math.round(val*cur.rate/1000)+"k":Math.round(val*cur.rate))):(val>=1000?"$"+Math.round(val/1000)+"k":"$"+Math.round(val));
+      g+='<text x="'+(pad.l-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="#6B5A54" font-family="Inter">'+lab+'</text>'; }
+    var ticks=Math.min(n,6);
+    for(var t=0;t<ticks;t++){ var idx=Math.round(t*(n-1)/(ticks-1||1));
+      g+='<text x="'+X(idx)+'" y="'+(h-pad.b+18)+'" text-anchor="middle" font-size="11" fill="#6B5A54" font-family="Inter">M'+(idx+1)+'</text>'; }
+    PLATS.forEach(function(p){ if(!visible[p.id])return; var d='';
+      D.months.forEach(function(r,i){ d+=(i?'L':'M')+X(i).toFixed(1)+' '+Y(r[p.id]).toFixed(1)+' '; });
+      g+='<path d="'+d+'" fill="none" stroke="'+p.color+'" stroke-width="2.4" '+(p.dash?'stroke-dasharray="5 4" ':'')+'stroke-linejoin="round" stroke-linecap="round"/>';
+      g+='<circle cx="'+X(n-1)+'" cy="'+Y(D.months[n-1][p.id])+'" r="3.5" fill="'+p.color+'"/>'; });
+    svg.innerHTML=g;
+  }
+
+  function drawChips(){
+    var c=el("chips"),h='';
+    PLATS.forEach(function(p){ h+='<button class="chip '+(visible[p.id]?'on':'')+'" data-id="'+p.id+'"><span class="dot" style="background:'+p.color+'"></span><s>'+p.name+(p.dash?' ~':'')+'</s></button>'; });
+    c.innerHTML=h;
+    c.querySelectorAll(".chip").forEach(function(b){ b.onclick=function(){ visible[b.dataset.id]=!visible[b.dataset.id]; render(); }; });
+  }
+  function drawTabs(){
+    var c=el("tabs"),h='';
+    PLATS.forEach(function(p){ h+='<button class="tab '+(activeTab===p.id?'on':'')+'" data-id="'+p.id+'">'+p.name+'</button>'; });
+    c.innerHTML=h;
+    c.querySelectorAll(".tab").forEach(function(b){ b.onclick=function(){ activeTab=b.dataset.id; render(); }; });
+  }
+
+  function drawBreakdown(D,pick){
+    var res=costs(activeTab,D.qArr[pick]), items=res.items.filter(function(x){return x[1]!=="FREE"});
+    var max=Math.max.apply(null,items.map(function(x){return x[1]}))||1,html='';
+    res.items.forEach(function(r){
+      var isFree=(r[1]==="FREE"), pct=isFree?0:(r[1]/max*100);
+      html+='<tr><td>'+r[0]+'</td><td class="bar-cell"><div class="minibar" style="width:'+Math.max(pct,1.5)+'%;background:'+r[2]+'"></div></td><td class="n">'+money(r[1])+'</td></tr>';
+    });
+    html+='<tr class="total"><td>Total</td><td class="bar-cell"></td><td class="n">'+money(res.total)+'</td></tr>';
+    el("breakdown").innerHTML=html;
+    // verdict per platform
+    var V={ cf:"Flat per-minute video means cost barely moves with resolution — the hedge if guests watch 4K. You wire up storage, transcode and player yourself.",
+      bunny:"Cheapest here because video is billed per-GB at low CDN rates and transcoding is free. Push the quality slider up and this line climbs fastest.",
+      ik:"Bandwidth at $0.45/GB plus VPU video processing make streaming costly — but unmatched image optimization and India-native latency. Best if viewing is light.",
+      cld:"Approximate. Most features and the fastest build, but credits on storage + bandwidth + transforms make it the priciest for heavy viewing.",
+      mux:"Best-in-class video pipeline and Next.js DX (next-video), but you pay a premium and still need R2 + transforms for photos." };
+    el("verdict").innerHTML="<b>"+PLATS.filter(function(p){return p.id===activeTab})[0].name+":</b> "+V[activeTab];
+  }
+
+  function render(){
+    Object.keys(R).forEach(function(k){ fillRange(R[k]); });
+    el("v-wed").textContent=(+R.wed.value).toLocaleString();
+    el("v-grow").textContent=R.grow.value+"%";
+    el("v-photos").textContent=(+R.photos.value).toLocaleString();
+    el("v-size").textContent=R.size.value+" MB";
+    el("v-vid").textContent=R.vid.value+" min";
+    el("v-bitrate").textContent=R.bitrate.value+" MB/min";
+    el("v-view").textContent=(+R.view.value).toLocaleString();
+    el("v-watch").textContent=R.watch.value+" min";
+    el("v-hz").textContent=R.hz.value+" mo";
+    el("hz-lbl").textContent=R.hz.value; el("hz-lbl2").textContent=R.hz.value;
+
+    var D=model();
+    R.pick.max=D.hz; if(+R.pick.value>D.hz)R.pick.value=D.hz; fillRange(R.pick);
+    var pick=+R.pick.value-1; el("pick-lbl").textContent="Month "+R.pick.value;
+
+    var last=D.months[D.hz-1];
+    var vis=PLATS.filter(function(p){return visible[p.id]});
+    var arr=(vis.length?vis:PLATS);
+    var best=arr[0],worst=arr[0];
+    arr.forEach(function(p){ if(last[p.id]<last[best.id])best=p; if(last[p.id]>last[worst.id])worst=p; });
+    el("c-best").textContent=money(last[best.id]); el("c-best-sub").textContent=best.name+" · "+D.cum.toLocaleString()+" weddings";
+    el("c-worst").textContent=money(last[worst.id]); el("c-worst-sub").textContent=worst.name;
+    var spread=last[best.id]>0?(last[worst.id]/last[best.id]):0;
+    el("c-spread").textContent=(spread>=10?Math.round(spread):spread.toFixed(1))+"×";
+
+    // per-wedding for cheapest platform (active window + archive)
+    var bid=best.id;
+    var qActive={ photoGBtot:D.photoGBperWed, vidStoreMinTot:D.vidStoreMinPerWed, vidStoreGBtot:D.vidStoreMinPerWed*P.stored/1024,
+      vidMinDel:D.viewers*D.watch*(W[0]+W[1]), vidGBDel:D.viewers*D.watch*(W[0]+W[1])*D.bitrate/1024,
+      imgGBDel:D.viewers*(W[0]+W[1])*P.imgPayload/1024, encodeMin:D.vidStoreMinPerWed, transforms:D.photos*2, opsCount:D.photos };
+    var qArch={ photoGBtot:D.photoGBperWed, vidStoreMinTot:D.vidStoreMinPerWed, vidStoreGBtot:D.vidStoreMinPerWed*P.stored/1024,
+      vidMinDel:0,vidGBDel:0,imgGBDel:0,encodeMin:0,transforms:0,opsCount:0 };
+    var actV=costs(bid,qActive).total, arcV=costs(bid,qArch).total;
+    el("unit-k").textContent="Per wedding ("+best.name+")";
+    el("c-unit").innerHTML=money(actV)+' <span style="font-size:14px;color:inherit">+'+money(arcV)+"/mo</span>";
+
+    drawChips(); drawTabs(); drawChart(D); drawBreakdown(D,pick);
+  }
+
+  Object.keys(R).forEach(function(k){ R[k].addEventListener("input",render); R[k].addEventListener("change",render); });
+
+  // currency toggle
+  el("cur-seg").querySelectorAll("button").forEach(function(b){
+    b.onclick=function(){
+      el("cur-seg").querySelectorAll("button").forEach(function(x){x.classList.remove("on")});
+      b.classList.add("on"); cur.code=b.dataset.cur;
+      if(cur.code==="INR"){ cur.sym="₹"; cur.rate=+R.fx.value||95.5; el("fx-box").style.opacity="1"; }
+      else{ cur.sym="$"; cur.rate=1; el("fx-box").style.opacity=".55"; }
+      render();
+    };
+  });
+  R.fx.addEventListener("input",function(){ if(cur.code==="INR"){cur.rate=+R.fx.value||95.5; render();} });
+  el("fx-box").style.opacity=".55";
+
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { HeroGeometric } from "@/components/ui/hero-geometric";
+
+const FlyCanvas = dynamic(
+  () => import("@/app/website-theme-framer/components/FlyCanvas"),
+  { ssr: false }
+);
 import { TextScrollAnimation } from "@/components/ui/text-scroll-animation";
 import IntroAnimation from "@/components/ui/scroll-morph-hero";
 import { PageFooter } from "@/components/layout/PageFooter";
@@ -215,6 +221,7 @@ function Nav() {
 export default function Home() {
   return (
     <div className="min-h-screen" style={{ background: "#FAFAFA" }}>
+      <FlyCanvas sizeVw={0.20} />
       <Nav />
       <HeroGeometric
         titleClassName="text-[clamp(32px,5vw,68px)] leading-[1.1]"
