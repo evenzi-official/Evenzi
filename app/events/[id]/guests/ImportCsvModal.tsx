@@ -134,7 +134,7 @@ export function ImportCsvModal({ eventId, existingPhones, onClose, onImported, f
   }
 
   return (
-    <div className="modal-scrim" role="presentation" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+    <div className="modal-scrim is-open" role="presentation" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="gm-import-h">
         <header className="modal-head">
           <div className="modal-head-lead">

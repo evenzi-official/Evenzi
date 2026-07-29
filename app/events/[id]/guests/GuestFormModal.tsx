@@ -131,7 +131,7 @@ export function GuestFormModal(props: Props): React.ReactElement {
   }
 
   return (
-    <div className="modal-scrim" role="presentation" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+    <div className="modal-scrim is-open" role="presentation" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="gm-guest-h">
         <header className="modal-head">
           <div className="modal-head-lead">
@@ -269,7 +269,7 @@ export function GuestFormModal(props: Props): React.ReactElement {
         </form>
 
         {confirmingRemove && guest && (
-          <div className="modal-scrim" role="presentation" onClick={(e) => { if (e.target === e.currentTarget) setConfirmingRemove(false) }}>
+          <div className="modal-scrim is-open" role="presentation" onClick={(e) => { if (e.target === e.currentTarget) setConfirmingRemove(false) }}>
             <div className="modal-card lg-glass-card modal-confirm-cautionary" role="alertdialog" aria-modal="true" aria-labelledby="gm-remove-h">
               <button className="modal-close modal-close--corner" type="button" aria-label="Close" onClick={() => setConfirmingRemove(false)}>
                 <span aria-hidden="true" className="material-symbols-outlined">close</span>
