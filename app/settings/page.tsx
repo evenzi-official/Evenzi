@@ -5,9 +5,9 @@ import { ScrollProgress } from '@/components/layout/ScrollProgress'
 import { HelpFab } from '@/components/layout/HelpFab'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { PageFooter } from '@/components/layout/PageFooter'
-import { avatarInitial } from '@/lib/utils'
+import { avatarInitial, formatPhone } from '@/lib/utils'
 import { ProfileSection } from './ProfileSection'
-import { SecuritySection } from './SecuritySection'
+import { SecuritySection, type SignInMethod } from './SecuritySection'
 import { NotificationsSection } from './NotificationsSection'
 import { AccountSection } from './AccountSection'
 
@@ -28,7 +28,24 @@ export default async function UserSettingsPage() {
     .eq('user_id', user.id)
     .single()
 
-  const hasPassword = (user.identities ?? []).some((identity) => identity.provider === 'email')
+  const identities = user.identities ?? []
+  const googleIdentity = identities.find((i) => i.provider === 'google')
+  const methods: SignInMethod[] = [
+    {
+      provider: 'google',
+      label: 'Google',
+      icon: 'account_circle',
+      connected: Boolean(googleIdentity),
+      detail: profile?.email ?? user.email ?? null,
+    },
+    {
+      provider: 'phone',
+      label: 'Phone number',
+      icon: 'phone_iphone',
+      connected: Boolean(profile?.phone ?? user.phone),
+      detail: formatPhone(profile?.phone ?? user.phone ?? null),
+    },
+  ]
   const displayName = profile?.display_name ?? null
   const initial = avatarInitial(displayName ?? user.email ?? user.phone ?? 'User')
 
@@ -59,7 +76,7 @@ export default async function UserSettingsPage() {
           phone={profile?.phone ?? user.phone ?? null}
           avatarUrl={profile?.avatar_url ?? null}
         />
-        <SecuritySection hasPassword={hasPassword} />
+        <SecuritySection methods={methods} />
         <NotificationsSection
           emailAlerts={preferences?.email_alerts ?? true}
           pushNotifications={preferences?.push_notifications ?? true}
