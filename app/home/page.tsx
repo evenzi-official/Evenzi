@@ -63,8 +63,21 @@ export default async function HomePage() {
     createdAt: row.created_at,
   }));
 
-  const raw = user.email ?? user.phone ?? "User"
-  const userDisplay = raw.includes("@") ? (raw.split("@")[0] ?? raw) : raw
+  // The name the host set in Settings wins, so editing it there actually shows
+  // up here. Falls back to the email local-part / phone only when it isn't set.
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("display_name")
+    .eq("id", user.id)
+    .single()
+
+  // `||` not `??` on purpose: Supabase returns "" (not null) for an unset
+  // email/phone, which `??` would happily pass through as a blank greeting.
+  const fallback = user.email?.trim() || user.phone?.trim() || "User"
+  const fallbackDisplay = fallback.includes("@")
+    ? (fallback.split("@")[0] || fallback)
+    : fallback
+  const userDisplay = profile?.display_name?.trim() || fallbackDisplay
 
   return <EventsGrid events={events} userDisplay={userDisplay} hasError={hasError} />;
 }
