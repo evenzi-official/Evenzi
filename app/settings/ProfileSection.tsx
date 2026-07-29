@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { formatPhone } from '@/lib/utils'
 
 type ToastTone = 'success' | 'error'
 interface ToastState { message: string; tone: ToastTone }
@@ -95,18 +96,30 @@ export function ProfileSection({ displayName, email, phone, avatarUrl }: Props):
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="phone">Phone number</label>
-              <div className="form-input form-input-group">
-                <span className="form-input-prefix" aria-hidden="true">+91</span>
+              {formatPhone(phone) ? (
+                <div className="form-input form-input-group">
+                  <span className="form-input-prefix" aria-hidden="true">+91</span>
+                  <input
+                    id="phone"
+                    type="tel"
+                    className="form-input-field"
+                    value={formatPhone(phone)}
+                    readOnly
+                    autoComplete="tel"
+                    inputMode="numeric"
+                  />
+                </div>
+              ) : (
                 <input
                   id="phone"
                   type="tel"
-                  className="form-input-field"
-                  value={phone ?? ''}
+                  className="form-input"
+                  value=""
                   readOnly
                   autoComplete="tel"
                   inputMode="numeric"
                 />
-              </div>
+              )}
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="email">Email address</label>
