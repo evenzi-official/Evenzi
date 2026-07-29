@@ -4,6 +4,8 @@
 >
 > **Owner:** Abhijith · **Started:** 2026-07-20 · **Status:** Phase 0 done · Phase 1 design lock DONE (lineup below) · Phase 2 build next
 
+> **Aug-end V0 launch scope (decided 2026-07-29):** rolling scope, not a hard cut — ship whichever templates are complete by end of August. Confirmed floor: both Lovable-sourced templates (Bold Festive #1, Sapphire #6) plus Midnight Elegant #2 (already shipped, pending sign-off). Dheeraj is hand-building 1-2 more from the remaining lineup (Classic Editorial #3 / Minimal Modern #4 / Blush Romantic #5); exact count TBD closer to launch. **Cataloging split:** Lovable-sourced template output (React components, `themes.ts` tokens) bypasses `designs/components.html` — stays in its own React tree since it's a port-and-refine pipeline, not the HTML/CSS/JS prototype flow. Hand-built HTML-first templates keep following the normal catalog rule (see Midnight Elegant's W6 entry).
+
 ---
 
 ## 0. Template lineup (locked 2026-07-20)
