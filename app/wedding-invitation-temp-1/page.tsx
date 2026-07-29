@@ -29,20 +29,28 @@ const BEATS = [
 const BEAT_VH = 75;
 const DETAILS_VH = BEATS.length * BEAT_VH; // 300
 
-type Phase = 'idle' | 'playing' | 'done' | 'reversing';
+type Phase = 'idle' | 'playing' | 'done' | 'scrubbing';
 
 export default function WeddingInvitationTemp1() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const detailsRef = useRef<HTMLDivElement>(null);
   const detailsContainerRef = useRef<HTMLDivElement>(null);
-  const reverseRafRef = useRef<number | null>(null);
-  const lastRafTs = useRef<number | null>(null);
   // True only after the user has scrolled into the details section (guards against
-  // the smooth-scroll-to-details triggering reverse immediately after video ends)
+  // the smooth-scroll-to-details triggering scrubbing immediately after video ends)
   const hasScrolledIntoDetails = useRef(false);
+  // Mirrors phase state so the persistent scroll listener always reads the latest value
+  const phaseRef = useRef<Phase>('idle');
+  // Only true when the video just ended — prevents scroll-to-details re-firing on scrub↔done transitions
+  const shouldScrollToDetails = useRef(false);
 
   const [phase, setPhase] = useState<Phase>('idle');
   const [scrollFrac, setScrollFrac] = useState(0);
+
+  // Keeps phaseRef in sync and updates state together
+  const setPhaseSync = (p: Phase) => {
+    phaseRef.current = p;
+    setPhase(p);
+  };
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -50,107 +58,68 @@ export default function WeddingInvitationTemp1() {
     if (phase !== 'idle') return;
     const video = videoRef.current;
     if (!video) return;
-    setPhase('playing');
+    setPhaseSync('playing');
     video.play();
   };
 
   const handleVideoEnd = () => {
     hasScrolledIntoDetails.current = false;
-    setPhase('done');
-    // scrollIntoView fires in useEffect after the section height expands
+    shouldScrollToDetails.current = true;
+    setPhaseSync('done');
   };
 
-  // Scroll to details after the DOM has expanded from height:0 → DETAILS_VH
+  // Scroll to details only after video ends, not on every done↔scrubbing transition
   useEffect(() => {
-    if (phase !== 'done') return;
+    if (phase !== 'done' || !shouldScrollToDetails.current) return;
+    shouldScrollToDetails.current = false;
     requestAnimationFrame(() => {
       detailsRef.current?.scrollIntoView({ behavior: 'smooth' });
     });
   }, [phase]);
 
-  // ── Scroll listener (done + reversing) ────────────────────────────────────
+  // ── Single persistent scroll listener ─────────────────────────────────────
 
   useEffect(() => {
-    if (phase !== 'done' && phase !== 'reversing') return;
-
     const onScroll = () => {
+      const p = phaseRef.current;
       const scrollY = window.scrollY;
 
-      if (phase === 'done') {
-        // Track details scroll fraction
+      if (p === 'done') {
         const container = detailsContainerRef.current;
         if (container) {
-          const rect = container.getBoundingClientRect();
           const scrollable = container.offsetHeight - window.innerHeight;
-          const frac = Math.min(Math.max(-rect.top / scrollable, 0), 1);
+          const frac = Math.min(Math.max(-container.getBoundingClientRect().top / scrollable, 0), 1);
           setScrollFrac(frac);
-          // Mark as "in details" once the user has scrolled past the first beat
           if (frac > 0.05) hasScrolledIntoDetails.current = true;
         }
-        // Trigger reverse only after user has scrolled into details, then back up
+        // Enter scrubbing when user scrolls back up into the video section
         if (scrollY < window.innerHeight && hasScrolledIntoDetails.current) {
           hasScrolledIntoDetails.current = false;
-          setPhase('reversing');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          setPhaseSync('scrubbing');
+          const video = videoRef.current;
+          if (video && video.duration) {
+            video.currentTime = video.duration * (scrollY / window.innerHeight);
+          }
         }
       }
 
-      if (phase === 'reversing') {
-        // User scrolled back down → cancel reverse, return to done
-        if (scrollY > window.innerHeight * 0.3) {
-          hasScrolledIntoDetails.current = false;
-          setPhase('done');
+      if (p === 'scrubbing') {
+        const video = videoRef.current;
+        if (video && video.duration) {
+          // Map scroll position 0→100vh to video currentTime duration→0
+          video.currentTime = video.duration * Math.min(Math.max(scrollY / window.innerHeight, 0), 1);
+        }
+        if (scrollY >= window.innerHeight) {
+          setPhaseSync('done');
+        } else if (scrollY <= 0) {
+          setPhaseSync('idle');
         }
       }
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [phase]);
-
-  // ── Reverse rAF loop ───────────────────────────────────────────────────────
-
-  useEffect(() => {
-    if (phase !== 'reversing') {
-      if (reverseRafRef.current !== null) {
-        cancelAnimationFrame(reverseRafRef.current);
-        reverseRafRef.current = null;
-      }
-      lastRafTs.current = null;
-      return;
-    }
-
-    const video = videoRef.current;
-    if (!video) return;
-
-    const SPEED = 1.5; // 1.5× faster than real-time for snappiness
-
-    const tick = (timestamp: number) => {
-      if (lastRafTs.current === null) lastRafTs.current = timestamp;
-      const dt = (timestamp - lastRafTs.current) / 1000;
-      lastRafTs.current = timestamp;
-
-      const next = Math.max(video.currentTime - dt * SPEED, 0);
-      video.currentTime = next;
-
-      if (next <= 0) {
-        setPhase('idle');
-        return;
-      }
-
-      reverseRafRef.current = requestAnimationFrame(tick);
-    };
-
-    reverseRafRef.current = requestAnimationFrame(tick);
-
-    return () => {
-      if (reverseRafRef.current !== null) {
-        cancelAnimationFrame(reverseRafRef.current);
-        reverseRafRef.current = null;
-      }
-      lastRafTs.current = null;
-    };
-  }, [phase]);
+  }, []);
 
   // ── Beat opacity / translate ───────────────────────────────────────────────
 
@@ -159,6 +128,13 @@ export default function WeddingInvitationTemp1() {
     const end = (i + 1) / BEATS.length;
     const fadeInEnd = start + (end - start) * 0.3;
     const fadeOutStart = end - (end - start) * 0.25;
+
+    // Beat 0 is visible immediately when the section appears (no fade-in delay)
+    if (i === 0) {
+      if (scrollFrac < fadeOutStart) return 1;
+      if (scrollFrac < end) return 1 - (scrollFrac - fadeOutStart) / (end - fadeOutStart);
+      return 0;
+    }
 
     if (scrollFrac < start) return 0;
     if (scrollFrac < fadeInEnd) return (scrollFrac - start) / (fadeInEnd - start);
@@ -169,6 +145,8 @@ export default function WeddingInvitationTemp1() {
   });
 
   const beatTranslates = BEATS.map((_, i) => {
+    // Beat 0 starts in place (no slide-up delay)
+    if (i === 0) return 0;
     const start = i / BEATS.length;
     const fadeInEnd = start + (1 / BEATS.length) * 0.3;
     if (scrollFrac < start) return 24;
@@ -271,8 +249,8 @@ export default function WeddingInvitationTemp1() {
       <div
         ref={detailsContainerRef}
         style={{
-          height: phase === 'done' || phase === 'reversing' ? `${DETAILS_VH}vh` : 0,
-          overflow: phase === 'done' || phase === 'reversing' ? 'visible' : 'hidden',
+          height: phase === 'done' || phase === 'scrubbing' ? `${DETAILS_VH}vh` : 0,
+          overflow: phase === 'done' || phase === 'scrubbing' ? 'visible' : 'hidden',
           position: 'relative',
         }}
       >
@@ -298,8 +276,9 @@ export default function WeddingInvitationTemp1() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                opacity: phase === 'done' ? beatOpacities[i] : 0,
+                opacity: (phase === 'done' || phase === 'scrubbing') ? beatOpacities[i] : 0,
                 transform: `translateY(${beatTranslates[i]}px)`,
+                zIndex: 1,
                 padding: '0 24px',
                 textAlign: 'center',
               }}
@@ -387,6 +366,23 @@ export default function WeddingInvitationTemp1() {
               />
             </div>
           ))}
+
+          {/* Flowers overlay — top of details section */}
+          {(phase === 'done' || phase === 'scrubbing') && (
+            <img
+              src="/flw-1.gif"
+              alt=""
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '85%',
+                opacity: 0.7,
+                pointerEvents: 'none',
+              }}
+            />
+          )}
 
           {/* Scroll nudge */}
           {phase === 'done' && scrollFrac < 0.02 && (
