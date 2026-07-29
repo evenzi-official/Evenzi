@@ -35,7 +35,7 @@ export default async function UserSettingsPage() {
   return (
     <div data-page="settings">
       <ScrollProgress />
-      <FloatingNav userInitial={initial} />
+      <FloatingNav userInitial={initial} avatarUrl={profile?.avatar_url ?? null} />
 
       <Breadcrumb
         items={[

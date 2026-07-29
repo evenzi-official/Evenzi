@@ -67,7 +67,7 @@ export default async function HomePage() {
   // up here. Falls back to the email local-part / phone only when it isn't set.
   const { data: profile } = await supabase
     .from("user_profiles")
-    .select("display_name")
+    .select("display_name, avatar_url")
     .eq("id", user.id)
     .single()
 
@@ -79,5 +79,12 @@ export default async function HomePage() {
     : fallback
   const userDisplay = profile?.display_name?.trim() || fallbackDisplay
 
-  return <EventsGrid events={events} userDisplay={userDisplay} hasError={hasError} />;
+  return (
+    <EventsGrid
+      events={events}
+      userDisplay={userDisplay}
+      avatarUrl={profile?.avatar_url ?? null}
+      hasError={hasError}
+    />
+  );
 }

@@ -7,6 +7,8 @@ interface FloatingNavProps {
   eventId?: string
   notificationCount?: number
   userInitial?: string
+  /** Profile photo. Falls back to `userInitial` when absent. */
+  avatarUrl?: string | null
   /** Shows the "Create event" button before the notification bell. Home only. */
   showCreateEvent?: boolean
 }
@@ -15,6 +17,7 @@ export function FloatingNav({
   eventId,
   notificationCount = 0,
   userInitial = 'A',
+  avatarUrl = null,
   showCreateEvent = false,
 }: FloatingNavProps) {
   const pathname = usePathname()
@@ -82,7 +85,14 @@ export function FloatingNav({
             <span aria-hidden="true" className={`material-symbols-outlined${isSettings ? ' icon-fill' : ''}`}>settings</span>
           </Link>
           <span className="fn-divider hidden sm:inline-block" aria-hidden="true" />
-          <button aria-label="Account menu" className="fn-avatar">{userInitial}</button>
+          <button aria-label="Account menu" className="fn-avatar">
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt="" className="fn-avatar-img" />
+            ) : (
+              userInitial
+            )}
+          </button>
         </div>
       </div>
     </nav>

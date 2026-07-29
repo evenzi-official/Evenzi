@@ -280,10 +280,11 @@ function ErrorSection() {
 interface Props {
   events: EventListItem[]
   userDisplay: string
+  avatarUrl?: string | null
   hasError?: boolean
 }
 
-export default function EventsGrid({ events, userDisplay, hasError = false }: Props) {
+export default function EventsGrid({ events, userDisplay, avatarUrl = null, hasError = false }: Props) {
   const [ownership, setOwnership] = useState<Ownership>("my")
   const [time, setTime] = useState<TimeFilter>("active")
 
@@ -321,7 +322,7 @@ export default function EventsGrid({ events, userDisplay, hasError = false }: Pr
         }
       `}</style>
       <ScrollProgress />
-      <FloatingNav showCreateEvent userInitial={avatarLetter} />
+      <FloatingNav showCreateEvent userInitial={avatarLetter} avatarUrl={avatarUrl} />
 
       <main className="page-band pt-10 md:pt-14 pb-20">
         <header className="section-head">
