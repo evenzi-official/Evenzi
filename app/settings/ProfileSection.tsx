@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { formatPhone } from '@/lib/utils'
 
 type ToastTone = 'success' | 'error'
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function ProfileSection({ displayName, email, phone, avatarUrl }: Props): React.ReactElement {
+  const router = useRouter()
   const [name, setName] = useState(displayName ?? '')
   const [avatar, setAvatar] = useState(avatarUrl)
   const [saving, setSaving] = useState(false)
@@ -41,6 +43,7 @@ export function ProfileSection({ displayName, email, phone, avatarUrl }: Props):
         return
       }
       flashToast('Changes saved', 'success')
+      router.refresh()
     } catch {
       flashToast('Could not save changes.', 'error')
     } finally {
@@ -64,6 +67,7 @@ export function ProfileSection({ displayName, email, phone, avatarUrl }: Props):
       }
       setAvatar(data.url)
       flashToast('Avatar updated', 'success')
+      router.refresh()
     } catch {
       setAvatarError('Upload failed')
     } finally {

@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 
+type ToastTone = 'success' | 'error'
+interface ToastState { message: string; tone: ToastTone }
+
 interface Props {
   emailAlerts: boolean
   pushNotifications: boolean
@@ -28,6 +31,12 @@ export function NotificationsSection({ emailAlerts, pushNotifications, smsAlerts
     sms_alerts: smsAlerts,
   })
   const [pending, setPending] = useState<Record<string, boolean>>({})
+  const [toast, setToast] = useState<ToastState | null>(null)
+
+  function flashToast(message: string, tone: ToastTone): void {
+    setToast({ message, tone })
+    window.setTimeout(() => setToast(null), 3000)
+  }
 
   async function toggle(key: ChoiceCardDef['key']): Promise<void> {
     if (pending[key]) return
@@ -43,9 +52,11 @@ export function NotificationsSection({ emailAlerts, pushNotifications, smsAlerts
       })
       if (!res.ok) {
         setState((s) => ({ ...s, [key]: !next })) // revert on failure
+        flashToast('Could not save preference.', 'error')
       }
     } catch {
       setState((s) => ({ ...s, [key]: !next }))
+      flashToast('Could not save preference.', 'error')
     } finally {
       setPending((p) => ({ ...p, [key]: false }))
     }
@@ -86,6 +97,7 @@ export function NotificationsSection({ emailAlerts, pushNotifications, smsAlerts
           )
         })}
       </div>
+      {toast && <p className={`mt-3 text-sm ${toast.tone === 'success' ? 'text-brand' : 'text-error'}`}>{toast.message}</p>}
     </section>
   )
 }
