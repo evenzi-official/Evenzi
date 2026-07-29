@@ -11,6 +11,8 @@ interface FloatingNavProps {
   avatarUrl?: string | null
   /** Shows the "Create event" button before the notification bell. Home only. */
   showCreateEvent?: boolean
+  /** Renders a neutral shimmer in place of the avatar. For loading skeletons. */
+  avatarLoading?: boolean
 }
 
 export function FloatingNav({
@@ -19,6 +21,7 @@ export function FloatingNav({
   userInitial = 'A',
   avatarUrl = null,
   showCreateEvent = false,
+  avatarLoading = false,
 }: FloatingNavProps) {
   const pathname = usePathname()
   const isWebsite = pathname.includes('/website')
@@ -86,7 +89,9 @@ export function FloatingNav({
           </Link>
           <span className="fn-divider hidden sm:inline-block" aria-hidden="true" />
           <button aria-label="Account menu" className="fn-avatar">
-            {avatarUrl ? (
+            {avatarLoading ? (
+              <span className="skeleton skeleton-circle" style={{ width: '100%', height: '100%' }} />
+            ) : avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarUrl} alt="" className="fn-avatar-img" />
             ) : (

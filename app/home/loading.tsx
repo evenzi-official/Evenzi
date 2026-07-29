@@ -68,7 +68,7 @@ function FeaturedCardSkeleton(): React.ReactElement {
 export default function HomeLoading(): React.ReactElement {
   return (
     <div style={{ background: "var(--bg)", minHeight: "100dvh" }} aria-busy="true">
-      <FloatingNav showCreateEvent />
+      <FloatingNav showCreateEvent avatarLoading />
 
       <main className="page-band pt-10 md:pt-14 pb-20">
         {/* ── real header copy (static) ── */}
