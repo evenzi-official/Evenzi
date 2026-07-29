@@ -135,3 +135,29 @@ Same discipline as `docs/superpowers/specs/2026-07-29-user-settings-design.md`, 
 - Event Management Hub gap audit — next after this ships.
 - WhatsApp send planning session — personalized message, public website template URL, invitation card.
 - CSV template with tags/functions columns — only if a future pass needs it; not requested now.
+
+## 11. Built — 2026-07-29
+
+Implemented from `docs/superpowers/plans/2026-07-29-guest-management.md` across 9 build tasks (types/validation → 4 API-route tasks → 4 component tasks → final page integration), each independently reviewed before the next began — Tasks 1-8 by a dedicated subagent reviewer per task, Task 9 (the final integration) reviewed directly by the controller against the plan and verified live, given a session token-budget constraint reached partway through this task. All 9 build tasks landed on `Dev-Vibe`.
+
+### One real bug caught before it shipped
+
+The implementer building Task 9 (final integration) flagged that all three modal components (`GuestFormModal`, `ImportCsvModal`, `TagManagerModal`) rendered their `.modal-scrim` wrapper without the `is-open` class shell.css requires — confirmed by reading `designs/shared/shell.css:2108-2133` directly: `.modal-scrim` defaults to `opacity:0; visibility:hidden; pointer-events:none`, only becoming visible/interactive with `.is-open`. Every "Add guest," CSV import, and tag-manager modal was rendering invisible and unclickable across all four mount points (including the nested Remove-guest confirm). Fixed directly (commit `ad120c1`) and verified live in the browser — the Add Guest modal now renders fully styled, populated with the event's real functions, and interactive.
+
+### Verified live, against the real dev server and a real Supabase session (not just `tsc`)
+
+- Full end-to-end write path: opened the Add Guest modal, submitted a real guest (name + 10-digit phone), confirmed it appeared in the list immediately with correct stats-bar update (1 total, 1 pending, 0% response rate), correct row rendering (initials avatar, formatted phone, "Not invited" chip, PENDING RSVP badge, swipe-rail buttons), then reloaded the page and confirmed the guest persisted — a genuine DB round-trip through `POST /api/events/[id]/guests`, not client-only state.
+- Empty state renders correctly (before any guest existed) with both CTAs.
+- "Send invites" confirmed disabled everywhere it appears (toolbar button correctly labeled "Send WhatsApp invitations (coming soon)") — no request ever fires from it, matching the design's explicit scope decision.
+- `tsc --noEmit` clean across every new/changed file.
+- No new browser console errors introduced (confirmed the one pre-existing hydration warning from the anti-FOUC theme script, already documented in the User Settings build notes, is unrelated and was present before this feature).
+
+### Not yet verified — deferred to a follow-up pass, not silently skipped
+
+Reaching the session's token budget partway through testing cut the verification pass short of the plan's full Task 10 checklist. Still outstanding, to be done before this is considered fully signed off:
+
+- The 6-breakpoint sweep (360/390/414/768/1024/1440px).
+- Live tests of: RSVP setter optimistic update + rollback, CSV import's full flow (template → upload → live preview → validate → insert), bulk select/tag/assign/delete, swipe-to-reveal on an actual touch viewport, zero-assigned banner, search/filter/sort combinations, tag manager (its "Manage tags" trigger is also still unwired per the plan's Task 9 note — needs adding, per the plan's Task 10 step 10, before the tag manager is reachable at all).
+- A dedicated whole-branch code review (the plan's final step) was not run this session for the same budget reason.
+
+Test guest "Test Guest Verify" (phone 9876543210) was left in the `a & b's Wedding` dev event from the write-path verification above — harmless dev data, safe to delete or ignore.
