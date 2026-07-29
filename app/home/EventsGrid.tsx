@@ -2,11 +2,10 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
 import type { EventListItem } from "@/lib/types/events"
 import { ScrollProgress } from "@/components/layout/ScrollProgress"
-import { ThemeToggle } from "@/components/layout/ThemeToggle"
+import { FloatingNav } from "@/components/layout/FloatingNav"
+import { avatarInitial } from "@/lib/utils"
 
 type Ownership = "my" | "collab"
 type TimeFilter = "active" | "past"
@@ -281,20 +280,13 @@ function ErrorSection() {
 interface Props {
   events: EventListItem[]
   userDisplay: string
+  avatarUrl?: string | null
   hasError?: boolean
 }
 
-export default function EventsGrid({ events, userDisplay, hasError = false }: Props) {
-  const router = useRouter()
-  const supabase = createClient()
-
+export default function EventsGrid({ events, userDisplay, avatarUrl = null, hasError = false }: Props) {
   const [ownership, setOwnership] = useState<Ownership>("my")
   const [time, setTime] = useState<TimeFilter>("active")
-
-  const handleSignOut = async (): Promise<void> => {
-    await supabase.auth.signOut()
-    router.push("/")
-  }
 
   const myActive = events.filter(isActive)
   const myPast = events.filter((e) => !isActive(e))
@@ -310,7 +302,7 @@ export default function EventsGrid({ events, userDisplay, hasError = false }: Pr
         ? collabActive
         : collabPast
 
-  const avatarLetter = (userDisplay.replace(/[^a-zA-Z]/g, "")[0] ?? "U").toUpperCase()
+  const avatarLetter = avatarInitial(userDisplay)
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100dvh' }}>
@@ -330,46 +322,7 @@ export default function EventsGrid({ events, userDisplay, hasError = false }: Pr
         }
       `}</style>
       <ScrollProgress />
-      <nav className="floating-nav" aria-label="Main">
-        <div className="floating-nav-inner dash-nav-inner">
-          <Link href="/home" className="fn-logo-link" aria-label="Evenzi home">
-            <span className="fn-logo">EVENZI</span>
-            <span className="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
-              <span className="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
-              <span className="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
-            </span>
-          </Link>
-
-          <span aria-hidden="true" />
-
-          <div className="fn-actions">
-            <Link href="/events/create" className="dash-create-btn" aria-label="Create new event">
-              <span aria-hidden="true" className="material-symbols-outlined">add</span>
-              <span className="dash-create-label">Create event</span>
-            </Link>
-            <button
-              type="button"
-              aria-label="Notifications"
-              className="fn-icon-btn"
-            >
-              <span aria-hidden="true" className="material-symbols-outlined">notifications</span>
-            </button>
-            <ThemeToggle />
-            <button
-              type="button"
-              aria-label="Sign out"
-              className="fn-icon-btn"
-              onClick={() => { void handleSignOut() }}
-            >
-              <span aria-hidden="true" className="material-symbols-outlined">logout</span>
-            </button>
-            <span className="fn-divider hidden sm:inline-block" aria-hidden="true" />
-            <button type="button" aria-label="Account menu" className="fn-avatar">
-              {avatarLetter}
-            </button>
-          </div>
-        </div>
-      </nav>
+      <FloatingNav showCreateEvent userInitial={avatarLetter} avatarUrl={avatarUrl} />
 
       <main className="page-band pt-10 md:pt-14 pb-20">
         <header className="section-head">

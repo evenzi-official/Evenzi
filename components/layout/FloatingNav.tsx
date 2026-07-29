@@ -7,12 +7,26 @@ interface FloatingNavProps {
   eventId?: string
   notificationCount?: number
   userInitial?: string
+  /** Profile photo. Falls back to `userInitial` when absent. */
+  avatarUrl?: string | null
+  /** Shows the "Create event" button before the notification bell. Home only. */
+  showCreateEvent?: boolean
+  /** Renders a neutral shimmer in place of the avatar. For loading skeletons. */
+  avatarLoading?: boolean
 }
 
-export function FloatingNav({ eventId, notificationCount = 0, userInitial = 'A' }: FloatingNavProps) {
+export function FloatingNav({
+  eventId,
+  notificationCount = 0,
+  userInitial = 'A',
+  avatarUrl = null,
+  showCreateEvent = false,
+  avatarLoading = false,
+}: FloatingNavProps) {
   const pathname = usePathname()
   const isWebsite = pathname.includes('/website')
   const isDashboard = !isWebsite
+  const isSettings = pathname === '/settings'
 
   return (
     <nav className="floating-nav" aria-label="Main">
@@ -48,7 +62,15 @@ export function FloatingNav({ eventId, notificationCount = 0, userInitial = 'A' 
           </div>
         )}
 
+        {!eventId && <span aria-hidden="true" />}
+
         <div className="fn-actions">
+          {showCreateEvent && (
+            <Link href="/events/create" className="dash-create-btn" aria-label="Create new event">
+              <span aria-hidden="true" className="material-symbols-outlined">add</span>
+              <span className="dash-create-label">Create event</span>
+            </Link>
+          )}
           <button
             aria-label={notificationCount > 0 ? `Notifications, ${notificationCount} unread` : 'Notifications'}
             className="fn-icon-btn"
@@ -57,8 +79,25 @@ export function FloatingNav({ eventId, notificationCount = 0, userInitial = 'A' 
             {notificationCount > 0 && <span aria-hidden="true" className="fn-dot" />}
           </button>
           <ThemeToggle />
+          <Link
+            href="/settings"
+            aria-label="Settings"
+            aria-current={isSettings ? 'page' : undefined}
+            className="fn-icon-btn"
+          >
+            <span aria-hidden="true" className={`material-symbols-outlined${isSettings ? ' icon-fill' : ''}`}>settings</span>
+          </Link>
           <span className="fn-divider hidden sm:inline-block" aria-hidden="true" />
-          <button aria-label="Account menu" className="fn-avatar">{userInitial}</button>
+          <button aria-label="Account menu" className="fn-avatar">
+            {avatarLoading ? (
+              <span className="skeleton skeleton-circle" style={{ width: '100%', height: '100%' }} />
+            ) : avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt="" className="fn-avatar-img" />
+            ) : (
+              userInitial
+            )}
+          </button>
         </div>
       </div>
     </nav>

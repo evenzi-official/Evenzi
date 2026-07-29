@@ -399,7 +399,10 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px s
   display:inline-flex;align-items:center;justify-content:center;
   transition:transform .25s,box-shadow .25s;
   box-shadow:0 6px 14px -4px color-mix(in oklab,var(--brand) 60%,transparent);
+  overflow:hidden;
 }
+/* Profile photo inside .fn-avatar. Absent → the button's initial shows instead. */
+.fn-avatar-img{width:100%;height:100%;object-fit:cover;display:block}
 @media (hover:hover) and (pointer:fine){.fn-avatar:hover{transform:scale(1.06)}}
 /* .nav-tabs / .nav-tab — floating-nav route navigation ONLY (view-switchers use .seg) */
 .floating-nav .nav-tabs{
@@ -1314,6 +1317,7 @@ html{scroll-behavior:smooth}
   width:100%;height:100%;border-radius:9999px;
   background:var(--brand-tint);
   background-size:cover;background-position:center;
+  object-fit:cover;
   border:1px solid var(--brand-tint-2);
   box-shadow:0 8px 22px -10px rgba(17,24,39,.18);
   display:flex;align-items:center;justify-content:center;

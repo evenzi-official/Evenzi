@@ -5,6 +5,7 @@
 // there is zero layout shift when the real content swaps in.
 
 import Link from "next/link"
+import { FloatingNav } from "@/components/layout/FloatingNav"
 
 function MetaChipSkeleton(): React.ReactElement {
   return (
@@ -67,32 +68,7 @@ function FeaturedCardSkeleton(): React.ReactElement {
 export default function HomeLoading(): React.ReactElement {
   return (
     <div style={{ background: "var(--bg)", minHeight: "100dvh" }} aria-busy="true">
-      {/* ── real nav chrome (static) ── */}
-      <nav className="floating-nav" aria-label="Main">
-        <div className="floating-nav-inner dash-nav-inner">
-          <Link href="/home" className="fn-logo-link" aria-label="Evenzi home">
-            <span className="fn-logo">EVENZI</span>
-            <span className="hidden sm:flex flex-col leading-tight border-l border-brand/30 pl-3" aria-hidden="true">
-              <span className="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">CAPTURE</span>
-              <span className="font-display font-bold text-[9px] tracking-[0.35em] text-brand/85">SHARE · CHERISH</span>
-            </span>
-          </Link>
-          <span aria-hidden="true" />
-          <div className="fn-actions">
-            <Link href="/events/create" className="dash-create-btn" aria-label="Create new event">
-              <span aria-hidden="true" className="material-symbols-outlined">add</span>
-              <span className="dash-create-label">Create event</span>
-            </Link>
-            <span className="fn-icon-btn" aria-hidden="true"><span className="material-symbols-outlined">notifications</span></span>
-            <span className="fn-icon-btn" aria-hidden="true"><span className="material-symbols-outlined">light_mode</span></span>
-            <span className="fn-icon-btn" aria-hidden="true"><span className="material-symbols-outlined">logout</span></span>
-            <span className="fn-divider hidden sm:inline-block" aria-hidden="true" />
-            <span className="fn-avatar" aria-hidden="true">
-              <span className="skeleton skeleton-circle" style={{ width: "100%", height: "100%" }} />
-            </span>
-          </div>
-        </div>
-      </nav>
+      <FloatingNav showCreateEvent avatarLoading />
 
       <main className="page-band pt-10 md:pt-14 pb-20">
         {/* ── real header copy (static) ── */}
