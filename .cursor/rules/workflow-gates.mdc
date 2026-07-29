@@ -1,0 +1,18 @@
+---
+description: Mandatory clarify → plan → implement gates before building anything in Evenzi
+alwaysApply: true
+---
+
+# Workflow gates (mandatory)
+
+Do **not** jump straight to building. For design work, features, sandbox demos, refactors, and similar asks, follow this order:
+
+1. **Clarify first** — Before planning or coding, ask clarifying questions. Lock requirements, scope, constraints, success criteria, and out-of-scope. Skip only when the ask is already fully specified (no material ambiguity).
+2. **Then plan** — Write or update a plan. For non-trivial work, get explicit sign-off before implementation.
+3. **Only then implement** — Build after gates 1–2 are satisfied (or the user explicitly says to skip ahead / just build).
+
+## Overrides
+
+- User says "just build", "skip planning", "no questions", or gives a fully specified build-doc → proceed without re-asking.
+- Trivial one-liners (typo, rename, single-line fix with clear intent) → clarify/plan optional; still confirm if anything is ambiguous.
+- Never invent scope. If unsure, ask.
