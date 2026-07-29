@@ -347,7 +347,7 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 |---------|----------|--------|----------|
 | Fix Vercel Deployment | P0 | DONE — live at evenzi.vercel.app | 0 |
 | Auth & Role Selection | P0 | DONE | 10 |
-| Event CRUD (4-Step Wizard) | P0 | In Review (revamp landed) | 45 |
+| Event CRUD (4-Step Wizard) | P0 | Create flow DONE + in review; Edit & Delete FE+BE in progress | 45 |
 | Host Dashboard | P0 | In Review (revamp landed) | 21 |
 | Landing Section (Marketing Site) | P2 | In Progress | 13 |
 | Reusable Component Library | P0 | Not Started | 28 |
@@ -358,13 +358,13 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 |---------|----------|--------|----------|
 | Event Management Hub | P0 | Not Started | 16 |
 | Guest Management & RSVP | P1 | **Data model LIVE on dev** (`guests_01-05`); design prototype DONE; FE/app not started | 25 |
-| Event Settings | P1 | **Data model LIVE on dev** (`event_settings_01-07`, D40–D48 — `config.plans` catalog, `events.plan_id` FK + limit trigger, 3 sidecar tables + security_invoker views); FE/app not started | 20 |
+| Event Settings | P1 | **DONE** — data model + backend (4 API routes) + FE all live (`app/settings`, 5 tabs w/ real DB round-trips, commit `a8df148`) | 20 |
 | User Settings | P1 | Not Started | 20 |
-| Planning Tools (Checklist + Budget) | P2 | **Data model LIVE on dev** (`planning_01-07`); design v2 DONE; FE/app not started | 15 |
-| Media & Memories (Photo Gallery) | P2 | **Data model LIVE on dev** (`media_01-06`); design prototype DONE (Photos/Videos/Albums; `designs/pages/media/`); FE/app not started | 25 |
+| Planning Tools (Checklist + Budget) | P2 | **Data model LIVE on dev** (`planning_01-07`, real data: 12 tasks/1 budget on test event); design v2 DONE; FE/app not started | 15 |
+| Media & Memories (Photo Gallery) | P2 | **Data model LIVE on dev** (`media_01-06`); backend partial (`app/api/media`, R2 storage integration in progress); design prototype DONE (Photos/Videos/Albums; `designs/pages/media/`); FE/app not started | 25 |
 | Digital Presence (Event Website) | P2 | Not Started | Partial |
 | Admin Module (Developer Panel) | P2 | Not Started | 15 |
-| Digital Invitations (WhatsApp) | P3 | **Data model LIVE on dev** (`inv_01-06`); design prototype DONE — **scope = invitation CARD designer** (personalizer; `designs/pages/invitations/`). WhatsApp send + status tracking stays in Guest Mgmt (see PORT-MAP / overview scope split). FE/app not started. | 0 |
+| Digital Invitations (WhatsApp) | P3 | **Data model LIVE on dev** (`inv_01-06`); design prototype DONE — **scope = invitation CARD designer** (personalizer; `designs/pages/invitations/`). WhatsApp send + status tracking stays in Guest Mgmt (see PORT-MAP / overview scope split). Only a design-test page exists (`app/wedding-invitation-temp-1`, not the real designer); FE/app not started. | 0 |
 | Support Chatbot (FAQ + Admin + Escalation) | P1 | Planned (unblocked — build from design system) | 30 |
 
 **Out of scope for MVP:** Vendor role, AI Photo Finder, real-time features, event discovery/search, analytics.
