@@ -780,12 +780,18 @@
 
       <!-- B4 avatar -->
       <article class="cs-component">
-        <p class="cs-label"><span class="cs-label-name">B4</span> · Avatar Circle · default · hover · secondary</p>
+        <p class="cs-label"><span class="cs-label-name">B4</span> · Avatar Circle · default · hover · secondary · photo</p>
         <div class="cs-stage" style="gap:1rem">
           <button class="fn-avatar" aria-label="Default avatar">A</button>
           <button class="fn-avatar" style="transform:scale(1.06)" aria-label="Hover avatar">A</button>
           <button class="fn-avatar" style="background:var(--brand-tint);color:var(--brand);box-shadow:none;border:1px solid var(--brand-tint-2)" aria-label="Secondary avatar">K</button>
+          <button class="fn-avatar" aria-label="Avatar with profile photo">
+            <img class="fn-avatar-img" alt="" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect width='96' height='96' fill='%23C8A96A'/%3E%3Ccircle cx='48' cy='38' r='16' fill='%23FFF'/%3E%3Cellipse cx='48' cy='82' rx='26' ry='20' fill='%23FFF'/%3E%3C/svg%3E" />
+          </button>
         </div>
+        <p class="cs-type-meta" style="text-transform:none;letter-spacing:0;color:#A9A398;margin:.5rem 0 0">
+          Add <code class="cs-code">.fn-avatar-img</code> as an <code class="cs-code">&lt;img&gt;</code> child to show a profile photo; it clips to the circle. Without it the button's letter shows instead — that letter is the fallback, not the default.
+        </p>
       </article>
 
       <!-- B5 theme toggle -->
