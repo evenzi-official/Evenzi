@@ -7,12 +7,20 @@ interface FloatingNavProps {
   eventId?: string
   notificationCount?: number
   userInitial?: string
+  /** Shows the "Create event" button before the notification bell. Home only. */
+  showCreateEvent?: boolean
 }
 
-export function FloatingNav({ eventId, notificationCount = 0, userInitial = 'A' }: FloatingNavProps) {
+export function FloatingNav({
+  eventId,
+  notificationCount = 0,
+  userInitial = 'A',
+  showCreateEvent = false,
+}: FloatingNavProps) {
   const pathname = usePathname()
   const isWebsite = pathname.includes('/website')
   const isDashboard = !isWebsite
+  const isSettings = pathname === '/settings'
 
   return (
     <nav className="floating-nav" aria-label="Main">
@@ -48,7 +56,15 @@ export function FloatingNav({ eventId, notificationCount = 0, userInitial = 'A' 
           </div>
         )}
 
+        {!eventId && <span aria-hidden="true" />}
+
         <div className="fn-actions">
+          {showCreateEvent && (
+            <Link href="/events/create" className="dash-create-btn" aria-label="Create new event">
+              <span aria-hidden="true" className="material-symbols-outlined">add</span>
+              <span className="dash-create-label">Create event</span>
+            </Link>
+          )}
           <button
             aria-label={notificationCount > 0 ? `Notifications, ${notificationCount} unread` : 'Notifications'}
             className="fn-icon-btn"
@@ -57,6 +73,14 @@ export function FloatingNav({ eventId, notificationCount = 0, userInitial = 'A' 
             {notificationCount > 0 && <span aria-hidden="true" className="fn-dot" />}
           </button>
           <ThemeToggle />
+          <Link
+            href="/settings"
+            aria-label="Settings"
+            aria-current={isSettings ? 'page' : undefined}
+            className="fn-icon-btn"
+          >
+            <span aria-hidden="true" className={`material-symbols-outlined${isSettings ? ' icon-fill' : ''}`}>settings</span>
+          </Link>
           <span className="fn-divider hidden sm:inline-block" aria-hidden="true" />
           <button aria-label="Account menu" className="fn-avatar">{userInitial}</button>
         </div>
