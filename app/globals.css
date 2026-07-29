@@ -9,6 +9,7 @@
 @import "../designs/pages/planning/planning.css";
 @import "../designs/pages/media/media.css";
 @import "../designs/pages/event-settings/event-settings.css";
+@import "../designs/pages/settings/settings.css";
 
 :root {
   /* Brand colors — placeholder values, see docs/BRAND-GUIDELINES.md */
