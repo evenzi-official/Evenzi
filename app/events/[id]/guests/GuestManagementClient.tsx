@@ -502,7 +502,7 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
         <GuestFormModal
           eventId={eventId} mode={formModal.mode} guest={formModal.guest} rsvpStatuses={rsvpStatuses}
           subEvents={subEvents} tags={tags} onClose={() => setFormModal(null)} onSaved={upsertGuest}
-          onRemoved={removeGuestLocal} onCreateTag={createTag} flashToast={flashToast}
+          onRemoved={removeGuestLocal} onCreateTag={createTag} onManageTags={() => setTagManagerOpen(true)} flashToast={flashToast}
         />
       )}
 

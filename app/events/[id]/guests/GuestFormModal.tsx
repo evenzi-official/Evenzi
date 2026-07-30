@@ -14,11 +14,12 @@ interface Props {
   onSaved: (guest: GuestRow) => void
   onRemoved: (guestId: string) => void
   onCreateTag: (name: string) => Promise<GuestTagOption>
+  onManageTags: () => void
   flashToast: (message: string) => void
 }
 
 export function GuestFormModal(props: Props): React.ReactElement {
-  const { eventId, mode, guest, rsvpStatuses, subEvents, tags, onClose, onSaved, onRemoved, onCreateTag, flashToast } = props
+  const { eventId, mode, guest, rsvpStatuses, subEvents, tags, onClose, onSaved, onRemoved, onCreateTag, onManageTags, flashToast } = props
   const editing = mode === 'edit' && guest !== null
 
   const [name, setName] = useState(guest?.name ?? '')
@@ -194,6 +195,7 @@ export function GuestFormModal(props: Props): React.ReactElement {
           <div className="form-group">
             <label className="form-label gm-tags-label" htmlFor="gm-f-tag-input">
               Tags <span className="form-label-opt">(optional)</span>
+              <button type="button" className="gm-manage-tags-link" onClick={onManageTags}>Manage tags</button>
             </label>
             <div className="tag-input">
               <span className="tag-input-chips">
