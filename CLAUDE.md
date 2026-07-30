@@ -347,7 +347,7 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 |---------|----------|--------|----------|
 | Fix Vercel Deployment | P0 | DONE — live at evenzi.vercel.app | 0 |
 | Auth & Role Selection | P0 | DONE | 10 |
-| Event CRUD (4-Step Wizard) | P0 | Create flow DONE + in review; Edit & Delete FE+BE in progress | 45 |
+| Event CRUD (4-Step Wizard) | P0 | **DONE** — Create flow live; Edit & Delete FE+BE live (`GeneralSettingsForm.tsx` wires `PUT`/`DELETE` on `app/api/events/[id]`, incl. delete-confirm modal). Verified against repo 2026-07-30 — docs previously said "in progress" | 45 |
 | Host Dashboard | P0 | In Review (revamp landed) | 21 |
 | Landing Section (Marketing Site) | P2 | In Progress | 13 |
 | Reusable Component Library | P0 | DONE — achieved via React composition as components are built (Dheeraj), not a standalone library artifact | 28 |
@@ -356,15 +356,15 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 
 | Feature | Priority | Status | Subtasks |
 |---------|----------|--------|----------|
-| Event Management Hub | P0 | Data model n/a; design prototype DONE (`designs/pages/event-control/event-control.html`, live on GH Pages); FE/app not started | 16 |
+| Event Management Hub | P0 | **DONE** — `app/events/[id]/page.tsx` (544 lines) live, real Supabase queries (sub-events, `event_hub_summary` view), links out to invitations/guests/planning/journey/website. Corrected 2026-07-30 — docs previously said "FE/app not started" | 16 |
 | Guest Management & RSVP | P1 | **DONE** — data model + 6 API routes + FE all live (`app/events/[id]/guests`, list/stats/toolbar/filters/sort, add/edit/remove, RSVP setter, functions + zero-assigned banner, tag combobox + manager, real CSV import with validation gate, bulk tag/assign/delete; Send-invites intentionally inert pending a WhatsApp planning session). Tested at 6 breakpoints. See `docs/superpowers/specs/2026-07-29-guest-management-design.md` §11 | 25 |
 | Event Settings | P1 | **DONE** — data model + backend (4 API routes) + FE all live (`app/settings`, 5 tabs w/ real DB round-trips, commit `a8df148`) | 20 |
 | User Settings | P1 | **DONE** — `/settings` live with 4 working sections (Profile w/ avatar upload → R2, Security = connected SSO/phone methods, Notification prefs, Account sign-out), 3 API routes, all reading/writing `user_profiles` + `user_preferences`. Settings icon added to shared `FloatingNav`; logout removed from nav everywhere. Tested at 6 breakpoints. Commits `8632cbd`..`0e50a4c` | 20 |
-| Planning Tools (Checklist + Budget) | P2 | **Data model LIVE on dev** (`planning_01-07`, real data: 12 tasks/1 budget on test event); design v2 DONE; FE/app not started | 15 |
-| Media & Memories (Photo Gallery) | P2 | **Data model LIVE on dev** (`media_01-06`); backend partial (`app/api/media`, R2 storage integration in progress); design prototype DONE (Photos/Videos/Albums; `designs/pages/media/`); FE/app not started | 25 |
-| Digital Presence (Event Website) | P2 | Not Started | Partial |
+| Planning Tools (Checklist + Budget) | P2 | **DONE** — backend-wiring pass complete + live-verified 2026-07-30. 7 new API routes (`app/api/events/[id]/planning/*`), `page.tsx` real server-side fetch, `PlanningClient.tsx` fully wired. 9-task subagent-driven build, every task reviewed (2 needed a fix+re-review cycle: task-route not-found/error-handling, missing optimistic-update rollback). Antigravity live-verified task create/budget/expense/duplicate-type-rejection against the real DB, plus bulk actions + validation + receipt stub visually at mobile/desktop (`qa/planning-test-report.md`). Task edit/delete/toggle-done was not separately UI-clicked (API-only + 2 code reviews) — accepted as low-risk, not re-verified live given the logic was already reviewed twice. Typecheck + lint clean. | 15 |
+| Media & Memories (Photo Gallery) | P2 | Data model LIVE on dev (`media_01-06`); **FE UI built** (`app/events/[id]/media`, 1341-line `MediaClient.tsx`, Photos/Videos/Albums) **but not wired** — storage-quota meter is a hardcoded mock, `app/api/media/[...key]` only has `GET` (serve), no upload endpoint yet. Corrected 2026-07-30 | 25 |
+| Digital Presence (Event Website) | P2 | **In progress** — Dheeraj building per founder call 2026-07-30. Not yet visible in this worktree (`app/e/[slug]` doesn't exist here yet — likely local/unpushed) | Partial |
 | Admin Module (Developer Panel) | P2 | Not Started | 15 |
-| Digital Invitations (WhatsApp) | P3 | **Data model LIVE on dev** (`inv_01-06`); design prototype DONE — **scope = invitation CARD designer** (personalizer; `designs/pages/invitations/`). WhatsApp send + status tracking stays in Guest Mgmt (see PORT-MAP / overview scope split). Only a design-test page exists (`app/wedding-invitation-temp-1`, not the real designer); FE/app not started. | 0 |
+| Digital Invitations (WhatsApp) | P3 | Data model LIVE on dev (`inv_01-06`); **scope = invitation CARD designer** (personalizer). WhatsApp send + status tracking stays in Guest Mgmt (already done there). **FE UI built** (`app/events/[id]/invitations`, 576-line `InvitationsClient.tsx`, 7 templates, editable slots) **but not persisted anywhere** — no `fetch`, no `localStorage`; the "Saved" autosave indicator is cosmetic only. `app/wedding-invitation-temp-1` remains a separate, unrelated design-test page. Corrected 2026-07-30 — docs previously said "FE/app not started" | 0 |
 | Support Chatbot (FAQ + Admin + Escalation) | P1 | Planned (unblocked — build from design system) | 30 |
 
 **Out of scope for MVP:** Vendor role, AI Photo Finder, real-time features, event discovery/search, analytics.

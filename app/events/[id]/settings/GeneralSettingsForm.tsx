@@ -50,16 +50,35 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [toast, setToast] = useState<ToastState | null>(null)
 
   // Trigger that opened the delete modal — focus returns here on close (a11y).
   const deleteTriggerRef = useRef<HTMLButtonElement>(null)
 
+  function openConfirm(): void {
+    setDeleteConfirmText('')
+    setConfirmOpen(true)
+  }
+
   // Closes the confirm modal and returns focus to the trigger button.
   function closeConfirm(): void {
     setConfirmOpen(false)
+    setDeleteConfirmText('')
     deleteTriggerRef.current?.focus()
   }
+
+  // A reload that races an in-flight save would read stale server data —
+  // warn before the browser/tab actually unloads rather than let it happen silently.
+  useEffect(() => {
+    if (!saving) return
+    function onBeforeUnload(e: BeforeUnloadEvent): void {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', onBeforeUnload)
+    return () => window.removeEventListener('beforeunload', onBeforeUnload)
+  }, [saving])
 
   // Escape closes the delete confirm modal (don't dismiss mid-delete).
   useEffect(() => {
@@ -362,7 +381,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
               ref={deleteTriggerRef}
               type="button"
               className="btn-pill btn-pill-danger"
-              onClick={() => setConfirmOpen(true)}
+              onClick={openConfirm}
             >
               <span aria-hidden="true" className="material-symbols-outlined">delete</span>
               Delete event
@@ -396,6 +415,20 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
           <p className="modal-confirm-text">
             This permanently removes the event and all its data, guests, and media. This cannot be undone.
           </p>
+          <div className="form-group">
+            <label className="form-label" htmlFor="es-delete-confirm-text">
+              Type <strong>DELETE</strong> to confirm
+            </label>
+            <input
+              id="es-delete-confirm-text"
+              type="text"
+              className="form-input"
+              autoComplete="off"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              disabled={deleting}
+            />
+          </div>
           <div className="modal-actions">
             <button
               type="button"
@@ -409,7 +442,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
               type="button"
               className={`btn-pill btn-pill-danger${deleting ? ' is-loading' : ''}`}
               onClick={handleDelete}
-              disabled={deleting}
+              disabled={deleting || deleteConfirmText.trim().toUpperCase() !== 'DELETE'}
               aria-busy={deleting}
             >
               Delete event
