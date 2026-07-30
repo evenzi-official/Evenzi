@@ -258,32 +258,105 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
   function exitSelect() { setSelecting(false); setSelected({}) }
   function toggleSelect(id: string) { setSelected(p => { const n = { ...p }; if (n[id]) delete n[id]; else n[id] = true; return n }) }
 
-  // Budget — NOTE: not yet wired to the real budget API (Task 7). Local-state only,
-  // kept compiling against the new BudgetSummary shape.
+  // Budget
   function openBudgetModal() { setBudgetForm(budget != null ? String(budget.totalAmount) : ''); setBudgetErr(false); setBudgetModalOpen(true) }
-  function handleBudgetSubmit(e: React.FormEvent) {
+  async function handleBudgetSubmit(e: React.FormEvent) {
     e.preventDefault(); const amt = parseAmount(budgetForm)
     if (amt == null) { setBudgetErr(true); return }
-    setBudgetErr(false)
-    setBudget(prev => ({ totalAmount: amt, spent: prev?.spent ?? 0, remaining: amt - (prev?.spent ?? 0) }))
-    setBudgetModalOpen(false)
+    setBudgetErr(false); setBudgetSaving(true)
+    try {
+      const res = await fetch(`/api/events/${eventId}/planning/budget`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ totalAmount: amt }),
+      })
+      const data: { budget?: { totalAmount: number; spent: number; remaining: number }; error?: string } = await res.json()
+      if (!res.ok || !data.budget) { flashToast('Could not save budget.'); return }
+      setBudget(data.budget); setBudgetModalOpen(false)
+    } catch {
+      flashToast('Could not save budget.')
+    } finally {
+      setBudgetSaving(false)
+    }
   }
 
-  // Expense — NOTE: not yet wired to the real expense API (Task 7). Local-state only,
-  // kept compiling against the new ExpenseRow shape.
+  // Expense
+  const [receiptFile, setReceiptFile] = useState<File | null>(null)
+  const [receiptPreviewUrl, setReceiptPreviewUrl] = useState<string | null>(null)
+  const [addTypeOpen, setAddTypeOpen] = useState(false)
+  const [addTypeName, setAddTypeName] = useState('')
+  const [addTypeSaving, setAddTypeSaving] = useState(false)
+
   function openExpenseModal(id: string | null) {
     setEditingExpenseId(id)
     if (id) { const x = expenses.find(e => e.id === id); if (x) setExpForm({ amount: String(x.amount), type: x.expenseTypeId, vendor: x.vendorName || '', subEvent: x.subEventId || '', date: x.expenseDate || TODAY, notes: x.description || '' }) }
     else setExpForm({ amount: '', type: expenseTypes[0]?.id ?? '', vendor: '', subEvent: '', date: TODAY, notes: '' })
-    setExpAmtErr(false); setExpenseModalOpen(true)
+    setExpAmtErr(false); setReceiptFile(null); setReceiptPreviewUrl(null); setAddTypeOpen(false); setAddTypeName('')
+    setExpenseModalOpen(true)
   }
-  function handleExpenseSubmit(e: React.FormEvent) {
+  async function handleExpenseSubmit(e: React.FormEvent) {
     e.preventDefault(); const amt = parseAmount(expForm.amount)
     if (amt == null) { setExpAmtErr(true); return }
-    setExpAmtErr(false)
-    if (editingExpenseId) { setExpenses(p => p.map(x => x.id === editingExpenseId ? { ...x, amount: amt, expenseTypeId: expForm.type, vendorName: expForm.vendor || null, subEventId: expForm.subEvent || null, expenseDate: expForm.date || TODAY, description: expForm.notes || null } : x)) }
-    else { const id = crypto.randomUUID(); setExpenses(p => [...p, { id, amount: amt, expenseTypeId: expForm.type, vendorName: expForm.vendor || null, subEventId: expForm.subEvent || null, expenseDate: expForm.date || TODAY, description: expForm.notes || null }]) }
-    setExpenseModalOpen(false); setEditingExpenseId(null)
+    setExpAmtErr(false); setExpSaving(true)
+    // Receipt upload is a UI-only stub this pass (design spec §12) — the file is
+    // never sent; receipt_key stays unset on the server.
+    const payload = {
+      amount: amt,
+      expenseTypeId: expForm.type,
+      vendorName: expForm.vendor || null,
+      subEventId: expForm.subEvent || null,
+      expenseDate: expForm.date || TODAY,
+      description: expForm.notes || null,
+    }
+    try {
+      if (editingExpenseId) {
+        const res = await fetch(`/api/events/${eventId}/planning/expenses/${editingExpenseId}`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+        })
+        const data: { expense?: Expense; error?: string } = await res.json()
+        if (!res.ok || !data.expense) { flashToast('Could not save expense.'); return }
+        setExpenses(p => p.map(x => x.id === editingExpenseId ? data.expense! : x))
+      } else {
+        const res = await fetch(`/api/events/${eventId}/planning/expenses`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+        })
+        const data: { expense?: Expense; error?: string } = await res.json()
+        if (!res.ok || !data.expense) { flashToast('Could not add expense.'); return }
+        setExpenses(p => [...p, data.expense!])
+      }
+      setExpenseModalOpen(false); setEditingExpenseId(null)
+    } catch {
+      flashToast('Could not save expense.')
+    } finally {
+      setExpSaving(false)
+    }
+  }
+  function handleReceiptChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null
+    if (receiptPreviewUrl) URL.revokeObjectURL(receiptPreviewUrl)
+    setReceiptFile(file)
+    setReceiptPreviewUrl(file ? URL.createObjectURL(file) : null)
+  }
+  function removeReceipt() {
+    if (receiptPreviewUrl) URL.revokeObjectURL(receiptPreviewUrl)
+    setReceiptFile(null); setReceiptPreviewUrl(null)
+  }
+  async function confirmAddType() {
+    const name = addTypeName.trim()
+    if (!name) return
+    setAddTypeSaving(true)
+    try {
+      const res = await fetch(`/api/events/${eventId}/planning/expense-types`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
+      })
+      const data: { expenseType?: { id: string; name: string; iconName: string | null; isCustom: boolean }; error?: string } = await res.json()
+      if (!res.ok || !data.expenseType) { flashToast(data.error ?? 'Could not add type.'); return }
+      setExpenseTypes(p => [...p, data.expenseType!])
+      setExpForm(f => ({ ...f, type: data.expenseType!.id }))
+      setAddTypeOpen(false); setAddTypeName('')
+    } catch {
+      flashToast('Could not add type.')
+    } finally {
+      setAddTypeSaving(false)
+    }
   }
 
   // Delete
@@ -768,10 +841,42 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
                   </select>
                   <span className="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
                 </div>
+                <div className="expense-type-add">
+                  {!addTypeOpen ? (
+                    <button type="button" className="expense-type-add-trigger" onClick={() => setAddTypeOpen(true)}>+ Add type</button>
+                  ) : (
+                    <div className="expense-type-add-panel">
+                      <label className="sr-only" htmlFor="plan-exp-type-input">New expense type</label>
+                      <input id="plan-exp-type-input" type="text" className="form-input" placeholder="New expense type" autoComplete="off" value={addTypeName} onChange={e => setAddTypeName(e.target.value)} />
+                      <div className="expense-type-add-actions">
+                        <button type="button" className="btn-pill btn-pill-secondary" onClick={() => { setAddTypeOpen(false); setAddTypeName('') }}>Cancel</button>
+                        <button type="button" className="btn-pill btn-pill-primary" disabled={!addTypeName.trim() || addTypeSaving} onClick={confirmAddType}>Add</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="plan-exp-vendor">Vendor name <span className="form-label-opt">(optional)</span></label>
                 <input id="plan-exp-vendor" name="vendor" type="text" className="form-input" autoComplete="organization" placeholder="e.g. Tadka Heritage" value={expForm.vendor} onChange={e => setExpForm(f => ({ ...f, vendor: e.target.value }))} />
+              </div>
+              <div className="form-group">
+                <span className="form-label">Receipt <span className="form-label-opt">(optional)</span></span>
+                <div className="receipt-upload">
+                  <label className="receipt-upload-trigger" htmlFor="plan-receipt-file">
+                    <span className="material-symbols-outlined" aria-hidden="true">upload_file</span>
+                    <span>Upload receipt or image</span>
+                  </label>
+                  <p className="receipt-upload-hint">Prototype — won&apos;t save yet</p>
+                  <input type="file" id="plan-receipt-file" accept="image/*" className="sr-only" onChange={handleReceiptChange} />
+                  {receiptPreviewUrl && (
+                    <div className="receipt-upload-preview">
+                      <img src={receiptPreviewUrl} alt="" />
+                      <span className="receipt-upload-name">{receiptFile?.name}</span>
+                      <button type="button" className="receipt-upload-remove" onClick={removeReceipt}>Remove</button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <div className="plan-modal-divider" aria-hidden="true" />
