@@ -224,18 +224,22 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
   async function toggleTaskDone(id: string, done: boolean) {
     const targetStatus = done ? doneStatus : pendingStatus
     if (!targetStatus) return
+    const prevStatusId = tasks.find(t => t.id === id)?.statusId
     setTasks(p => p.map(t => t.id === id ? { ...t, statusId: targetStatus.id } : t))
     try {
       const res = await fetch(`/api/events/${eventId}/planning/tasks/${id}`, {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statusId: targetStatus.id }),
       })
       if (!res.ok) throw new Error('failed')
+      flashToast(done ? 'Task completed' : 'Task reopened')
     } catch {
+      if (prevStatusId !== undefined) setTasks(p => p.map(t => t.id === id ? { ...t, statusId: prevStatusId } : t))
       flashToast('Could not update task status.')
     }
   }
   async function completeTasks(ids: string[]) {
     if (!doneStatus || ids.length === 0) return
+    const prevStatusById = new Map(tasks.filter(t => ids.includes(t.id)).map(t => [t.id, t.statusId]))
     setTasks(p => p.map(t => ids.includes(t.id) ? { ...t, statusId: doneStatus.id } : t))
     try {
       const res = await fetch(`/api/events/${eventId}/planning/tasks/bulk`, {
@@ -244,6 +248,7 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
       if (!res.ok) throw new Error('failed')
       flashToast(ids.length === 1 ? 'Task completed' : `${ids.length} tasks completed`)
     } catch {
+      setTasks(p => p.map(t => prevStatusById.has(t.id) ? { ...t, statusId: prevStatusById.get(t.id)! } : t))
       flashToast('Could not complete tasks.')
     }
   }
@@ -289,27 +294,43 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
     if (!pendingDelete) return
     if (pendingDelete.type === 'task' && pendingDelete.id) {
       const taskId = pendingDelete.id
+      const prevTask = tasks.find(t => t.id === taskId)
       setTasks(p => p.filter(t => t.id !== taskId))
       try {
         const res = await fetch(`/api/events/${eventId}/planning/tasks/${taskId}`, { method: 'DELETE' })
         if (!res.ok) throw new Error('failed')
-      } catch { flashToast('Could not delete task.') }
+      } catch {
+        if (prevTask) setTasks(p => (p.some(t => t.id === taskId) ? p : [...p, prevTask]))
+        flashToast('Could not delete task.')
+      }
     } else if (pendingDelete.type === 'bulk' && pendingDelete.ids) {
       const ids = pendingDelete.ids
+      const prevTasks = tasks.filter(t => ids.includes(t.id))
       setTasks(p => p.filter(t => !ids.includes(t.id))); exitSelect()
       try {
         const res = await fetch(`/api/events/${eventId}/planning/tasks/bulk`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', taskIds: ids }),
         })
         if (!res.ok) throw new Error('failed')
-      } catch { flashToast('Could not delete tasks.') }
+      } catch {
+        setTasks(p => {
+          const existingIds = new Set(p.map(t => t.id))
+          const restore = prevTasks.filter(t => !existingIds.has(t.id))
+          return restore.length ? [...p, ...restore] : p
+        })
+        flashToast('Could not delete tasks.')
+      }
     } else if (pendingDelete.type === 'expense' && pendingDelete.id) {
       const expenseId = pendingDelete.id
+      const prevExpense = expenses.find(e => e.id === expenseId)
       setExpenses(p => p.filter(e => e.id !== expenseId))
       try {
         const res = await fetch(`/api/events/${eventId}/planning/expenses/${expenseId}`, { method: 'DELETE' })
         if (!res.ok) throw new Error('failed')
-      } catch { flashToast('Could not delete expense.') }
+      } catch {
+        if (prevExpense) setExpenses(p => (p.some(e => e.id === expenseId) ? p : [...p, prevExpense]))
+        flashToast('Could not delete expense.')
+      }
     }
     setPendingDelete(null); setDeleteModalOpen(false)
   }
