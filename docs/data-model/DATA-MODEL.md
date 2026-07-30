@@ -6,11 +6,11 @@
 
 | | |
 |---|---|
-| **Version** | `2026-06-17.3` |
-| **Last updated** | 2026-06-23 (RPC `create_event_with_details` now persists per-sub-event date/time/venue — migration `create_event_persist_sub_event_datetime_venue`) |
-| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + **Planning** (Checklist/Tasks + Budget) + **Guest Management** (guest list, RSVP, function assignments, tags) + **Media & Memories** (photo/video gallery + albums, R2-backed) + **Invitations** (invitation card personalizer — card styles catalog, locked templates catalog, per-event invitation cards, hosted share URL) + **Event Management Hub** (`show_on_website` toggle on sub-events, icon catalog fix, `event_hub_summary` aggregation view) + **Event Settings (D40–D48, complete)** (`config.plans` seeded (free/premium/elite) + `config.plans_public` anon-safe view; `public.events.plan_id` NOT NULL FK + `config.free_plan_id()` default + `trg_enforce_plan_event_limit` limit trigger; three 1:1 sidecar tables (`event_general_settings`, `event_website_settings`, `event_guest_settings`) each owner-only RLS hardened to `to authenticated` + `(select auth.uid())`; `_seed_event_settings()` SECURITY DEFINER helper (D36-trigger extracted, REVOKE from public/anon/authenticated, GRANT to service_role); three `security_invoker` views — hash excluded from website view, `effective_max_plus_ones` computed in guest view, `anon` revoked from all three). Remaining entitlements (modules, features, plan_features, overrides) + account deletion shapes recorded as **[PLANNED]**. |
+| **Version** | `2026-07-30.1` |
+| **Last updated** | 2026-07-30 (Event Website / Digital Presence Wave 1 applied — migrations `website_01`–`website_10`; D49) |
+| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + **Planning** (Checklist/Tasks + Budget) + **Guest Management** (guest list, RSVP, function assignments, tags) + **Media & Memories** (photo/video gallery + albums, R2-backed) + **Invitations** (invitation card personalizer — card styles catalog, locked templates catalog, per-event invitation cards, hosted share URL) + **Event Management Hub** (`show_on_website` toggle on sub-events, icon catalog fix, `event_hub_summary` aggregation view) + **Event Settings (D40–D48, complete)** (`config.plans` seeded (free/premium/elite) + `config.plans_public` anon-safe view; `public.events.plan_id` NOT NULL FK + `config.free_plan_id()` default + `trg_enforce_plan_event_limit` limit trigger; three 1:1 sidecar tables (`event_general_settings`, `event_website_settings`, `event_guest_settings`) each owner-only RLS hardened to `to authenticated` + `(select auth.uid())`; `_seed_event_settings()` SECURITY DEFINER helper (D36-trigger extracted, REVOKE from public/anon/authenticated, GRANT to service_role); three `security_invoker` views — hash excluded from website view, `effective_max_plus_ones` computed in guest view, `anon` revoked from all three) + **Event Website / Digital Presence Wave 1 (D49, complete)** (5 `config.website_*` catalogs, `event_website_design`/`event_website_pages`/`event_website_sections`, dedicated `event_story_blocks`/`event_wedding_party_members`/`event_qa_items`, `event_travel_points`/`event_stays`, `events.slug`, per-sub-event RSVP columns on `event_guest_sub_events`, owner-only RLS throughout). Remaining entitlements (modules, features, plan_features, overrides) + account deletion shapes recorded as **[PLANNED]**. **Wave 2** of Digital Presence (public site, guest lookup, `anon` RLS) is spec'd, council-gated, **not yet migrated**. |
 | **Database** | Supabase Postgres — project `smjkbmkxweevqpvygabe` (ap-northeast-1) |
-| **Live DB status** | ✅ Built 2026-06-13 on the dev project (migrations `core_01`–`core_07`): catalogs seeded, 4 logins backfilled, baseline RLS on. ✅ Planning module applied 2026-06-14 (migrations `planning_01`–`planning_07`): new catalogs seeded, `event_tasks`/`event_checklists` extended, 4 new live tables + 3 `security_invoker` views + helper RPCs, owner-only RLS on, `get_advisors` (security + performance) reviewed clean. ⚠️ Manual step pending: expose the `config` schema in *Dashboard → Project Settings → API → Exposed schemas*. The deployed app still queries the old shapes — its code must be updated. ✅ Invitations module applied 2026-06-17 (migrations `inv_01`–`inv_06`): 2 config catalogs seeded, `event_invitation_cards` table + 2 views + `create_event_with_details` extended to seed main event card. ✅ Event Hub applied 2026-06-17 (migrations `hub_01`–`hub_03`): `show_on_website` column + 2 indexes on `event_sub_events`; `config.event_sub_types` icon names updated to Material Symbols + 2 new types; `event_hub_summary` aggregation view created. ✅ Event Settings (plan tier) applied 2026-06-17 (migrations `event_settings_01`–`event_settings_02`): `config.plans` table + 3 tier rows seeded (free/premium/elite); `public.events.plan_id` NOT NULL FK with `config.free_plan_id()` default function + `idx_events_plan_id` index + `trg_enforce_plan_event_limit` BEFORE INSERT trigger (SECURITY DEFINER; no-op while limits are NULL); 5 CHECK constraints on `config.plans`. ✅ Event Settings (sidecar tables + views) applied 2026-06-17 (migrations `event_settings_03`–`event_settings_07` incl. `06a`/`06b` split): `event_general_settings`, `event_website_settings`, `event_guest_settings` tables + hardened owner-only RLS (`to authenticated`, `(select auth.uid())`); three `security_invoker` views (hash excluded from website view, `effective_max_plus_ones` computed in guest view, `anon` revoked from all three); `_seed_event_settings()` SECURITY DEFINER helper (REVOKE from public/anon/authenticated, GRANT to service_role); `config.plans_public` anon-safe view; `create_event_with_details` extended to call `_seed_event_settings()` as step 8; TypeScript types regenerated (1936 lines). |
+| **Live DB status** | ✅ Built 2026-06-13 on the dev project (migrations `core_01`–`core_07`): catalogs seeded, 4 logins backfilled, baseline RLS on. ✅ Planning module applied 2026-06-14 (migrations `planning_01`–`planning_07`): new catalogs seeded, `event_tasks`/`event_checklists` extended, 4 new live tables + 3 `security_invoker` views + helper RPCs, owner-only RLS on, `get_advisors` (security + performance) reviewed clean. ⚠️ Manual step pending: expose the `config` schema in *Dashboard → Project Settings → API → Exposed schemas*. The deployed app still queries the old shapes — its code must be updated. ✅ Invitations module applied 2026-06-17 (migrations `inv_01`–`inv_06`): 2 config catalogs seeded, `event_invitation_cards` table + 2 views + `create_event_with_details` extended to seed main event card. ✅ Event Hub applied 2026-06-17 (migrations `hub_01`–`hub_03`): `show_on_website` column + 2 indexes on `event_sub_events`; `config.event_sub_types` icon names updated to Material Symbols + 2 new types; `event_hub_summary` aggregation view created. ✅ Event Settings (plan tier) applied 2026-06-17 (migrations `event_settings_01`–`event_settings_02`): `config.plans` table + 3 tier rows seeded (free/premium/elite); `public.events.plan_id` NOT NULL FK with `config.free_plan_id()` default function + `idx_events_plan_id` index + `trg_enforce_plan_event_limit` BEFORE INSERT trigger (SECURITY DEFINER; no-op while limits are NULL); 5 CHECK constraints on `config.plans`. ✅ Event Settings (sidecar tables + views) applied 2026-06-17 (migrations `event_settings_03`–`event_settings_07` incl. `06a`/`06b` split): `event_general_settings`, `event_website_settings`, `event_guest_settings` tables + hardened owner-only RLS (`to authenticated`, `(select auth.uid())`); three `security_invoker` views (hash excluded from website view, `effective_max_plus_ones` computed in guest view, `anon` revoked from all three); `_seed_event_settings()` SECURITY DEFINER helper (REVOKE from public/anon/authenticated, GRANT to service_role); `config.plans_public` anon-safe view; `create_event_with_details` extended to call `_seed_event_settings()` as step 8; TypeScript types regenerated (1936 lines). ✅ Event Website Wave 1 applied 2026-07-30 (migrations `website_01`–`website_10`): 5 `config.website_*` catalogs (2 seeded — pages, section types; 3 empty — fonts, palettes, templates), `event_website_design` (1:1 sidecar, nullable `template_id`), `event_website_pages`/`event_website_sections` (+ guard trigger, matching the 5 existing denormalized-`event_id` precedents), `event_story_blocks`/`event_wedding_party_members`/`event_qa_items` (dedicated tables, not generic jsonb), `event_travel_points`/`event_stays`, `map_link` on `events`/`event_sub_events`, `events.slug`, `event_guest_sub_events` RSVP columns + unique constraint, `create_event_with_details` extended (step 9), `event_website_summary` host-preview view. `get_advisors` (security) caught the guard-trigger anon-exec gap post-migration — fixed same session (`website_10`), re-verified clean. `get_advisors` (performance) — standard unindexed-FK/unused-index notices at empty-table cold start, accepted per the same precedent as every prior module. TypeScript types regenerated (2457 lines). Wave 2 (public site, `anon` RLS, `guest_tokens`) spec'd, **not migrated** — gated behind its own council pass. |
 | **Tags** | **[NOW]** = part of the core slice we build first · **[PLANNED]** = shape locked, built when we reach that page (Admin / Billing / Settings) |
 
 ---
@@ -204,6 +204,7 @@ Newest first. Per-table rationale lives in each table's section.
 
 | # | Decision | Why |
 |---|---|---|
+| D49 | **Event Website (Digital Presence) Wave 1 (`website_01`–`website_10`).** 5 `config.*` catalogs (`website_fonts`/`website_palettes`/`website_templates`/`website_pages`/`website_section_types`) — `anon`+`authenticated` SELECT like every other catalog; `website_pages`/`website_section_types` seeded (10-page spine, 11 section types), `website_fonts`/`website_palettes`/`website_templates` left empty until the template lineup locks. `event_website_design` (1:1 sidecar, `template_id` **nullable** since the catalog starts empty). `event_website_pages`/`event_website_sections` (denormalized `event_id` + guard trigger, matching the 5 existing precedents). **Story/Wedding Party/Q&A got dedicated typed tables** (`event_story_blocks`/`event_wedding_party_members`/`event_qa_items`), not the generic jsonb sections table — founder call, matches the `event_travel_points`/`event_stays` pattern instead. `event_travel_points`/`event_stays` (G2/G3) + `map_link` text columns on `events`/`event_sub_events` (G4 MVP fallback — no lat/lng yet). `events.slug` (G13). `event_guest_sub_events` gained per-sub-event RSVP columns (`response_status`/`plus_one_count`/`dietary_notes`/`responded_at` + a `unique(guest_id, sub_event_id)`) — confirmed a real V0 requirement, not blanket-only. `create_event_with_details` extended (step 9) to seed the page spine per new event. Owner-only RLS throughout — **no `anon` grant on any live table**, only the 5 reference catalogs. Full spec + council review trail: `docs/superpowers/specs/2026-07-30-event-website-data-model-spec.md`. **Wave 2** (public `/e/[slug]` site, `guest_tokens` with **no FK to `event_guests`** — same cross-module-FK avoidance as D23 — phone+name self-lookup RPCs, `anon` RLS) is spec'd but **not yet migrated**, gated behind its own dedicated council pass. | Council-reviewed 2026-07-30 (Tech Lead/Data Modeller/Security Expert/Backend Engineer, Critique+Debate+Arbiter) after an initial single-pass draft drew 5 critical findings — notably the original draft proposed `anon` read on `event_media`/`event_albums`, directly contradicting D35; removed entirely, Gallery ships in a later slice once Media's signed-URL route exists. Splitting Wave 1/Wave 2 keeps the codebase's first-ever `anon` RLS surface as its own reviewed slice rather than bundling it with deferrable host-editor work. |
 | D48 | **`event_guest_settings_view` (security_invoker).** `effective_max_plus_ones` computed in the view: `null` when `allow_plus_ones = false`, actual cap when on. RSVP flow reads this single column — no dual-flag check needed in the service layer. `user_id` projected (same pattern as D46/D47). `anon` revoked. | The RSVP flow must not hardcode the plus-ones logic: a toggle flip should instantly change what guests see without a deploy. Single computed column from a view (never stored — D7) is the clean pattern. |
 | D47 | **`event_website_settings_view` (security_invoker).** `website_password_hash` intentionally excluded from the projected column list — the hash must never reach a client. `website_expires_at` (primary_date + 60 days), `website_days_remaining` (PostgreSQL `int4`, projected to TypeScript `string | null` as interval), and `website_expired` (boolean) are computed in the view — not stored (D7). `anon` revoked. | Hash projection from any view would be indistinguishable from a regular column fetch by a client calling the auto-API. Computing expiry avoids a stored column that drifts when the event date is edited. |
 | D46 | **`event_general_settings_view` (security_invoker).** Joins `public.events` to project `event_name`, `event_date`, and `event_details` (partner names) as a single-query loader for the General Settings tab. `anon` revoked (blanket grant risk; this view exposes owner-only data). `authenticated` SELECT confirmed present (via Supabase blanket grant). | `security_invoker = true` is mandatory: the default Supabase view runs as SECURITY DEFINER (`postgres`) and bypasses RLS — a cross-tenant read leak on a shared table. The JOIN avoids a second round-trip from the settings tab. |
@@ -894,6 +895,179 @@ left join event_invitation_cards ic
 - `default_card_share_token` — convenience for the hub's Share quick-action; NULL if no invitation card yet.
 - Depends on `inv_01`–`inv_06` (event_invitation_cards) being live.
 - Materialization candidate if p95 query time > 200ms at 1k events.
+
+---
+
+### Event Website (Digital Presence) — Wave 1  `[NOW]` — `website_01`–`website_10`
+
+Host-side editor for the public guest-facing event website. **Wave 1 only** — owner-only RLS throughout, no `anon` surface. Wave 2 (public `/e/[slug]` site, guest self-lookup by phone+name, RSVP submission) is a separate, not-yet-migrated slice gated behind its own council review. Full design rationale: [`docs/superpowers/specs/2026-07-30-event-website-data-model-spec.md`](../superpowers/specs/2026-07-30-event-website-data-model-spec.md).
+
+#### Catalogs (`website_01`)
+
+```sql
+create table config.website_fonts (
+  id uuid primary key default gen_random_uuid(), slug text not null unique, name text not null,
+  role text not null check (role in ('heading', 'body', 'both')),
+  enabled boolean not null default true, display_order integer not null default 0,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create table config.website_palettes (
+  id uuid primary key default gen_random_uuid(), slug text not null unique, name text not null,
+  swatch_hex text[] not null, css_tokens jsonb not null default '{}',
+  display_order integer not null default 0, enabled boolean not null default true,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create table config.website_templates (
+  id uuid primary key default gen_random_uuid(), slug text not null unique, name text not null, description text,
+  default_palette_id uuid references config.website_palettes(id) on delete restrict,
+  default_font_id uuid references config.website_fonts(id) on delete restrict,
+  thumbnail_key text, display_order integer not null default 0, enabled boolean not null default true,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create table config.website_pages (
+  id uuid primary key default gen_random_uuid(), slug text not null unique, name text not null, icon_name text,
+  tier text not null check (tier in ('public', 'private')), is_removable boolean not null default true,
+  default_visible boolean not null default true, display_order integer not null default 0,
+  enabled boolean not null default true,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create table config.website_section_types (
+  id uuid primary key default gen_random_uuid(), slug text not null unique, name text not null, icon_name text,
+  field_schema jsonb not null default '[]', display_order integer not null default 0, enabled boolean not null default true,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+-- anon+authenticated SELECT on all 5 (reference data, matches config.event_types/event_sub_types/rsvp_statuses)
+```
+
+Seeded at migration time: `website_pages` — the fixed 10-page spine (`home`\*, `story`, `schedule`, `venue-travel`, `wedding-party`, `gallery`, `qa`, `rsvp`\*, `registry`, `video`; \* = `is_removable=false`). `website_section_types` — the 11 host-editor section types (`heading`, `photo`, `photogrid`, `schedule`, `person`, `hotel`, `qa`, `divider`, `map`, `countdown`, `video`). `website_fonts`/`website_palettes`/`website_templates` stay **empty** until the final template lineup locks (build-plan §0) — visual/stylistic content, not structural.
+
+#### `event_website_design` (`website_02`) — 1:1 sidecar, same pattern as `event_general_settings`/`event_website_settings`
+
+```sql
+create table public.event_website_design (
+  event_id uuid primary key references public.events(id) on delete cascade,
+  user_id uuid not null references auth.users(id),
+  template_id uuid references config.website_templates(id) on delete restrict,   -- nullable: catalog starts empty
+  palette_id uuid references config.website_palettes(id) on delete restrict,
+  heading_font_id uuid references config.website_fonts(id) on delete restrict,
+  body_font_id uuid references config.website_fonts(id) on delete restrict,
+  cover_image_key text, og_image_key text, updated_by uuid references auth.users(id),
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+-- owner_all RLS (authenticated, user_id = auth.uid())
+```
+
+#### `event_website_pages` + `event_website_sections` (`website_03`)
+
+```sql
+create table public.event_website_pages (
+  id uuid primary key default gen_random_uuid(), event_id uuid not null references public.events(id) on delete cascade,
+  page_id uuid not null references config.website_pages(id) on delete restrict,
+  is_visible boolean not null default true, custom_title text, display_order integer not null default 0,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now(),
+  unique (event_id, page_id)
+);
+create table public.event_website_sections (
+  id uuid primary key default gen_random_uuid(), event_id uuid not null references public.events(id) on delete cascade,
+  page_id uuid not null references public.event_website_pages(id) on delete cascade,
+  section_type_id uuid not null references config.website_section_types(id) on delete restrict,
+  data jsonb not null default '{}', is_visible boolean not null default true, display_order integer not null default 0,
+  created_by uuid references auth.users(id), updated_by uuid references auth.users(id),
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+-- Guard trigger (event_website_section_before, SECURITY DEFINER, search_path='') derives event_id from
+-- page_id and rejects a mismatch — matches guest_sub_event_before/media_album_before/media_tag_link_before/
+-- event_task_assignee_before/guest_tag_link_before precedent. REVOKE EXECUTE from anon+authenticated+public
+-- (trigger-only function, must never be directly RPC-callable).
+```
+Backs only **Registry** and **Video** pages, plus any host-added free-form extra sections on top of the tables below (Story/Wedding Party/Q&A no longer use generic sections — see `website_04`).
+
+#### `event_story_blocks` / `event_wedding_party_members` / `event_qa_items` (`website_04`)
+
+Dedicated typed tables, not generic jsonb — matches the `event_travel_points`/`event_stays` pattern below. Direct `event_id` FK (no guard trigger needed).
+
+```sql
+create table public.event_story_blocks (
+  id uuid primary key default gen_random_uuid(), event_id uuid not null references public.events(id) on delete cascade,
+  block_type text not null check (block_type in ('heading', 'photo')),
+  heading text, body text, twocol boolean not null default false, photo_key text,
+  display_order integer not null default 0, is_visible boolean not null default true,
+  created_by uuid references auth.users(id) on delete set null, updated_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create table public.event_wedding_party_members (
+  id uuid primary key default gen_random_uuid(), event_id uuid not null references public.events(id) on delete cascade,
+  name text not null, relation text, side text not null check (side in ('bride', 'groom')), photo_key text,
+  display_order integer not null default 0, is_visible boolean not null default true,
+  created_by uuid references auth.users(id) on delete set null, updated_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create table public.event_qa_items (
+  id uuid primary key default gen_random_uuid(), event_id uuid not null references public.events(id) on delete cascade,
+  question text not null, answer text not null, display_order integer not null default 0, is_visible boolean not null default true,
+  created_by uuid references auth.users(id) on delete set null, updated_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+```
+
+#### `event_travel_points` / `event_stays` (`website_05`) + venue `map_link`
+
+```sql
+alter table public.events add column map_link text;
+alter table public.event_sub_events add column map_link text;  -- MVP fallback: share-URL string, not lat/lng
+
+create table public.event_travel_points (
+  id uuid primary key default gen_random_uuid(), event_id uuid not null references public.events(id) on delete cascade,
+  kind text not null check (kind in ('airport', 'railway', 'bus')), name text not null,
+  distance_text text, travel_time_text text, map_link text, note text, display_order integer not null default 0,
+  created_by uuid references auth.users(id) on delete set null, updated_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create table public.event_stays (
+  id uuid primary key default gen_random_uuid(), event_id uuid not null references public.events(id) on delete cascade,
+  name text not null, address text, distance_text text, price_band text, booking_url text, phone text,
+  map_link text, note text, display_order integer not null default 0,
+  created_by uuid references auth.users(id) on delete set null, updated_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+```
+
+#### `events.slug` (`website_06`) + `event_guest_sub_events` RSVP columns (`website_07`)
+
+```sql
+alter table public.events add column slug text unique;  -- public site route key, app-layer generator
+
+alter table public.event_guest_sub_events
+  add column response_status text check (response_status in ('yes', 'no', 'maybe')),
+  add column plus_one_count integer check (plus_one_count >= 0),
+  add column dietary_notes text, add column responded_at timestamptz,
+  add constraint event_guest_sub_events_guest_sub_event_unique unique (guest_id, sub_event_id);
+```
+Per-sub-event RSVP response confirmed as a real V0 requirement (founder call, 2026-07-30) — a guest can say yes to the sangeet, no to the reception. `event_guest_sub_events` was previously assignment-only.
+
+#### `create_event_with_details` extension (`website_08`)
+
+Step 9 added: seeds one `event_website_pages` row per enabled `config.website_pages` entry for every new event. `event_website_design` is **not** auto-seeded (no default template while the catalog is empty) — created once the host picks a template in the editor.
+
+#### `event_website_summary` view (`website_09`)
+
+```sql
+create view public.event_website_summary with (security_invoker = true) as
+select ewp.event_id,
+  jsonb_agg(jsonb_build_object('page_id', ewp.page_id, 'slug', cp.slug, 'name', coalesce(ewp.custom_title, cp.name),
+    'tier', cp.tier, 'is_visible', ewp.is_visible, 'display_order', ewp.display_order) order by ewp.display_order) as pages
+from public.event_website_pages ewp join config.website_pages cp on cp.id = ewp.page_id
+group by ewp.event_id;
+```
+Authenticated host-preview aggregate, matches `event_hub_summary`. The anon-safe public equivalent (`get_public_website_payload`) ships with Wave 2.
+
+#### `website_10` — guard-trigger lockdown fix
+
+`event_website_section_before()` was still `anon`/`authenticated`-executable via PostgREST RPC after the initial `REVOKE ... FROM PUBLIC` (caught by `get_advisors` immediately post-migration) — `REVOKE FROM PUBLIC` alone doesn't remove default per-role grants the way it does for the 5 existing guard-trigger precedents. Fixed with an explicit `REVOKE EXECUTE ... FROM anon, authenticated, public`. Verified via `has_function_privilege()` — both now `false`, matching precedent.
+
+#### `website_11` — duplicate constraint fix
+
+`website_07` added `unique(guest_id, sub_event_id)` on `event_guest_sub_events` without checking one already existed (`event_guest_sub_events_guest_id_sub_event_id_key`, pre-existing from the Guest Management module) — the spec's own text flagged this exact risk ("add only if this link table doesn't already have one — verify at migration time") and it wasn't verified before migrating. Caught by the Wave 2 council's Data Modeller pass (fresh review, not part of Wave 1's own review). Fixed by dropping the redundant duplicate; the original constraint stands.
 
 ---
 

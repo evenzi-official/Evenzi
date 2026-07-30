@@ -416,23 +416,35 @@ export type Database = {
       event_guest_sub_events: {
         Row: {
           created_at: string
+          dietary_notes: string | null
           event_id: string
           guest_id: string
           id: string
+          plus_one_count: number | null
+          responded_at: string | null
+          response_status: string | null
           sub_event_id: string
         }
         Insert: {
           created_at?: string
+          dietary_notes?: string | null
           event_id: string
           guest_id: string
           id?: string
+          plus_one_count?: number | null
+          responded_at?: string | null
+          response_status?: string | null
           sub_event_id: string
         }
         Update: {
           created_at?: string
+          dietary_notes?: string | null
           event_id?: string
           guest_id?: string
           id?: string
+          plus_one_count?: number | null
+          responded_at?: string | null
+          response_status?: string | null
           sub_event_id?: string
         }
         Relationships: [
@@ -978,6 +990,192 @@ export type Database = {
           },
         ]
       }
+      event_qa_items: {
+        Row: {
+          answer: string
+          created_at: string
+          created_by: string | null
+          display_order: number
+          event_id: string
+          id: string
+          is_visible: boolean
+          question: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          event_id: string
+          id?: string
+          is_visible?: boolean
+          question: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          event_id?: string
+          id?: string
+          is_visible?: boolean
+          question?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_qa_items_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_qa_items_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_stays: {
+        Row: {
+          address: string | null
+          booking_url: string | null
+          created_at: string
+          created_by: string | null
+          display_order: number
+          distance_text: string | null
+          event_id: string
+          id: string
+          map_link: string | null
+          name: string
+          note: string | null
+          phone: string | null
+          price_band: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          address?: string | null
+          booking_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          distance_text?: string | null
+          event_id: string
+          id?: string
+          map_link?: string | null
+          name: string
+          note?: string | null
+          phone?: string | null
+          price_band?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          address?: string | null
+          booking_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          distance_text?: string | null
+          event_id?: string
+          id?: string
+          map_link?: string | null
+          name?: string
+          note?: string | null
+          phone?: string | null
+          price_band?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_stays_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_stays_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_story_blocks: {
+        Row: {
+          block_type: string
+          body: string | null
+          created_at: string
+          created_by: string | null
+          display_order: number
+          event_id: string
+          heading: string | null
+          id: string
+          is_visible: boolean
+          photo_key: string | null
+          twocol: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          block_type: string
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          event_id: string
+          heading?: string | null
+          id?: string
+          is_visible?: boolean
+          photo_key?: string | null
+          twocol?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          block_type?: string
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          event_id?: string
+          heading?: string | null
+          id?: string
+          is_visible?: boolean
+          photo_key?: string | null
+          twocol?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_story_blocks_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_story_blocks_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_sub_events: {
         Row: {
           created_at: string
@@ -989,6 +1187,7 @@ export type Database = {
           event_sub_type_id: string | null
           guest_count: number | null
           id: string
+          map_link: string | null
           show_on_website: boolean
           start_time: string | null
           status: string
@@ -1005,6 +1204,7 @@ export type Database = {
           event_sub_type_id?: string | null
           guest_count?: number | null
           id?: string
+          map_link?: string | null
           show_on_website?: boolean
           start_time?: string | null
           status?: string
@@ -1021,6 +1221,7 @@ export type Database = {
           event_sub_type_id?: string | null
           guest_count?: number | null
           id?: string
+          map_link?: string | null
           show_on_website?: boolean
           start_time?: string | null
           status?: string
@@ -1160,6 +1361,238 @@ export type Database = {
           },
         ]
       }
+      event_travel_points: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          distance_text: string | null
+          event_id: string
+          id: string
+          kind: string
+          map_link: string | null
+          name: string
+          note: string | null
+          travel_time_text: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          distance_text?: string | null
+          event_id: string
+          id?: string
+          kind: string
+          map_link?: string | null
+          name: string
+          note?: string | null
+          travel_time_text?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          distance_text?: string | null
+          event_id?: string
+          id?: string
+          kind?: string
+          map_link?: string | null
+          name?: string
+          note?: string | null
+          travel_time_text?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_travel_points_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_travel_points_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_website_design: {
+        Row: {
+          body_font_id: string | null
+          cover_image_key: string | null
+          created_at: string
+          event_id: string
+          heading_font_id: string | null
+          og_image_key: string | null
+          palette_id: string | null
+          template_id: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          body_font_id?: string | null
+          cover_image_key?: string | null
+          created_at?: string
+          event_id: string
+          heading_font_id?: string | null
+          og_image_key?: string | null
+          palette_id?: string | null
+          template_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          body_font_id?: string | null
+          cover_image_key?: string | null
+          created_at?: string
+          event_id?: string
+          heading_font_id?: string | null
+          og_image_key?: string | null
+          palette_id?: string | null
+          template_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_website_design_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_website_design_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_website_pages: {
+        Row: {
+          created_at: string
+          custom_title: string | null
+          display_order: number
+          event_id: string
+          id: string
+          is_visible: boolean
+          page_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custom_title?: string | null
+          display_order?: number
+          event_id: string
+          id?: string
+          is_visible?: boolean
+          page_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custom_title?: string | null
+          display_order?: number
+          event_id?: string
+          id?: string
+          is_visible?: boolean
+          page_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_website_pages_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_website_pages_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_website_sections: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          display_order: number
+          event_id: string
+          id: string
+          is_visible: boolean
+          page_id: string
+          section_type_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          display_order?: number
+          event_id: string
+          id?: string
+          is_visible?: boolean
+          page_id: string
+          section_type_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          display_order?: number
+          event_id?: string
+          id?: string
+          is_visible?: boolean
+          page_id?: string
+          section_type_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_website_sections_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_website_sections_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_website_sections_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "event_website_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_website_settings: {
         Row: {
           announcement_banner_enabled: boolean
@@ -1217,6 +1650,66 @@ export type Database = {
           },
         ]
       }
+      event_wedding_party_members: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          event_id: string
+          id: string
+          is_visible: boolean
+          name: string
+          photo_key: string | null
+          relation: string | null
+          side: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          event_id: string
+          id?: string
+          is_visible?: boolean
+          name: string
+          photo_key?: string | null
+          relation?: string | null
+          side: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          event_id?: string
+          id?: string
+          is_visible?: boolean
+          name?: string
+          photo_key?: string | null
+          relation?: string | null
+          side?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_wedding_party_members_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_wedding_party_members_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           cover_image_url: string | null
@@ -1228,10 +1721,12 @@ export type Database = {
           event_type_id: string
           guest_capacity: number | null
           id: string
+          map_link: string | null
           name: string
           plan_id: string
           primary_date: string | null
           primary_venue: string | null
+          slug: string | null
           status: string
           updated_at: string
           user_id: string
@@ -1246,10 +1741,12 @@ export type Database = {
           event_type_id: string
           guest_capacity?: number | null
           id?: string
+          map_link?: string | null
           name: string
           plan_id?: string
           primary_date?: string | null
           primary_venue?: string | null
+          slug?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -1264,10 +1761,12 @@ export type Database = {
           event_type_id?: string
           guest_capacity?: number | null
           id?: string
+          map_link?: string | null
           name?: string
           plan_id?: string
           primary_date?: string | null
           primary_venue?: string | null
+          slug?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -1723,6 +2222,28 @@ export type Database = {
           },
         ]
       }
+      event_website_summary: {
+        Row: {
+          event_id: string | null
+          pages: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_website_pages_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_website_pages_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitation_card_guest_view: {
         Row: {
           default_photo_key: string | null
@@ -1801,6 +2322,7 @@ export type Database = {
           total: number
         }[]
       }
+      gen_random_bytes: { Args: { n: number }; Returns: string }
     }
     Enums: {
       [_ in never]: never
