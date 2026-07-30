@@ -252,6 +252,40 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
       flashToast('Could not complete tasks.')
     }
   }
+  async function bulkSetDate(dueDate: string | null) {
+    const ids = selectedIds
+    if (ids.length === 0) return
+    const prevDueById = new Map(tasks.filter(t => ids.includes(t.id)).map(t => [t.id, t.dueDate]))
+    setTasks(p => p.map(t => ids.includes(t.id) ? { ...t, dueDate } : t))
+    try {
+      const res = await fetch(`/api/events/${eventId}/planning/tasks/bulk`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'setDate', taskIds: ids, dueDate }),
+      })
+      if (!res.ok) throw new Error('failed')
+      flashToast(ids.length === 1 ? 'Due date updated' : `${ids.length} due dates updated`)
+    } catch {
+      setTasks(p => p.map(t => prevDueById.has(t.id) ? { ...t, dueDate: prevDueById.get(t.id)! } : t))
+      flashToast('Could not update due date.')
+    }
+    exitSelect(); setPickerOpen(null)
+  }
+  async function bulkAssign(subEventId: string | null) {
+    const ids = selectedIds
+    if (ids.length === 0) return
+    const prevSubEventById = new Map(tasks.filter(t => ids.includes(t.id)).map(t => [t.id, t.subEventId]))
+    setTasks(p => p.map(t => ids.includes(t.id) ? { ...t, subEventId } : t))
+    try {
+      const res = await fetch(`/api/events/${eventId}/planning/tasks/bulk`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'assign', taskIds: ids, subEventId }),
+      })
+      if (!res.ok) throw new Error('failed')
+      flashToast(ids.length === 1 ? 'Sub-event updated' : `${ids.length} tasks reassigned`)
+    } catch {
+      setTasks(p => p.map(t => prevSubEventById.has(t.id) ? { ...t, subEventId: prevSubEventById.get(t.id)! } : t))
+      flashToast('Could not reassign tasks.')
+    }
+    exitSelect(); setPickerOpen(null)
+  }
 
   // Selection
   function enterSelect() { setSelecting(true); setSelected({}) }
@@ -467,6 +501,11 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
 
   return (
     <>
+      <div className={`bc-toast${toast ? ' is-show' : ''}`} role="status" aria-live="polite">
+        <span className="bc-live" aria-hidden="true" />
+        <span>{toast ?? ''}</span>
+      </div>
+
       <header className="section-head reveal">
         <p className="section-head-eyebrow">Section</p>
         <div className="section-head-titlerow">
@@ -939,6 +978,54 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
           <button type="button" className="bulk-bar-act" id="plan-bulk-complete" disabled={selectedIds.length === 0} onClick={() => { completeTasks(selectedIds); exitSelect() }}>
             <span className="material-symbols-outlined" aria-hidden="true">check_circle</span><span className="bulk-bar-act-label">Complete</span>
           </button>
+          <div style={{ position: 'relative' }}>
+            <button type="button" className="bulk-bar-act" id="plan-bulk-setdate" disabled={selectedIds.length === 0} aria-haspopup="true" aria-expanded={pickerOpen === 'bulkDate'} onClick={() => setPickerOpen(p => p === 'bulkDate' ? null : 'bulkDate')}>
+              <span className="material-symbols-outlined" aria-hidden="true">event</span><span className="bulk-bar-act-label">Set date</span>
+            </button>
+            {pickerOpen === 'bulkDate' && (
+              <>
+                <div className="gm-setter-scrim" onClick={() => setPickerOpen(null)} />
+                <div className="gm-setter" role="dialog" aria-modal="true" aria-label="Set due date for selected tasks">
+                  <p className="gm-setter-title">Set due date</p>
+                  <div className="gm-setter-opts" role="menu">
+                    {[
+                      { value: TODAY, label: 'Today', icon: 'today' },
+                      { value: addDaysISO(TODAY, 1), label: 'Tomorrow', icon: 'event' },
+                      { value: addDaysISO(TODAY, 7), label: 'In one week', icon: 'date_range' },
+                      { value: '', label: 'No date', icon: 'event_busy' },
+                    ].map(o => (
+                      <button key={o.label} type="button" className="gm-setter-opt" role="menuitem" onClick={() => bulkSetDate(o.value || null)}>
+                        <span className="material-symbols-outlined" aria-hidden="true">{o.icon}</span>{o.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          <div style={{ position: 'relative' }}>
+            <button type="button" className="bulk-bar-act" id="plan-bulk-assign" disabled={selectedIds.length === 0} aria-haspopup="true" aria-expanded={pickerOpen === 'bulkAssign'} onClick={() => setPickerOpen(p => p === 'bulkAssign' ? null : 'bulkAssign')}>
+              <span className="material-symbols-outlined" aria-hidden="true">celebration</span><span className="bulk-bar-act-label">Assign</span>
+            </button>
+            {pickerOpen === 'bulkAssign' && (
+              <>
+                <div className="gm-setter-scrim" onClick={() => setPickerOpen(null)} />
+                <div className="gm-setter" role="dialog" aria-modal="true" aria-label="Assign sub-event for selected tasks">
+                  <p className="gm-setter-title">Assign sub-event</p>
+                  <div className="gm-setter-opts" role="menu">
+                    <button type="button" className="gm-setter-opt" role="menuitem" onClick={() => bulkAssign(null)}>
+                      <span className="material-symbols-outlined" aria-hidden="true">celebration</span>Whole event
+                    </button>
+                    {subEvents.map(s => (
+                      <button key={s.id} type="button" className="gm-setter-opt" role="menuitem" onClick={() => bulkAssign(s.id)}>
+                        <span className="material-symbols-outlined" aria-hidden="true">event</span>{s.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
           <button type="button" className="bulk-bar-act" id="plan-bulk-delete" disabled={selectedIds.length === 0} onClick={() => openDeleteConfirm('bulk', undefined, selectedIds)}>
             <span className="material-symbols-outlined" aria-hidden="true">delete</span><span className="bulk-bar-act-label">Delete</span>
           </button>
