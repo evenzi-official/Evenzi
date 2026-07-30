@@ -4,9 +4,53 @@
 
 ---
 
-## ▶ START HERE NEXT — V0 readiness corrected via repo audit; backend-wiring pass is next (2026-07-30)
+## ▶ START HERE NEXT — Planning Tools shipped + live-verified; Digital Invitations is next (2026-07-30)
 
 Session report: [`docs/session-reports/2026-07-30-session-report.md`](session-reports/2026-07-30-session-report.md)
+
+### V0 Readiness — 2026-07-30, verified against repo + live Antigravity E2E pass
+
+| Feature | Data | Backend | Frontend | Note |
+|---|---|---|---|---|
+| Auth & Role Selection | ✅ | ✅ | ✅ | DONE |
+| Event CRUD (create/edit/delete) | ✅ | ✅ | ✅ | DONE |
+| Host Dashboard | ✅ | ✅ | ⚠️ | In review (revamp landed) |
+| Event Management Hub | ✅ | ✅ | ✅ | DONE |
+| Guest Management & RSVP | ✅ | ✅ | ✅ | DONE — Send-invites intentionally inert (needs its own WhatsApp session) |
+| Event Settings | ✅ | ✅ | ✅ | DONE |
+| User Settings | ✅ | ✅ | ✅ | DONE |
+| **Planning Tools (Checklist + Budget)** | ✅ | ✅ | ✅ | **DONE 2026-07-30** — backend-wired, code-reviewed, live-verified by Antigravity (full-platform E2E + focused pass), 4 findings triaged/fixed. Pushed to Dev-Vibe + merged to Dev-Vibe-Testing. |
+| Media & Memories | ✅ | ⚠️ | ✅ | FE built, upload endpoint (R2) + storage-meter still not wired |
+| Digital Invitations | ✅ | ❌ | ✅ | FE built (7-template designer), nothing persists yet — **next up** |
+| Digital Presence (guest site) | — | — | ⚠️ | In progress — Dheeraj, per founder call. Not in this worktree yet |
+| Admin Module | ❌ | ❌ | ❌ | Not started |
+| Support Chatbot | ❌ | ❌ | ❌ | Planned, unblocked |
+
+**Critical-path status:** every step of the host flow (create → guest list → RSVP → planning/budget → settings) is DONE. Remaining gaps (Media, Invitations, Digital Presence, Admin, Chatbot) are all outside the core V0 loop.
+
+### Paste this to start — Digital Invitations backend-wiring
+
+```
+Backend-wiring pass for Digital Invitations. FE is fully built
+(app/events/[id]/invitations/InvitationsClient.tsx, 576 lines, 7-template
+card designer with editable slots) but nothing persists — no fetch, no
+localStorage, the "Saved" autosave indicator is cosmetic only. Data model
+is live (inv_01-06 migrations). Scope = the invitation CARD designer
+(personalizer) only — WhatsApp send + status tracking stays in Guest
+Management, already done there, out of scope here.
+
+Same workflow as Planning Tools (docs/superpowers/plans/2026-07-30-planning-tools-fe-wiring.md)
+and Guest Management: brainstorm → spec → plan → subagent-driven task-by-task
+build with a review gate per task → live browser testing at every breakpoint
+→ whole-branch review. Cross-check the design prototype
+(designs/pages/invitations/invitations.html + .js) against
+InvitationsClient.tsx for any FE gaps before planning, the same way Planning
+Tools found 4 missing components that way.
+```
+
+---
+
+## ▶ PAST — V0 readiness corrected via repo audit; backend-wiring pass is next (2026-07-30)
 
 **Guest Management & RSVP shipped this session** — full CRUD, RSVP setter, search/filter/sort, real CSV import, tags, bulk actions, swipe rail, all live at `app/events/[id]/guests/`. Tested at 6 breakpoints, whole-branch reviewed, deployed to Dev-Vibe-Testing. Deferred out of this pass: public guest-facing RSVP page (no-auth), real WhatsApp invite send (needs its own planning session), CSV parser unit tests, pre-existing ToolRail overlap bug at ≥1024px (cross-cutting, reproduces on Event Hub too).
 
