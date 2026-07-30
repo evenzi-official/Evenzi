@@ -4,54 +4,48 @@
 
 ---
 
-## ▶ START HERE NEXT — Guest Mgmt & RSVP, then Event Management Hub (2026-07-29 evening)
+## ▶ START HERE NEXT — V0 readiness corrected via repo audit; backend-wiring pass is next (2026-07-30)
 
-Session report: [`docs/session-reports/2026-07-29-session-report.md`](session-reports/2026-07-29-session-report.md)
+Session report: [`docs/session-reports/2026-07-30-session-report.md`](session-reports/2026-07-30-session-report.md)
 
-**Mode:** same workflow that just shipped User Settings — design spec → plan → task-by-task build with a review gate after each → **live browser testing at every breakpoint** → whole-branch review. Do not treat a clean `tsc` as done; that pass caught three defects eight code reviews had missed.
+**Guest Management & RSVP shipped this session** — full CRUD, RSVP setter, search/filter/sort, real CSV import, tags, bulk actions, swipe rail, all live at `app/events/[id]/guests/`. Tested at 6 breakpoints, whole-branch reviewed, deployed to Dev-Vibe-Testing. Deferred out of this pass: public guest-facing RSVP page (no-auth), real WhatsApp invite send (needs its own planning session), CSV parser unit tests, pre-existing ToolRail overlap bug at ≥1024px (cross-cutting, reproduces on Event Hub too).
+
+**Later the same session, a direct repo audit (file contents + write-paths, not just file existence) found the "remaining conversion set" below was wrong for 3 of 5 rows** — full correction in `CLAUDE.md` → "MVP Phase 1". Summary:
+
+| Feature | Was documented as | Actually is |
+|---|---|---|
+| Event Management Hub | "in review, gap audit next" | **DONE** — real hub, real Supabase queries (sub-events, `event_hub_summary` view), real nav to every sub-feature |
+| Planning Tools | "`app/planning` missing" | **FE UI built, not backend-wired** — 833-line `PlanningClient.tsx`, zero `fetch`/Supabase calls, in-memory state only |
+| Media & Memories | "`app/media` missing" | **FE UI built, not backend-wired** — 1341-line `MediaClient.tsx`, storage meter mocked, upload API route doesn't exist (`GET`-only) |
+| Digital Invitations | "only an unrelated test page exists" | **FE UI built, not persisted** — 576-line `InvitationsClient.tsx`, real 7-template card designer, but nothing saves anywhere (no `fetch`, no `localStorage`) |
+| Digital Presence | "not started" | **In progress with Dheeraj** per founder call 2026-07-30 — not yet visible in this worktree |
+
+**Real next priority:** wire Planning Tools, Media, and Digital Invitations to their already-live data models. This is a backend + integration pass per feature (API routes + persistence + re-fetch on load), not a from-scratch UI build — the UI work is done. Suggested order: Planning → Invitations → Media (Media also needs the R2 upload endpoint, which is a bigger lift than the other two). Same workflow as Guest Mgmt: brainstorm → spec → plan → task-by-task build with review gate → live browser testing at every breakpoint → whole-branch review.
 
 ### Paste this to start
 
 ```
-Continue the designs/ → React conversion set. Build Guest Management & RSVP
-first, then Event Management Hub.
+Backend-wiring pass for Planning Tools, Digital Invitations, and Media &
+Memories. All three have complete FE UI already built but zero persistence
+(verified 2026-07-30 by reading write-paths, not just checking file
+existence — see NEXT-SESSION.md top entry / CLAUDE.md MVP Phase 1 table).
 
-Context you need:
-- Working table + full V0 readiness: docs/aug-end-v0-launch-plan.md §2
-- The workflow to follow, and why live testing is mandatory:
-  docs/superpowers/specs/2026-07-29-user-settings-design.md (## Built section)
-- Reference implementation — same shape, just shipped:
-  app/settings/ (page shell + 4 section components), app/api/settings/*,
-  lib/validations/settings.ts
-
-Guest Mgmt & RSVP:
-- Design prototype: designs/pages/guests/guests.html
-- Data model is LIVE on dev (migrations guests_01-05) with RLS + seed data
-- app/guests/ does not exist yet — this is the whole gap
-- This is the V0 critical path: "host creates event → builds guest list →
-  sends invites → tracks RSVPs" is the definition of the milestone, and the
-  competitor study independently flags guest+RSVP+WhatsApp as the market wedge
-
-Event Management Hub:
-- Design prototype: designs/pages/event-control/event-control.html
-- No data model of its own — it is the hub other features plug into
-- Build after Guest Mgmt so the guest surface exists to link to
-
-Start by verifying the guests data model against Supabase directly
-(project smjkbmkxweevqpvygabe) rather than trusting docs — DATA-MODEL.md has
-stale [PLANNED] tags, and ClickUp statuses are unreliable.
+Start with Planning Tools (app/events/[id]/planning/PlanningClient.tsx,
+833 lines, checklist+budget tabs) — data model is live (planning_01-07).
+Add the API routes + wire the client's task/expense CRUD to real Supabase
+writes, replacing the in-memory state. Same workflow as Guest Management:
+brainstorm → spec → plan → task-by-task build with review gate → live
+browser testing at every breakpoint → whole-branch review.
 ```
 
-### Remaining conversion set (6)
+### Remaining work (backend-wiring pass, 3 features + 1 external)
 
-| # | Feature | Design | React |
-|---|---------|--------|-------|
-| 1 | **Guest Mgmt & RSVP** | ✅ prototype | ❌ `app/guests` missing — **critical path** |
-| 2 | **Event Management Hub** | ✅ `event-control.html` | ❌ not started |
-| 3 | Digital Invitations (card designer) | ✅ prototype | ⚠️ only an unrelated test page exists |
-| 4 | Planning Tools (Checklist + Budget) | ✅ design v2 | ❌ `app/planning` missing |
-| 5 | Media & Memories | ✅ prototype | ❌ `app/media` missing (backend partial, R2 in progress) |
-| 6 | Digital Presence (guest-site templates) | ✅ 6 locked | ❌ `app/e/[slug]` not started |
+| # | Feature | Design | React FE | Backend wiring |
+|---|---------|--------|----------|-----------------|
+| 1 | **Planning Tools** | ✅ design v2 | ✅ built, not wired | ❌ needs API routes + persistence |
+| 2 | **Digital Invitations** | ✅ prototype | ✅ built (7-template card designer) | ❌ needs save endpoint |
+| 3 | **Media & Memories** | ✅ prototype | ✅ built | ❌ needs upload endpoint (R2), storage-meter wiring |
+| 4 | Digital Presence (guest-site templates) | ✅ 6 locked | In progress — Dheeraj, per founder 2026-07-30 | n/a (external to this list) |
 
 Admin Module + Support Chatbot parked until the end, per founder call.
 
@@ -61,6 +55,16 @@ Admin Module + Support Chatbot parked until the end, per founder call.
 - Move Vercel to Pro before launch — Hobby's ToS restricts commercial use.
 - Confirm Cloudflare Startups Tier 3 approval (submitted 2026-06-13).
 - Danger Zone / Delete Account on `/settings` — approved in concept, deferred; needs its own design pass covering the confirmation flow and what deletion cascades to (events, guests, R2 media).
+
+---
+
+## ▶ DONE 2026-07-30 — Guest Management & RSVP shipped
+
+Full detail: [`docs/session-reports/2026-07-30-session-report.md`](session-reports/2026-07-30-session-report.md), spec `docs/superpowers/specs/2026-07-29-guest-management-design.md`, plan `docs/superpowers/plans/2026-07-29-guest-management.md`.
+
+The V0 critical-path feature ("host creates event → builds guest list → sends invites → tracks RSVPs") is live: guest CRUD, RSVP setter, search/filter/sort, real CSV import (template → live preview → validation gate → insert), per-guest function/sub-event assignment, tags + tag manager, bulk select (tag/assign/delete), swipe-to-reveal row actions, zero-assigned banner, stats bar. 11-task subagent build, 6-breakpoint live testing, whole-branch review + fix pass, deployed to Dev-Vibe-Testing (Vercel READY).
+
+**Not built this pass, needs follow-up:** public guest-facing RSVP page (no-auth — was in the original ClickUp ticket scope, deferred by founder priority call); real WhatsApp invite send (button wired as a disabled stub only — needs a dedicated planning session covering personalized message + site template URL + invitation card); CSV parser unit tests; pre-existing ToolRail/page-band overlap at ≥1024px (reproduces on Event Hub too, not introduced here).
 
 ---
 
