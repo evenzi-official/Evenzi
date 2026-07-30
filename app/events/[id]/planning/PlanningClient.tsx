@@ -1,44 +1,20 @@
 "use client"
 import { useState, useRef, useMemo, useCallback } from 'react'
+import type { PlanningInitialData, TaskRow, ExpenseRow } from '@/lib/types/planning'
 
-type Priority = 'high' | 'med' | 'low'
 type StatusFilter = 'all' | 'todo' | 'done' | 'overdue'
 type SortKey = 'due' | 'priority' | 'label'
 type TabId = 'checklist' | 'budget'
 type ViewMode = 'list' | 'timeline'
+type Priority = 'low' | 'med' | 'high'
 
-interface Task {
-  id: number; label: string; done: boolean; due: string | null
-  subEvent: string | null; priority: Priority; notes: string | null
-}
-interface Expense {
-  id: number; amount: number; type: string; vendor: string | null
-  subEvent: string | null; date: string; notes: string | null
-}
-interface DeleteTarget { type: 'task' | 'expense' | 'bulk'; id?: number; ids?: number[] }
+type Task = TaskRow
+type Expense = ExpenseRow
+interface DeleteTarget { type: 'task' | 'expense' | 'bulk'; id?: string; ids?: string[] }
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const PRIO_ORDER: Record<Priority, number> = { high: 0, med: 1, low: 2 }
-
-const EVENT_SUBEVENTS = [
-  { id: 'haldi', label: 'Haldi' },
-  { id: 'mehendi', label: 'Mehendi' },
-  { id: 'sangeet', label: 'Sangeet' },
-  { id: 'wedding', label: 'Wedding' },
-  { id: 'reception', label: 'Reception' },
-]
-
-const EXPENSE_TYPES = [
-  { id: 'venue', label: 'Venue', icon: 'location_city' },
-  { id: 'catering', label: 'Catering', icon: 'restaurant' },
-  { id: 'decoration', label: 'Decoration', icon: 'local_florist' },
-  { id: 'photography', label: 'Photography', icon: 'photo_camera' },
-  { id: 'attire', label: 'Attire', icon: 'checkroom' },
-  { id: 'music', label: 'Music / DJ', icon: 'music_note' },
-  { id: 'invitations', label: 'Invitations', icon: 'mail' },
-  { id: 'misc', label: 'Miscellaneous', icon: 'more_horiz' },
-]
 
 function getToday() { return new Date().toISOString().slice(0, 10) }
 function daysInMonth(y: number, m: number) {
@@ -86,22 +62,23 @@ function parseAmount(raw: string) {
   const s = raw.replace(/[,₹\s]/g, '')
   return !s || isNaN(Number(s)) || Number(s) <= 0 ? null : Math.round(Number(s))
 }
-function typeById(id: string) { return EXPENSE_TYPES.find(t => t.id === id) || EXPENSE_TYPES[EXPENSE_TYPES.length - 1] }
-function subEventLabel(id: string | null) {
-  if (id == null) return 'Whole event'
-  return EVENT_SUBEVENTS.find(x => x.id === id)?.label ?? id
-}
-
-export function PlanningClient({ eventName }: { eventName: string }) {
+export function PlanningClient({ eventId, initialData }: { eventId: string; initialData: PlanningInitialData }) {
+  const { eventName, taskPriorities, taskStatuses, expenseTypes: initialExpenseTypes, subEvents } = initialData
   const TODAY = useMemo(getToday, [])
   const todayParsed = useMemo(() => parseISO(TODAY), [TODAY])
 
+  const priorityBySlug = useMemo(() => new Map(taskPriorities.map(p => [p.slug, p])), [taskPriorities])
+  const priorityById = useMemo(() => new Map(taskPriorities.map(p => [p.id, p])), [taskPriorities])
+  const statusById = useMemo(() => new Map(taskStatuses.map(s => [s.id, s])), [taskStatuses])
+  const doneStatus = useMemo(() => taskStatuses.find(s => s.slug === 'completed'), [taskStatuses])
+  const pendingStatus = useMemo(() => taskStatuses.find(s => s.slug === 'pending'), [taskStatuses])
+
   const [activeTab, setActiveTab] = useState<TabId>('checklist')
   const [taskView, setTaskView] = useState<ViewMode>('list')
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [expenses, setExpenses] = useState<Expense[]>([])
-  const [budget, setBudget] = useState<number | null>(null)
-  const nextId = useRef(1)
+  const [tasks, setTasks] = useState<Task[]>(initialData.tasks)
+  const [expenses, setExpenses] = useState<Expense[]>(initialData.expenses)
+  const [budget, setBudget] = useState<{ totalAmount: number; spent: number; remaining: number } | null>(initialData.budget)
+  const [expenseTypes, setExpenseTypes] = useState(initialExpenseTypes)
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -109,7 +86,7 @@ export function PlanningClient({ eventName }: { eventName: string }) {
   const [subEventFilter, setSubEventFilter] = useState<string | null>(null)
 
   const [selecting, setSelecting] = useState(false)
-  const [selected, setSelected] = useState<Record<number, boolean>>({})
+  const [selected, setSelected] = useState<Record<string, boolean>>({})
 
   const [timelineMonth, setTimelineMonth] = useState(todayParsed)
   const [timelineDayFilter, setTimelineDayFilter] = useState<string>('all')
@@ -118,29 +95,56 @@ export function PlanningClient({ eventName }: { eventName: string }) {
   const [taskModalOpen, setTaskModalOpen] = useState(false)
   const [expenseModalOpen, setExpenseModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [editingTaskId, setEditingTaskId] = useState<number | null>(null)
-  const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null)
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
+  const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<DeleteTarget | null>(null)
 
-  const [pickerOpen, setPickerOpen] = useState<'sort' | 'filter' | null>(null)
+  const [pickerOpen, setPickerOpen] = useState<'sort' | 'filter' | 'bulkDate' | 'bulkAssign' | null>(null)
+  const [toast, setToast] = useState<string | null>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  function flashToast(message: string) {
+    setToast(message)
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(() => setToast(null), 3000)
+  }
 
   const [taskForm, setTaskForm] = useState({ label: '', due: '', subEvent: '', priority: 'med' as Priority, notes: '' })
   const [taskLabelErr, setTaskLabelErr] = useState(false)
+  const [taskSaving, setTaskSaving] = useState(false)
   const [budgetForm, setBudgetForm] = useState('')
   const [budgetErr, setBudgetErr] = useState(false)
-  const [expForm, setExpForm] = useState({ amount: '', type: 'venue', vendor: '', subEvent: '', date: TODAY, notes: '' })
+  const [budgetSaving, setBudgetSaving] = useState(false)
+  const [expForm, setExpForm] = useState({ amount: '', type: expenseTypes[0]?.id ?? '', vendor: '', subEvent: '', date: TODAY, notes: '' })
   const [expAmtErr, setExpAmtErr] = useState(false)
+  const [expSaving, setExpSaving] = useState(false)
 
-  const isOverdue = useCallback((t: Task) => !t.done && t.due != null && t.due < TODAY, [TODAY])
+  function subEventLabel(subEventId: string | null) {
+    if (subEventId == null) return 'Whole event'
+    return subEvents.find(s => s.id === subEventId)?.label ?? 'Function'
+  }
+  function typeById(id: string) {
+    return expenseTypes.find(t => t.id === id) ?? expenseTypes[expenseTypes.length - 1]
+  }
+  function prioritySlug(priorityId: string): Priority {
+    return (priorityById.get(priorityId)?.slug ?? 'med') as Priority
+  }
+
+  const isOverdue = useCallback((t: Task) => {
+    const status = statusById.get(t.statusId)
+    return status?.category === 'open' && t.dueDate != null && t.dueDate < TODAY
+  }, [TODAY, statusById])
   const taskStatus = useCallback((t: Task): 'done' | 'overdue' | 'todo' => {
-    if (t.done) return 'done'; if (isOverdue(t)) return 'overdue'; return 'todo'
-  }, [isOverdue])
+    const status = statusById.get(t.statusId)
+    if (status?.category === 'done') return 'done'
+    if (isOverdue(t)) return 'overdue'
+    return 'todo'
+  }, [isOverdue, statusById])
 
   const { visibleTasks, statusCounts, derive } = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
     const base = tasks.filter(t => {
-      if (q && !t.label.toLowerCase().includes(q)) return false
-      if (subEventFilter !== null) { return subEventFilter === '' ? t.subEvent == null : t.subEvent === subEventFilter }
+      if (q && !t.title.toLowerCase().includes(q)) return false
+      if (subEventFilter !== null) { return subEventFilter === '' ? t.subEventId == null : t.subEventId === subEventFilter }
       return true
     })
     const sc = { all: base.length, todo: 0, done: 0, overdue: 0 }
@@ -148,108 +152,185 @@ export function PlanningClient({ eventName }: { eventName: string }) {
 
     const filtered = statusFilter === 'all' ? base : base.filter(t => taskStatus(t) === statusFilter)
     const sort = (arr: Task[]) => {
-      if (sortKey === 'priority') return [...arr].sort((a, b) => { const pa = PRIO_ORDER[a.priority] ?? 1, pb = PRIO_ORDER[b.priority] ?? 1; return pa !== pb ? pa - pb : a.label.localeCompare(b.label) })
-      if (sortKey === 'label') return [...arr].sort((a, b) => a.label.localeCompare(b.label))
+      if (sortKey === 'priority') return [...arr].sort((a, b) => { const pa = PRIO_ORDER[prioritySlug(a.priorityId)], pb = PRIO_ORDER[prioritySlug(b.priorityId)]; return pa !== pb ? pa - pb : a.title.localeCompare(b.title) })
+      if (sortKey === 'label') return [...arr].sort((a, b) => a.title.localeCompare(b.title))
       return [...arr].sort((a, b) => {
-        const bk = (t: Task) => t.done ? 5 : !t.due ? 4 : t.due < TODAY ? 0 : t.due === TODAY ? 1 : 2
+        const bk = (t: Task) => taskStatus(t) === 'done' ? 5 : !t.dueDate ? 4 : t.dueDate < TODAY ? 0 : t.dueDate === TODAY ? 1 : 2
         const ba = bk(a), bb = bk(b); if (ba !== bb) return ba - bb
-        if (a.due && b.due && a.due !== b.due) return a.due < b.due ? -1 : 1
-        const pa = PRIO_ORDER[a.priority] ?? 1, pb = PRIO_ORDER[b.priority] ?? 1
-        return pa !== pb ? pa - pb : a.label.localeCompare(b.label)
+        if (a.dueDate && b.dueDate && a.dueDate !== b.dueDate) return a.dueDate < b.dueDate ? -1 : 1
+        const pa = PRIO_ORDER[prioritySlug(a.priorityId)], pb = PRIO_ORDER[prioritySlug(b.priorityId)]
+        return pa !== pb ? pa - pb : a.title.localeCompare(b.title)
       })
     }
 
-    const doneCount = tasks.filter(t => t.done).length
+    const doneCount = tasks.filter(t => taskStatus(t) === 'done').length
     const totalItems = tasks.length
     const donePct = totalItems === 0 ? 0 : Math.round((doneCount / totalItems) * 100)
     const spent = expenses.reduce((s, e) => s + e.amount, 0)
-    const remaining = budget == null ? null : budget - spent
-    const overBy = budget != null && spent > budget ? spent - budget : 0
+    const remaining = budget == null ? null : budget.totalAmount - spent
+    const overBy = budget != null && spent > budget.totalAmount ? spent - budget.totalAmount : 0
     const typeTotals: Record<string, number> = {}
-    expenses.forEach(e => { const id = typeById(e.type).id; typeTotals[id] = (typeTotals[id] || 0) + e.amount })
+    expenses.forEach(e => { typeTotals[e.expenseTypeId] = (typeTotals[e.expenseTypeId] || 0) + e.amount })
 
     return { visibleTasks: sort(filtered), statusCounts: sc, derive: { doneCount, totalItems, donePct, spent, remaining, overBy, isOver: overBy > 0, typeTotals } }
-  }, [tasks, expenses, budget, statusFilter, searchQuery, sortKey, subEventFilter, taskStatus, TODAY])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tasks, expenses, budget, statusFilter, searchQuery, sortKey, subEventFilter, taskStatus, TODAY, priorityById])
 
-  const selectedIds = Object.keys(selected).map(Number)
+  const selectedIds = Object.keys(selected)
   const allDone = derive.totalItems > 0 && derive.doneCount === derive.totalItems
 
   // Task actions
-  function openTaskModal(id: number | null) {
+  function openTaskModal(id: string | null) {
     setEditingTaskId(id)
-    if (id) { const t = tasks.find(x => x.id === id); if (t) setTaskForm({ label: t.label, due: t.due || '', subEvent: t.subEvent || '', priority: t.priority, notes: t.notes || '' }) }
+    if (id) { const t = tasks.find(x => x.id === id); if (t) setTaskForm({ label: t.title, due: t.dueDate || '', subEvent: t.subEventId || '', priority: prioritySlug(t.priorityId), notes: t.description || '' }) }
     else setTaskForm({ label: '', due: '', subEvent: '', priority: 'med', notes: '' })
     setTaskLabelErr(false); setTaskModalOpen(true)
   }
-  function handleTaskSubmit(e: React.FormEvent) {
+  async function handleTaskSubmit(e: React.FormEvent) {
     e.preventDefault(); const label = taskForm.label.trim()
     if (!label) { setTaskLabelErr(true); return }
-    setTaskLabelErr(false)
-    if (editingTaskId) { setTasks(p => p.map(t => t.id === editingTaskId ? { ...t, label, due: taskForm.due || null, subEvent: taskForm.subEvent || null, priority: taskForm.priority, notes: taskForm.notes || null } : t)) }
-    else { const id = nextId.current++; setTasks(p => [...p, { id, label, done: false, due: taskForm.due || null, subEvent: taskForm.subEvent || null, priority: taskForm.priority, notes: taskForm.notes || null }]) }
-    setTaskModalOpen(false); setEditingTaskId(null)
+    setTaskLabelErr(false); setTaskSaving(true)
+    const priorityId = priorityBySlug.get(taskForm.priority)?.id
+    const payload = {
+      title: label,
+      description: taskForm.notes || null,
+      dueDate: taskForm.due || null,
+      subEventId: taskForm.subEvent || null,
+      priorityId,
+    }
+    try {
+      if (editingTaskId) {
+        const res = await fetch(`/api/events/${eventId}/planning/tasks/${editingTaskId}`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+        })
+        const data: { task?: Task; error?: string } = await res.json()
+        if (!res.ok || !data.task) { flashToast('Could not save changes.'); return }
+        setTasks(p => p.map(t => t.id === editingTaskId ? data.task! : t))
+      } else {
+        const res = await fetch(`/api/events/${eventId}/planning/tasks`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+        })
+        const data: { task?: Task; error?: string } = await res.json()
+        if (!res.ok || !data.task) { flashToast('Could not add task.'); return }
+        setTasks(p => [...p, data.task!])
+      }
+      setTaskModalOpen(false); setEditingTaskId(null)
+    } catch {
+      flashToast('Could not save changes.')
+    } finally {
+      setTaskSaving(false)
+    }
   }
-  function toggleTaskDone(id: number, done: boolean) { setTasks(p => p.map(t => t.id === id ? { ...t, done } : t)) }
-  function completeTasks(ids: number[]) { setTasks(p => p.map(t => ids.includes(t.id) ? { ...t, done: true } : t)) }
+  async function toggleTaskDone(id: string, done: boolean) {
+    const targetStatus = done ? doneStatus : pendingStatus
+    if (!targetStatus) return
+    setTasks(p => p.map(t => t.id === id ? { ...t, statusId: targetStatus.id } : t))
+    try {
+      const res = await fetch(`/api/events/${eventId}/planning/tasks/${id}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statusId: targetStatus.id }),
+      })
+      if (!res.ok) throw new Error('failed')
+    } catch {
+      flashToast('Could not update task status.')
+    }
+  }
+  async function completeTasks(ids: string[]) {
+    if (!doneStatus || ids.length === 0) return
+    setTasks(p => p.map(t => ids.includes(t.id) ? { ...t, statusId: doneStatus.id } : t))
+    try {
+      const res = await fetch(`/api/events/${eventId}/planning/tasks/bulk`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'complete', taskIds: ids }),
+      })
+      if (!res.ok) throw new Error('failed')
+      flashToast(ids.length === 1 ? 'Task completed' : `${ids.length} tasks completed`)
+    } catch {
+      flashToast('Could not complete tasks.')
+    }
+  }
 
   // Selection
   function enterSelect() { setSelecting(true); setSelected({}) }
   function exitSelect() { setSelecting(false); setSelected({}) }
-  function toggleSelect(id: number) { setSelected(p => { const n = { ...p }; if (n[id]) delete n[id]; else n[id] = true; return n }) }
+  function toggleSelect(id: string) { setSelected(p => { const n = { ...p }; if (n[id]) delete n[id]; else n[id] = true; return n }) }
 
-  // Budget
-  function openBudgetModal() { setBudgetForm(budget != null ? String(budget) : ''); setBudgetErr(false); setBudgetModalOpen(true) }
+  // Budget — NOTE: not yet wired to the real budget API (Task 7). Local-state only,
+  // kept compiling against the new BudgetSummary shape.
+  function openBudgetModal() { setBudgetForm(budget != null ? String(budget.totalAmount) : ''); setBudgetErr(false); setBudgetModalOpen(true) }
   function handleBudgetSubmit(e: React.FormEvent) {
     e.preventDefault(); const amt = parseAmount(budgetForm)
     if (amt == null) { setBudgetErr(true); return }
-    setBudgetErr(false); setBudget(amt); setBudgetModalOpen(false)
+    setBudgetErr(false)
+    setBudget(prev => ({ totalAmount: amt, spent: prev?.spent ?? 0, remaining: amt - (prev?.spent ?? 0) }))
+    setBudgetModalOpen(false)
   }
 
-  // Expense
-  function openExpenseModal(id: number | null) {
+  // Expense — NOTE: not yet wired to the real expense API (Task 7). Local-state only,
+  // kept compiling against the new ExpenseRow shape.
+  function openExpenseModal(id: string | null) {
     setEditingExpenseId(id)
-    if (id) { const x = expenses.find(e => e.id === id); if (x) setExpForm({ amount: String(x.amount), type: x.type, vendor: x.vendor || '', subEvent: x.subEvent || '', date: x.date, notes: x.notes || '' }) }
-    else setExpForm({ amount: '', type: 'venue', vendor: '', subEvent: '', date: TODAY, notes: '' })
+    if (id) { const x = expenses.find(e => e.id === id); if (x) setExpForm({ amount: String(x.amount), type: x.expenseTypeId, vendor: x.vendorName || '', subEvent: x.subEventId || '', date: x.expenseDate || TODAY, notes: x.description || '' }) }
+    else setExpForm({ amount: '', type: expenseTypes[0]?.id ?? '', vendor: '', subEvent: '', date: TODAY, notes: '' })
     setExpAmtErr(false); setExpenseModalOpen(true)
   }
   function handleExpenseSubmit(e: React.FormEvent) {
     e.preventDefault(); const amt = parseAmount(expForm.amount)
     if (amt == null) { setExpAmtErr(true); return }
     setExpAmtErr(false)
-    if (editingExpenseId) { setExpenses(p => p.map(x => x.id === editingExpenseId ? { ...x, amount: amt, type: expForm.type, vendor: expForm.vendor || null, subEvent: expForm.subEvent || null, date: expForm.date || TODAY, notes: expForm.notes || null } : x)) }
-    else { const id = nextId.current++; setExpenses(p => [...p, { id, amount: amt, type: expForm.type, vendor: expForm.vendor || null, subEvent: expForm.subEvent || null, date: expForm.date || TODAY, notes: expForm.notes || null }]) }
+    if (editingExpenseId) { setExpenses(p => p.map(x => x.id === editingExpenseId ? { ...x, amount: amt, expenseTypeId: expForm.type, vendorName: expForm.vendor || null, subEventId: expForm.subEvent || null, expenseDate: expForm.date || TODAY, description: expForm.notes || null } : x)) }
+    else { const id = crypto.randomUUID(); setExpenses(p => [...p, { id, amount: amt, expenseTypeId: expForm.type, vendorName: expForm.vendor || null, subEventId: expForm.subEvent || null, expenseDate: expForm.date || TODAY, description: expForm.notes || null }]) }
     setExpenseModalOpen(false); setEditingExpenseId(null)
   }
 
   // Delete
-  function openDeleteConfirm(type: 'task' | 'expense' | 'bulk', id?: number, ids?: number[]) {
+  function openDeleteConfirm(type: 'task' | 'expense' | 'bulk', id?: string, ids?: string[]) {
     setPendingDelete(type === 'bulk' ? { type, ids: ids || [] } : { type, id }); setDeleteModalOpen(true)
   }
-  function handleDeleteConfirm() {
+  async function handleDeleteConfirm() {
     if (!pendingDelete) return
-    if (pendingDelete.type === 'task' && pendingDelete.id) setTasks(p => p.filter(t => t.id !== pendingDelete.id))
-    else if (pendingDelete.type === 'bulk' && pendingDelete.ids) { const ids = pendingDelete.ids; setTasks(p => p.filter(t => !ids.includes(t.id))); exitSelect() }
-    else if (pendingDelete.type === 'expense' && pendingDelete.id) setExpenses(p => p.filter(e => e.id !== pendingDelete.id))
+    if (pendingDelete.type === 'task' && pendingDelete.id) {
+      const taskId = pendingDelete.id
+      setTasks(p => p.filter(t => t.id !== taskId))
+      try {
+        const res = await fetch(`/api/events/${eventId}/planning/tasks/${taskId}`, { method: 'DELETE' })
+        if (!res.ok) throw new Error('failed')
+      } catch { flashToast('Could not delete task.') }
+    } else if (pendingDelete.type === 'bulk' && pendingDelete.ids) {
+      const ids = pendingDelete.ids
+      setTasks(p => p.filter(t => !ids.includes(t.id))); exitSelect()
+      try {
+        const res = await fetch(`/api/events/${eventId}/planning/tasks/bulk`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', taskIds: ids }),
+        })
+        if (!res.ok) throw new Error('failed')
+      } catch { flashToast('Could not delete tasks.') }
+    } else if (pendingDelete.type === 'expense' && pendingDelete.id) {
+      const expenseId = pendingDelete.id
+      setExpenses(p => p.filter(e => e.id !== expenseId))
+      try {
+        const res = await fetch(`/api/events/${eventId}/planning/expenses/${expenseId}`, { method: 'DELETE' })
+        if (!res.ok) throw new Error('failed')
+      } catch { flashToast('Could not delete expense.') }
+    }
     setPendingDelete(null); setDeleteModalOpen(false)
   }
 
   function getDeleteText() {
     if (!pendingDelete) return { title: 'Delete?', text: 'This cannot be undone.' }
-    if (pendingDelete.type === 'task') { const item = tasks.find(t => t.id === pendingDelete.id); return { title: 'Delete this task?', text: item ? `Remove "${item.label}" from your tasks?` : 'Remove this task?' } }
+    if (pendingDelete.type === 'task') { const item = tasks.find(t => t.id === pendingDelete.id); return { title: 'Delete this task?', text: item ? `Remove "${item.title}" from your tasks?` : 'Remove this task?' } }
     if (pendingDelete.type === 'bulk') return { title: `Delete ${pendingDelete.ids?.length} tasks?`, text: 'This cannot be undone.' }
     const exp = expenses.find(e => e.id === pendingDelete.id)
-    return { title: 'Delete this expense?', text: exp ? `Remove ${fmtINR(exp.amount)} logged under ${typeById(exp.type).label}?` : 'Remove this expense entry?' }
+    return { title: 'Delete this expense?', text: exp ? `Remove ${fmtINR(exp.amount)} logged under ${typeById(exp.expenseTypeId).name}?` : 'Remove this expense entry?' }
   }
 
   // Timeline
   function getTimelineTasks() {
     const q = searchQuery.trim().toLowerCase()
     let filtered = tasks.filter(t => {
-      if (q && !t.label.toLowerCase().includes(q)) return false
-      if (subEventFilter !== null) return subEventFilter === '' ? t.subEvent == null : t.subEvent === subEventFilter
+      if (q && !t.title.toLowerCase().includes(q)) return false
+      if (subEventFilter !== null) return subEventFilter === '' ? t.subEventId == null : t.subEventId === subEventFilter
       return statusFilter === 'all' || taskStatus(t) === statusFilter
     })
-    if (timelineDayFilter !== 'all') filtered = filtered.filter(t => t.due === timelineDayFilter)
+    if (timelineDayFilter !== 'all') filtered = filtered.filter(t => t.dueDate === timelineDayFilter)
     return filtered
   }
 
@@ -276,13 +357,13 @@ export function PlanningClient({ eventName }: { eventName: string }) {
       return <div className="plan-empty"><p className="plan-empty-title">Nothing due on {fmtDate(timelineDayFilter)}.</p></div>
     }
     const groups: Record<string, Task[]> = {}; const order: string[] = []
-    filtered.forEach(t => { const k = t.due || '__none__'; if (!groups[k]) { groups[k] = []; order.push(k) } groups[k].push(t) })
+    filtered.forEach(t => { const k = t.dueDate || '__none__'; if (!groups[k]) { groups[k] = []; order.push(k) } groups[k].push(t) })
     order.sort((a, b) => a === '__none__' ? 1 : b === '__none__' ? -1 : a < b ? -1 : 1)
     return order.map(k => (
       <section key={k} className="task-date-group">
         <h3 className="task-date-group-title">{k === '__none__' ? 'No date' : groupHeading(k, TODAY)}</h3>
         <ul className="plan-agenda-group-list" role="list">
-          {groups[k].map(t => <TaskRow key={t.id} task={t} taskStatus={taskStatus} isOverdue={isOverdue} selecting={selecting} selected={selected} TODAY={TODAY} toggleTaskDone={toggleTaskDone} toggleSelect={toggleSelect} openTaskModal={openTaskModal} openDeleteConfirm={openDeleteConfirm} />)}
+          {groups[k].map(t => <TaskRow key={t.id} task={t} taskStatus={taskStatus} isOverdue={isOverdue} selecting={selecting} selected={selected} TODAY={TODAY} subEventLabel={subEventLabel} prioritySlug={prioritySlug} toggleTaskDone={toggleTaskDone} toggleSelect={toggleSelect} openTaskModal={openTaskModal} openDeleteConfirm={openDeleteConfirm} />)}
         </ul>
       </section>
     ))
@@ -354,7 +435,7 @@ export function PlanningClient({ eventName }: { eventName: string }) {
                     <div className="gm-setter" role="dialog" aria-modal="true" aria-label="Filter by sub-event">
                       <p className="gm-setter-title">Sub-event</p>
                       <div className="gm-setter-opts" role="menu">
-                        {[{ value: '__all__', label: 'All', icon: 'filter_list' }, { value: '__whole__', label: 'Whole event', icon: 'celebration' }, ...EVENT_SUBEVENTS.map(s => ({ value: s.id, label: s.label, icon: 'event' }))].map(o => {
+                        {[{ value: '__all__', label: 'All', icon: 'filter_list' }, { value: '__whole__', label: 'Whole event', icon: 'celebration' }, ...subEvents.map(s => ({ value: s.id, label: s.label, icon: 'event' }))].map(o => {
                           const cur = subEventFilter === null ? '__all__' : subEventFilter === '' ? '__whole__' : subEventFilter
                           return (
                             <button key={o.value} type="button" className="gm-setter-opt" role="menuitemradio" aria-checked={cur === o.value} onClick={() => { if (o.value === '__all__') setSubEventFilter(null); else if (o.value === '__whole__') setSubEventFilter(''); else setSubEventFilter(o.value); setPickerOpen(null) }}>
@@ -424,7 +505,7 @@ export function PlanningClient({ eventName }: { eventName: string }) {
             {tasks.length === 0 && <div className="plan-empty" id="plan-tasks-empty"><p className="plan-empty-title">No tasks yet</p><p className="plan-empty-sub">Tap the + button to add your first task.</p></div>}
             {tasks.length > 0 && visibleTasks.length === 0 && <div className="plan-empty" id="plan-filter-empty"><p className="plan-empty-title">No tasks match</p><p className="plan-empty-sub">Try a different search or filter.</p></div>}
             <ul className="plan-task-list" id="plan-task-list" role="list" aria-label="Task list">
-              {visibleTasks.map(t => <TaskRow key={t.id} task={t} taskStatus={taskStatus} isOverdue={isOverdue} selecting={selecting} selected={selected} TODAY={TODAY} toggleTaskDone={toggleTaskDone} toggleSelect={toggleSelect} openTaskModal={openTaskModal} openDeleteConfirm={openDeleteConfirm} />)}
+              {visibleTasks.map(t => <TaskRow key={t.id} task={t} taskStatus={taskStatus} isOverdue={isOverdue} selecting={selecting} selected={selected} TODAY={TODAY} subEventLabel={subEventLabel} prioritySlug={prioritySlug} toggleTaskDone={toggleTaskDone} toggleSelect={toggleSelect} openTaskModal={openTaskModal} openDeleteConfirm={openDeleteConfirm} />)}
             </ul>
           </div>
 
@@ -477,7 +558,7 @@ export function PlanningClient({ eventName }: { eventName: string }) {
                 <span className="stat-icon"><span className="material-symbols-outlined icon-fill">account_balance</span></span>
                 <div style={{ minWidth: 0 }}>
                   <p className="plan-stat-label">Total budget</p>
-                  <p className="plan-stat-value" id="plan-stat-total">{fmtINR(budget)}</p>
+                  <p className="plan-stat-value" id="plan-stat-total">{fmtINR(budget?.totalAmount ?? null)}</p>
                 </div>
                 <button type="button" className="plan-icon-btn plan-stat-edit" data-plan-edit-budget aria-label="Edit total budget" onClick={openBudgetModal}>
                   <span className="material-symbols-outlined" aria-hidden="true">edit</span>
@@ -512,11 +593,11 @@ export function PlanningClient({ eventName }: { eventName: string }) {
               <div className="plan-cat-section">
                 <p className="plan-cat-heading">Spending by type</p>
                 <ul className="plan-cat-list" id="plan-cat-list" role="list" aria-label="Spending by category">
-                  {EXPENSE_TYPES.filter(t => (derive.typeTotals[t.id] || 0) > 0).sort((a, b) => (derive.typeTotals[b.id] || 0) - (derive.typeTotals[a.id] || 0)).map(t => {
+                  {expenseTypes.filter(t => (derive.typeTotals[t.id] || 0) > 0).sort((a, b) => (derive.typeTotals[b.id] || 0) - (derive.typeTotals[a.id] || 0)).map(t => {
                     const pct = derive.spent === 0 ? 0 : Math.round(((derive.typeTotals[t.id] || 0) / derive.spent) * 100)
                     return (
                       <li key={t.id} className="budget-bar-row">
-                        <span className="budget-bar-label">{t.label}</span>
+                        <span className="budget-bar-label">{t.name}</span>
                         <div className="budget-bar-track"><span className="budget-bar-fill" style={{ width: `${pct}%` }} /></div>
                         <span className="budget-bar-meta">{fmtINR(derive.typeTotals[t.id] || 0)} · {pct}%</span>
                       </li>
@@ -534,11 +615,11 @@ export function PlanningClient({ eventName }: { eventName: string }) {
                 </div>
                 <ul className="plan-exp-list" id="plan-exp-list" role="list" aria-label="Expense entries">
                   {expenses.map(exp => {
-                    const typ = typeById(exp.type); const vendor = exp.vendor || typ.label
+                    const typ = typeById(exp.expenseTypeId); const vendor = exp.vendorName || typ.name
                     return (
                       <li key={exp.id} className="exp-row">
-                        <span className="exp-row-icon"><span className="material-symbols-outlined" aria-hidden="true">{typ.icon}</span></span>
-                        <div className="exp-row-body"><p className="exp-row-vendor">{vendor}</p><p className="exp-row-cat">{typ.label}{exp.notes ? ` · ${exp.notes}` : ''}</p></div>
+                        <span className="exp-row-icon"><span className="material-symbols-outlined" aria-hidden="true">{typ.iconName || 'receipt_long'}</span></span>
+                        <div className="exp-row-body"><p className="exp-row-vendor">{vendor}</p><p className="exp-row-cat">{typ.name}{exp.description ? ` · ${exp.description}` : ''}</p></div>
                         <span className="exp-row-amt">{fmtINR(exp.amount)}</span>
                         <div className="exp-row-actions">
                           <button type="button" className="plan-icon-btn" aria-label={`Edit ${vendor}`} onClick={() => openExpenseModal(exp.id)}><span className="material-symbols-outlined" aria-hidden="true">edit</span></button>
@@ -613,7 +694,7 @@ export function PlanningClient({ eventName }: { eventName: string }) {
               <div className="form-select">
                 <select id="plan-task-subevent" name="subEvent" className="form-input" value={taskForm.subEvent} onChange={e => setTaskForm(f => ({ ...f, subEvent: e.target.value }))}>
                   <option value="">Whole event</option>
-                  {EVENT_SUBEVENTS.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                  {subEvents.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
                 </select>
                 <span className="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
               </div>
@@ -662,7 +743,7 @@ export function PlanningClient({ eventName }: { eventName: string }) {
                 <label className="form-label" htmlFor="plan-exp-type">Expense type</label>
                 <div className="form-select">
                   <select id="plan-exp-type" name="type" className="form-input" value={expForm.type} onChange={e => setExpForm(f => ({ ...f, type: e.target.value }))}>
-                    {EXPENSE_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                    {expenseTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                   </select>
                   <span className="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
                 </div>
@@ -684,7 +765,7 @@ export function PlanningClient({ eventName }: { eventName: string }) {
                 <div className="form-select">
                   <select id="plan-exp-subevent" name="subEvent" className="form-input" value={expForm.subEvent} onChange={e => setExpForm(f => ({ ...f, subEvent: e.target.value }))}>
                     <option value="">Whole event</option>
-                    {EVENT_SUBEVENTS.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                    {subEvents.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
                   </select>
                   <span className="form-select-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
                 </div>
@@ -726,7 +807,7 @@ export function PlanningClient({ eventName }: { eventName: string }) {
           <button type="button" className="bulk-bar-selectall" data-plan-select-all onClick={() => {
             const vis = visibleTasks.length
             if (selectedIds.length >= vis && vis > 0) { setSelected({}) }
-            else { const n: Record<number, boolean> = {}; visibleTasks.forEach(t => { n[t.id] = true }); setSelected(n) }
+            else { const n: Record<string, boolean> = {}; visibleTasks.forEach(t => { n[t.id] = true }); setSelected(n) }
           }}>{selectedIds.length >= visibleTasks.length && visibleTasks.length > 0 ? 'Clear' : 'Select all'}</button>
           <span className="bulk-bar-div" aria-hidden="true" />
           <button type="button" className="bulk-bar-act" id="plan-bulk-complete" disabled={selectedIds.length === 0} onClick={() => { completeTasks(selectedIds); exitSelect() }}>
@@ -757,18 +838,22 @@ interface TaskRowProps {
   taskStatus: (t: Task) => 'done' | 'overdue' | 'todo'
   isOverdue: (t: Task) => boolean
   selecting: boolean
-  selected: Record<number, boolean>
+  selected: Record<string, boolean>
   TODAY: string
-  toggleTaskDone: (id: number, done: boolean) => void
-  toggleSelect: (id: number) => void
-  openTaskModal: (id: number | null) => void
-  openDeleteConfirm: (type: 'task' | 'expense' | 'bulk', id?: number, ids?: number[]) => void
+  subEventLabel: (subEventId: string | null) => string
+  prioritySlug: (priorityId: string) => Priority
+  toggleTaskDone: (id: string, done: boolean) => void
+  toggleSelect: (id: string) => void
+  openTaskModal: (id: string | null) => void
+  openDeleteConfirm: (type: 'task' | 'expense' | 'bulk', id?: string, ids?: string[]) => void
 }
 
-function TaskRow({ task, taskStatus, isOverdue, selecting, selected, TODAY, toggleTaskDone, toggleSelect, openTaskModal, openDeleteConfirm }: TaskRowProps) {
+function TaskRow({ task, taskStatus, isOverdue, selecting, selected, TODAY, subEventLabel, prioritySlug, toggleTaskDone, toggleSelect, openTaskModal, openDeleteConfirm }: TaskRowProps) {
   const st = taskStatus(task)
   const stLabel = st === 'done' ? 'Done' : st === 'overdue' ? 'Overdue' : 'To-do'
   const stIcon = st === 'done' ? 'check_circle' : st === 'overdue' ? 'warning' : 'radio_button_unchecked'
+  const priority = prioritySlug(task.priorityId)
+  const isDone = st === 'done'
 
   function handleSurfaceClick(e: React.MouseEvent) {
     if (selecting) { toggleSelect(task.id); return }
@@ -778,28 +863,28 @@ function TaskRow({ task, taskStatus, isOverdue, selecting, selected, TODAY, togg
   }
 
   return (
-    <li className={`task-row${selecting && selected[task.id] ? ' is-selected' : ''}${isOverdue(task) ? ' is-overdue' : ''}`} data-id={String(task.id)}>
+    <li className={`task-row${selecting && selected[task.id] ? ' is-selected' : ''}${isOverdue(task) ? ' is-overdue' : ''}`} data-id={task.id}>
       <div className="task-row-surface" onClick={handleSurfaceClick}>
         {!selecting && (
           <label className="task-row-check" htmlFor={`plan-task-chk-${task.id}`} onClick={e => e.stopPropagation()}>
-            <input type="checkbox" id={`plan-task-chk-${task.id}`} checked={task.done} onChange={e => toggleTaskDone(task.id, e.target.checked)} />
+            <input type="checkbox" id={`plan-task-chk-${task.id}`} checked={isDone} onChange={e => toggleTaskDone(task.id, e.target.checked)} />
           </label>
         )}
         <div className="task-row-body">
-          <span className="task-row-title" style={task.done ? { textDecoration: 'line-through', color: 'var(--muted)' } : undefined}>{task.label}</span>
+          <span className="task-row-title" style={isDone ? { textDecoration: 'line-through', color: 'var(--muted)' } : undefined}>{task.title}</span>
           <div className="task-row-meta">
             <span className="task-due-chip">
               <span className="material-symbols-outlined" aria-hidden="true">event</span>
-              {relDay(task.due, TODAY)}
+              {relDay(task.dueDate, TODAY)}
             </span>
-            <span className="task-sub-chip" aria-label={`Sub-event: ${subEventLabel(task.subEvent)}`}>
+            <span className="task-sub-chip" aria-label={`Sub-event: ${subEventLabel(task.subEventId)}`}>
               <span className="material-symbols-outlined" aria-hidden="true">celebration</span>
-              {subEventLabel(task.subEvent)}
+              {subEventLabel(task.subEventId)}
             </span>
-            {(task.priority === 'high' || task.priority === 'low') && (
-              <span className={`task-prio task-prio--${task.priority}`} aria-label={`Priority: ${task.priority === 'high' ? 'High' : 'Low'}`}>
+            {(priority === 'high' || priority === 'low') && (
+              <span className={`task-prio task-prio--${priority}`} aria-label={`Priority: ${priority === 'high' ? 'High' : 'Low'}`}>
                 <span className="task-prio-dot" aria-hidden="true" />
-                <span className="task-prio-label">{task.priority === 'high' ? 'High' : 'Low'}</span>
+                <span className="task-prio-label">{priority === 'high' ? 'High' : 'Low'}</span>
               </span>
             )}
           </div>
@@ -810,7 +895,7 @@ function TaskRow({ task, taskStatus, isOverdue, selecting, selected, TODAY, togg
             {stLabel}
           </span>
         ) : (
-          <button type="button" className="task-row-bulk" role="checkbox" aria-checked={!!selected[task.id]} aria-label={`Select ${task.label}`} onClick={e => { e.stopPropagation(); toggleSelect(task.id) }}>
+          <button type="button" className="task-row-bulk" role="checkbox" aria-checked={!!selected[task.id]} aria-label={`Select ${task.title}`} onClick={e => { e.stopPropagation(); toggleSelect(task.id) }}>
             <span className="material-symbols-outlined" aria-hidden="true">{selected[task.id] ? 'check_box' : 'check_box_outline_blank'}</span>
           </button>
         )}
