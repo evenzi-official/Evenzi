@@ -357,7 +357,7 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 | Feature | Priority | Status | Subtasks |
 |---------|----------|--------|----------|
 | Event Management Hub | P0 | Data model n/a; design prototype DONE (`designs/pages/event-control/event-control.html`, live on GH Pages); FE/app not started | 16 |
-| Guest Management & RSVP | P1 | **Data model LIVE on dev** (`guests_01-05`); design prototype DONE; FE/app not started | 25 |
+| Guest Management & RSVP | P1 | **DONE** — data model + 6 API routes + FE all live (`app/events/[id]/guests`, list/stats/toolbar/filters/sort, add/edit/remove, RSVP setter, functions + zero-assigned banner, tag combobox + manager, real CSV import with validation gate, bulk tag/assign/delete; Send-invites intentionally inert pending a WhatsApp planning session). Tested at 6 breakpoints. See `docs/superpowers/specs/2026-07-29-guest-management-design.md` §11 | 25 |
 | Event Settings | P1 | **DONE** — data model + backend (4 API routes) + FE all live (`app/settings`, 5 tabs w/ real DB round-trips, commit `a8df148`) | 20 |
 | User Settings | P1 | **DONE** — `/settings` live with 4 working sections (Profile w/ avatar upload → R2, Security = connected SSO/phone methods, Notification prefs, Account sign-out), 3 API routes, all reading/writing `user_profiles` + `user_preferences`. Settings icon added to shared `FloatingNav`; logout removed from nav everywhere. Tested at 6 breakpoints. Commits `8632cbd`..`0e50a4c` | 20 |
 | Planning Tools (Checklist + Budget) | P2 | **Data model LIVE on dev** (`planning_01-07`, real data: 12 tasks/1 budget on test event); design v2 DONE; FE/app not started | 15 |
