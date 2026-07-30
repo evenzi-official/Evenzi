@@ -40,7 +40,7 @@ function relDay(iso: string | null, today: string) {
   return fmtDate(iso)
 }
 function dayOfWeek(iso: string) {
-  const { y, m, d } = parseISO(iso); let yr = y, mo = m
+  const { y, m, d } = parseISO(iso); let yr = y; const mo = m
   const t = [0,3,2,5,0,3,5,1,4,6,2,4]; if (mo < 3) yr--
   return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][(yr + Math.floor(yr/4) - Math.floor(yr/100) + Math.floor(yr/400) + t[mo-1] + d) % 7]
 }
