@@ -36,15 +36,19 @@ export async function PATCH(
     if (rsvpStatusId !== undefined) patch.rsvp_status_id = rsvpStatusId
 
     if (Object.keys(patch).length > 0) {
-      const { error: updateError } = await supabase
+      const { data: updatedRows, error: updateError } = await supabase
         .from('event_guests')
         .update(patch)
         .eq('id', guestId)
         .eq('event_id', id)
+        .select('id')
 
       if (updateError) {
         console.error('PATCH /api/events/[id]/guests/[guestId] failed:', updateError)
         return NextResponse.json({ error: 'Failed to update guest' }, { status: 500 })
+      }
+      if (!updatedRows || updatedRows.length === 0) {
+        return NextResponse.json({ error: 'Guest not found' }, { status: 404 })
       }
     }
 
@@ -110,15 +114,19 @@ export async function DELETE(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { error } = await supabase
+    const { data: deletedRows, error } = await supabase
       .from('event_guests')
       .delete()
       .eq('id', guestId)
       .eq('event_id', id)
+      .select('id')
 
     if (error) {
       console.error('DELETE /api/events/[id]/guests/[guestId] failed:', error)
       return NextResponse.json({ error: 'Failed to remove guest' }, { status: 500 })
+    }
+    if (!deletedRows || deletedRows.length === 0) {
+      return NextResponse.json({ error: 'Guest not found' }, { status: 404 })
     }
 
     return NextResponse.json({ success: true })

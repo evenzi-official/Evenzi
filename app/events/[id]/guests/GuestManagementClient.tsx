@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { GuestManagementInitialData, GuestRow, GuestTagOption } from '@/lib/types/guests'
 import { GuestPicker, type PickerOption } from './GuestPicker'
 import { GuestFormModal } from './GuestFormModal'
@@ -57,14 +57,25 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
   const [selecting, setSelecting] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [toast, setToast] = useState<string | null>(null)
+  const toastTimeoutRef = useRef<number | null>(null)
 
   const statusById = useMemo(() => new Map(rsvpStatuses.map((s) => [s.id, s])), [rsvpStatuses])
   const tagById = useMemo(() => new Map(tags.map((t) => [t.id, t])), [tags])
 
   function flashToast(message: string): void {
+    if (toastTimeoutRef.current !== null) window.clearTimeout(toastTimeoutRef.current)
     setToast(message)
-    window.setTimeout(() => setToast(null), 2500)
+    toastTimeoutRef.current = window.setTimeout(() => {
+      setToast(null)
+      toastTimeoutRef.current = null
+    }, 2500)
   }
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current !== null) window.clearTimeout(toastTimeoutRef.current)
+    }
+  }, [])
 
   const counts = useMemo(() => {
     const c = { total: guests.length, confirmed: 0, declined: 0, pending: 0, maybe: 0 }
@@ -85,7 +96,7 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
       if (subFilters.length && !subFilters.some((s) => g.subEventIds.includes(s))) return false
       if (tagFilters.length && !tagFilters.some((t) => g.tagIds.includes(t))) return false
       if (!q) return true
-      return g.name.toLowerCase().includes(q) || g.phone.includes(q) || (g.email ?? '').toLowerCase().includes(q)
+      return g.name.toLowerCase().includes(q) || g.phone.includes(q) || fmtPhone(g.phone).toLowerCase().includes(q) || (g.email ?? '').toLowerCase().includes(q)
     })
     return [...filtered].sort((a, b) => {
       if (sortKey === 'recent') return b.createdAt.localeCompare(a.createdAt)
@@ -102,7 +113,7 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
   const responseRate = counts.total ? Math.round((responded / counts.total) * 100) : 0
 
   async function patchGuest(guestId: string, patch: Partial<Pick<GuestRow, 'rsvpStatusId' | 'subEventIds'>>): Promise<void> {
-    const prev = guests
+    const prevGuest = guests.find((g) => g.id === guestId)
     setGuests((gs) => gs.map((g) => (g.id === guestId ? { ...g, ...patch } : g)))
     try {
       const body: Record<string, unknown> = {}
@@ -116,7 +127,11 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
       if (!res.ok) throw new Error('failed')
       flashToast(patch.rsvpStatusId !== undefined ? 'RSVP updated' : 'Functions updated')
     } catch {
-      setGuests(prev)
+      if (prevGuest) {
+        setGuests((gs) => gs.map((g) => (g.id === guestId
+          ? { ...g, rsvpStatusId: prevGuest.rsvpStatusId, subEventIds: prevGuest.subEventIds }
+          : g)))
+      }
       flashToast("Couldn't update — try again")
     }
   }
@@ -150,8 +165,10 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
       return next
     })
   }
+  const allVisibleSelected = visibleGuests.length > 0 && visibleGuests.every((g) => selectedIds.has(g.id))
+
   function selectAllVisible(): void {
-    setSelectedIds((s) => (s.size >= visibleGuests.length ? new Set() : new Set(visibleGuests.map((g) => g.id))))
+    setSelectedIds(() => (allVisibleSelected ? new Set() : new Set(visibleGuests.map((g) => g.id))))
   }
 
   async function bulkAction(action: 'tag' | 'assign' | 'delete', payload?: { tagIds?: string[]; subEventIds?: string[] }): Promise<void> {
@@ -163,23 +180,26 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
       body: JSON.stringify({ action, guestIds: ids, ...payload }),
     })
     if (!res.ok) { flashToast('Bulk update failed'); return }
+    const n = ids.length
+    const plural = n === 1 ? '' : 's'
     if (action === 'delete') {
       setGuests((gs) => gs.filter((g) => !selectedIds.has(g.id)))
-      flashToast(`Removed ${ids.length} guests`)
+      flashToast(`Removed ${n} guest${plural}`)
       exitSelect()
     } else if (action === 'tag') {
       const addIds = payload?.tagIds ?? []
       setGuests((gs) => gs.map((g) => (selectedIds.has(g.id) ? { ...g, tagIds: Array.from(new Set([...g.tagIds, ...addIds])) } : g)))
-      flashToast(`Tagged ${ids.length} guests`)
+      flashToast(`Tagged ${n} guest${plural}`)
     } else {
       const newSubEventIds = payload?.subEventIds ?? []
       setGuests((gs) => gs.map((g) => (selectedIds.has(g.id) ? { ...g, subEventIds: newSubEventIds } : g)))
-      flashToast(`Set functions for ${ids.length} guests`)
+      flashToast(`Set functions for ${n} guest${plural}`)
     }
   }
 
   async function handleBulkDelete(): Promise<void> {
-    if (!window.confirm(`Remove ${selectedIds.size} guests? This can't be undone.`)) return
+    const n = selectedIds.size
+    if (!window.confirm(`Remove ${n} guest${n === 1 ? '' : 's'}? This can't be undone.`)) return
     await bulkAction('delete')
   }
 
@@ -285,7 +305,7 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
         {zeroAssignedCount > 0 && (
           <div className="gm-warn-banner" role="status">
             <span aria-hidden="true" className="material-symbols-outlined">warning</span>
-            <span><strong>{zeroAssignedCount}</strong> guests aren&apos;t invited to any function — they&apos;ll see nothing.</span>
+            <span><strong>{zeroAssignedCount}</strong> guest{zeroAssignedCount === 1 ? '' : 's'} aren&apos;t invited to any function — they&apos;ll see nothing.</span>
             <button type="button" className="gm-warn-review" onClick={() => setOnlyUnassigned((v) => !v)}>
               {onlyUnassigned ? 'Show all' : 'Review'}
             </button>
@@ -403,7 +423,7 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
         <div className="gm-bulkbar" role="toolbar" aria-label="Bulk actions">
           <span className="gm-bulk-count">{selectedIds.size} selected</span>
           <button type="button" className="gm-bulk-selectall" onClick={selectAllVisible}>
-            {selectedIds.size >= visibleGuests.length && visibleGuests.length > 0 ? 'Clear' : 'Select all'}
+            {allVisibleSelected ? 'Clear' : 'Select all'}
           </button>
           <span className="gm-bulk-div" aria-hidden="true" />
           <button
@@ -486,7 +506,12 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
         <GuestPicker
           anchorRect={picker.anchorRect} ariaLabel="Add tags to selected guests" title="Add tags" multi
           options={tags.map((t) => ({ value: t.id, label: t.name }))} current={[]}
-          onApply={(vals) => { setPicker(null); void bulkAction('tag', { tagIds: vals }) }} onClose={() => setPicker(null)}
+          onApply={(vals) => {
+            setPicker(null)
+            if (vals.length === 0) { flashToast('Select at least one tag'); return }
+            void bulkAction('tag', { tagIds: vals })
+          }}
+          onClose={() => setPicker(null)}
         />
       )}
 
@@ -494,7 +519,12 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
         <GuestPicker
           anchorRect={picker.anchorRect} ariaLabel="Set functions for selected guests" title="Set functions — replaces current" multi
           options={subEvents.map((se) => ({ value: se.id, label: se.label }))} current={[]}
-          onApply={(vals) => { setPicker(null); void bulkAction('assign', { subEventIds: vals }) }} onClose={() => setPicker(null)}
+          onApply={(vals) => {
+            setPicker(null)
+            if (vals.length === 0) { flashToast('Select at least one function'); return }
+            void bulkAction('assign', { subEventIds: vals })
+          }}
+          onClose={() => setPicker(null)}
         />
       )}
 
@@ -512,7 +542,8 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
           onClose={() => setImportOpen(false)}
           onImported={(imported, skipped) => {
             setGuests((gs) => [...gs, ...imported])
-            flashToast(`${imported.length} guests imported${skipped ? ` · ${skipped} duplicates skipped` : ''}`)
+            const n = imported.length
+            flashToast(`${n} guest${n === 1 ? '' : 's'} imported${skipped ? ` · ${skipped} duplicate${skipped === 1 ? '' : 's'} skipped` : ''}`)
           }}
           flashToast={flashToast}
         />

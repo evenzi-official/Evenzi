@@ -32,6 +32,7 @@ export function GuestFormModal(props: Props): React.ReactElement {
   const [tagListOpen, setTagListOpen] = useState(false)
   const [nameError, setNameError] = useState<string | null>(null)
   const [phoneError, setPhoneError] = useState<string | null>(null)
+  const [emailError, setEmailError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [removing, setRemoving] = useState(false)
   const [confirmingRemove, setConfirmingRemove] = useState(false)
@@ -52,8 +53,13 @@ export function GuestFormModal(props: Props): React.ReactElement {
     if (existing) {
       if (!tagIds.includes(existing.id)) setTagIds((cur) => [...cur, existing.id])
     } else {
-      const created = await onCreateTag(trimmed)
-      setTagIds((cur) => [...cur, created.id])
+      try {
+        const created = await onCreateTag(trimmed)
+        setTagIds((cur) => [...cur, created.id])
+      } catch {
+        flashToast("Couldn't create tag.")
+        return
+      }
     }
     setTagInput('')
     setTagListOpen(false)
@@ -67,11 +73,14 @@ export function GuestFormModal(props: Props): React.ReactElement {
     e.preventDefault()
     setNameError(null)
     setPhoneError(null)
+    setEmailError(null)
     const trimmedName = name.trim()
     const digitsPhone = phone.replace(/\D/g, '')
+    const trimmedEmail = email.trim()
     let bad = false
     if (digitsPhone.length !== 10) { setPhoneError('Enter a valid 10-digit mobile number.'); bad = true }
     if (!trimmedName) { setNameError('Please enter a name.'); bad = true }
+    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) { setEmailError('Enter a valid email address.'); bad = true }
     if (bad) return
 
     setSaving(true)
@@ -169,6 +178,9 @@ export function GuestFormModal(props: Props): React.ReactElement {
           <div className="form-group">
             <label className="form-label" htmlFor="gm-f-email">Email <span className="form-label-opt">(optional)</span></label>
             <input id="gm-f-email" className="form-input" type="email" autoComplete="email" placeholder="name@example.com" value={email ?? ''} onChange={(e) => setEmail(e.target.value)} />
+            {emailError && (
+              <p className="form-error" role="alert"><span aria-hidden="true" className="material-symbols-outlined">error</span> {emailError}</p>
+            )}
           </div>
 
           <div className="form-group">
@@ -193,10 +205,10 @@ export function GuestFormModal(props: Props): React.ReactElement {
           </div>
 
           <div className="form-group">
-            <label className="form-label gm-tags-label" htmlFor="gm-f-tag-input">
-              Tags <span className="form-label-opt">(optional)</span>
+            <div className="form-label gm-tags-label">
+              <label htmlFor="gm-f-tag-input">Tags <span className="form-label-opt">(optional)</span></label>
               <button type="button" className="gm-manage-tags-link" onClick={onManageTags}>Manage tags</button>
-            </label>
+            </div>
             <div className="tag-input">
               <span className="tag-input-chips">
                 {tagIds.map((tagId) => {

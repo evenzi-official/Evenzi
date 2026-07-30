@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { PageFooter } from '@/components/layout/PageFooter'
 import { GuestManagementClient } from './GuestManagementClient'
+import { uuidSchema } from '@/lib/validations/guests'
 import type {
   GuestManagementInitialData,
   GuestRow,
@@ -13,6 +14,8 @@ import type {
 
 export default async function GuestsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  if (!uuidSchema.safeParse(id).success) redirect('/home')
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()

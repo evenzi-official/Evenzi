@@ -32,7 +32,7 @@ export const bulkActionSchema = z.discriminatedUnion('action', [
   z.object({
     action: z.literal('assign'),
     guestIds: z.array(z.string().uuid()).min(1).max(500),
-    subEventIds: z.array(z.string().uuid()).max(50),
+    subEventIds: z.array(z.string().uuid()).min(1, 'Select at least one function').max(50),
   }).strict(),
   z.object({
     action: z.literal('delete'),

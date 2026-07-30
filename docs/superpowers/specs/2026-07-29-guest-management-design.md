@@ -173,4 +173,14 @@ The prior session's deferred checklist was completed. "Manage tags" trigger wire
 
 Test data (guests, custom tags) created during this pass was deleted from the dev event after verification — the event is clean.
 
-**Status: build tasks 1-10 complete.** Final whole-branch code review (plan step 11) is the only remaining step before this is ready for `Dev-Vibe-Testing`.
+### Task 11 — final whole-branch review (2026-07-30)
+
+Dispatched on the most capable model per the subagent-driven-development skill. **Verdict: no Critical findings, all four global constraints held** (every route 401s before touching data; RLS-only authorization with no manual ownership pre-check, matching `guest-settings/route.ts`; `invited` is never written `true` and no send endpoint exists anywhere; no new CSS file/rule beyond what's documented below). 8 Important + ~18 Minor findings — see commit history from `818b831` onward for the fix pass (16 of them fixed: all 8 Important, plus 8 of the cheaper/higher-value Minors — `selectAllVisible`'s `>=` bug, search not matching the displayed phone format, missing pluralization in 5 strings, an unguarded empty bulk-tag/bulk-assign apply, toast-timer collision/leak, the Manage-tags button's invalid `<label>` nesting, `GuestPicker`'s one-frame-late positioning, and `page.tsx` missing the UUID guard every API route has).
+
+**Deliberately deferred, not fixed:**
+- Unit tests for `parseCsv`/`validateRows` (would need those functions exported first — a small refactor, not a bug fix).
+- `docs/PORT-MAP.md` staleness and the pre-existing `ToolRail`/`page-band` desktop-width overlap (both cross-cutting, predate this feature, already logged above and in §10).
+- Cosmetic-only Minors: dead selector-hook CSS classes (`gm-import-btn`/`gm-select-btn`/`gm-remove-btn`), orphaned RSVP-picker status-color CSS (needs a `data-val` scheme change), `text-success` not resolving (pre-existing project-wide gap, also present in `ProfileSection.tsx`), route status-code consistency (201 vs 200), redundant `pending`-status/`created_by` DB lookups (the DB triggers already set these — an optimization, not a defect), and a handful of low-probability edge cases (double-click double-submit, new-tag display-order on reload, CSV header-name mismatch, unreset file input).
+- **Offline banner** (§3 listed it as a goal; `guests.css` even ships `.gm-offline` from the prototype) was never wired to `navigator.onLine` — an undocumented scope reduction the review caught, not a code defect. No other converted page (Media, Planning, Settings, Event Hub) has one either, so this is now formalized as accepted scope: **out for this pass**, matching existing precedent across the app rather than being a one-off gap in Guest Management specifically.
+
+**Status: build tasks 1-11 complete, review findings triaged and the Important-severity fix pass landed.** Ready for a final human pass before `Dev-Vibe-Testing`.

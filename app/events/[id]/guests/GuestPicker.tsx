@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 export interface PickerOption {
   value: string
@@ -37,7 +37,7 @@ export function GuestPicker(props: GuestPickerProps): React.ReactElement {
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null)
   const [pendingMulti, setPendingMulti] = useState<string[]>(props.multi ? props.current : [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     function place(): void {
       if (window.innerWidth < 480 || !panelRef.current) { setPosition(null); return }
       const w = panelRef.current.offsetWidth || 280

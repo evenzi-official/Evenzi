@@ -119,6 +119,11 @@ export function ImportCsvModal({ eventId, existingPhones, onClose, onImported, f
     setImporting(true)
     try {
       const validRows = rows.filter((r) => r.status === 'valid').map((r) => ({ name: r.name, phone: r.phone, email: r.email }))
+      if (validRows.length === 0) {
+        onImported([], duplicateCount)
+        onClose()
+        return
+      }
       const res = await fetch(`/api/events/${eventId}/guests/import`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
