@@ -152,12 +152,25 @@ The implementer building Task 9 (final integration) flagged that all three modal
 - `tsc --noEmit` clean across every new/changed file.
 - No new browser console errors introduced (confirmed the one pre-existing hydration warning from the anti-FOUC theme script, already documented in the User Settings build notes, is unrelated and was present before this feature).
 
-### Not yet verified — deferred to a follow-up pass, not silently skipped
+### Task 10 — full functional + breakpoint pass (2026-07-30, resumed session)
 
-Reaching the session's token budget partway through testing cut the verification pass short of the plan's full Task 10 checklist. Still outstanding, to be done before this is considered fully signed off:
+The prior session's deferred checklist was completed. "Manage tags" trigger wired first (commit `f9444b5`) — a link next to the guest form's Tags label, matching the prototype's placement — since the tag manager was otherwise unreachable.
 
-- The 6-breakpoint sweep (360/390/414/768/1024/1440px).
-- Live tests of: RSVP setter optimistic update + rollback, CSV import's full flow (template → upload → live preview → validate → insert), bulk select/tag/assign/delete, swipe-to-reveal on an actual touch viewport, zero-assigned banner, search/filter/sort combinations, tag manager (its "Manage tags" trigger is also still unwired per the plan's Task 9 note — needs adding, per the plan's Task 10 step 10, before the tag manager is reachable at all).
-- A dedicated whole-branch code review (the plan's final step) was not run this session for the same budget reason.
+**Verified live, real DB, real Supabase session:**
 
-Test guest "Test Guest Verify" (phone 9876543210) was left in the `a & b's Wedding` dev event from the write-path verification above — harmless dev data, safe to delete or ignore.
+- **RSVP setter** — GuestPicker opens anchored to the badge, all 4 statuses render with icons, current selection checked. Picked Confirmed → stats bar updated instantly (100%, 1/1 responded), toast fired, PATCH body confirmed to carry only `{rsvpStatusId}` (not the whole guest), persisted through reload.
+- **Functions (single-guest)** — unchecked all 4 in the edit modal → "This guest won't see any functions" warning shown, saved → zero-assigned banner appeared with correct count and a working Show all/Review toggle. Re-checked all 4 → banner cleared.
+- **Tag combobox** — creating a new tag via the suggestion click (`POST /guest-tags` → 201, DB row confirmed) and via Enter-on-no-match (also confirmed via DB — one row, no duplicate) both work correctly end-to-end. The Task 6 review's flagged "Enter creates a duplicate on partial match" concern did not reproduce — it turned out to be a testing-tool timing artifact (an early read of `input.value` before the async create/state-clear resolved), not a real defect. Both chips persisted correctly on save (`event_guest_tag_links` confirmed).
+- **CSV import — the full founder-specified flow**: downloaded template, uploaded a 5-row test file (2 valid, 1 missing name, 1 invalid phone, 1 duplicate phone) via a real `File`/`DataTransfer` injected into the actual file input (exercises the real `parseCsv`/`validateRows` code, not a mock) — every row classified correctly ("Ready" / "Missing name" / "Invalid phone number" / "Duplicate — skipped"), Import stayed disabled with 2 error rows present even with consent checked, confirming errors truly block while duplicates don't. Fixed the file (removed the 2 bad rows) and re-uploaded → "2 guests imported · 1 duplicates skipped", exactly 2 new `event_guests` rows created, the duplicate correctly never inserted.
+- **Bulk actions** — selected 2 guests: bulk Assign (replaces functions, confirmed both went to the exact 2 selected functions, zero-assigned banner cleared), bulk Tag (union-add, both guests got the tag without disturbing existing behavior), bulk Delete (native `confirm()` — cancel path confirmed to fire zero requests; accept path confirmed via an overridden `confirm` to remove exactly the 2 selected guests, DB-verified, selection mode auto-exited).
+- **Search / filter / sort** — search narrows the list and shows the correct "No guests match" empty state with query text; Clear filters resets every filter dimension at once.
+- **Send invites** — reconfirmed inert through all of the above: disabled toolbar button, disabled swipe-rail button, zero requests ever fired to any endpoint, `invited` never became `true` on any guest across the whole session.
+- **Breakpoint sweep** — 360/390/414/768/1024/1440px. No horizontal page overflow at any width (`scrollWidth`/`clientWidth` checked programmatically, not just visually). Toolbar collapses to icon-only on narrow widths, filter chips scroll horizontally without breaking layout, desktop column header (`GUEST`/`RSVP`) appears correctly at 768px+.
+
+**One pre-existing, cross-cutting bug found — not introduced by this feature, not fixed here:** at ≥1024px the vertical `ToolRail` sidebar overlaps page content (confirmed: the stats cards on the Guests page, and the hero content on the already-shipped Event Hub page, both affected identically). This is a shared-chrome layout defect in `ToolRail`/`page-band`'s interaction at desktop widths, reproducing on a page this build never touched — out of scope for Guest Management, needs its own fix task.
+
+**Not exercised this pass** (lower-risk, deferred as genuinely optional polish rather than launch-blocking): swipe-to-reveal specifically on a touch-simulated viewport (the underlying buttons were exercised via direct click and work correctly; only the CSS scroll-snap swipe gesture itself is unverified), RSVP setter's simulated-failure rollback path (no network-failure injection was available in this pass).
+
+Test data (guests, custom tags) created during this pass was deleted from the dev event after verification — the event is clean.
+
+**Status: build tasks 1-10 complete.** Final whole-branch code review (plan step 11) is the only remaining step before this is ready for `Dev-Vibe-Testing`.
