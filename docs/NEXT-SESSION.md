@@ -38,14 +38,16 @@ brainstorm → spec → plan → task-by-task build with review gate → live
 browser testing at every breakpoint → whole-branch review.
 ```
 
-### Remaining work (backend-wiring pass, 3 features + 1 external)
+### Remaining work (backend-wiring pass, 2 features + 1 external + 1 verification)
 
 | # | Feature | Design | React FE | Backend wiring |
 |---|---------|--------|----------|-----------------|
-| 1 | **Planning Tools** | ✅ design v2 | ✅ built, not wired | ❌ needs API routes + persistence |
+| 1 | ~~Planning Tools~~ | ✅ design v2 | ✅ built | ✅ **DONE 2026-07-30** — see below, only live-browser verification (Task 9) still owed |
 | 2 | **Digital Invitations** | ✅ prototype | ✅ built (7-template card designer) | ❌ needs save endpoint |
 | 3 | **Media & Memories** | ✅ prototype | ✅ built | ❌ needs upload endpoint (R2), storage-meter wiring |
 | 4 | Digital Presence (guest-site templates) | ✅ 6 locked | In progress — Dheeraj, per founder 2026-07-30 | n/a (external to this list) |
+
+**Planning Tools backend-wiring — shipped 2026-07-30.** Spec: `docs/superpowers/specs/2026-07-30-planning-tools-fe-wiring-design.md`. Plan + build log: `docs/superpowers/plans/2026-07-30-planning-tools-fe-wiring.md` (9 tasks, subagent-driven, every task reviewed — 2 needed a fix-and-re-review cycle for real bugs: Task 2's item route conflated 404s/500s and had no empty-patch guard; Task 6's task mutations were optimistic-with-no-rollback). Typecheck + lint clean. **Not yet done:** the live 6-breakpoint browser verification pass (Task 9, Step 3) — handed to Antigravity this session for pixel-level + interaction testing rather than burning further Claude tokens on it; see the handoff prompt in this session's transcript or re-derive one from the plan file's Task 9 section. Review the Antigravity output (screenshots + findings) before marking this fully closed.
 
 Admin Module + Support Chatbot parked until the end, per founder call.
 
