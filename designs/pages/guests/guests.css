@@ -286,6 +286,10 @@
   margin:.4rem 0 0;display:flex;align-items:center;gap:.4rem;
 }
 .gm-import-result .material-symbols-outlined{font-size:16px;color:var(--success)}
+.gm-import-preview{
+  max-height:280px;overflow-y:auto;margin:.75rem 0;
+  border:1px solid var(--line);border-radius:12px;
+}
 .gm-template-link{color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:2px}
 .gm-invite-state{
   display:flex;align-items:center;justify-content:space-between;gap:.75rem;
