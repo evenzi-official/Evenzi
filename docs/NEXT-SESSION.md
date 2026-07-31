@@ -4,11 +4,28 @@
 
 ---
 
-## ▶ START HERE NEXT — Planning Tools shipped + live-verified; Digital Invitations is next (2026-07-30)
+## ▶ START HERE NEXT — Digital Presence Wave 1 shipped live; Wave 2 needs a revision pass (2026-07-31)
 
-Session report: [`docs/session-reports/2026-07-30-session-report.md`](session-reports/2026-07-30-session-report.md)
+Session report: [`docs/session-reports/2026-07-31-session-report.md`](session-reports/2026-07-31-session-report.md)
 
-### V0 Readiness — 2026-07-30, verified against repo + live Antigravity E2E pass
+**What happened:** Full data-model gap analysis + spec for Event Website (Digital Presence), two `/council plan` passes (Wave 1 spec RE-PLAN → revised → **migrated live**, 11 migrations `website_01`–`website_11`; Wave 2 design RE-PLAN, findings now persisted). Two real bugs caught by the review process itself (anon-exec privilege gap on a guard trigger, duplicate `UNIQUE` constraint) and fixed same session. Dheeraj has a handoff brief to wire the host-editor React pages to the new schema. Full detail: `docs/superpowers/specs/2026-07-30-event-website-data-model-spec.md` (§0 changelog, D49 in `DATA-MODEL.md`).
+
+### Paste this to start — Wave 2 revision (primary)
+
+```
+Continue Event Website Wave 2. Read
+docs/superpowers/specs/2026-07-30-event-website-data-model-spec.md §6
+(design) and §12 (council verdict — RE-PLAN, 4 critical + 9 important
+findings, all itemized there). Revise §6 to address every finding, then
+re-run /council plan for a lighter confirm-the-fixes pass before authoring
+any Wave 2 migration. Wave 1 is already live (website_01–website_11) —
+don't touch it. This is a pure Abhijith-path task (spec/data-model), not
+Dheeraj's.
+```
+
+### Also queued (independent, unblocked) — Digital Invitations backend-wiring
+
+### V0 Readiness — 2026-07-31, verified against repo
 
 | Feature | Data | Backend | Frontend | Note |
 |---|---|---|---|---|
@@ -19,10 +36,11 @@ Session report: [`docs/session-reports/2026-07-30-session-report.md`](session-re
 | Guest Management & RSVP | ✅ | ✅ | ✅ | DONE — Send-invites intentionally inert (needs its own WhatsApp session) |
 | Event Settings | ✅ | ✅ | ✅ | DONE |
 | User Settings | ✅ | ✅ | ✅ | DONE |
-| **Planning Tools (Checklist + Budget)** | ✅ | ✅ | ✅ | **DONE 2026-07-30** — backend-wired, code-reviewed, live-verified by Antigravity (full-platform E2E + focused pass), 4 findings triaged/fixed. Pushed to Dev-Vibe + merged to Dev-Vibe-Testing. |
+| Planning Tools (Checklist + Budget) | ✅ | ✅ | ✅ | DONE 2026-07-30 |
 | Media & Memories | ✅ | ⚠️ | ✅ | FE built, upload endpoint (R2) + storage-meter still not wired |
-| Digital Invitations | ✅ | ❌ | ✅ | FE built (7-template designer), nothing persists yet — **next up** |
-| Digital Presence (guest site) | — | — | ⚠️ | In progress — Dheeraj, per founder call. Not in this worktree yet |
+| Digital Invitations | ✅ | ❌ | ✅ | FE built (7-template designer), nothing persists yet — queued, see below |
+| **Digital Presence — Wave 1 (host editor)** | ✅ | ⚠️ | ❌ | **Schema LIVE 2026-07-31** (13 tables, `website_01`–`website_11`). React pages still static mocks — Dheeraj brief at `docs/sprint/sprint-1/handoff-website-wave1.md` |
+| **Digital Presence — Wave 2 (public site)** | ❌ | ❌ | ❌ | Spec-only, council verdict 🔴 RE-PLAN (spec §12) — **next session's primary task** |
 | Admin Module | ❌ | ❌ | ❌ | Not started |
 | Support Chatbot | ❌ | ❌ | ❌ | Planned, unblocked |
 
