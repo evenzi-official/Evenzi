@@ -35,49 +35,17 @@ export async function PATCH(
     if (priorityId !== undefined) patch.priority_id = priorityId
     if (statusId !== undefined) patch.status_id = statusId
 
-    const taskColumns = 'id, title, description, due_date, sub_event_id, priority_id, status_id'
-    let taskRow: {
-      id: string
-      title: string
-      description: string | null
-      due_date: string | null
-      sub_event_id: string | null
-      priority_id: string
-      status_id: string
-    } | null = null
+    const { data: taskRow, error: updateError } = await supabase
+      .from('event_tasks')
+      .update(patch)
+      .eq('id', taskId)
+      .eq('event_id', id)
+      .select('id, title, description, due_date, sub_event_id, priority_id, status_id')
+      .single()
 
-    if (Object.keys(patch).length > 0) {
-      const { data: updatedRows, error: updateError } = await supabase
-        .from('event_tasks')
-        .update(patch)
-        .eq('id', taskId)
-        .eq('event_id', id)
-        .select(taskColumns)
-
-      if (updateError) {
-        console.error('PATCH /api/events/[id]/planning/tasks/[taskId] failed:', updateError)
-        return NextResponse.json({ error: 'Failed to update task' }, { status: 500 })
-      }
-      if (!updatedRows || updatedRows.length === 0) {
-        return NextResponse.json({ error: 'Task not found' }, { status: 404 })
-      }
-      taskRow = updatedRows[0]
-    } else {
-      const { data: existingRow, error: fetchError } = await supabase
-        .from('event_tasks')
-        .select(taskColumns)
-        .eq('id', taskId)
-        .eq('event_id', id)
-        .maybeSingle()
-
-      if (fetchError) {
-        console.error('PATCH /api/events/[id]/planning/tasks/[taskId] fetch failed:', fetchError)
-        return NextResponse.json({ error: 'Failed to update task' }, { status: 500 })
-      }
-      if (!existingRow) {
-        return NextResponse.json({ error: 'Task not found' }, { status: 404 })
-      }
-      taskRow = existingRow
+    if (updateError || !taskRow) {
+      console.error('PATCH /api/events/[id]/planning/tasks/[taskId] failed:', updateError)
+      return NextResponse.json({ error: 'Failed to update task' }, { status: 404 })
     }
 
     return NextResponse.json({
@@ -110,19 +78,12 @@ export async function DELETE(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { data: deletedRows, error: deleteError } = await supabase
-      .from('event_tasks')
-      .delete()
-      .eq('id', taskId)
-      .eq('event_id', id)
-      .select('id')
+    const { error: deleteError } = await supabase
+      .from('event_tasks').delete().eq('id', taskId).eq('event_id', id)
 
     if (deleteError) {
       console.error('DELETE /api/events/[id]/planning/tasks/[taskId] failed:', deleteError)
       return NextResponse.json({ error: 'Failed to delete task' }, { status: 500 })
-    }
-    if (!deletedRows || deletedRows.length === 0) {
-      return NextResponse.json({ error: 'Task not found' }, { status: 404 })
     }
 
     return NextResponse.json({ success: true })
