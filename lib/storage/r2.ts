@@ -10,6 +10,7 @@ import {
   DeleteObjectCommand,
   ListObjectsV2Command,
   DeleteObjectsCommand,
+  HeadObjectCommand,
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
@@ -108,4 +109,43 @@ export async function deletePrefix(bucket: string, prefix: string): Promise<void
   await client().send(
     new DeleteObjectsCommand({ Bucket: bucket, Delete: { Objects: objects } })
   )
+}
+
+/** HEAD an object — returns null if it doesn't exist (never throws for a missing key). */
+export async function headObject(opts: {
+  bucket: string
+  key: string
+}): Promise<{ contentLength: number; contentType: string } | null> {
+  try {
+    const result = await client().send(
+      new HeadObjectCommand({ Bucket: opts.bucket, Key: opts.key })
+    )
+    return {
+      contentLength: result.ContentLength ?? 0,
+      contentType: result.ContentType ?? '',
+    }
+  } catch (err) {
+    const code = (err as { name?: string })?.name
+    if (code === 'NotFound' || code === 'NoSuchKey') return null
+    throw err
+  }
+}
+
+/** Read a byte range of an object (e.g. for a magic-byte check). Throws if missing. */
+export async function getObjectRange(opts: {
+  bucket: string
+  key: string
+  start: number
+  end: number
+}): Promise<Buffer> {
+  const result = await client().send(
+    new GetObjectCommand({
+      Bucket: opts.bucket,
+      Key: opts.key,
+      Range: `bytes=${opts.start}-${opts.end}`,
+    })
+  )
+  if (!result.Body) throw new Error('Empty object body')
+  const bytes = await result.Body.transformToByteArray()
+  return Buffer.from(bytes)
 }
