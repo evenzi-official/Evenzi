@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { commitMediaSchema, uuidSchema } from '@/lib/validations/media'
 import { assertEventOwnership } from '@/lib/media/ownership'
 import { headObject, getObjectRange, deleteObject, R2_BUCKET_PRIVATE } from '@/lib/storage/r2'
+import { eventPrefix } from '@/lib/storage/keys'
 
 const MAX_MASTER_BYTES = 20 * 1024 * 1024
 const MAX_THUMB_BYTES = 2 * 1024 * 1024
@@ -51,6 +52,11 @@ export async function POST(
       return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }, { status: 400 })
     }
     const { kind, masterKey, thumbKey, contentType, width, height, durationSec } = parsed.data
+
+    const prefix = eventPrefix(id)
+    if (!masterKey.startsWith(prefix) || !thumbKey.startsWith(prefix)) {
+      return NextResponse.json({ error: 'Storage key does not belong to this event' }, { status: 403 })
+    }
 
     // Idempotency (best-effort — see spec §10 #7 for the residual race window)
     const { data: existing } = await supabase

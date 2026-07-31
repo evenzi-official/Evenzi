@@ -139,6 +139,27 @@ describe('POST /api/events/[id]/media (commit)', () => {
     })
     const res = await POST(req(validBody), ctx)
     expect(res.status).toBe(413)
+    expect(deleteObjectMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('rejects with 403 when masterKey does not belong to this event', async () => {
+    createServerClientMock.mockReturnValue(makeSupabaseMock())
+    const res = await POST(
+      req({ ...validBody, masterKey: 'events/00000000-0000-0000-0000-000000000099/media/other.webp' }),
+      ctx
+    )
+    expect(res.status).toBe(403)
+    expect(deleteObjectMock).not.toHaveBeenCalled()
+  })
+
+  it('rejects with 403 when thumbKey does not belong to this event', async () => {
+    createServerClientMock.mockReturnValue(makeSupabaseMock())
+    const res = await POST(
+      req({ ...validBody, thumbKey: 'events/00000000-0000-0000-0000-000000000099/media/other_thumb.webp' }),
+      ctx
+    )
+    expect(res.status).toBe(403)
+    expect(deleteObjectMock).not.toHaveBeenCalled()
   })
 
   it('rejects with 400 when the magic bytes do not match the declared content type', async () => {
