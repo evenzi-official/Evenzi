@@ -779,4 +779,39 @@ public site. Second sanctioned instance of the no-cross-module-FK pattern, along
 
 ## 11. Next step
 
-Wave 1 is ready for `/council plan` re-review of this **revised** spec (a lighter pass — confirm the fixes land correctly, not a full re-critique) before migration authoring begins. Wave 2's design is now founder-confirmed (guest lookup mechanism, session persistence, G7) — still needs its own dedicated council pass (Security Expert in particular, given §6.7's rate-limiting requirement is now load-bearing for V0 without OTP) after Wave 1 ships and stabilizes, before its migration is authored.
+Wave 1 is **live** (migrations `website_01`–`website_11`, applied 2026-07-30, `get_advisors` clean). Wave 2's design (guest lookup mechanism, session persistence, G7) went through its own dedicated council pass on 2026-07-30 — see §12 below. **Verdict: 🔴 RE-PLAN.** §6 needs a revision pass addressing every finding in §12 before any Wave 2 migration is authored. This is the next session's starting point.
+
+---
+
+## 12. Wave 2 council verdict (2026-07-30, fresh review post-redesign)
+
+**Mode:** plan · **Roster:** Tech Lead, Data Modeller, Security Expert, Backend Engineer · **Artifact:** §6 (as redesigned around phone+name self-lookup, cookie session, per-sub-event RSVP) · **Phases:** Critique only — Phase 1 findings converged with no direct contradictions, so debate/arbiter were skipped as low-value (nothing contested).
+
+### 🔴 Critical — must fix before Wave 2 migrates
+1. **Rate limiting is structurally unenforceable as designed** — `anon` gets direct `EXECUTE` on `resolve_guest_by_lookup`, so PostgREST exposes it at `/rest/v1/rpc/...` regardless of any Next.js middleware wrapping it. "Supabase's built-in throttling" doesn't cover custom RPCs. This isn't a sequencing gap, it's a structural one — the DB grant and the app-layer limiter are two independently-bypassable things. *Security Expert, reinforced by Tech Lead's release-order framing of the same root cause.*
+2. **`get_public_website_payload` has no route at all** in §6.8's sketch — only 3 of the 4 Wave 2 functions got one. *Backend Engineer.*
+3. ~~Duplicate `UNIQUE` constraint already shipped to the live DB~~ — **fixed**, `website_11` dropped the redundant constraint. Caught during this review, resolved same session. *Data Modeller.*
+4. **§6.2's "new" anon catalog policy does nothing** — Wave 1 already granted unconditional `anon`+`authenticated` SELECT on `config.website_*`; adding an `enabled=true`-scoped policy on top is a no-op unless the old one is explicitly dropped (RLS policies OR together). *Data Modeller.*
+
+### 🟡 Important
+- `submit_rsvp` has no independent cross-event check — currently safe only as an uncited side effect of a Wave 1 guard trigger on a *different* table. *Security Expert.*
+- Rate-limiting's threat-model framing is off — it stops brute-force campaigns, not one targeted lookup (realistic risk for a small guest list + commonplace reverse-phone-lookup in India). *Security Expert.*
+- `(ip, event_slug)` rate-limit key has no per-event ceiling — defeated by IP rotation. *Security Expert.*
+- `resolve_guest_by_lookup` has no `LIMIT 1` — a phone+name collision throws an unhandled multi-row error instead of the intended generic failure. *Data Modeller.*
+- Private-page load composition unspecified — `resolve_guest_session` + `get_public_website_payload` both needed, no stated composition. *Backend Engineer.*
+- Inconsistent bad-token handling — one raises, the other silently returns `null` for the same condition. *Backend Engineer.*
+- §5.6's "on conflict upsert" prose doesn't match `submit_rsvp`'s actual plain-`UPDATE` code. *Backend Engineer.*
+- Wave 2 may deserve a sub-split — 2a (public payload, no identity risk) vs. 2b (lookup/session/RSVP, the actual enumeration surface). *Tech Lead.*
+- `get_public_website_payload`'s real per-page-type joins are deferred to a "follows directly from..." note despite being the sole anon-exposed render path. *Tech Lead.*
+
+### 💡 Suggestions
+Timing side-channel leaks event existence · `submit_rsvp` breaks the single-generic-error convention elsewhere in the spec · no index on the phone-lookup predicate · `guest_tokens` guard-trigger claimed in §0 changelog but not actually in §6.3's SQL · §9 build-order step numbers collide between waves.
+
+### Verdict
+🔴 **RE-PLAN.** Wave 2 needs another revision pass before migration — same as Wave 1's first draft did.
+
+### What next session should do
+1. Revise §6 addressing all 4 critical + 9 important findings above (mirror how §0's changelog documented the Wave 1 fix pass).
+2. Decide on the 2a/2b sub-split suggestion before rewriting — it changes how much of §6 gets touched.
+3. Re-run `/council plan` on the revised §6 (lighter confirm-the-fixes pass, not full re-critique — same pattern as Wave 1's second pass).
+4. Only then author and apply the Wave 2 migration(s).
