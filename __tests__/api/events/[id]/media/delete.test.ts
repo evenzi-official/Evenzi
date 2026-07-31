@@ -42,7 +42,7 @@ function makeMediaDeleteChain(row: unknown) {
 function makeSupabaseMock(row: unknown) {
   const { findChain, delChain } = makeMediaDeleteChain(row)
   let callCount = 0
-  return {
+  const mock = {
     auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null }) },
     from: vi.fn().mockImplementation((table: string) => {
       if (table === 'events') return makeOwnerChain()
@@ -50,6 +50,7 @@ function makeSupabaseMock(row: unknown) {
       return callCount === 1 ? findChain : delChain
     }),
   }
+  return { mock, findChain }
 }
 
 const ctx = { params: Promise.resolve({ id: EVENT_ID, mediaId: MEDIA_ID }) }
@@ -62,17 +63,23 @@ describe('DELETE /api/events/[id]/media/[mediaId]', () => {
   })
 
   it('returns 404 when the media row does not exist', async () => {
-    createServerClientMock.mockReturnValue(makeSupabaseMock(null))
+    const { mock } = makeSupabaseMock(null)
+    createServerClientMock.mockReturnValue(mock)
     const res = await DELETE(req, ctx)
     expect(res.status).toBe(404)
   })
 
   it('deletes the row then purges both R2 keys, returns 204', async () => {
     const row = { id: MEDIA_ID, storage_key: 'events/x/media/a.webp', thumbnail_key: 'events/x/media/a_thumb.webp' }
-    createServerClientMock.mockReturnValue(makeSupabaseMock(row))
+    const { mock, findChain } = makeSupabaseMock(row)
+    createServerClientMock.mockReturnValue(mock)
     const res = await DELETE(req, ctx)
     expect(res.status).toBe(204)
     expect(deleteObjectMock).toHaveBeenCalledWith(expect.anything(), row.storage_key)
     expect(deleteObjectMock).toHaveBeenCalledWith(expect.anything(), row.thumbnail_key)
+    // Guards against a regression that drops the event_id scoping from the find query —
+    // without both .eq() calls, this test would still pass on a canned mock row.
+    expect(findChain.eq).toHaveBeenCalledWith('event_id', EVENT_ID)
+    expect(findChain.eq).toHaveBeenCalledWith('id', MEDIA_ID)
   })
 })
