@@ -31,6 +31,32 @@ export async function PATCH(
     }
     const { mode, albumIds } = parsed.data
 
+    // Defense in depth: a DB trigger + owner-only RLS on event_media_albums already
+    // block cross-event assignment, but the app shouldn't rely solely on that —
+    // fail fast with a clean 404 instead of surfacing an opaque Postgres RAISE as a 500.
+    const { data: mediaRow } = await supabase
+      .from('event_media')
+      .select('id')
+      .eq('event_id', id)
+      .eq('id', mediaId)
+      .single()
+    if (!mediaRow) return NextResponse.json({ error: 'Media not found' }, { status: 404 })
+
+    if (mode === 'add') {
+      const { data: albumRows, error: albumsLookupError } = await supabase
+        .from('event_albums')
+        .select('id')
+        .eq('event_id', id)
+        .in('id', albumIds)
+      if (albumsLookupError) {
+        console.error('PATCH [mediaId]/albums (add) album lookup failed:', albumsLookupError)
+        return NextResponse.json({ error: 'Failed to assign album' }, { status: 500 })
+      }
+      if (!albumRows || albumRows.length !== albumIds.length) {
+        return NextResponse.json({ error: 'One or more albums not found' }, { status: 404 })
+      }
+    }
+
     if (mode === 'remove') {
       const { error: deleteError } = await supabase
         .from('event_media_albums')
