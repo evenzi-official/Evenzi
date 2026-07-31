@@ -504,21 +504,68 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
   function submitAlbumForm() {
     const name = albumName.trim()
     if (!name) { setAlbumNameError(true); return }
+    const snapshot = albums
+
     if (albumModalMode === 'rename' && albumModalId) {
-      setAlbums(prev => prev.map(a => a.id === albumModalId ? { ...a, name } : a))
+      const albumId = albumModalId
+      mediaMutation.run({
+        apply: () => {
+          setAlbums(prev => prev.map(a => a.id === albumId ? { ...a, name } : a))
+          setAlbumModalOpen(false)
+        },
+        revert: () => { setAlbums(snapshot); setAlbumModalOpen(true); setAlbumNameError(true) },
+        request: async () => {
+          const res = await fetch(`/api/events/${eventId}/media/albums/${albumId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name }),
+          })
+          if (res.status === 409) throw new Error('An album with this name already exists')
+          if (!res.ok) throw new Error('Failed to rename album')
+          return res.json()
+        },
+      })
     } else {
-      albumSeqRef.current++
-      setAlbums(prev => [...prev, { id: 'al-' + albumSeqRef.current, name, preset: false }])
+      const tempId = 'pending-' + Date.now()
+      mediaMutation.run<{ id: string }>({
+        apply: () => {
+          setAlbums(prev => [...prev, { id: tempId, name, preset: false }])
+          setAlbumModalOpen(false)
+        },
+        revert: () => { setAlbums(snapshot); setAlbumModalOpen(true); setAlbumNameError(true) },
+        request: async () => {
+          const res = await fetch(`/api/events/${eventId}/media/albums`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name }),
+          })
+          if (res.status === 409) throw new Error('An album with this name already exists')
+          if (!res.ok) throw new Error('Failed to create album')
+          const created = await res.json()
+          setAlbums(prev => prev.map(a => a.id === tempId ? { id: created.id, name, preset: false } : a))
+          return created
+        },
+      })
     }
-    setAlbumModalOpen(false)
   }
 
   function deleteAlbum(id: string) {
-    setAlbums(prev => prev.filter(a => a.id !== id))
-    setPhotos(prev => prev.map(p => ({ ...p, albumIds: p.albumIds.filter(aid => aid !== id) })))
-    setVideos(prev => prev.map(v => ({ ...v, albumIds: v.albumIds.filter(aid => aid !== id) })))
-    if (photoFilterAlbumId === id) setPhotoFilterAlbumId(null)
-    if (videoFilterAlbumId === id) setVideoFilterAlbumId(null)
+    const albumsSnapshot = albums
+    const photosSnapshot = photos
+    const videosSnapshot = videos
+    mediaMutation.run({
+      apply: () => {
+        setAlbums(prev => prev.filter(a => a.id !== id))
+        setPhotos(prev => prev.map(p => ({ ...p, albumIds: p.albumIds.filter(aid => aid !== id) })))
+        setVideos(prev => prev.map(v => ({ ...v, albumIds: v.albumIds.filter(aid => aid !== id) })))
+        if (photoFilterAlbumId === id) setPhotoFilterAlbumId(null)
+        if (videoFilterAlbumId === id) setVideoFilterAlbumId(null)
+      },
+      revert: () => { setAlbums(albumsSnapshot); setPhotos(photosSnapshot); setVideos(videosSnapshot) },
+      request: () => fetch(`/api/events/${eventId}/media/albums/${id}`, { method: 'DELETE' }).then((res) => {
+        if (!res.ok && res.status !== 204) throw new Error('Failed to delete album')
+      }),
+    })
   }
 
   function openAssign(mode: 'add' | 'remove', ids: string[], kind: 'photo' | 'video') {
@@ -530,30 +577,40 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
   function submitAssign() {
     const aids = Object.keys(assignChosen)
     if (!aids.length) return
-    if (assignKind === 'photo') {
-      setPhotos(prev => prev.map(p => {
-        if (!assignIds.includes(p.id)) return p
-        const next = p.albumIds.slice()
+    const photosSnapshot = photos
+    const videosSnapshot = videos
+
+    function applyLocally() {
+      const patch = (list: (Photo | Video)[]) => list.map((item) => {
+        if (!assignIds.includes(item.id)) return item
+        const next = item.albumIds.slice()
         aids.forEach(aid => {
           const i = next.indexOf(aid)
           if (assignMode === 'add' && i === -1) next.push(aid)
           if (assignMode === 'remove' && i !== -1) next.splice(i, 1)
         })
-        return { ...p, albumIds: next }
-      }))
-    } else {
-      setVideos(prev => prev.map(v => {
-        if (!assignIds.includes(v.id)) return v
-        const next = v.albumIds.slice()
-        aids.forEach(aid => {
-          const i = next.indexOf(aid)
-          if (assignMode === 'add' && i === -1) next.push(aid)
-          if (assignMode === 'remove' && i !== -1) next.splice(i, 1)
-        })
-        return { ...v, albumIds: next }
-      }))
+        return { ...item, albumIds: next }
+      })
+      if (assignKind === 'photo') setPhotos(prev => patch(prev) as Photo[])
+      else setVideos(prev => patch(prev) as Video[])
+      setAssignModalOpen(false)
     }
-    setAssignModalOpen(false)
+
+    mediaMutation.run({
+      apply: applyLocally,
+      revert: () => { setPhotos(photosSnapshot); setVideos(videosSnapshot) },
+      request: () => Promise.all(
+        assignIds.map((mediaId) =>
+          fetch(`/api/events/${eventId}/media/${mediaId}/albums`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: assignMode, albumIds: aids }),
+          }).then((res) => {
+            if (!res.ok) throw new Error('Failed to update album assignment')
+          })
+        )
+      ),
+    })
   }
 
   function openFilterSheet(cfg: { title: string; sub?: string; options: FilterOption[]; onPick: (id: string | null) => void }) {
