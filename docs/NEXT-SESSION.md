@@ -4,28 +4,35 @@
 
 ---
 
-## ▶ START HERE NEXT — Digital Presence Wave 1 shipped live; Wave 2 needs a revision pass (2026-07-31)
+## ▶ START HERE NEXT — Digital Presence DB layer complete (Wave 1 + 2a + 2b all live); app-layer wiring is next (2026-07-31, session b)
 
-Session report: [`docs/session-reports/2026-07-31-session-report.md`](session-reports/2026-07-31-session-report.md)
+Session report: [`docs/session-reports/2026-07-31b-session-report.md`](session-reports/2026-07-31b-session-report.md)
 
-**What happened:** Full data-model gap analysis + spec for Event Website (Digital Presence), two `/council plan` passes (Wave 1 spec RE-PLAN → revised → **migrated live**, 11 migrations `website_01`–`website_11`; Wave 2 design RE-PLAN, findings now persisted). Two real bugs caught by the review process itself (anon-exec privilege gap on a guard trigger, duplicate `UNIQUE` constraint) and fixed same session. Dheeraj has a handoff brief to wire the host-editor React pages to the new schema. Full detail: `docs/superpowers/specs/2026-07-30-event-website-data-model-spec.md` (§0 changelog, D49 in `DATA-MODEL.md`).
+**What happened:** Wave 2's original council verdict (🔴 RE-PLAN, spec §12) was revised, then re-reviewed twice more (a confirm-the-fixes pass caught 3 *new* criticals in the revision itself — spoofable rate-limit IP-hash, a TOCTOU race, a Postgres grant gap — fixed; a second confirm pass confirmed both closed, found one more, fixed). Wave 2a (`website_12`–`website_16`, public payload) and Wave 2b (`website_17`–`website_20`, guest lookup/session/RSVP) both migrated live to `smjkbmkxweevqpvygabe`. Two more real bugs — this time invisible to all 4 rounds of council review, only catchable by applying/testing against the live DB — were found and fixed: an `anon`-exec grant gap on an internal helper, and a `pgcrypto` schema-resolution gap that would have made the guest-lookup RPC error on every call. **The entire Digital Presence DB layer is now done.** Full trail: `docs/superpowers/specs/2026-07-30-event-website-data-model-spec.md` §12–§17, `DATA-MODEL.md` D49–D51.
 
-### Paste this to start — Wave 2 revision (primary)
+**What's NOT done:** any app code. `app/events/[id]/website/*` (host editor) is still static mocks. `app/e/[slug]/*` (public guest site) doesn't exist at all. Two handoff docs are ready for Dheeraj — `docs/sprint/sprint-1/handoff-website-wave1.md` (host editor) and `handoff-website-wave2.md` (public API route family) — but neither has been picked up yet.
+
+### Paste this to start — Digital Presence app-layer wiring (Dheeraj path, primary)
 
 ```
-Continue Event Website Wave 2. Read
-docs/superpowers/specs/2026-07-30-event-website-data-model-spec.md §6
-(design) and §12 (council verdict — RE-PLAN, 4 critical + 9 important
-findings, all itemized there). Revise §6 to address every finding, then
-re-run /council plan for a lighter confirm-the-fixes pass before authoring
-any Wave 2 migration. Wave 1 is already live (website_01–website_11) —
-don't touch it. This is a pure Abhijith-path task (spec/data-model), not
-Dheeraj's.
+Pull latest Dev-Vibe, then open docs/sprint/sprint-1/handoff-website-wave1.md
+and docs/sprint/sprint-1/handoff-website-wave2.md — together they're your
+full task brief for the Event Website (Digital Presence) module: Wave 1 is
+the host-editor wiring (private, logged-in), Wave 2 is the public site's
+API layer (no login, guest lookup + RSVP). Read both start to finish before
+touching code, then pick up from there.
 ```
+
+**Blocking prerequisite, flagged in the Wave 2 handoff doc:** `events.slug` has no generator anywhere in the codebase. Whoever picks this up needs a slug-generation strategy before the Wave 2 routes have anything real to test against.
+
+### Two founder decisions still open (Abhijith, quick — not a build task)
+
+1. **Story/Q&A page tier** — spec §1 proposes Story=public, Q&A=private as defaults. Needs a yes/no before `config.website_pages` gets its final tier seed.
+2. **`x-forwarded-for` gateway-trust verification** — spec §6b.3's rate-limit design depends on Supabase's Kong gateway not letting a client spoof this header. Dheeraj is positioned to help verify this while testing `/lookup` (flagged in his handoff doc) — but someone needs to actually look at the results and decide if the fallback plan (pass IP from Vercel's edge instead) is needed.
 
 ### Also queued (independent, unblocked) — Digital Invitations backend-wiring
 
-### V0 Readiness — 2026-07-31, verified against repo
+### V0 Readiness — 2026-07-31 (session b), verified against repo
 
 | Feature | Data | Backend | Frontend | Note |
 |---|---|---|---|---|
@@ -39,12 +46,12 @@ Dheeraj's.
 | Planning Tools (Checklist + Budget) | ✅ | ✅ | ✅ | DONE 2026-07-30 |
 | Media & Memories | ✅ | ⚠️ | ✅ | FE built, upload endpoint (R2) + storage-meter still not wired |
 | Digital Invitations | ✅ | ❌ | ✅ | FE built (7-template designer), nothing persists yet — queued, see below |
-| **Digital Presence — Wave 1 (host editor)** | ✅ | ⚠️ | ❌ | **Schema LIVE 2026-07-31** (13 tables, `website_01`–`website_11`). React pages still static mocks — Dheeraj brief at `docs/sprint/sprint-1/handoff-website-wave1.md` |
-| **Digital Presence — Wave 2 (public site)** | ❌ | ❌ | ❌ | Spec-only, council verdict 🔴 RE-PLAN (spec §12) — **next session's primary task** |
+| **Digital Presence — Wave 1 (host editor)** | ✅ | ⚠️ | ❌ | **Schema LIVE.** React pages still static mocks — Dheeraj brief at `handoff-website-wave1.md` |
+| **Digital Presence — Wave 2 (public site)** | ✅ | ⚠️ | ❌ | **Schema LIVE 2026-07-31** (`website_12`–`website_20`) — DB layer done, `anon` RLS live, council-cleared. API routes + guest site pages not built — Dheeraj brief at `handoff-website-wave2.md`, blocked on `events.slug` generator |
 | Admin Module | ❌ | ❌ | ❌ | Not started |
 | Support Chatbot | ❌ | ❌ | ❌ | Planned, unblocked |
 
-**Critical-path status:** every step of the host flow (create → guest list → RSVP → planning/budget → settings) is DONE. Remaining gaps (Media, Invitations, Digital Presence, Admin, Chatbot) are all outside the core V0 loop.
+**Critical-path status:** every step of the host flow (create → guest list → RSVP → planning/budget → settings) is DONE. Remaining gaps (Media, Invitations, Digital Presence app-layer, Admin, Chatbot) are all outside the core V0 loop.
 
 ### Paste this to start — Digital Invitations backend-wiring
 
@@ -65,6 +72,12 @@ build with a review gate per task → live browser testing at every breakpoint
 InvitationsClient.tsx for any FE gaps before planning, the same way Planning
 Tools found 4 missing components that way.
 ```
+
+---
+
+## ▶ PAST — Digital Presence Wave 1 shipped live; Wave 2 revision queued (2026-07-31, session a)
+
+Full data-model gap analysis + spec for Event Website (Digital Presence), two `/council plan` passes (Wave 1 spec RE-PLAN → revised → **migrated live**, 11 migrations `website_01`–`website_11`; Wave 2 design RE-PLAN, findings persisted to spec §12). Two real bugs caught by the review process itself (anon-exec privilege gap on a guard trigger, duplicate `UNIQUE` constraint) and fixed same session. Superseded same-day by session b above — Wave 2's revision, re-review, and live migration all happened in the very next session.
 
 ---
 
