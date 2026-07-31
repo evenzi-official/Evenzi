@@ -1773,6 +1773,84 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_lookup_attempts: {
+        Row: {
+          attempted_at: string
+          event_id: string
+          id: number
+          ip_hash: string
+        }
+        Insert: {
+          attempted_at?: string
+          event_id: string
+          id?: never
+          ip_hash: string
+        }
+        Update: {
+          attempted_at?: string
+          event_id?: string
+          id?: never
+          ip_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_lookup_attempts_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "guest_lookup_attempts_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guest_tokens: {
+        Row: {
+          created_at: string
+          event_id: string
+          expires_at: string | null
+          guest_id: string
+          id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          expires_at?: string | null
+          guest_id: string
+          id?: string
+          token: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          expires_at?: string | null
+          guest_id?: string
+          id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_tokens_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "guest_tokens_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_preferences: {
         Row: {
           created_at: string
@@ -2296,6 +2374,10 @@ export type Database = {
         Args: { p_event_id: string; p_user_id: string }
         Returns: undefined
       }
+      _website_page_content: {
+        Args: { p_event_id: string; p_tier: string }
+        Returns: Json
+      }
       bulk_set_task_status: {
         Args: { p_status_slug: string; p_task_ids: string[] }
         Returns: number
@@ -2313,6 +2395,15 @@ export type Database = {
         }
         Returns: Json
       }
+      create_guest_token: {
+        Args: {
+          p_event_id: string
+          p_expires_at?: string
+          p_guest_id: string
+          p_token: string
+        }
+        Returns: string
+      }
       event_task_counts: {
         Args: { p_event_id: string }
         Returns: {
@@ -2323,6 +2414,27 @@ export type Database = {
         }[]
       }
       gen_random_bytes: { Args: { n: number }; Returns: string }
+      get_guest_website_payload: {
+        Args: { p_session_token: string }
+        Returns: Json
+      }
+      get_public_website_payload: { Args: { p_slug: string }; Returns: Json }
+      is_website_gate_open: { Args: { p_event_id: string }; Returns: boolean }
+      resolve_guest_by_lookup: {
+        Args: { p_name: string; p_phone: string; p_slug: string }
+        Returns: string
+      }
+      resolve_guest_session: { Args: { p_token: string }; Returns: Json }
+      submit_rsvp: {
+        Args: {
+          p_dietary_notes?: string
+          p_plus_one_count?: number
+          p_response_status: string
+          p_sub_event_id: string
+          p_token: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

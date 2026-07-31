@@ -1,8 +1,8 @@
 # Event Website (Digital Presence) — Data Model Spec
 
-> **Status:** **Wave 1 is LIVE** on the dev DB (`smjkbmkxweevqpvygabe`) — migrations `website_01`–`website_10` applied 2026-07-30, `get_advisors` (security) clean after one fix (`website_10` locked down the guard-trigger's anon-exec gap), TypeScript types regenerated. See [`DATA-MODEL.md` D49](../../data-model/DATA-MODEL.md#decision-log) for the canonical record. Wave 2 (public site, guest lookup, `anon` RLS) remains spec-only, gated behind its own council pass — **not migrated**.
+> **Status:** **Wave 1, Wave 2a, AND Wave 2b are all LIVE** on the dev DB (`smjkbmkxweevqpvygabe`) — the entire Event Website / Digital Presence DB layer is now shipped. Wave 1: `website_01`–`website_11` (2026-07-30). Wave 2a: `website_12`–`website_16` (2026-07-31, public payload — no guest identity). Wave 2b: `website_17`–`website_20` (2026-07-31, guest lookup/session/RSVP — the actual `anon`-identity surface). `get_advisors` (security) clean throughout, after two same-session fixes caught only by applying migrations and checking live state — not by any of the 4 council rounds — see [§16](#16-wave-2a--live-2026-07-31-and-one-finding-no-council-round-caught) (a `revoke` that silently didn't revoke) and [§17](#17-wave-2b--live-2026-07-31-and-a-second-live-only-finding) (a `pgcrypto` call that wouldn't have resolved at runtime). TypeScript types regenerated. See [`DATA-MODEL.md` D49–D51](../../data-model/DATA-MODEL.md#decision-log) for the canonical record. **Remaining work is app-layer only** — the `app/api/e/[slug]/*` route family — plus two founder decisions still open (§17's closing section).
 >
-> **Council reviewed:** 2026-07-30 by Tech Lead, Data Modeller, Security Expert, Backend Engineer (Critique + Debate + Arbiter). **Original verdict: 🔴 RE-PLAN.** This is the revised spec addressing every critical + important finding — see [§0 Changelog](#0-changelog-from-council-review) for what changed and why.
+> **Council reviewed four times before any Wave 2 migration, same 4-agent roster throughout (Tech Lead, Data Modeller, Security Expert, Backend Engineer):** 2026-07-30, Wave 1's original single-pass draft (verdict 🔴 RE-PLAN, fixed via [§0 Changelog](#0-changelog-from-council-review), now live). 2026-07-30, Wave 2's redesigned §6 (verdict 🔴 RE-PLAN — see [§12](#12-wave-2-council-verdict-2026-07-30-fresh-review-post-redesign)), fixed via [§13 Changelog](#13-wave-2-revision-changelog-addressing-12-findings). 2026-07-31, first confirm-the-fixes pass on §13 — every §13 fix verified correct, but 3 new critical + several important findings turned up in the new material itself; fixed via [§14 Changelog](#14-confirm-the-fixes-council-pass-2026-07-31--new-findings-and-the-fixes-applied). 2026-07-31, second confirm-the-fixes pass on §14 — both criticals confirmed CLOSED, one new important + minor doc gaps found and fixed; see [§15](#15-second-confirm-the-fixes-pass-2026-07-31--both-criticals-closed-one-new-important-fixed). Founder then approved proceeding straight to Wave 2a's migration — see §16 for what shipped and the one gap that only live application surfaced.
 >
 > **Owner:** Abhijith (spec/data modeling) · **Opened:** 2026-07-30
 >
@@ -24,7 +24,7 @@ The original single-pass spec drew 5 critical + 9 important findings. Fixes belo
 | **Gallery (`event_media`/`event_albums`) removed from the anon-read surface entirely** | Tech Lead: contradicts existing decision **D35** in `DATA-MODEL.md`, which already rejected `anon SELECT using(published)` on this exact mixed table. Unanimous in debate — nobody had cross-checked the decision log. |
 | `submit_rsvp` signature changed to `(token, sub_event_id, response_status, dietary_notes)` — never accepts `guest_id` from the caller | Backend Engineer: original signature couldn't handle re-submission or per-sub-event response, and referenced a `dietary_notes` field with no column. |
 | **`guest_tokens.guest_id → event_guests` FK dropped entirely.** `guest_tokens` keeps `event_id` only; resolution happens exclusively through `resolve_guest_token()` | Arbiter ruling (contested: Tech Lead/Data Modeller called it a rule-7 violation, Security Expert called it safe). **UPHELD-WITH-MODIFICATION**, severity important: real rule-7 violation, converges on dropping the FK rather than keeping it as a sanctioned exception. Recorded as a new `DATA-MODEL.md` decision-log entry (§10). |
-| Guard triggers added for every denormalized `event_id` (`event_website_sections`, `guest_tokens`) | Data Modeller: every existing denormalized-`event_id` table in the live schema pairs it with a guard trigger deriving `event_id` from the parent row. Missing here would let a mismatched `event_id` slip past RLS. Tech Lead: this is a **Wave 1** blocker (silent cross-event corruption risk even under owner-only RLS), not a Wave 2 concern. |
+| Guard trigger added for the denormalized `event_id` on `event_website_sections` | Data Modeller: every existing denormalized-`event_id` table in the live schema pairs it with a guard trigger deriving `event_id` from the parent row. Missing here would let a mismatched `event_id` slip past RLS. Tech Lead: this is a **Wave 1** blocker (silent cross-event corruption risk even under owner-only RLS), not a Wave 2 concern. (`guest_tokens`, also denormalized-`event_id`, is a **Wave 2** table — see §13 for why it's validated at insert time instead of via trigger, not a Wave 1 item; an earlier draft of this row incorrectly bundled it in here.) |
 | `config.website_pages`/`website_section_types`/`website_fonts` changed from `slug text primary key` to `id uuid primary key` + `slug text unique` | Data Modeller: original rationale cited `config.task_priorities` as precedent for a text PK — that table actually has a uuid PK. All 10 existing catalogs use uuid PK + unique slug; no precedent for the deviation. |
 | Explicit Zod-validation requirement added for `event_website_sections.data` (11 discriminated schemas) | Backend Engineer: jsonb with no enforced shape and no assigned schema owner. |
 | Aggregate read RPC (`get_public_website_payload`) added, explicitly scoped to Wave 1 tables (no gallery) | Backend Engineer + Tech Lead: avoids 4-6 round trips per public page load; must not silently join a table that's been pulled from the anon surface. |
@@ -35,9 +35,9 @@ The original single-pass spec drew 5 critical + 9 important findings. Fixes belo
 | G12 (card-templates catalog seed data) moved out to Digital Invitations' own backlog | Tech Lead: module-boundary blur — the *decision* to reuse `config.invitation_templates` stays here, the seed-data execution doesn't. |
 | Missing indexes, `created_by`/`updated_by`, explicit `on delete restrict` added to `event_travel_points`/`event_stays` and new catalog FKs | Data Modeller, suggestion-severity, folded in since they're free. |
 
-**Post-council founder input (2026-07-30, after the revision above):** the "password gate" framing in the original council pass was wrong — Abhijith clarified the actual guest-facing access model is **self-serve guest lookup**, not a shared password. A guest enters their phone number + name on the public site; the system matches them against `event_guests`/`event_guest_sub_events`, shows them only the sub-events they're tagged to, and lets them RSVP per sub-event (confirming **G7 = per-sub-event response is needed**, not blanket). This replaces §6's original token-link/password design. See revised §1 and §6 below — Wave 2's RPCs are rewritten around this lookup flow. OTP verification of the phone number was considered and explicitly deferred to a fast-follow enhancement (reusing the Twilio/Supabase phone-OTP infra already live for host auth); V0 ships with a plain phone+name match, which raises the enumeration-risk bar on rate limiting (§6.4) from "important" to load-bearing for V0's actual security posture.
+**Post-council founder input (2026-07-30, after the revision above):** the "password gate" framing in the original council pass was wrong — Abhijith clarified the actual guest-facing access model is **self-serve guest lookup**, not a shared password. A guest enters their phone number + name on the public site; the system matches them against `event_guests`/`event_guest_sub_events`, shows them only the sub-events they're tagged to, and lets them RSVP per sub-event (confirming **G7 = per-sub-event response is needed**, not blanket). This replaces §6's original token-link/password design. See revised §1 and §6 below — Wave 2's RPCs are rewritten around this lookup flow. OTP verification of the phone number was considered and explicitly deferred to a fast-follow enhancement (reusing the Twilio/Supabase phone-OTP infra already live for host auth); V0 ships with a plain phone+name match, which raises the enumeration-risk bar on rate limiting (§6b.3) from "important" to load-bearing for V0's actual security posture.
 
-**Further founder input, same session:** `website_password_enabled` (existing column) repurposed as a second pre-launch visibility toggle alongside `site_offline`, not an actual password mechanism — `website_password_hash` stays unused (§6.1). Separately, Story/Wedding-Party/Q&A (G11) each get a dedicated typed table (§4.5 — `event_story_blocks`, `event_wedding_party_members`, `event_qa_items`) instead of the generic `event_website_sections` jsonb blob, matching the `event_travel_points`/`event_stays` pattern. `event_website_sections` narrows to backing only Registry, Video, and host-added free-form extras.
+**Further founder input, same session:** `website_password_enabled` (existing column) repurposed as a second pre-launch visibility toggle alongside `site_offline`, not an actual password mechanism — `website_password_hash` stays unused (§6a.1). Separately, Story/Wedding-Party/Q&A (G11) each get a dedicated typed table (§4.5 — `event_story_blocks`, `event_wedding_party_members`, `event_qa_items`) instead of the generic `event_website_sections` jsonb blob, matching the `event_travel_points`/`event_stays` pattern. `event_website_sections` narrows to backing only Registry, Video, and host-added free-form extras.
 
 ---
 
@@ -52,7 +52,7 @@ Asked via `AskUserQuestion` on 2026-07-30, all recommended defaults accepted:
 | Guest-site access model | **Public URL, tier-based** — `tier='public'` pages (e.g. Home) are visible to any visitor once the site isn't offline. `tier='private'` pages (Schedule, RSVP, Wedding Party, etc.) require the guest to identify themselves first — see the lookup mechanism below. Not a shared site-wide password. |
 | Card-templates catalog (G12) | **Reuse `config.invitation_templates`/`config.invitation_card_styles`** — decision stays here; seed-data execution moves to Digital Invitations' backlog (see changelog). |
 | **Guest identification mechanism** | **Self-serve phone + name lookup** (founder input, 2026-07-30) — guest enters phone number + name on the public site; system matches against `event_guests`, returns only their tagged sub-events (`event_guest_sub_events`) + lets them RSVP per sub-event. **Plain match for V0, no OTP** — OTP is an explicit fast-follow enhancement, not built now. |
-| **Guest session persistence** | **Signed session cookie** after a successful lookup — guest doesn't re-enter phone/name on repeat visits. Implemented via the same `guest_tokens` table originally designed for a link-based model, just created by a successful *lookup* instead of a host-generated link (§6.3). |
+| **Guest session persistence** | **Signed session cookie** after a successful lookup — guest doesn't re-enter phone/name on repeat visits. Implemented via the same `guest_tokens` table originally designed for a link-based model, just created by a successful *lookup* instead of a host-generated link (§6b.1). |
 | G7 (was open, now resolved) | **Per-sub-event RSVP response is needed** — a guest can say yes to the sangeet, no to the reception. Confirmed by the founder alongside the lookup-flow answer. `event_guest_sub_events.response_status`/`plus_one_count`/`dietary_notes`/`responded_at` (§5.6) are wired from day one, not left unused. |
 
 **Still open, not schema-blocking (flagged for product/founder call, defaults proposed):**
@@ -61,7 +61,8 @@ Asked via `AskUserQuestion` on 2026-07-30, all recommended defaults accepted:
 |---|---|---|
 | G10 | "Travel & Stay" own Settings sub-page, or Website host-editor only? | New Settings sub-page, standard pattern. |
 | G11 (UI-placement half still open) | Story/Wedding-Party/Q&A content: Edit-Pages editor or Event Settings? | Edit-Pages owns it (tracker's own recommendation). **Schema half resolved 2026-07-30** — each gets its own dedicated table (§4.5), not the generic `event_website_sections` jsonb. |
-| **`website_password_enabled`** (resolved, founder input 2026-07-30) | **Repurposed as a second host-controlled pre-launch visibility toggle** — not a password/secret gate. Same semantic category as `site_offline` ("is the site publicly reachable yet"), just a second independent switch the host can flip. `website_password_hash` is **unused/vestigial** — no password verification logic is built; nothing ever reads or writes it in Wave 2. `is_website_gate_open()` (§6.1) checks both flags. |
+| **`website_password_enabled`** (resolved, founder input 2026-07-30) | **Repurposed as a second host-controlled pre-launch visibility toggle** — not a password/secret gate. Same semantic category as `site_offline` ("is the site publicly reachable yet"), just a second independent switch the host can flip. `website_password_hash` is **unused/vestigial** — no password verification logic is built; nothing ever reads or writes it in Wave 2. `is_website_gate_open()` (§6a.1) checks both flags. |
+| **Page tier for Story and Q&A** (flagged 2026-07-31, §14 — council caught this was never pinned down) | **Proposed: Story = `public`, Q&A = `private`.** Only Home (public) and Schedule/RSVP/Wedding Party (private) were given as examples in the original tier decision above — Story and Q&A were never explicitly assigned, which matters because §0 flags free-text sections as a permanent PII-leak path and the actual exposure depends entirely on which tier they land in at seed time (§7). Rationale for the proposed split: a couple's "Our Story" is typically written to be shared broadly (often posted publicly elsewhere), so public-tier exposure isn't a new risk; Q&A commonly answers logistics questions (dress code, parking, gift preferences) that skew more event-specific/less meant for open sharing, so it defaults to private alongside Wedding Party. **Not yet founder-confirmed — needs the same sign-off the rest of §1 got before `config.website_pages` is seeded (§7).** |
 
 ---
 
@@ -78,9 +79,14 @@ Asked via `AskUserQuestion` on 2026-07-30, all recommended defaults accepted:
 
 **Wave 1 — Host editor foundation.** Everything the host needs to design and preview their site. Owner-only RLS throughout (same posture as every module shipped so far — Planning, Guests, Media, Invitations, Event Settings). No `anon` grants. Resolves G1, G5, G9's host-editor half.
 
-**Wave 2 — Public site + guest personalization.** The actual public `/e/[slug]` surface: `anon` read access, guest tokens, RSVP submission. This is the codebase's first `anon` RLS surface and gets its own dedicated council pass before migration, per the arbiter/Tech Lead ruling. Resolves G2, G3, G6, G9's guest-facing half.
+**Wave 2 — Public site + guest personalization.** The actual public `/e/[slug]` surface: `anon` read access, guest tokens, RSVP submission. Resolves G2, G3, G6, G9's guest-facing half. Split into two migration batches per the Wave 2 council's Tech Lead suggestion (§13):
 
-Each wave ships RLS in the same migration batch as its tables — no cross-wave gap where a table exists without a policy.
+- **Wave 2a — public payload, no identity risk.** The gate function, the (corrected) catalog anon-read policies, and the public-pages half of `get_public_website_payload`. No guest-identifying data, no enumeration surface — same risk class as what Wave 1 already shipped (see correction below).
+- **Wave 2b — guest lookup, session, RSVP.** `guest_tokens`, the rate-limit table, `resolve_guest_by_lookup`/`resolve_guest_session`/`submit_rsvp`, and the private-pages half of the payload RPC. This is the actual enumeration-risk surface and is where the council's critical findings concentrate — it gets the harder review.
+
+**Correction to the original framing:** this spec previously called Wave 2 "the codebase's first `anon` RLS surface." That's no longer accurate — Wave 1's catalog tables (§4.1) already shipped `anon`+`authenticated` SELECT on the live DB (verified 2026-07-31: `read_website_*` policies on all 5 `config.website_*` tables grant `{anon,authenticated}`, `qual: true`). It's low-risk reference data, not a defect, but the claim was wrong and it's what caused §6a.2's original no-op (§13, critical #4). Wave 2b remains the first surface exposing guest-identifying/PII-adjacent data to `anon` — that framing is what actually matters and stays true.
+
+Each wave ships RLS in the same migration batch as its tables — no cross-wave gap where a table exists without a policy. **One stated exception (§14):** Wave 2a's migration includes an `ALTER POLICY` tightening two Wave-1 catalog policies (§6a.2) — this touches Wave-1-owned RLS from a Wave-2 batch, but only because Wave 2 is what surfaced the no-op; it isn't new table/policy surface, just a correction to existing surface, and doesn't reopen Wave 1 for other changes.
 
 ---
 
@@ -382,7 +388,7 @@ from public.event_website_pages ewp
 join config.website_pages cp on cp.id = ewp.page_id
 group by ewp.event_id;
 ```
-Matches the `event_hub_summary` convention already established for the Event Hub module. This is the **authenticated host-preview** read — the Wave 2 public equivalent (§6.6 `get_public_website_payload`) is a separate, anon-safe RPC, not this view.
+Matches the `event_hub_summary` convention already established for the Event Hub module. This is the **authenticated host-preview** read — the Wave 2 public equivalent (§6a.4 `get_public_website_payload`) is a separate, anon-safe RPC, not this view.
 
 ### 4.8 Seed extension
 
@@ -482,15 +488,19 @@ alter table public.event_guest_sub_events
   add column responded_at timestamptz,
   add constraint event_guest_sub_events_guest_sub_event_unique unique (guest_id, sub_event_id);
 ```
-Confirmed by the founder as a real requirement (guest RSVPs per sub-event, not once per event) — these columns are wired from day one in Wave 2's `submit_rsvp`, not left unused. `dietary_notes` added here (council fix — Backend Engineer flagged the original RPC referenced a column with no home). The `unique` constraint is required for `submit_rsvp`'s `on conflict` upsert (§6.5) — add only if this link table doesn't already have one (verify at migration time).
+Confirmed by the founder as a real requirement (guest RSVPs per sub-event, not once per event) — these columns are wired from day one in Wave 2's `submit_rsvp`, not left unused. `dietary_notes` added here (council fix — Backend Engineer flagged the original RPC referenced a column with no home). **Live and correct as of 2026-07-31:** the `unique(guest_id, sub_event_id)` constraint is already on the DB. `submit_rsvp` (§6b.4) is a plain `UPDATE`, not an `on conflict` upsert — the row always pre-exists because Guest Management creates it when the guest is tagged to the sub-event, before the website's `submit_rsvp` ever runs. An earlier draft of this line described it as backing an upsert; corrected (§13, important).
 
 ---
 
 ## 6. Wave 2 — Public site + guest personalization
 
-**Ships as its own migration batch + its own council checkpoint**, after Wave 1 is live. This is the codebase's first `anon`-readable surface. **Redesigned post-council** around the founder's clarification (§0): access is **guest self-lookup by phone+name**, not a shared site password — see below. Because there's no site-wide anon SELECT model anymore (everything funnels through `SECURITY DEFINER` RPCs), this design is *simpler and more defensible* than the original raw-RLS-policy draft: `anon` never gets a direct `SELECT` grant on any live `event_website_*`/`event_guests`-adjacent table — only `EXECUTE` on the functions below, each of which does its own tier/session check internally.
+**Ships as two migration batches (2a, 2b) + its own council checkpoint**, after Wave 1 is live. **Redesigned post-council** around the founder's clarification (§0): access is **guest self-lookup by phone+name**, not a shared site password. Revised again after the Wave 2 council's RE-PLAN verdict (§12) — see §13 for the full list of what changed and why. `anon` never gets a direct `SELECT` grant on any table holding guest-identifying or PII-adjacent data — only `EXECUTE` on the `SECURITY DEFINER` functions below, each scoped to exactly what it needs.
 
-### 6.1 Gate function — site-wide reachability only
+The 2a/2b split (Tech Lead suggestion, §12, adopted in §13) is enforced at the SQL dependency level, not just organizationally: `get_public_website_payload` (2a) takes no session-token parameter at all and has zero dependency on `guest_tokens` — it structurally cannot touch guest identity, now or later. Everything that can — `guest_tokens`, the rate-limit ledger, lookup/session/RSVP — lives in 2b.
+
+### 6a. Wave 2a — public payload (no identity risk)
+
+#### 6a.1 Gate function — site-wide reachability only
 
 ```sql
 create or replace function public.is_website_gate_open(p_event_id uuid)
@@ -506,23 +516,140 @@ $$;
 revoke all on function public.is_website_gate_open(uuid) from public;
 grant execute on function public.is_website_gate_open(uuid) to anon, authenticated;
 ```
-Returns a boolean only — never the row, never `website_password_hash`. Scope: **"is the site published at all"** — two independent host-controlled toggles (`site_offline`, `website_password_enabled`), both must be off for the site to be publicly reachable (§1, resolved). Despite its name, `website_password_enabled` is **not a password/secret gate** — no password verification logic exists in Wave 2; it's a second pre-launch visibility switch, same category as `site_offline`. `website_password_hash` stays unused/vestigial — never read or written here. The actual privacy mechanism for `tier='private'` content is guest identification (§6.3–6.5), not a shared password.
+Returns a boolean only — never the row, never `website_password_hash`. Scope: **"is the site published at all"** — two independent host-controlled toggles (`site_offline`, `website_password_enabled`), both must be off for the site to be publicly reachable (§1, resolved). Despite its name, `website_password_enabled` is **not a password/secret gate** — no password verification logic exists in Wave 2; it's a second pre-launch visibility switch, same category as `site_offline`. `website_password_hash` stays unused/vestigial — never read or written here. The actual privacy mechanism for `tier='private'` content is guest identification (§6b), not a shared password.
 
-### 6.2 No raw `anon` SELECT on live tables
+**Accepted residual risk (suggestion-level, §13 and reconfirmed §14):** this function short-circuits on `v_event_id is null`, so "event doesn't exist" (one query) and "event exists but is offline" (two queries) are a **structural** code-path difference, not a subtle statistical signal requiring many samples. Still accepted as-is — the only information disclosed is "does a slug exist," which is low-value for a wedding-guestlist app at this scale — but described accurately here rather than downplayed as merely theoretical.
 
-Unlike the original draft, **no `event_website_*`/`event_travel_points`/`event_stays`/`event_sub_events` table gets a direct `anon` SELECT policy.** All public reads go through `get_public_website_payload()` (§6.6), which internally branches on page `tier` and an optional guest session — this makes the "tier not modeled in RLS" class of bug (Security Expert's original finding) structurally impossible, since anon has no table-level read path to bypass. `config.website_templates`/`website_palettes`/`website_fonts`/`website_pages`/`website_section_types` are the one exception — pure reference data, no privacy concern, safe as simple `anon` reads:
+#### 6a.2 Catalog anon-read — fixing the Wave 1 no-op
+
+**Wave 1 already granted `anon`+`authenticated` SELECT unconditionally** on all 5 `config.website_*` tables (verified live, 2026-07-31: policies `read_website_templates`/`read_website_palettes`/`read_website_fonts`/`read_website_pages`/`read_website_section_types`, roles `{anon,authenticated}`, `qual: true`). The original Wave 2 draft added a second, narrower `enabled = true`-scoped policy on top — a no-op, since Postgres RLS policies for the same command are OR'd together, so the pre-existing unconditional `true` policy already permits everything the new one would restrict (§12 critical #4). Fix: tighten the existing policy in place instead of adding a redundant one.
 
 ```sql
-create policy "anon_read" on config.website_templates for select to anon using (enabled = true);
-create policy "anon_read" on config.website_palettes for select to anon using (enabled = true);
-create policy "anon_read" on config.website_fonts for select to anon using (enabled = true);
-create policy "anon_read" on config.website_pages for select to anon using (enabled = true);
-create policy "anon_read" on config.website_section_types for select to anon using (enabled = true);
+alter policy "read_website_templates" on config.website_templates using (enabled = true);
+alter policy "read_website_palettes" on config.website_palettes using (enabled = true);
+alter policy "read_website_fonts" on config.website_fonts using (enabled = true);
+alter policy "read_website_pages" on config.website_pages using (enabled = true);
+alter policy "read_website_section_types" on config.website_section_types using (enabled = true);
 ```
+
+**No other table gets a direct `anon` SELECT policy.** All public/guest reads go through the RPCs below, each of which does its own tier/session check internally — this makes the "tier not modeled in RLS" class of bug (Security Expert's original finding) structurally impossible, since anon has no table-level read path to bypass.
 
 **`event_media`/`event_albums` (Gallery) stays out of Wave 2 entirely — see D35 in `DATA-MODEL.md`.** Ships in a later, separate slice once Media & Memories builds the signed-URL public route D35 already specifies, or that decision is explicitly revisited and superseded with a new dated entry.
 
-### 6.3 `public.guest_tokens` (G6) — session created by lookup, not a host-generated link
+#### 6a.3 Shared page-content helper (internal, not exposed)
+
+**Spelled out in full (§12 important: "sole anon-exposed render path deferred to a hand-wave")** — both the public and guest payload RPCs need the same per-page-slug content join, so it's factored into one internal helper rather than duplicated. **Every branch is an explicit `jsonb_build_object` allow-list, not `to_jsonb(row)`** (§14, fixing §12's important finding: wildcard serialization leaked `created_by`/`updated_by` host UUIDs and would've auto-exposed any future column added to these tables with zero review gate). The schedule branch also now excludes cancelled sub-events, matching the existing `event_hub_summary` convention (`status != 'cancelled'`, per D39/`event_hub_summary` in `DATA-MODEL.md`) — the prior version didn't filter status at all, an unrelated gap caught while rewriting this block:
+
+```sql
+-- Internal only. Revoked from public entirely — reachable exclusively through the two SECURITY
+-- DEFINER wrappers below, which still call it successfully because SECURITY DEFINER functions run
+-- as their owner, and revoking from `public` doesn't revoke from the owner.
+create or replace function public._website_page_content(p_event_id uuid, p_tier text)
+returns jsonb
+security definer set search_path = public
+language sql stable as $$
+  select coalesce(jsonb_agg(page_obj order by ewp.display_order), '[]'::jsonb)
+  from public.event_website_pages ewp
+  join config.website_pages cp on cp.id = ewp.page_id
+  cross join lateral (
+    select jsonb_build_object(
+      'page_id', ewp.page_id,
+      'slug', cp.slug,
+      'name', coalesce(ewp.custom_title, cp.name),
+      'tier', cp.tier,
+      'display_order', ewp.display_order,
+      'content', case cp.slug
+        when 'story' then (
+          select coalesce(jsonb_agg(jsonb_build_object(
+            'id', b.id, 'block_type', b.block_type, 'heading', b.heading, 'body', b.body,
+            'twocol', b.twocol, 'photo_key', b.photo_key, 'display_order', b.display_order
+          ) order by b.display_order), '[]'::jsonb)
+          from public.event_story_blocks b where b.event_id = p_event_id and b.is_visible)
+        when 'wedding-party' then (
+          select coalesce(jsonb_agg(jsonb_build_object(
+            'id', m.id, 'name', m.name, 'relation', m.relation, 'side', m.side,
+            'photo_key', m.photo_key, 'display_order', m.display_order
+          ) order by m.side, m.display_order), '[]'::jsonb)
+          from public.event_wedding_party_members m where m.event_id = p_event_id and m.is_visible)
+        when 'qa' then (
+          select coalesce(jsonb_agg(jsonb_build_object(
+            'id', q.id, 'question', q.question, 'answer', q.answer, 'display_order', q.display_order
+          ) order by q.display_order), '[]'::jsonb)
+          from public.event_qa_items q where q.event_id = p_event_id and q.is_visible)
+        when 'schedule' then (
+          select coalesce(jsonb_agg(jsonb_build_object(
+            'id', se.id, 'event_sub_type_id', se.event_sub_type_id, 'custom_name', se.custom_name,
+            'event_date', se.event_date, 'start_time', se.start_time, 'end_time', se.end_time,
+            'venue', se.venue, 'display_order', se.display_order
+          ) order by se.event_date), '[]'::jsonb)
+          from public.event_sub_events se
+          where se.event_id = p_event_id and se.show_on_website and se.status != 'cancelled')
+        when 'venue-travel' then (
+          jsonb_build_object(
+            'travel_points', (select coalesce(jsonb_agg(jsonb_build_object(
+                'id', tp.id, 'kind', tp.kind, 'name', tp.name, 'distance_text', tp.distance_text,
+                'travel_time_text', tp.travel_time_text, 'map_link', tp.map_link, 'note', tp.note,
+                'display_order', tp.display_order
+              ) order by tp.display_order), '[]'::jsonb)
+              from public.event_travel_points tp where tp.event_id = p_event_id),
+            'stays', (select coalesce(jsonb_agg(jsonb_build_object(
+                'id', s.id, 'name', s.name, 'address', s.address, 'distance_text', s.distance_text,
+                'price_band', s.price_band, 'booking_url', s.booking_url, 'phone', s.phone,
+                'map_link', s.map_link, 'note', s.note, 'display_order', s.display_order
+              ) order by s.display_order), '[]'::jsonb)
+              from public.event_stays s where s.event_id = p_event_id)))
+        when 'rsvp' then '[]'::jsonb   -- static form; the guest's own RSVP state comes from resolve_guest_session (§6b), not here
+        when 'gallery' then '[]'::jsonb   -- deferred, D35 — no anon backing yet (§6a.2)
+        else (
+          -- registry, video, and any host-added free-form sections on any page
+          select coalesce(jsonb_agg(jsonb_build_object(
+            'id', s.id, 'section_type_id', s.section_type_id, 'data', s.data, 'display_order', s.display_order
+          ) order by s.display_order), '[]'::jsonb)
+          from public.event_website_sections s where s.page_id = ewp.id and s.is_visible)
+      end
+    ) as page_obj
+  ) x
+  where ewp.event_id = p_event_id and ewp.is_visible and cp.tier = p_tier;
+$$;
+revoke all on function public._website_page_content(uuid, text) from public, anon, authenticated;
+-- Explicit anon/authenticated, not just public (§16) — see the note on create_guest_token's revoke
+-- in §6b.1 for why "from public" alone isn't sufficient on this project.
+```
+
+#### 6a.4 Public payload RPC — no session parameter, no `guest_tokens` dependency
+
+```sql
+create or replace function public.get_public_website_payload(p_slug text)
+returns jsonb
+security definer set search_path = public
+language plpgsql as $$
+declare v_event_id uuid; v_result jsonb;
+begin
+  select id into v_event_id from public.events where slug = p_slug;
+  if v_event_id is null or not public.is_website_gate_open(v_event_id) then
+    return null;   -- single shape for "not found" and "offline" — do not distinguish
+  end if;
+
+  select jsonb_build_object(
+    'design', (
+      select jsonb_build_object(
+        'template_id', d.template_id, 'palette_id', d.palette_id,
+        'heading_font_id', d.heading_font_id, 'body_font_id', d.body_font_id,
+        'cover_image_key', d.cover_image_key, 'og_image_key', d.og_image_key
+      ) from public.event_website_design d where d.event_id = v_event_id
+    ),   -- explicit allow-list (§14) — excludes user_id/updated_by, the host's own auth.users UUIDs
+    'pages', public._website_page_content(v_event_id, 'public')
+  ) into v_result;
+  return v_result;
+end; $$;
+revoke all on function public.get_public_website_payload(text) from public;
+grant execute on function public.get_public_website_payload(text) to anon, authenticated;
+```
+Ships in **2a**. No token parameter to accept means no code path here can ever touch guest identity — the wave boundary is enforced by the function signature, not just by build-order discipline. Granted to `authenticated` as well as `anon` (§14, fixing §12's grant-gap finding) — see §6b.6 for why this matters and why it's granted to both on every Wave 2 RPC.
+
+### 6b. Wave 2b — guest lookup, session, RSVP (the actual enumeration surface)
+
+#### 6b.1 `public.guest_tokens` (G6) — session created by lookup, not a host-generated link
 
 ```sql
 create table public.guest_tokens (
@@ -537,10 +664,10 @@ create index idx_guest_tokens_event on public.guest_tokens(event_id);
 
 alter table public.guest_tokens enable row level security;
 -- No anon or authenticated SELECT/INSERT/UPDATE/DELETE policies at all.
--- Only service_role (via SECURITY DEFINER functions below) touches this table.
+-- Only the SECURITY DEFINER functions below (running as their owner) touch this table.
 ```
 
-**Why no FK to `event_guests`:** arbiter-ruled (§10) — a direct `guest_tokens.guest_id → event_guests(id)` FK would violate the "module tables FK only to core/config" rule, same shape D23 already rejected for a different module pair. `guest_id` is a plain column, validated at write time by `resolve_guest_by_lookup()` below, never a standing referential constraint.
+**Why no FK to `event_guests`:** arbiter-ruled (§10) — a direct `guest_tokens.guest_id → event_guests(id)` FK would violate the "module tables FK only to core/config" rule, same shape D23 already rejected for a different module pair. `guest_id` is a plain column, validated at write time by `create_guest_token()` below, never a standing referential constraint. **No guard trigger either** — unlike `event_website_sections.event_id` (§4.4), which derives from a parent row and needs a trigger to stay honest, `guest_tokens` has no client-writable path at all (RLS denies every role outright); the only insert path is `create_guest_token()`, which validates the guest/event pair inline before inserting. A trigger would be redundant enforcement of the same invariant the function already guarantees. (An earlier version of §0's changelog table incorrectly implied a guard trigger existed here — corrected.)
 
 ```sql
 create or replace function public.create_guest_token(p_event_id uuid, p_guest_id uuid, p_token text, p_expires_at timestamptz default null)
@@ -557,13 +684,52 @@ begin
   returning id into v_id;
   return v_id;
 end; $$;
-revoke all on function public.create_guest_token(uuid, uuid, text, timestamptz) from public;
+revoke all on function public.create_guest_token(uuid, uuid, text, timestamptz) from public, anon, authenticated;
 -- Internal helper, called only from resolve_guest_by_lookup() below — not directly exposed to anon.
+-- Explicit anon/authenticated in the revoke, not just public (§16 — Wave 2a's migration discovered
+-- that Supabase grants EXECUTE on new public-schema functions directly to anon/authenticated via
+-- default privileges, not via the PUBLIC pseudo-role, so "revoke ... from public" alone leaves them
+-- callable. Caught live when _website_page_content was accidentally anon-callable post-migration —
+-- fixed there, applied preemptively here so create_guest_token doesn't repeat it at Wave 2b build time.
 ```
 
-### 6.4 Guest lookup — phone + name, plain match (V0)
+#### 6b.2 Rate-limit ledger — structural, not app-layer (§12 critical #1)
+
+**The original design put rate limiting in Next.js middleware wrapping the route.** That's bypassable by design: `anon` has direct `EXECUTE` on `resolve_guest_by_lookup`, so PostgREST serves it at `/rest/v1/rpc/resolve_guest_by_lookup` regardless of what any app route does — a caller who skips the app entirely and hits PostgREST directly is never rate-limited. Fix: enforce inside the function itself, against a ledger table, so the grant and the limiter are the same trust boundary instead of two independently-bypassable ones.
 
 ```sql
+-- bigint identity PK, not uuid, deliberately: this table is an append-only, high-write, short-retention
+-- ledger with nothing ever FK-referencing into it — no cross-module identity concern uuid otherwise
+-- exists to solve here. Every other table in this spec uses uuid because something references it or
+-- it's client-addressable; this one is neither (§14, documenting a suggestion-level finding).
+create table public.guest_lookup_attempts (
+  id bigint generated always as identity primary key,
+  event_id uuid not null references public.events(id) on delete cascade,
+  ip_hash text not null,   -- sha256(first hop of x-forwarded-for) — never the raw IP, see §6b.3
+  attempted_at timestamptz not null default now()
+);
+create index idx_guest_lookup_attempts_scope on public.guest_lookup_attempts(event_id, ip_hash, attempted_at);
+create index idx_guest_lookup_attempts_event on public.guest_lookup_attempts(event_id, attempted_at);
+alter table public.guest_lookup_attempts enable row level security;
+-- Zero policies for every role, including authenticated — default-deny for everyone, no exceptions.
+-- This is stronger than "scoped to the event owner": a host can't read even their own event's attempt
+-- log (it's an audit trail of phone/name guesses, including failed ones — real PII fragments belonging
+-- to whoever tried the lookup, not the host). Confirmed in debate (§14) that nothing bypasses this —
+-- SECURITY DEFINER functions read/write it as the owner regardless of RLS, but no client-facing role
+-- (anon, authenticated, or otherwise) has a policy path to it at all.
+```
+**Not schema-blocking, noted so it isn't lost:** this ledger grows forever without a prune step — a daily cron (`delete from public.guest_lookup_attempts where attempted_at < now() - interval '1 day'`) is an app-layer/ops task at Wave 2b build time, not a migration requirement.
+
+#### 6b.3 Guest lookup — phone + name, plain match (V0), rate-limited inline and atomically
+
+**Two fixes to the rate-limit logic itself, both from §14 (confirm-the-fixes pass caught these — not in the original §12 list):**
+
+1. **IP-hash was hashing the entire raw `x-forwarded-for` header, not one trusted hop** — a caller could vary the string per request (e.g. by prepending fake hops) and get a fresh identity every time, making the per-IP ceiling a no-op regardless of what Supabase's gateway does upstream. Fixed below by taking only the first comma-separated value. **This does not fully resolve the deeper question of whether that first value is itself trustworthy** — that depends on whether Supabase's Kong gateway overwrites/sanitizes `x-forwarded-for` for untrusted connections or passes a client-supplied value through untouched, which needs live verification against the actual project's gateway config at Wave 2b build time (not something a spec can settle by itself). **Decision tree, stated explicitly instead of left open:** if build-time testing shows the first hop is trustworthy, ship as-is. If it isn't, switch to computing the IP in the trusted Next.js/Vercel layer (Vercel's edge reliably sets `x-forwarded-for`/`x-real-ip` from the actual TCP connection) and pass it as an explicit `p_ip_hash` parameter instead of reading `request.headers` — accepting the tradeoff that a caller hitting PostgREST directly (bypassing the Next.js route) could then claim any IP they want, degrading the per-IP ceiling to a no-op for that bypass path specifically. **Either way, the per-event ceiling (§14 point 2 below) is identity-independent and holds regardless of which IP-trust outcome build-time testing finds** — it's the backstop, not a nice-to-have.
+2. **The check-then-insert wasn't atomic** — under READ COMMITTED, concurrent calls could all pass both count checks before any of their inserts committed, letting a burst of concurrent requests sail past both thresholds in one shot (no header-spoofing needed at all). Fixed below with `pg_advisory_xact_lock`, serializing the whole check-and-insert per event for the duration of the transaction. A per-`(event_id, ip_hash)` lock was considered instead but rejected — it wouldn't serialize the per-event ceiling check across different IPs, leaving that ceiling still racy. Locking on `event_id` alone closes both ceilings at once; the guest-lookup RPC is a single small transaction, so serializing it per event has no meaningful throughput cost at this app's realistic concurrency (a wedding guest list, not a flash sale).
+
+```sql
+create index idx_event_guests_phone_normalized on public.event_guests (event_id, (regexp_replace(phone, '\D', '', 'g')));
+
 -- Matches on normalized phone (digits only) + case-insensitive trimmed name.
 -- Single generic failure for "no match" — no distinction from a malformed request (enumeration-safety).
 create or replace function public.resolve_guest_by_lookup(p_slug text, p_phone text, p_name text)
@@ -574,17 +740,58 @@ declare
   v_event_id uuid;
   v_guest_id uuid;
   v_token text;
+  v_ip_hash text;
+  v_ip_attempts int;
+  v_event_attempts int;
 begin
   select id into v_event_id from public.events where slug = p_slug;
   if v_event_id is null or not public.is_website_gate_open(v_event_id) then
     raise exception 'lookup failed';   -- generic — do not reveal event-not-found vs offline vs no-match
   end if;
 
+  -- First hop only, not the whole header (§14 fix #1 above). extensions.digest — schema-qualified,
+  -- not bare digest() — because this function's search_path is 'public' only and pgcrypto lives in
+  -- the extensions schema (§17: confirmed live that bare digest() raises "function does not exist"
+  -- under search_path=public; caught by actually running it, not by reading the SQL).
+  v_ip_hash := encode(extensions.digest(trim(split_part(
+    coalesce(current_setting('request.headers', true)::json->>'x-forwarded-for', 'unknown'), ',', 1
+  )), 'sha256'), 'hex');
+
+  -- Serializes the check-and-insert below, per event, for this transaction's duration — closes the
+  -- TOCTOU race (§14 fix #2) for both ceilings at once. Non-blocking (_try_): a concurrent request
+  -- for the SAME event that can't acquire the lock immediately fails fast into the existing
+  -- rate-limit error rather than queuing — a burst of concurrent requests for one event is exactly
+  -- the pattern the rate limit exists to catch, so contention on this lock is itself a rate-limit
+  -- signal, not a separate failure mode needing its own timeout/503 path (§15, fixing a round-2
+  -- finding: the earlier blocking pg_advisory_xact_lock had no timeout and could queue callers
+  -- indefinitely, risking connection-pool exhaustion under a deliberate flood).
+  if not pg_try_advisory_xact_lock(hashtext('guest_lookup:' || v_event_id::text)::bigint) then
+    raise exception 'too many attempts, try again later';
+  end if;
+
+  select count(*) into v_ip_attempts from public.guest_lookup_attempts
+    where event_id = v_event_id and ip_hash = v_ip_hash and attempted_at > now() - interval '15 minutes';
+  select count(*) into v_event_attempts from public.guest_lookup_attempts
+    where event_id = v_event_id and attempted_at > now() - interval '15 minutes';
+
+  -- Thresholds are deliberately low, not tuned for anti-botnet volume: the realistic threat here is
+  -- one targeted guess against a small guest list (reverse-phone-lookup is commonplace in India),
+  -- not a distributed campaign (§12 important: threat-model framing was off). Per-IP AND per-event
+  -- ceilings both apply so simple IP rotation alone doesn't defeat the limit (§12 important). Tunable
+  -- constants, not schema — revisit at Wave 2b build time with real usage data.
+  if v_ip_attempts >= 5 or v_event_attempts >= 30 then
+    raise exception 'too many attempts, try again later';
+  end if;
+
+  insert into public.guest_lookup_attempts (event_id, ip_hash) values (v_event_id, v_ip_hash);
+
   select id into v_guest_id
     from public.event_guests
     where event_id = v_event_id
       and regexp_replace(phone, '\D', '', 'g') = regexp_replace(p_phone, '\D', '', 'g')
-      and lower(trim(name)) = lower(trim(p_name));
+      and lower(trim(name)) = lower(trim(p_name))
+    order by id
+    limit 1;   -- deterministic pick on a phone+name collision, never an arbitrary row (§12 important)
 
   if v_guest_id is null then
     raise exception 'lookup failed';   -- same generic message as above — do not confirm/deny existence
@@ -595,12 +802,14 @@ begin
   return v_token;
 end; $$;
 revoke all on function public.resolve_guest_by_lookup(text, text, text) from public;
-grant execute on function public.resolve_guest_by_lookup(text, text, text) to anon;
+grant execute on function public.resolve_guest_by_lookup(text, text, text) to anon, authenticated;
 ```
 
-**V0 accepted risk, explicit (not silent):** no OTP verification — a plain phone+name match means anyone who knows (or correctly guesses) a guest's phone number and name can view that guest's tagged sub-events and RSVP on their behalf. This is a real, founder-accepted tradeoff for V0 (§0), not an oversight. It raises rate limiting (§6.7) from "should have" to **load-bearing** — without it, this endpoint is a guest-directory brute-force oracle. **Fast-follow enhancement, not built now:** require OTP verification of the phone number before minting a session token, reusing the Twilio/Supabase phone-OTP infrastructure already live for host auth — this is a drop-in upgrade to this one function, no schema change needed (the `guest_tokens` table and everything downstream of it is unaffected).
+**V0 accepted risk, explicit (not silent):** no OTP verification — a plain phone+name match means anyone who knows (or correctly guesses) a guest's phone number and name can view that guest's tagged sub-events and RSVP on their behalf. This is a real, founder-accepted tradeoff for V0 (§0), not an oversight — the rate limiting above is what keeps it bounded. **Fast-follow enhancement, not built now:** require OTP verification of the phone number before minting a session token, reusing the Twilio/Supabase phone-OTP infrastructure already live for host auth — this is a drop-in upgrade to this one function, no schema change needed (`guest_tokens` and everything downstream of it is unaffected).
 
-### 6.5 Session resolution + RSVP
+#### 6b.4 Session resolution, guest payload, RSVP
+
+**Token-validity convention, stated once here (§12 important — was inconsistent):** every function in this subsection *requires* a token as its entire reason for being called — an invalid/expired one is a real error state, so all three `raise exception 'invalid session'`. This is different from `get_public_website_payload` (§6a.4), which never takes a token at all and never errors on that account — absence of guest identity is its normal case, not a failure. The two behaviors look inconsistent side by side only if you don't know which functions are token-mandatory; they're not accidental.
 
 ```sql
 -- Called on every subsequent visit with the session cookie's token.
@@ -634,7 +843,25 @@ begin
   return v_result;
 end; $$;
 revoke all on function public.resolve_guest_session(text) from public;
-grant execute on function public.resolve_guest_session(text) to anon;
+grant execute on function public.resolve_guest_session(text) to anon, authenticated;
+
+-- Private-tier page content, mirroring get_public_website_payload but gated on a valid guest session
+-- and scoped to that session's own event — never accepts an event_id directly from the caller.
+create or replace function public.get_guest_website_payload(p_session_token text)
+returns jsonb
+security definer set search_path = public
+language plpgsql as $$
+declare v_event_id uuid; v_result jsonb;
+begin
+  select gt.event_id into v_event_id from public.guest_tokens gt
+    where gt.token = p_session_token and (gt.expires_at is null or gt.expires_at > now());
+  if v_event_id is null then raise exception 'invalid session'; end if;
+
+  select jsonb_build_object('pages', public._website_page_content(v_event_id, 'private')) into v_result;
+  return v_result;
+end; $$;
+revoke all on function public.get_guest_website_payload(text) from public;
+grant execute on function public.get_guest_website_payload(text) to anon, authenticated;
 
 -- Takes token, never guest_id — guest_id is resolved server-side inside the transaction.
 create or replace function public.submit_rsvp(
@@ -649,7 +876,13 @@ begin
     where gt.token = p_token and (gt.expires_at is null or gt.expires_at > now());
   if v_guest_id is null then raise exception 'invalid session'; end if;
 
-  if not exists (select 1 from public.event_guest_sub_events where guest_id = v_guest_id and sub_event_id = p_sub_event_id) then
+  -- Explicit cross-event check (§12 important) — don't rely on Guest Management's own guard trigger
+  -- on event_guest_sub_events as an uncited side effect; verify directly using that table's own
+  -- denormalized event_id column (confirmed live, 2026-07-31).
+  if not exists (
+    select 1 from public.event_guest_sub_events
+    where guest_id = v_guest_id and sub_event_id = p_sub_event_id and event_id = v_event_id
+  ) then
     raise exception 'guest is not tagged to this sub-event';
   end if;
 
@@ -659,57 +892,45 @@ begin
     where guest_id = v_guest_id and sub_event_id = p_sub_event_id;
 end; $$;
 revoke all on function public.submit_rsvp(text, uuid, text, integer, text) from public;
-grant execute on function public.submit_rsvp(text, uuid, text, integer, text) to anon;
+grant execute on function public.submit_rsvp(text, uuid, text, integer, text) to anon, authenticated;
 ```
-Per-sub-event only (G7 confirmed, §1/§5.6) — no blanket-response path, since the founder confirmed guests RSVP per sub-event they're tagged to, not once per event.
+Per-sub-event only (G7 confirmed, §1/§5.6) — no blanket-response path, since the founder confirmed guests RSVP per sub-event they're tagged to, not once per event. `submit_rsvp` is a plain `UPDATE` against a row that Guest Management already created when the guest was tagged to the sub-event — never an upsert (§5.6 corrected to match).
 
-### 6.6 Public aggregate read RPC
+#### 6b.5 Private-page load composition (§12 important — was unspecified)
 
-```sql
-create or replace function public.get_public_website_payload(p_slug text, p_session_token text default null)
-returns jsonb
-security definer set search_path = public
-language plpgsql as $$
-declare v_event_id uuid; v_result jsonb;
-begin
-  select id into v_event_id from public.events where slug = p_slug;
-  if v_event_id is null or not public.is_website_gate_open(v_event_id) then
-    return null;   -- single shape for "not found" and "offline" — do not distinguish
-  end if;
+The client never calls `resolve_guest_session` and `get_guest_website_payload` separately. One route composes both server-side (§6.8) into a single response: `resolve_guest_session` for the guest's own identity + RSVP state (used to prefill the RSVP form), `get_guest_website_payload` for the private-tier page content itself (Schedule, Wedding Party, Q&A, etc.). They stay two separate SQL functions — one guest-scoped, one event-scoped-via-token — because they answer different questions and either could be cached differently later; the composition point is the Next.js route, not the database.
 
-  select jsonb_build_object(
-    'design', (select to_jsonb(d) from public.event_website_design d where d.event_id = v_event_id),
-    'public_pages', (
-      select jsonb_agg(to_jsonb(p)) from public.event_website_pages p
-      join config.website_pages cp on cp.id = p.page_id
-      where p.event_id = v_event_id and p.is_visible and cp.tier = 'public'
-    ),
-    'private_pages', case when p_session_token is not null then (
-      -- only returned if the caller is a resolved, valid guest of this event
-      select jsonb_agg(to_jsonb(p)) from public.event_website_pages p
-      join config.website_pages cp on cp.id = p.page_id
-      where p.event_id = v_event_id and p.is_visible and cp.tier = 'private'
-        and exists (select 1 from public.guest_tokens gt where gt.token = p_session_token and gt.event_id = v_event_id
-                     and (gt.expires_at is null or gt.expires_at > now()))
-    ) else null end
-    -- gallery intentionally omitted — see §6.2. Added as a versioned addition once Media's signed-URL route exists.
-  ) into v_result;
-  return v_result;
-end; $$;
-revoke all on function public.get_public_website_payload(text, text) from public;
-grant execute on function public.get_public_website_payload(text, text) to anon;
-```
-`tier='public'` pages return regardless of session; `tier='private'` pages (and, via `resolve_guest_session`, the guest's own sub-event/RSVP data) only return once the frontend has a valid session token from `resolve_guest_by_lookup()`. This is the mechanism that replaces the password-gate design entirely.
+**Divergent-call behavior, specified (§14 — Backend Engineer's Phase 1 finding: this was left undefined):** the two calls share the same token and the same expiry check, so the only realistic divergence is the token expiring in the (sub-millisecond, same-request) gap between them. If either call raises `invalid session`, the route returns `401` and clears the session cookie, discarding any partial success from the other call — it never returns a half-populated payload. The client's response to a `401` here is the same as to a `401` from any other route in this family: drop back to the lookup form.
 
-**Implementation note (Backend Engineer, at Wave 2 build time):** the sketch above returns page *metadata* only. The full version needs to also join in each page's actual content, keyed by `config.website_pages.slug`: Story → `event_story_blocks`, Wedding Party → `event_wedding_party_members`, Q&A → `event_qa_items`, Schedule → `event_sub_events`, Venue & Travel → `event_travel_points`/`event_stays`, Registry/Video → `event_website_sections`. Not fully spelled out here to keep this spec's SQL from ballooning — the shape (one jsonb key per page slug, each a typed array from its backing table, filtered by `is_visible`) follows directly from §4.5/§4.6/§5's table definitions.
+#### 6b.6 Rate limiting summary
 
-### 6.7 Rate limiting — load-bearing, not optional
+`resolve_guest_by_lookup` (§6b.3) is the load-bearing case — enforced inside the function against `guest_lookup_attempts` (§6b.2) with an advisory-lock-serialized check-and-insert, not app middleware, so it can't be bypassed by calling PostgREST directly and can't be raced by concurrent requests (§14, fixing §12's critical #1 more completely than the confirm-the-fixes pass initially claimed — see §14 for what was still broken). `submit_rsvp`/`resolve_guest_session`/`get_guest_website_payload` require a valid session token already (a much smaller attack surface — the token itself is the rate limit, at ~144 bits of entropy) but should still get a light app-layer ceiling at build time as a defense-in-depth measure, not a schema requirement.
 
-**`resolve_guest_by_lookup` is a brute-force oracle without it** (§6.4) — per-IP and per-event limits are required before this ships, not a nice-to-have. Supabase's built-in throttling or an app-side counter keyed by `(ip, event_slug)`. Not expressible in SQL alone; must be enforced at the edge/middleware layer wrapping this RPC. `submit_rsvp`/`resolve_guest_session` need lighter limits (they require a valid session token already, much smaller attack surface) but should still be covered.
+**All 5 Wave 2 RPCs grant `EXECUTE` to both `anon` and `authenticated`** (§14, fixing §12's grant-gap finding), matching the zero-exception convention every Wave 1 guest-facing catalog already uses. Without this, a logged-in host previewing their own just-published site, or any logged-in Evenzi user who follows a guest link, would get "permission denied for function" — because this codebase's standard `createClient()` (`lib/supabase/server.ts`) authenticates as `authenticated` whenever the request carries a valid session cookie, not `anon`. **Chosen over the alternative fix** (mandate the 4 new routes always use the publishable key with no cookie forwarding, so every call is `anon` regardless of the visitor's login state) — the reasoning is simpler than it first sounds: `guest_lookup_attempts`' buckets are keyed by `event_id`/`ip_hash`, not Postgres role, so a host's own lookup calls hit the *same* per-event bucket as public guest traffic **under either fix** — widening the grant doesn't change that, and an earlier draft of this paragraph incorrectly claimed it did (caught in round-2 review, §15). The actual reason to prefer the grant fix is simpler and sufficient on its own: it directly closes the permission-denied bug and matches this codebase's existing zero-exception convention (§14), with no new routing-layer special case to build or maintain. If host-preview traffic sharing a rate-limit bucket with public traffic ever becomes a real problem, the fix is to exclude the event's own host from its own lookup-attempt count (a `v_guest_id`/`auth.uid()` check inside `resolve_guest_by_lookup`), not a client-construction choice — noted here so it isn't rediscovered as a mystery later.
 
 ### 6.8 New unauthenticated route family
 
-`resolve_guest_by_lookup`/`resolve_guest_session`/`submit_rsvp`/`get_public_website_payload` are called from a **new route family with no `getUser()` check** — unlike every existing route under `app/api/events/[id]/*`. Proposed shape: `app/api/e/[slug]/*` (e.g. `lookup`, `session`, `rsvp`), keyed by `events.slug` (§5.4), not `event_id`. The lookup route sets the session token as a signed httpOnly cookie on success; subsequent routes read the cookie, don't require the client to manage the token directly. This is genuinely new surface for this codebase and should be built as its own reviewed slice.
+`resolve_guest_by_lookup`/`resolve_guest_session`/`get_guest_website_payload`/`submit_rsvp`/`get_public_website_payload` are called from a **new route family with no `getUser()` check** — unlike every existing route under `app/api/events/[id]/*`. Shape, keyed by `events.slug` (§5.4), not `event_id`. **All 4 routes use the standard `createClient()` from `lib/supabase/server.ts`** (cookie-forwarding, the same client every other route in this codebase uses) — **not** a fresh publishable-key client with no cookie forwarding (§15, restated here because §6b.6 is where that decision and its rationale live, but §6.8 is what an implementer actually builds routes from — a cross-reference so the decision doesn't get silently reversed by someone working from this table alone):
+
+| Route | Wave | Calls | Notes |
+|---|---|---|---|
+| `GET /api/e/[slug]` | 2a | `get_public_website_payload(slug)` | No cookie needed — the site's public page load. Returns `null` on not-found/offline (§6a.4) — the route must map that to `404`, not pass through a `null` body. |
+| `POST /api/e/[slug]/lookup` | 2b | `resolve_guest_by_lookup(slug, phone, name)` | Sets the returned token as a signed httpOnly cookie on success. |
+| `GET /api/e/[slug]/guest` | 2b | `resolve_guest_session(token)` + `get_guest_website_payload(token)` | Reads the cookie; composes both calls server-side into one response (§6b.5), including the divergent-call behavior specified there. This is the route that resolves the "no route" critical finding (§12 #2) for `get_public_website_payload`'s private-side counterpart. |
+| `POST /api/e/[slug]/rsvp` | 2b | `submit_rsvp(token, ...)` | Reads the cookie; client never sends the token directly. |
+
+All 5 RPCs now have an explicit route (§12 critical #2 — the original sketch covered only 3 of 4). This is genuinely new surface for this codebase and should be built as its own reviewed slice.
+
+**Error → HTTP status mapping (§14 — Backend Engineer's suggestion, added so it isn't reinvented four different ways):** via `supabase-js` `.rpc()`, a `RAISE EXCEPTION` surfaces as `{ data: null, error }`, not a thrown JS error — every route in this family should map `error.message` the same way rather than each inventing its own:
+
+| RPC error message | HTTP status | Client action |
+|---|---|---|
+| `lookup failed` | `401` | Show a generic "no match" message — don't distinguish from a malformed request. |
+| `too many attempts, try again later` (including lock contention on a concurrent burst, §15 — `pg_try_advisory_xact_lock` failing to acquire raises this same message, deliberately, not a separate error) | `429` | Show a cooldown message. |
+| `invalid session` | `401` | Clear the session cookie, drop back to the lookup form. |
+| `guest is not tagged to this sub-event` | `403` | Should be unreachable from the UI (the RSVP form only ever renders tagged sub-events) — treat as a bug signal, not a user-facing state. |
+| `get_public_website_payload` returns `null` (not an error) | `404` | Not-found and offline share one response shape by design (§6a.4) — don't try to distinguish them. |
+| anything else (e.g. `permission denied for function`, a Postgres-level error) | `500` | Log server-side with full detail; never forward the raw Postgres error string to the client. |
 
 ---
 
@@ -724,13 +945,13 @@ grant execute on function public.get_public_website_payload(text, text) to anon;
 
 ## 8. Compliance check against `DATA-MODEL.md` conventions
 
-- ✅ Module tables FK only to `public.events`/`auth.users` (core) or `config.*` — the one prior exception (`guest_tokens.guest_id → event_guests`) is **resolved by dropping the FK** (§6.3), not by requesting a new sanctioned exception. No open rule-7 violation remains.
+- ✅ Module tables FK only to `public.events`/`auth.users` (core) or `config.*` — the one prior exception (`guest_tokens.guest_id → event_guests`) is **resolved by dropping the FK** (§6b.1), not by requesting a new sanctioned exception. No open rule-7 violation remains.
 - ✅ Naming: plural, `snake_case`, module-prefixed, catalogs drop template/master suffixes.
 - ✅ 1:1 sidecar pattern for `event_website_design` (FK is the PK).
 - ✅ `updated_at` via the shared `set_updated_at()` trigger.
 - ✅ Denormalized `event_id` columns now paired with guard triggers, matching the 5 existing precedents.
 - ✅ Catalogs use uuid PK + unique slug, matching all 10 existing catalogs (was a deviation in the original draft, now fixed).
-- ✅ `anon` grants are scoped via a `SECURITY DEFINER` boolean gate function, never a direct policy on a table holding secrets (`event_website_settings.website_password_hash`) or mixed private/public rows (`event_media`, explicitly excluded per D35).
+- ✅ `anon` grants on identity/PII-adjacent data are scoped via `SECURITY DEFINER` functions (§6b), never a direct policy on a table holding secrets (`event_website_settings.website_password_hash`) or mixed private/public rows (`event_media`, explicitly excluded per D35). The 5 `config.website_*` catalogs do carry direct `anon` SELECT policies (shipped in Wave 1, tightened in §6a.2) — that's fine, they're pure reference data with no privacy dimension; the rule that matters is no direct `anon` policy on anything guest-identifying, and none exists.
 
 ---
 
@@ -748,11 +969,19 @@ Each wave ships RLS in the same migration batch as its tables — no gap.
 7. `event_guest_sub_events` response columns + `dietary_notes` + `unique(guest_id, sub_event_id)` (G7 confirmed).
 8. Wave 1 host-preview view (`event_website_summary`).
 
-**Wave 2 (separate council checkpoint before this batch):**
-8. `is_website_gate_open()` + `anon` read policies on the `config.website_*` catalogs only (no raw `anon` policy on any live table — see §6.2).
-9. `guest_tokens` (no FK) + `create_guest_token`/`resolve_guest_by_lookup`/`resolve_guest_session`/`submit_rsvp` + rate limiting (§6.7).
-10. `get_public_website_payload()`.
-11. New `app/api/e/[slug]/*` unauthenticated route family (app-layer, not a migration) — `lookup`, `session`, `rsvp` routes + signed httpOnly session cookie.
+**Wave 2a (separate council checkpoint before this batch — §13):**
+1. `is_website_gate_open()` (§6a.1).
+2. `ALTER POLICY` on the 5 `config.website_*` catalogs, tightening Wave 1's existing unconditional policy to `enabled = true` (§6a.2) — not a new policy, see §12 critical #4.
+3. `_website_page_content()` internal helper (§6a.3).
+4. `get_public_website_payload(p_slug)` (§6a.4) — no session-token parameter.
+5. `GET /api/e/[slug]` route (app-layer, not a migration).
+
+**Wave 2b (own council pass — genuinely the enumeration-risk surface, gets the harder review). Depends on Wave 2a being live first** (§14 — stated explicitly, wasn't before): `resolve_guest_by_lookup` calls `is_website_gate_open` (2a step 1) and `get_guest_website_payload` calls `_website_page_content` (2a step 3). Safe as long as 2a ships as a whole batch before 2b starts, which is already the intended order — this note exists so a future reorder or partial rollback doesn't silently break it.
+1. `guest_tokens` (no FK, no guard trigger — §6b.1).
+2. `guest_lookup_attempts` rate-limit ledger (§6b.2).
+3. Functional index on normalized phone (§6b.3) + `create_guest_token`/`resolve_guest_by_lookup` (rate-limit check inline).
+4. `resolve_guest_session`/`get_guest_website_payload`/`submit_rsvp` (§6b.4).
+5. `app/api/e/[slug]/lookup`, `/guest`, `/rsvp` routes (app-layer, not a migration) — signed httpOnly session cookie set by `/lookup`, read by the other two.
 
 ---
 
@@ -779,7 +1008,7 @@ public site. Second sanctioned instance of the no-cross-module-FK pattern, along
 
 ## 11. Next step
 
-Wave 1 is **live** (migrations `website_01`–`website_11`, applied 2026-07-30, `get_advisors` clean). Wave 2's design (guest lookup mechanism, session persistence, G7) went through its own dedicated council pass on 2026-07-30 — see §12 below. **Verdict: 🔴 RE-PLAN.** §6 needs a revision pass addressing every finding in §12 before any Wave 2 migration is authored. This is the next session's starting point.
+Wave 1, Wave 2a, and Wave 2b are all **live** (migrations `website_01`–`website_20`, `get_advisors` clean). The entire DB layer for Event Website / Digital Presence is done. Remaining work is app-layer, not schema: the `app/api/e/[slug]/*` route family (§6.8's 4-route table), which needs two open decisions resolved first — Story/Q&A page tier (§1, proposed default not yet founder-confirmed) and the `x-forwarded-for` Kong-trust question (§6b.3's decision tree — needs a live request test against this project's actual gateway before the rate-limit design's per-IP ceiling can be trusted). See §16 and §17 for the two gaps only live migration application surfaced (neither caught by 4 rounds of council review) — both fixed, and both distilled into standing process rules that still need writing down in `ai/system/agent_rules.md`.
 
 ---
 
@@ -815,3 +1044,131 @@ Timing side-channel leaks event existence · `submit_rsvp` breaks the single-gen
 2. Decide on the 2a/2b sub-split suggestion before rewriting — it changes how much of §6 gets touched.
 3. Re-run `/council plan` on the revised §6 (lighter confirm-the-fixes pass, not full re-critique — same pattern as Wave 1's second pass).
 4. Only then author and apply the Wave 2 migration(s).
+
+---
+
+## 13. Wave 2 revision changelog (addressing §12 findings)
+
+Every §12 critical + important finding, fixed below, same format as §0's Wave 1 fix pass. Verified against the live DB (`smjkbmkxweevqpvygabe`, 2026-07-31) where the fix depended on current state.
+
+**Adopted: the 2a/2b sub-split** (§12 suggestion, Tech Lead). §6 is now §6a (public payload, no identity risk) + §6b (guest lookup/session/RSVP, the actual enumeration surface), each its own migration batch with its own build-order list (§9). The split is enforced structurally, not just organizationally: `get_public_website_payload` (2a) takes no session-token parameter and has no dependency on `guest_tokens` at all — it cannot touch guest identity by construction, not by discipline.
+
+| # | Change | Finding addressed |
+|---|---|---|
+| 🔴 1 | Rate limiting moved from "Next.js middleware wrapping the route" (bypassable — PostgREST serves the RPC directly regardless) to a `guest_lookup_attempts` ledger table (§6b.2) checked and written *inside* `resolve_guest_by_lookup` itself (§6b.3). The grant and the limiter are now the same trust boundary. | Critical #1 — structurally unenforceable rate limiting. |
+| 🔴 2 | `get_public_website_payload` split into two functions so both halves get a route: `get_public_website_payload(slug)` (2a, public) and `get_guest_website_payload(token)` (2b, private) — both wired into §6.8's route table (`GET /api/e/[slug]`, `GET /api/e/[slug]/guest`). All 5 Wave 2 RPCs now have an explicit caller. | Critical #2 — missing route. |
+| 🔴 3 | No action needed — already fixed live in `website_11` before this review cycle. Noted, not re-touched. | Critical #3 — duplicate constraint (pre-resolved). |
+| 🔴 4 | §6a.2 rewritten: the "new" `enabled=true` anon policy was a no-op on top of Wave 1's existing unconditional `{anon,authenticated}` policy (RLS policies OR together). Fix is `ALTER POLICY ... USING (enabled = true)` on the 5 live policies, tightening in place instead of adding a redundant one. Also corrected §3's "Wave 2 is the first anon surface" framing, since Wave 1 already shipped anon reads on these 5 catalogs. | Critical #4 — anon catalog policy no-op. |
+| 🟡 5 | `submit_rsvp` now explicitly checks `event_guest_sub_events.event_id = v_event_id` (that column is denormalized and live) instead of relying on an uncited guard trigger on a different table. | Cross-event check on `submit_rsvp`. |
+| 🟡 6 | Rate-limit rationale in §6b.3 rewritten: thresholds (5/IP+event/15min, 30/event/15min) are framed around one targeted guess against a small guest list, not botnet-scale traffic. | Threat-model framing was off. |
+| 🟡 7 | Per-event ceiling (`v_event_attempts >= 30`) added alongside the per-IP ceiling — both must be under threshold, so IP rotation alone doesn't bypass the limit. | `(ip, event_slug)` key had no per-event ceiling. |
+| 🟡 8 | `resolve_guest_by_lookup`'s match query now has explicit `order by id limit 1`, so a phone+name collision picks a deterministic row instead of an unspecified one. | Missing `LIMIT 1`. |
+| 🟡 9 | §6b.5 added: the client calls one route (`GET /api/e/[slug]/guest`), which composes `resolve_guest_session` + `get_guest_website_payload` server-side into one response. Documented explicitly, not left implicit. | Private-page load composition unspecified. |
+| 🟡 10 | §6b.4 opens with an explicit "token-validity convention" note: every function that requires a token as its sole reason for being called (`resolve_guest_session`, `get_guest_website_payload`, `submit_rsvp`) raises on invalid/expired; `get_public_website_payload` never takes a token and never errors on that account, since absence of guest identity is its normal case. Stated as a principled distinction, not left as an apparent inconsistency. | Inconsistent bad-token handling. |
+| 🟡 11 | §5.6's "on conflict upsert" line rewritten to match the actual code — `submit_rsvp` is a plain `UPDATE` against a row Guest Management already created; the `unique(guest_id, sub_event_id)` constraint is confirmed live, not conditional. | §5.6 prose/code mismatch. |
+| 🟡 12 | Adopted — see the 2a/2b split note above. | Wave 2 sub-split suggestion. |
+| 🟡 13 | §6a.3 added: a shared internal `_website_page_content(event_id, tier)` helper with the full per-page-slug join (story/wedding-party/qa/schedule/venue-travel/registry+video/rsvp/gallery all spelled out), called by both the public and guest payload functions instead of a "follows directly from..." hand-wave. | Per-page-type joins deferred. |
+| 💡 | Timing side-channel on `is_website_gate_open` — documented as an accepted low-severity residual risk in §6a.1, not fixed (a constant-time rewrite isn't worth the complexity at this threat level). | Suggestion. |
+| 💡 | `submit_rsvp`'s error wording — left as is; both its errors relate only to the caller's own token/tag state, not another guest's existence, so they don't actually violate the enumeration-safety intent even though the wording differs from `resolve_guest_by_lookup`'s. | Suggestion. |
+| 💡 | Functional index added: `idx_event_guests_phone_normalized` on `(event_id, regexp_replace(phone, '\D', '', 'g'))` (§6b.3). | No index on phone-lookup predicate. |
+| 💡 | §0's changelog table corrected — it had claimed a guard trigger on `guest_tokens`, which never existed and isn't needed (no client-writable path exists to guard; `create_guest_token()` already validates the guest/event pair inline). §6b.1 also carries this explanation. | Guard-trigger claim didn't match §6.3's SQL. |
+| 💡 | §9 build order restructured into two independently-numbered lists (Wave 2a steps 1–5, Wave 2b steps 1–5) instead of two lists both starting mid-sequence at "8." | Build-order step numbers collided. |
+
+**Not itemized above but touched in passing:** §8's compliance checklist updated to state the anon-grant rule precisely (no direct anon policy on identity-adjacent data; the 5 reference catalogs are a stated, reasoned exception, not an oversight).
+
+---
+
+## 14. Confirm-the-fixes council pass (2026-07-31) — new findings, and the fixes applied
+
+Council was re-run on §13's revision as a lighter confirm-the-fixes pass (Tech Lead, Data Modeller, Security Expert, Backend Engineer — Critique + Debate + Arbiter). Every §13 fix verified correct against its §12 finding. But the panel independently caught **3 new critical-severity bugs in the new material itself** — not re-litigating §12, genuinely new implementation issues the first pass didn't (and structurally couldn't have) covered, since they're in code that didn't exist until §13 wrote it. Fixed below; not yet re-reviewed.
+
+### 🔴 Critical (fixed)
+1. **Rate-limit IP was a spoofable raw string.** `resolve_guest_by_lookup` hashed the *entire* `x-forwarded-for` header — any caller could vary a prefix per request and defeat the per-IP ceiling entirely. *Security Expert, unanimous.* **Fixed (§6b.3):** parse only the first comma-separated hop, not the whole header. The deeper question — whether that first hop is itself trustworthy against Supabase's specific Kong gateway config — can't be settled by a spec; §6b.3 now states an explicit decision tree (ship as-is if build-time testing confirms the hop is trustworthy; otherwise move IP-determination to the trusted Vercel/Next.js layer and pass it as an explicit parameter, accepting a stated tradeoff) instead of a bare "verify later" deferral.
+2. **Rate-limit check-then-insert wasn't atomic.** Concurrent requests could all pass both count checks before any insert committed — a burst of ~50 concurrent requests defeats both ceilings in one shot, no header-spoofing required. *Security Expert (critical) → Data Modeller (independently found the same issue, initially rated important, escalated to critical in debate after examining the schema — no natural `ON CONFLICT` target exists on an append-only log, so the "cheap" atomic-upsert fix would've actually required a schema redesign) → Tech Lead (endorsed the escalation).* **Fixed (§6b.3):** `pg_advisory_xact_lock`, scoped per-event, serializing the whole check-and-insert — closes both the per-IP and per-event ceiling races in one lock rather than needing two.
+3. **5 of 6 Wave 2 RPCs granted `EXECUTE` to `anon` only** — including `get_public_website_payload`, which is **Wave 2a**, not just 2b. This codebase's standard `createClient()` authenticates as `authenticated` (not `anon`) for any visitor with a session cookie, so a logged-in host previewing their own site, or any logged-in user clicking a guest link, would get "permission denied for function." Confirmed against live Wave 1 data: every existing guest-facing grant in this codebase is `{anon, authenticated}`, zero exceptions — this broke that convention. *Backend Engineer, confirmed by Data Modeller against live DB.* **Fixed:** `authenticated` added to all 5 grants (§6a.4, §6b.3, §6b.4 ×3). Considered and rejected the alternative fix (routes always use the publishable key, no cookie forwarding) because it would put a logged-in host's site-preview traffic through the same public rate-limit bucket as anonymous guest traffic — a self-DoS risk raised in debate (§6b.6).
+
+### 🟡 Important (fixed) — arbiter-ruled item first
+- **`to_jsonb(row)` wildcard serialization** in `_website_page_content()` and `get_public_website_payload`'s `design` key leaked `created_by`/`updated_by`/`user_id` host UUIDs and would've auto-exposed any future column added to 7 different tables with zero review gate. *Tech Lead (Phase 1: critical) vs. Security Expert (Phase 2 debate: important — a bare UUID isn't directly actionable under this app's RLS+JWT model, though the unbounded-future-exposure angle is real and high-severity on its own).* **Arbiter ruling: UPHELD-WITH-MODIFICATION → important, high confidence** — doesn't block Wave 2a's migration on its own, but must land in the same PR since it's what makes Wave 2a's "low-risk" framing actually true. **Fixed (§6a.3, §6a.4):** every branch rewritten as an explicit `jsonb_build_object` allow-list. While rewriting, also added a `status != 'cancelled'` filter to the schedule branch (matching the existing `event_hub_summary` convention, D39) — an unrelated gap noticed in passing, not in any prior finding list.
+- **§6b.5's two-RPC composition had no defined behavior when the calls disagree** (e.g. token expires between them). *Backend Engineer.* **Fixed (§6b.5):** either call raising `invalid session` returns `401` and clears the cookie, discarding any partial success.
+- **Story/Q&A page tier was never pinned down**, despite §0 flagging free-text sections as a permanent PII-leak risk whose actual exposure depends entirely on tier. *Security Expert.* **Fixed (§1):** proposed defaults added (Story=public, Q&A=private) with rationale, flagged for the same founder sign-off the rest of §1 already got — not silently decided.
+- **No error→HTTP-status mapping specified** across the 4 new routes, risking inconsistent handling (or a leaked raw Postgres error string) per route. *Backend Engineer.* **Fixed (§6.8):** mapping table added.
+- **Wave 2b's build order didn't state its dependency on Wave 2a artifacts.** *Tech Lead.* **Fixed (§9):** one-line prerequisite note added.
+- `guest_lookup_attempts`'s missing count-query index and unverified RLS posture — **both false positives**, already present in §13's original text (composite indexes on `(event_id, ip_hash, attempted_at)` and `(event_id, attempted_at)`; RLS enabled with zero policies for every role). Comments strengthened in §6b.2 to make both unambiguous on re-review, no schema change needed.
+
+### 💡 Suggestions (fixed, cheap)
+- `guest_lookup_attempts`'s `bigint` PK deviates from this spec's uuid convention everywhere else — **fixed:** one-line rationale added (§6b.2) — append-only ledger, nothing FK-references into it, no uuid-worthy identity concern.
+- §6a.2's `ALTER POLICY` touches Wave-1-owned RLS from a Wave-2 migration batch, crossing §3's stated wave-boundary principle without an acknowledged exception — **fixed:** one-clause carve-out added to §3.
+- Timing side-channel on `is_website_gate_open` was described as "subtle" when it's actually a structural code-path difference (1 query vs. 2) — **fixed:** §6a.1 reworded to describe it accurately; the accept-the-risk decision itself is unchanged.
+
+### Not itemized as a fix — a debate-round observation worth keeping
+Tech Lead flagged that the two rate-limit criticals (spoofable IP, TOCTOU race) **compound each other**: fixing the race alone still leaves the per-IP ceiling keyed on a spoofable identity; fixing the IP-hash alone still leaves the count non-atomic. Both are fixed together above, but future changes to either `resolve_guest_by_lookup`'s IP-derivation or its locking should be reviewed as a pair, not independently.
+
+### Next step
+Re-run `/council plan` on this revision as another confirm-the-fixes pass before Wave 2a's migration is authored. Given this round's fixes were narrow (4 technical corrections + documentation), expect this to be the last pass before migration barring new findings.
+
+---
+
+## 15. Second confirm-the-fixes pass (2026-07-31) — both criticals CLOSED, one new important fixed
+
+Same 4-agent roster re-reviewed §14's fixes. Result is materially cleaner than round 1: **both original criticals confirmed CLOSED** (not just "fixed, pending verification"), every §14 item verified correct — the Data Modeller went column-by-column through all 6 `jsonb_build_object` allow-lists and the `event_sub_events`/`event_website_design` schemas (live DB, not just this doc) and found zero mismatches. No debate/arbiter phase was needed — nothing found in Phase 1 was contested between agents; two agents (Security Expert, Backend Engineer) independently converged on the same new issue from different lenses, which is corroboration, not a contest.
+
+### Verified CLOSED
+- **Spoofable IP-hash (§12→§13 critical, escalated by §14):** parsing only the first `x-forwarded-for` hop is correct; the residual Kong-trust question is no longer a bare deferral — it has a concrete decision tree with a fallback design. *Security Expert: CLOSED.*
+- **TOCTOU race:** `pg_advisory_xact_lock` scoped to `event_id` alone correctly closes both the per-IP and per-event ceiling races in one lock (confirmed independently by Tech Lead's and Data Modeller's own reasoning, and Data Modeller verified the `hashtext()::bigint` cast against live Postgres — no truncation, correct overload, auto-releases at transaction end). *Security Expert: CLOSED for the race; flagged a new issue in what replaces it, below.*
+
+### 🟡 New — found and fixed this round
+- **The blocking advisory lock had no timeout, creating a contention-DoS vector:** a flood of concurrent lookup requests for one event would all queue on the same lock instead of failing fast, risking connection-pool exhaustion (a worse failure mode than the race it replaced). *Security Expert and Backend Engineer, independently, from threat-model and implementation-feasibility lenses respectively — converging without contradiction.* **Fixed (§6b.3):** switched from blocking `pg_advisory_xact_lock` to non-blocking `pg_try_advisory_xact_lock` — a caller that can't acquire the lock immediately fails straight into the existing `'too many attempts, try again later'` error (429) instead of queuing. Reframes lock contention as itself a rate-limit signal rather than a separate failure mode needing its own timeout/503 path.
+- **§6b.6's stated rationale for the grant-fix choice was self-contradictory** — it claimed granting `authenticated` "avoids" the host's traffic sharing a rate-limit bucket with public traffic, then in the same paragraph conceded the bucket is keyed by `event_id`/`ip_hash`, not role, meaning it's shared either way. *Tech Lead.* **Fixed (§6b.6):** rewritten to justify the grant on its actual merits (fixes the permission-denied bug, matches the existing zero-exception convention) and to note the real fix for host-self-DoS, if it's ever needed, is excluding the host's own calls from their own event's attempt count — not a client-construction choice.
+
+### 💡 Suggestions (fixed, cheap)
+- §6.8 didn't restate the "cookie-forwarding client, not a fresh anon-key client" requirement that §6b.6 establishes — an implementer working from the route table alone could silently reverse it. *Backend Engineer.* **Fixed:** cross-reference added to §6.8's intro.
+- `get_public_website_payload` returning bare `null` for not-found/offline was never mapped to an HTTP status. *Backend Engineer.* **Fixed:** row added to §6.8's error-mapping table.
+- `hashtext()::bigint` uses a 32-bit hash in a 64-bit lock namespace, a theoretical cross-event lock collision — **not fixed**, per Data Modeller's own assessment ("not worth the complexity at this scale") and Tech Lead's suggestion-level confidence; documented here, not silently dropped.
+
+### Next step
+Both criticals from §14 are confirmed closed; this round's fixes were one logic change (blocking→non-blocking lock) plus two documentation additions and one rationale rewrite — no schema or RPC-signature changes. No new findings are expected from a third pass on material this narrow, but the call on whether to run one more confirm pass or proceed straight to authoring Wave 2a's migration is the founder's, not assumed here.
+
+---
+
+## 16. Wave 2a — LIVE (2026-07-31), and one finding no council round caught
+
+Founder chose to proceed straight to migration (skip a 3rd confirm pass, given §15's fixes were narrow). **Wave 2a is now live** on `smjkbmkxweevqpvygabe`: migrations `website_12_gate_function`, `website_13_catalog_policy_fix`, `website_14_page_content_helper`, `website_15_public_payload_rpc`, plus a same-session fix `website_16_lock_internal_helper`. TypeScript types regenerated (`lib/supabase/database.types.ts`). `get_advisors` (performance) — only pre-existing Wave 1 unindexed-FK/unused-index notices at cold start, same accepted precedent as every prior module, nothing new from these migrations (no new tables in Wave 2a).
+
+### One real finding, caught only by applying the migration and checking live state
+
+**`_website_page_content` — meant to be internal-only, callable exclusively by `get_public_website_payload`/`get_guest_website_payload` — was actually `EXECUTE`-able by `anon` and `authenticated` directly**, despite `revoke all on function ... from public` in the migration exactly as spec'd through 4 council rounds. `get_advisors` (security) flagged it immediately after `website_14` applied; a direct `information_schema.routine_privileges` query confirmed it.
+
+**Root cause:** Supabase grants `EXECUTE` on new `public`-schema functions directly to the `anon`/`authenticated` roles via `ALTER DEFAULT PRIVILEGES`, not through the `PUBLIC` pseudo-role — so `revoke ... from public` (which every function in this spec used, including Wave 1's) does nothing to remove it. This is the same category of gap `website_10` fixed once already for a guard-trigger function (noted in `DATA-MODEL.md`'s Wave 1 entry) — evidently not generalized into a rule anywhere, so it recurred.
+
+**Why this matters beyond this one function:** if `_website_page_content` had shipped genuinely anon-callable, any caller could invoke `_website_page_content(any_event_id, 'private')` directly via `/rest/v1/rpc/_website_page_content` and get full private-tier page content for **any event**, with **no gate check and no guest session at all** — a complete bypass of both `is_website_gate_open` and the entire guest-lookup mechanism §6b exists to build. None of the 4 council rounds caught this, across Tech Lead/Data Modeller/Security Expert/Backend Engineer, because reviewing SQL text for a `revoke` statement reads as correct — the gap only exists in Supabase's actual runtime privilege model, which no amount of reading the migration text surfaces. Only applying it and running `get_advisors` (or manually querying `information_schema.routine_privileges`) would.
+
+**Fixed:** `website_16_lock_internal_helper` — `revoke execute on function public._website_page_content(uuid, text) from public, anon, authenticated;`. Verified live: only `postgres`/`service_role` retain `EXECUTE`. **Also fixed pre-emptively in the spec** (§6b.1, §6a.3) for Wave 2b's `create_guest_token`, which has the identical pattern and would have shipped with the identical gap if built as originally spec'd.
+
+**Process takeaway, not yet acted on:** every future `SECURITY DEFINER` function in this codebase meant to be internal-only needs `revoke ... from public, anon, authenticated` as the pattern, not `from public` alone — and `get_advisors` (security) should run immediately after every migration that adds a function, not just at wave boundaries, specifically to catch this class of gap while it's cheap to fix. Worth adding to `ai/agents/data_modeller.md` or `ai/system/agent_rules.md` as a standing rule (`agent-evolve` candidate) rather than relying on it being remembered.
+
+### Wave 2b — not yet migrated
+Spec is council-approved through §15, with the two preemptive `create_guest_token`/pattern fixes above already folded in. Next session's work: author and apply Wave 2b's migration (`guest_tokens`, `guest_lookup_attempts`, the 4 guest-facing RPCs), run `get_advisors` immediately after each function-adding step (not just at the end), regenerate types, then build the `app/api/e/[slug]/*` route family.
+
+---
+
+## 17. Wave 2b — LIVE (2026-07-31), and a second live-only finding
+
+**Wave 2b is now live** on `smjkbmkxweevqpvygabe`: migrations `website_17_guest_tokens`, `website_18_guest_lookup_attempts`, `website_19_create_token_and_lookup`, `website_20_session_payload_rsvp`. `get_advisors` (security) clean — `create_guest_token` correctly absent from the anon/authenticated-executable warnings (the §16 fix pattern held), all 5 guest-facing RPCs correctly present in those warnings (by design), `guest_tokens`/`guest_lookup_attempts` show only the expected INFO-level "RLS enabled, no policy" notice — the deliberate default-deny design, not a gap. `get_advisors` (performance) — only cold-start unused-index noise on the 2 new empty tables, same accepted precedent as every prior module. TypeScript types regenerated.
+
+### A second thing only live application caught — this one before it ever shipped
+
+**`resolve_guest_by_lookup`'s IP-hash line calls `digest(...)`, and every function in this spec declares `security definer set search_path = public`.** `pgcrypto` (which provides `digest()`, `gen_random_bytes()`, `gen_random_uuid()`) is installed in the `extensions` schema on this project, not `public`, and not `pg_catalog` (which is the only schema implicitly searched regardless of `search_path`). A bare `digest(...)` call inside a function scoped to `search_path = public` cannot resolve — confirmed by directly executing the exact expression before migrating: `ERROR: 42883: function digest(unknown, unknown) does not exist`. Had this shipped as originally spec'd, **`resolve_guest_by_lookup` would have raised an unhandled Postgres error on every single call** — not a security gap this time, a total outage of the guest-lookup RPC, the one function this entire wave exists to ship.
+
+**Why `gen_random_bytes(18)` in the same function was fine:** a `public.gen_random_bytes` wrapper already exists in this codebase (`SECURITY DEFINER`, `SET search_path TO 'extensions'`) — evidently created to solve this exact class of problem once before, for some earlier module, but never generalized into a written rule or extended to cover `digest`. No equivalent `public.digest` wrapper exists.
+
+**Fixed before migrating** (not after, this time — caught during pre-flight verification, not by `get_advisors` post-migration): the call site changed to `extensions.digest(...)`, schema-qualified inline, rather than adding a third wrapper function to the `public` schema (fewer functions to grant/revoke/review correctly — each new wrapper is itself a fresh instance of the §16 class of bug waiting to happen). Verified live before applying: `extensions.digest('test', 'sha256')` succeeds under `search_path = public`.
+
+### Process takeaway — now two instances of "the SQL text was correct-looking but the runtime behavior wasn't"
+
+§16 (a `revoke` that didn't revoke) and §17 (a function call that doesn't resolve under a restricted `search_path`) are two different failure classes, but the same root lesson: **this codebase's `SECURITY DEFINER` + `SET search_path = public` pattern has sharp edges that only show up when the SQL actually runs**, not when it's read. Concrete standing rules worth writing down (not yet done — `ai/system/agent_rules.md` or `ai/agents/data_modeller.md`, `agent-evolve` candidate):
+1. Every internal-only `SECURITY DEFINER` function: `revoke ... from public, anon, authenticated`, not `from public` alone (§16).
+2. Every `SECURITY DEFINER` function with `search_path = public` that needs a `pgcrypto` function: schema-qualify (`extensions.digest(...)`, `extensions.gen_random_uuid()`, etc.) rather than relying on a wrapper existing or being remembered — `gen_random_bytes` has a `public` wrapper only by historical accident, and that's not a pattern to depend on going forward, it's a pattern to phase out in favor of qualifying at the call site (§17).
+3. Run `get_advisors` (security) immediately after any migration that adds a function — and, per §17, also do a direct pre-flight execution test of any new function body containing a call to a non-`pg_catalog` extension function, before migrating, not after.
+
+### Next: `app/api/e/[slug]/*` route family
+DB side of both waves is complete. Remaining work is app-layer, not schema: the 4 routes from §6.8's table, the Story/Q&A tier decision from §1 (still needs founder sign-off), and the `x-forwarded-for` Kong-trust verification from §6b.3's decision tree (needs a live request test against this project's actual gateway, can't be resolved from SQL alone).
