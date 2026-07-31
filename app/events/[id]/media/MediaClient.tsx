@@ -83,9 +83,12 @@ interface PhotoTileProps {
   onOpen: (id: string) => void
   onSelect: (id: string, on: boolean) => void
   onAssignOne: (id: string) => void
+  resolveSrc: (item: { id: string; src?: string; poster?: string }) => string
+  urlCache: Record<string, { url: string; expiresAt: number }>
+  refetchSingleUrl: (mediaId: string) => void
 }
 
-function PhotoTile({ photo, selected, isCover, selectMode, withActions, onOpen, onSelect, onAssignOne }: PhotoTileProps) {
+function PhotoTile({ photo, selected, isCover, selectMode, withActions, onOpen, onSelect, onAssignOne, resolveSrc, urlCache, refetchSingleUrl }: PhotoTileProps) {
   return (
     <article
       className={`dp-tile photo-tile${selected ? ' is-selected' : ''}`}
@@ -111,7 +114,12 @@ function PhotoTile({ photo, selected, isCover, selectMode, withActions, onOpen, 
         onClick={() => selectMode ? onSelect(photo.id, !selected) : onOpen(photo.id)}
       >
         <span className="dp-tile-thumb">
-          <img src={photo.src} alt="" loading="lazy" />
+          <img
+            src={resolveSrc(photo)}
+            alt=""
+            loading="lazy"
+            onError={() => { if (urlCache[photo.id]) refetchSingleUrl(photo.id) }}
+          />
         </span>
       </button>
       <span className="photo-tile-cover-badge" hidden={!isCover}>
@@ -141,9 +149,12 @@ interface VideoTileProps {
   onOpen: (id: string) => void
   onSelect: (id: string, on: boolean) => void
   onAssignOne: (id: string) => void
+  resolveSrc: (item: { id: string; src?: string; poster?: string }) => string
+  urlCache: Record<string, { url: string; expiresAt: number }>
+  refetchSingleUrl: (mediaId: string) => void
 }
 
-function VideoTile({ video, selected, selectMode, withActions, onOpen, onSelect, onAssignOne }: VideoTileProps) {
+function VideoTile({ video, selected, selectMode, withActions, onOpen, onSelect, onAssignOne, resolveSrc, urlCache, refetchSingleUrl }: VideoTileProps) {
   return (
     <article
       className={`dp-tile photo-tile video-tile${selected ? ' is-selected' : ''}`}
@@ -168,7 +179,12 @@ function VideoTile({ video, selected, selectMode, withActions, onOpen, onSelect,
         onClick={() => selectMode ? onSelect(video.id, !selected) : onOpen(video.id)}
       >
         <span className="dp-tile-thumb">
-          <img src={video.poster} alt="" loading="lazy" />
+          <img
+            src={resolveSrc(video)}
+            alt=""
+            loading="lazy"
+            onError={() => { if (urlCache[video.id]) refetchSingleUrl(video.id) }}
+          />
           <span className="media-vplay-badge">
             <span className="material-symbols-outlined">play_arrow</span>
           </span>
@@ -251,6 +267,63 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const [urlCache, setUrlCache] = useState<Record<string, { url: string; expiresAt: number }>>({})
+
+  useEffect(() => {
+    const idsNeedingUrls = [...photos.map(p => p.id), ...videos.map(v => v.id)].filter((id) => !urlCache[id])
+    if (idsNeedingUrls.length === 0) return
+
+    const batches: string[][] = []
+    for (let i = 0; i < idsNeedingUrls.length; i += 200) batches.push(idsNeedingUrls.slice(i, i + 200))
+
+    let cancelled = false
+    Promise.all(
+      batches.map((batch) =>
+        fetch(`/api/events/${eventId}/media/urls`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mediaIds: batch }),
+        }).then((res) => (res.ok ? res.json() : {}))
+      )
+    ).then((results) => {
+      if (cancelled) return
+      const merged: Record<string, { url: string; expiresAt: number }> = Object.assign({}, ...results)
+      setUrlCache((prev) => ({ ...prev, ...merged }))
+      // Optimistic upload preview lifecycle (spec §5): the moment a just-uploaded
+      // item's real signed URL arrives, revoke its blob: preview — not before
+      // (would flash a broken image) and not never (memory leak across a large
+      // batch-upload session). blobUrlsRef is the single source of truth,
+      // shared with Task 10's unmount cleanup.
+      Object.keys(merged).forEach((id) => {
+        const blobUrl = blobUrlsRef.current.get(id)
+        if (blobUrl) {
+          URL.revokeObjectURL(blobUrl)
+          blobUrlsRef.current.delete(id)
+        }
+      })
+    })
+
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photos.length, videos.length, eventId])
+
+  async function refetchSingleUrl(mediaId: string) {
+    const res = await fetch(`/api/events/${eventId}/media/${mediaId}/url`)
+    if (!res.ok) return
+    const { url, expiresAt } = await res.json()
+    setUrlCache((prev) => ({ ...prev, [mediaId]: { url, expiresAt } }))
+  }
+
+  function resolveSrc(item: { id: string; src?: string; poster?: string }): string {
+    // urlCache always wins once populated. Before that (right after a page-load
+    // fetch, before the batch effect above resolves, or right after this
+    // session's own upload commits) it falls through to item.src/poster —
+    // which is '' from page.tsx's initial props, or the blob: preview URL
+    // Task 10 just set. No special-casing needed: this ordering alone produces
+    // "blob preview, then swap to real URL" for free.
+    return urlCache[item.id]?.url ?? item.src ?? item.poster ?? ''
+  }
 
   function updateUploadItem(id: string, patch: Partial<UploadItem>) {
     setUploadItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)))
@@ -952,7 +1025,8 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
                     <PhotoTile photo={p} selected={!!photoSelected[p.id]} isCover={p.id === coverId}
                       selectMode={photoSelectMode} withActions
                       onOpen={openPhotoLightbox} onSelect={togglePhotoSelect}
-                      onAssignOne={(id) => openAssign('add', [id], 'photo')} />
+                      onAssignOne={(id) => openAssign('add', [id], 'photo')}
+                      resolveSrc={resolveSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
                   </li>
                 ))}
               </ul>
@@ -1027,7 +1101,8 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
               <PhotoTile key={p.id} photo={p} selected={!!photoSelected[p.id]} isCover={p.id === coverId}
                 selectMode={photoSelectMode} withActions={false}
                 onOpen={openPhotoLightbox} onSelect={togglePhotoSelect}
-                onAssignOne={(id) => openAssign('add', [id], 'photo')} />
+                onAssignOne={(id) => openAssign('add', [id], 'photo')}
+                resolveSrc={resolveSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
             ))}
           </div>
           {photoIsEmpty && (
@@ -1058,7 +1133,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
               const ap = albumPhotos(a.id).sort((x, y) => y.uploadedAt - x.uploadedAt)
               const av = albumVideos(a.id).sort((x, y) => y.uploadedAt - x.uploadedAt)
               const np = ap.length, nv = av.length
-              const coverSrc = np ? ap[0].src : av[0]?.poster ?? ''
+              const coverItem: Photo | Video | undefined = np ? ap[0] : av[0]
               const label = albumCountLabel(np, nv)
               return (
                 <article key={a.id} className="dp-tile album-card" data-album-id={a.id}>
@@ -1067,7 +1142,12 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
                           onClick={() => openAlbum(a.id)} />
                   <div>
                     <span className="dp-tile-thumb">
-                      <img src={coverSrc} alt="" loading="lazy" />
+                      <img
+                        src={coverItem ? resolveSrc(coverItem) : ''}
+                        alt=""
+                        loading="lazy"
+                        onError={() => { if (coverItem && urlCache[coverItem.id]) refetchSingleUrl(coverItem.id) }}
+                      />
                       {!np && nv > 0 && (
                         <span className="media-vplay-badge"><span className="material-symbols-outlined">play_arrow</span></span>
                       )}
@@ -1136,7 +1216,8 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
                   <li key={v.id}>
                     <VideoTile video={v} selected={!!videoSelected[v.id]} selectMode={videoSelectMode} withActions
                       onOpen={openVideoLightbox} onSelect={toggleVideoSelect}
-                      onAssignOne={(id) => openAssign('add', [id], 'video')} />
+                      onAssignOne={(id) => openAssign('add', [id], 'video')}
+                      resolveSrc={resolveSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
                   </li>
                 ))}
               </ul>
@@ -1211,7 +1292,8 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
               <VideoTile key={v.id} video={v} selected={!!videoSelected[v.id]}
                 selectMode={videoSelectMode} withActions={false}
                 onOpen={openVideoLightbox} onSelect={toggleVideoSelect}
-                onAssignOne={(id) => openAssign('add', [id], 'video')} />
+                onAssignOne={(id) => openAssign('add', [id], 'video')}
+                resolveSrc={resolveSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
             ))}
           </div>
           {videoIsEmpty && (
@@ -1494,7 +1576,12 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
           </button>
           {lbPhoto && (
             <>
-              <img className="modal-lightbox-img" src={lbPhoto.src} alt={lbPhoto.name} />
+              <img
+                className="modal-lightbox-img"
+                src={resolveSrc(lbPhoto)}
+                alt={lbPhoto.name}
+                onError={() => { if (urlCache[lbPhoto.id]) refetchSingleUrl(lbPhoto.id) }}
+              />
               <div className="modal-lightbox-nav">
                 <button type="button" className="modal-lightbox-nav-btn modal-lightbox-nav-prev"
                         aria-label="Previous photo" disabled={lbIndex <= 0}
@@ -1540,7 +1627,12 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
           {vLbVideo && (
             <>
               <div className="media-vplayer">
-                <img className="modal-lightbox-img" src={vLbVideo.poster} alt={vLbVideo.name} />
+                <img
+                  className="modal-lightbox-img"
+                  src={resolveSrc(vLbVideo)}
+                  alt={vLbVideo.name}
+                  onError={() => { if (urlCache[vLbVideo.id]) refetchSingleUrl(vLbVideo.id) }}
+                />
                 <button type="button" className="media-vplay" aria-label="Play video">
                   <span aria-hidden="true" className="material-symbols-outlined">play_arrow</span>
                 </button>
