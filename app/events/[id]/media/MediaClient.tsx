@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useMemo, useRef, useEffect } from 'react'
+import { runPhotoUploadPipeline, runVideoUploadPipeline, createUploadQueue } from '@/lib/media/uploadPipeline'
+import { formatDuration } from '@/lib/media/formatDuration'
 
 interface Photo {
   id: string
@@ -36,10 +38,20 @@ interface FilterOption {
   active: boolean
 }
 
+interface UploadItem {
+  id: string
+  file: File
+  kind: 'photo' | 'video'
+  status: 'local-pending' | 'optimizing' | 'uploading' | 'committing' | 'committed' | 'failed'
+  progress: number
+  previewUrl: string
+  error?: string
+}
+
 type SortKey = 'newest' | 'oldest' | 'name'
 type MediaTab = 'photos' | 'videos' | 'albums'
 
-const STORAGE_MOCK = { usedBytes: 0, limitBytes: 5 * 1024 * 1024 * 1024 }
+const STORAGE_LIMIT_BYTES = 5 * 1024 * 1024 * 1024 // hardcoded per D34 — entitlements are [PLANNED]
 
 function pad2(n: number) { return n < 10 ? '0' + n : '' + n }
 function fmtDate(ms: number) {
@@ -178,9 +190,18 @@ function VideoTile({ video, selected, selectMode, withActions, onOpen, onSelect,
   )
 }
 
-export function MediaClient({ eventName: _eventName }: { eventName: string }) {
+interface MediaClientProps {
+  eventName: string
+  eventId: string
+  initialPhotos: Photo[]
+  initialVideos: Video[]
+  initialAlbums: Album[]
+  storage: { usedBytes: number; photoCount: number; videoCount: number }
+}
+
+export function MediaClient({ eventName: _eventName, eventId, initialPhotos, initialVideos, initialAlbums, storage }: MediaClientProps) {
   // ── Photos state
-  const [photos, setPhotos] = useState<Photo[]>([])
+  const [photos, setPhotos] = useState<Photo[]>(initialPhotos)
   const [photoSort, setPhotoSort] = useState<SortKey>('newest')
   const [photoFilterAlbumId, setPhotoFilterAlbumId] = useState<string | null>(null)
   const [photoDateFrom, setPhotoDateFrom] = useState<number | null>(null)
@@ -192,7 +213,7 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
   const [lbIds, setLbIds] = useState<string[]>([])
 
   // ── Videos state
-  const [videos, setVideos] = useState<Video[]>([])
+  const [videos, setVideos] = useState<Video[]>(initialVideos)
   const [videoSort, setVideoSort] = useState<SortKey>('newest')
   const [videoFilterAlbumId, setVideoFilterAlbumId] = useState<string | null>(null)
   const [videoDateFrom, setVideoDateFrom] = useState<number | null>(null)
@@ -203,9 +224,100 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
   const [vLbIds, setVLbIds] = useState<string[]>([])
 
   // ── Shared
-  const [albums, setAlbums] = useState<Album[]>([])
+  const [albums, setAlbums] = useState<Album[]>(initialAlbums)
   const [activeTab, setActiveTab] = useState<MediaTab>('photos')
   const albumSeqRef = useRef(0)
+
+  // ── Upload pipeline state
+  const [uploadItems, setUploadItems] = useState<UploadItem[]>([])
+  const uploadQueueRef = useRef(createUploadQueue(3))
+  // Every in-flight upload gets its own AbortController so unmount can cancel
+  // the real XHR/fetch calls (lib/media/uploadPipeline.ts wires the signal
+  // into xhr.abort()), not just stop local state updates.
+  const controllersRef = useRef<Map<string, AbortController>>(new Map())
+  // Tracks blob: preview URLs still awaiting their real signed URL from Task 13's
+  // batch fetch, so that effect can revoke them the instant a real URL arrives —
+  // this ref is the single source of truth for outstanding blob URLs (both this
+  // step's unmount cleanup and Task 13's revoke-on-arrival logic read/write it).
+  const blobUrlsRef = useRef<Map<string, string>>(new Map())
+
+  useEffect(() => {
+    return () => {
+      controllersRef.current.forEach((controller) => controller.abort())
+      blobUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  function updateUploadItem(id: string, patch: Partial<UploadItem>) {
+    setUploadItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)))
+  }
+
+  async function handleFilesPicked(files: FileList, kind: 'photo' | 'video') {
+    const newItems: UploadItem[] = Array.from(files).map((file) => ({
+      id: `up-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      file,
+      kind,
+      status: 'local-pending',
+      progress: 0,
+      previewUrl: URL.createObjectURL(file),
+    }))
+    setUploadItems((prev) => [...prev, ...newItems])
+
+    newItems.forEach((item) => {
+      const controller = new AbortController()
+      controllersRef.current.set(item.id, controller)
+
+      uploadQueueRef.current.run(async () => {
+        updateUploadItem(item.id, { status: 'optimizing' })
+        try {
+          const runner = kind === 'photo' ? runPhotoUploadPipeline : runVideoUploadPipeline
+          updateUploadItem(item.id, { status: 'uploading' })
+          const saved = await runner(item.file, eventId, (pct) => {
+            updateUploadItem(item.id, { progress: pct })
+          }, controller.signal)
+          updateUploadItem(item.id, { status: 'committed', progress: 100 })
+          // Track this blob URL as "outstanding" — Task 13's signed-URL batch
+          // effect will pick up `saved.id`, and once the real URL lands in
+          // urlCache it revokes this entry and removes it from the map.
+          blobUrlsRef.current.set(saved.id, item.previewUrl)
+
+          if (kind === 'photo') {
+            setPhotos((prev) => [{
+              id: saved.id,
+              src: item.previewUrl,
+              name: item.file.name,
+              albumIds: [],
+              uploadedAt: Date.parse(saved.created_at),
+              published: false,
+            }, ...prev])
+          } else {
+            setVideos((prev) => [{
+              id: saved.id,
+              poster: item.previewUrl,
+              name: item.file.name,
+              duration: formatDuration(saved.duration_sec ?? 0),
+              albumIds: [],
+              uploadedAt: Date.parse(saved.created_at),
+            }, ...prev])
+          }
+        } catch (err) {
+          if ((err as { name?: string })?.name !== 'AbortError') {
+            updateUploadItem(item.id, { status: 'failed', error: err instanceof Error ? err.message : 'Upload failed' })
+          }
+        } finally {
+          controllersRef.current.delete(item.id)
+        }
+      })
+    })
+  }
+
+  function retryUpload(itemId: string) {
+    const item = uploadItems.find((it) => it.id === itemId)
+    if (!item) return
+    setUploadItems((prev) => prev.filter((it) => it.id !== itemId))
+    handleFilesPicked({ 0: item.file, length: 1, item: () => item.file } as unknown as FileList, item.kind)
+  }
 
   // ── Modal states
   const [albumModalOpen, setAlbumModalOpen] = useState(false)
@@ -270,11 +382,11 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
     if (videoDateTo != null) vv = vv.filter(v => (v.takenAt ?? v.uploadedAt) <= videoDateTo)
     vv.sort(videoCmp())
 
-    const pct = STORAGE_MOCK.limitBytes > 0
-      ? Math.min(100, Math.round((STORAGE_MOCK.usedBytes / STORAGE_MOCK.limitBytes) * 100))
+    const pct = STORAGE_LIMIT_BYTES > 0
+      ? Math.min(100, Math.round((storage.usedBytes / STORAGE_LIMIT_BYTES) * 100))
       : 0
-    const ms = STORAGE_MOCK.usedBytes >= STORAGE_MOCK.limitBytes ? 'atcap'
-      : STORAGE_MOCK.usedBytes / STORAGE_MOCK.limitBytes >= 0.8 ? 'near' : 'healthy'
+    const ms = storage.usedBytes >= STORAGE_LIMIT_BYTES ? 'atcap'
+      : storage.usedBytes / STORAGE_LIMIT_BYTES >= 0.8 ? 'near' : 'healthy'
 
     function dateLabel(from: number | null, to: number | null) {
       if (from && to) return fmtDate(from) + ' – ' + fmtDate(to)
@@ -306,7 +418,7 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
       filledAlbums,
       meterState: ms,
       meterPct: pct,
-      meterText: fmtGB(STORAGE_MOCK.usedBytes) + ' of ' + fmtGB(STORAGE_MOCK.limitBytes) + ' used',
+      meterText: fmtGB(storage.usedBytes) + ' of ' + fmtGB(STORAGE_LIMIT_BYTES) + ' used',
       meterNote: ms === 'near' ? "You're close to your storage limit."
         : ms === 'atcap' ? 'Storage full — remove photos or upgrade soon.' : null,
       photoSortLabel: photoSort === 'oldest' ? 'Oldest' : photoSort === 'name' ? 'Name A–Z' : 'Newest',
@@ -318,7 +430,7 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
       lbPhoto,
       vLbVideo,
     }
-  }, [photos, videos, albums,
+  }, [photos, videos, albums, storage,
       photoSort, photoFilterAlbumId, photoDateFrom, photoDateTo,
       videoSort, videoFilterAlbumId, videoDateFrom, videoDateTo,
       photoSelected, videoSelected, lbIndex, lbIds, vLbIndex, vLbIds])
@@ -664,8 +776,32 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
             <span className="dp-dropzone-hint" id="md-dropzone-hint">JPG, PNG, HEIC · up to 10 MB each</span>
           </button>
           <label className="sr-only" htmlFor="md-file-input">Choose photos to upload</label>
-          <input type="file" id="md-file-input" className="media-file-input" multiple accept="image/jpeg,image/png,image/heic" onChange={() => {}} />
-          <ul className="media-upload-progress" role="list" aria-live="polite" />
+          <input
+            type="file"
+            id="md-file-input"
+            className="media-file-input"
+            multiple
+            accept="image/jpeg,image/png,image/heic"
+            onChange={(e) => { if (e.target.files?.length) handleFilesPicked(e.target.files, 'photo'); e.target.value = '' }}
+          />
+          <ul className="media-upload-progress" role="list">
+            {uploadItems.map((item) => (
+              <li key={item.id} className={`media-upload-item media-upload-item--${item.status}`}>
+                <span className="media-upload-item-name">{item.file.name}</span>
+                {item.status !== 'failed' && item.status !== 'committed' && (
+                  <span className="media-upload-item-pct" aria-hidden="true">{item.progress}%</span>
+                )}
+                <span className="sr-only" aria-live="polite">
+                  {item.status === 'uploading' && item.progress === 0 ? 'Upload started' : ''}
+                  {item.status === 'committed' ? 'Upload complete' : ''}
+                  {item.status === 'failed' ? `Upload failed: ${item.error}` : ''}
+                </span>
+                {item.status === 'failed' && (
+                  <button type="button" className="media-upload-item-retry" onClick={() => retryUpload(item.id)}>Retry</button>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="media-recent" aria-labelledby="md-recent-h">
@@ -842,7 +978,14 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
             <span className="dp-dropzone-hint" id="md-vdropzone-hint">MP4, MOV · up to 200 MB each</span>
           </button>
           <label className="sr-only" htmlFor="md-vfile-input">Choose videos to upload</label>
-          <input type="file" id="md-vfile-input" className="media-file-input" multiple accept="video/mp4,video/quicktime" onChange={() => {}} />
+          <input
+            type="file"
+            id="md-vfile-input"
+            className="media-file-input"
+            multiple
+            accept="video/mp4,video/quicktime"
+            onChange={(e) => { if (e.target.files?.length) handleFilesPicked(e.target.files, 'video'); e.target.value = '' }}
+          />
           <ul className="media-upload-progress" role="list" aria-live="polite" />
         </div>
 
