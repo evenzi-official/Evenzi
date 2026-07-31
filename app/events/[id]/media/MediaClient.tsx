@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { runPhotoUploadPipeline, runVideoUploadPipeline, createUploadQueue } from '@/lib/media/uploadPipeline'
 import { formatDuration } from '@/lib/media/formatDuration'
+import { useOptimisticMediaMutation } from '@/lib/media/useOptimisticMediaMutation'
 
 interface Photo {
   id: string
@@ -200,6 +201,8 @@ interface MediaClientProps {
 }
 
 export function MediaClient({ eventName: _eventName, eventId, initialPhotos, initialVideos, initialAlbums, storage }: MediaClientProps) {
+  const mediaMutation = useOptimisticMediaMutation()
+
   // ── Photos state
   const [photos, setPhotos] = useState<Photo[]>(initialPhotos)
   const [photoSort, setPhotoSort] = useState<SortKey>('newest')
@@ -624,32 +627,100 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
   }
 
   function removePhoto(id: string) {
-    const next = photos.filter(p => p.id !== id)
-    if (coverId === id) setCoverId(next.length ? next.slice().sort((a, b) => b.uploadedAt - a.uploadedAt)[0].id : null)
-    setPhotos(next)
-    togglePhotoSelect(id, false)
-    setLightboxOpen(false); setRemovePhotoModalOpen(false)
+    const snapshot = photos
+    const snapshotCoverId = coverId
+    mediaMutation.run({
+      apply: () => {
+        const next = photos.filter(p => p.id !== id)
+        if (coverId === id) setCoverId(next.length ? next.slice().sort((a, b) => b.uploadedAt - a.uploadedAt)[0].id : null)
+        setPhotos(next)
+        togglePhotoSelect(id, false)
+        setLightboxOpen(false); setRemovePhotoModalOpen(false)
+      },
+      revert: () => { setPhotos(snapshot); setCoverId(snapshotCoverId) },
+      request: () => fetch(`/api/events/${eventId}/media/${id}`, { method: 'DELETE' }).then((res) => {
+        if (!res.ok && res.status !== 204) throw new Error('Failed to delete photo')
+      }),
+    })
   }
 
   function removeVideo(id: string) {
-    setVideos(prev => prev.filter(v => v.id !== id))
-    toggleVideoSelect(id, false)
-    setVlightboxOpen(false)
+    const snapshot = videos
+    mediaMutation.run({
+      apply: () => {
+        setVideos(prev => prev.filter(v => v.id !== id))
+        toggleVideoSelect(id, false)
+        setVlightboxOpen(false)
+      },
+      revert: () => setVideos(snapshot),
+      request: () => fetch(`/api/events/${eventId}/media/${id}`, { method: 'DELETE' }).then((res) => {
+        if (!res.ok && res.status !== 204) throw new Error('Failed to delete video')
+      }),
+    })
   }
 
   function bulkDeletePhotos() {
     const ids = Object.keys(photoSelected)
     if (!ids.length) return
-    const next = photos.filter(p => !ids.includes(p.id))
-    if (ids.includes(coverId ?? '')) setCoverId(next.length ? next.slice().sort((a, b) => b.uploadedAt - a.uploadedAt)[0].id : null)
-    setPhotos(next); setPhotoSelectMode(false); setPhotoSelected({}); setBulkDeleteModalOpen(false)
+    const snapshot = photos
+    const snapshotCoverId = coverId
+    mediaMutation.run<{ deleted: string[]; failed: { id: string; reason: string }[] }>({
+      apply: () => {
+        const next = photos.filter(p => !ids.includes(p.id))
+        if (ids.includes(coverId ?? '')) setCoverId(next.length ? next.slice().sort((a, b) => b.uploadedAt - a.uploadedAt)[0].id : null)
+        setPhotos(next); setPhotoSelectMode(false); setPhotoSelected({}); setBulkDeleteModalOpen(false)
+      },
+      revert: () => { setPhotos(snapshot); setCoverId(snapshotCoverId) },
+      request: async () => {
+        const res = await fetch(`/api/events/${eventId}/media/bulk-delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids }),
+        })
+        if (!res.ok) throw new Error('Failed to delete photos')
+        const result = await res.json()
+        // Selection clears entirely regardless of partial failure (spec §5 rule).
+        // Any failed ids are restored to the grid — the optimistic delete over-removed them.
+        if (result.failed.length > 0) {
+          const failedIds = new Set(result.failed.map((f: { id: string }) => f.id))
+          setPhotos((prev) => {
+            const restored = snapshot.filter((p) => failedIds.has(p.id))
+            return [...restored, ...prev]
+          })
+        }
+        return result
+      },
+    })
   }
 
   function bulkDeleteVideos() {
     const ids = Object.keys(videoSelected)
     if (!ids.length) return
-    setVideos(prev => prev.filter(v => !ids.includes(v.id)))
-    setVideoSelectMode(false); setVideoSelected({}); setBulkDeleteModalOpen(false)
+    const snapshot = videos
+    mediaMutation.run<{ deleted: string[]; failed: { id: string; reason: string }[] }>({
+      apply: () => {
+        setVideos(prev => prev.filter(v => !ids.includes(v.id)))
+        setVideoSelectMode(false); setVideoSelected({}); setBulkDeleteModalOpen(false)
+      },
+      revert: () => setVideos(snapshot),
+      request: async () => {
+        const res = await fetch(`/api/events/${eventId}/media/bulk-delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids }),
+        })
+        if (!res.ok) throw new Error('Failed to delete videos')
+        const result = await res.json()
+        if (result.failed.length > 0) {
+          const failedIds = new Set(result.failed.map((f: { id: string }) => f.id))
+          setVideos((prev) => {
+            const restored = snapshot.filter((v) => failedIds.has(v.id))
+            return [...restored, ...prev]
+          })
+        }
+        return result
+      },
+    })
   }
 
   function openAlbum(albumId: string) {
@@ -687,6 +758,13 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
         <h1 className="section-head-title">Media &amp; Memories</h1>
         <p className="section-head-sub">Upload, organize, and relive every moment from your celebration.</p>
       </header>
+
+      {mediaMutation.error && (
+        <div className="media-error-banner" role="alert">
+          {mediaMutation.error}
+          <button type="button" onClick={mediaMutation.clearError} aria-label="Dismiss">×</button>
+        </div>
+      )}
 
       {/* Storage meter */}
       <section
