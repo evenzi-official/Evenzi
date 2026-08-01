@@ -84,7 +84,7 @@ interface PhotoTileProps {
   onSelect: (id: string, on: boolean) => void
   onAssignOne: (id: string) => void
   resolveSrc: (item: { id: string; src?: string; poster?: string }) => string
-  urlCache: Record<string, { url: string; expiresAt: number }>
+  urlCache: Record<string, { url: string; thumbUrl?: string; expiresAt: number }>
   refetchSingleUrl: (mediaId: string) => void
 }
 
@@ -150,7 +150,7 @@ interface VideoTileProps {
   onSelect: (id: string, on: boolean) => void
   onAssignOne: (id: string) => void
   resolveSrc: (item: { id: string; src?: string; poster?: string }) => string
-  urlCache: Record<string, { url: string; expiresAt: number }>
+  urlCache: Record<string, { url: string; thumbUrl?: string; expiresAt: number }>
   refetchSingleUrl: (mediaId: string) => void
 }
 
@@ -268,7 +268,11 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const [urlCache, setUrlCache] = useState<Record<string, { url: string; expiresAt: number }>>({})
+  const [urlCache, setUrlCache] = useState<Record<string, { url: string; thumbUrl?: string; expiresAt: number }>>({})
+  // Per-id onError retry counter — caps refetchSingleUrl at 2 attempts per media id
+  // so a permanently-broken signed URL (e.g. a video master behind an <img>) can't
+  // loop onError -> refetch -> onError forever.
+  const retryCountRef = useRef<Map<string, number>>(new Map())
 
   useEffect(() => {
     const idsNeedingUrls = [...photos.map(p => p.id), ...videos.map(v => v.id)].filter((id) => !urlCache[id])
@@ -288,7 +292,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
       )
     ).then((results) => {
       if (cancelled) return
-      const merged: Record<string, { url: string; expiresAt: number }> = Object.assign({}, ...results)
+      const merged: Record<string, { url: string; thumbUrl?: string; expiresAt: number }> = Object.assign({}, ...results)
       setUrlCache((prev) => ({ ...prev, ...merged }))
       // Optimistic upload preview lifecycle (spec §5): the moment a just-uploaded
       // item's real signed URL arrives, revoke its blob: preview — not before
@@ -309,10 +313,13 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
   }, [photos.length, videos.length, eventId])
 
   async function refetchSingleUrl(mediaId: string) {
+    const count = retryCountRef.current.get(mediaId) ?? 0
+    if (count >= 2) return
+    retryCountRef.current.set(mediaId, count + 1)
     const res = await fetch(`/api/events/${eventId}/media/${mediaId}/url`)
     if (!res.ok) return
-    const { url, expiresAt } = await res.json()
-    setUrlCache((prev) => ({ ...prev, [mediaId]: { url, expiresAt } }))
+    const { url, thumbUrl, expiresAt } = await res.json()
+    setUrlCache((prev) => ({ ...prev, [mediaId]: { url, thumbUrl, expiresAt } }))
   }
 
   function resolveSrc(item: { id: string; src?: string; poster?: string }): string {
@@ -323,6 +330,15 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
     // Task 10 just set. No special-casing needed: this ordering alone produces
     // "blob preview, then swap to real URL" for free.
     return urlCache[item.id]?.url ?? item.src ?? item.poster ?? ''
+  }
+
+  // Thumbnail-resolving counterpart to resolveSrc — used anywhere a small preview
+  // renders (grid tiles, recent-uploads strip, album covers, video posters) so
+  // those spots download the size-capped thumbnail_key instead of the full-res
+  // master. Falls back to the master URL (then blob/empty) when no thumbnail
+  // exists yet for that id, so nothing regresses for rows without a thumbnail_key.
+  function resolveThumbSrc(item: { id: string; src?: string; poster?: string }): string {
+    return urlCache[item.id]?.thumbUrl ?? urlCache[item.id]?.url ?? item.src ?? item.poster ?? ''
   }
 
   function updateUploadItem(id: string, patch: Partial<UploadItem>) {
@@ -1026,7 +1042,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
                       selectMode={photoSelectMode} withActions
                       onOpen={openPhotoLightbox} onSelect={togglePhotoSelect}
                       onAssignOne={(id) => openAssign('add', [id], 'photo')}
-                      resolveSrc={resolveSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
+                      resolveSrc={resolveThumbSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
                   </li>
                 ))}
               </ul>
@@ -1102,7 +1118,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
                 selectMode={photoSelectMode} withActions={false}
                 onOpen={openPhotoLightbox} onSelect={togglePhotoSelect}
                 onAssignOne={(id) => openAssign('add', [id], 'photo')}
-                resolveSrc={resolveSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
+                resolveSrc={resolveThumbSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
             ))}
           </div>
           {photoIsEmpty && (
@@ -1143,7 +1159,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
                   <div>
                     <span className="dp-tile-thumb">
                       <img
-                        src={coverItem ? resolveSrc(coverItem) : ''}
+                        src={coverItem ? resolveThumbSrc(coverItem) : ''}
                         alt=""
                         loading="lazy"
                         onError={() => { if (coverItem && urlCache[coverItem.id]) refetchSingleUrl(coverItem.id) }}
@@ -1217,7 +1233,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
                     <VideoTile video={v} selected={!!videoSelected[v.id]} selectMode={videoSelectMode} withActions
                       onOpen={openVideoLightbox} onSelect={toggleVideoSelect}
                       onAssignOne={(id) => openAssign('add', [id], 'video')}
-                      resolveSrc={resolveSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
+                      resolveSrc={resolveThumbSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
                   </li>
                 ))}
               </ul>
@@ -1293,7 +1309,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
                 selectMode={videoSelectMode} withActions={false}
                 onOpen={openVideoLightbox} onSelect={toggleVideoSelect}
                 onAssignOne={(id) => openAssign('add', [id], 'video')}
-                resolveSrc={resolveSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
+                resolveSrc={resolveThumbSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
             ))}
           </div>
           {videoIsEmpty && (
@@ -1629,7 +1645,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
               <div className="media-vplayer">
                 <img
                   className="modal-lightbox-img"
-                  src={resolveSrc(vLbVideo)}
+                  src={resolveThumbSrc(vLbVideo)}
                   alt={vLbVideo.name}
                   onError={() => { if (urlCache[vLbVideo.id]) refetchSingleUrl(vLbVideo.id) }}
                 />

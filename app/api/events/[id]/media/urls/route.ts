@@ -35,18 +35,26 @@ export async function POST(
 
     const { data: rows } = await supabase
       .from('event_media')
-      .select('id, storage_key')
+      .select('id, storage_key, thumbnail_key')
       .eq('event_id', id)
       .in('id', parsed.data.mediaIds)
 
-    const result: Record<string, { url: string; expiresAt: number }> = {}
+    const result: Record<string, { url: string; thumbUrl?: string; expiresAt: number }> = {}
     await Promise.all(
-      (rows ?? []).map(async (row: { id: string; storage_key: string }) => {
-        const url = await getSignedDownloadUrl(row.storage_key, {
-          bucket: R2_BUCKET_PRIVATE,
-          expiresIn: SIGNED_URL_EXPIRES_IN,
-        })
-        result[row.id] = { url, expiresAt: Date.now() + SIGNED_URL_EXPIRES_IN * 1000 }
+      (rows ?? []).map(async (row: { id: string; storage_key: string; thumbnail_key: string | null }) => {
+        const [url, thumbUrl] = await Promise.all([
+          getSignedDownloadUrl(row.storage_key, {
+            bucket: R2_BUCKET_PRIVATE,
+            expiresIn: SIGNED_URL_EXPIRES_IN,
+          }),
+          row.thumbnail_key
+            ? getSignedDownloadUrl(row.thumbnail_key, {
+                bucket: R2_BUCKET_PRIVATE,
+                expiresIn: SIGNED_URL_EXPIRES_IN,
+              })
+            : Promise.resolve(undefined),
+        ])
+        result[row.id] = { url, thumbUrl, expiresAt: Date.now() + SIGNED_URL_EXPIRES_IN * 1000 }
       })
     )
 
