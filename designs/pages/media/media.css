@@ -16,6 +16,23 @@
 .media-empty-copy{font-size:.85rem;color:var(--muted);margin:.25rem 0 0}
 .media-empty-copy[hidden]{display:none}
 
+/* ── Error banner — mediaMutation.error, dismissible ────────────────── */
+.media-error-banner{
+  display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+  margin:0 0 1.25rem;padding:.7rem 1rem;
+  border:1px solid var(--danger-rim);background:var(--danger-tint);
+  border-radius:14px;
+  font-size:.85rem;font-weight:600;color:var(--danger-ink);
+}
+.media-error-banner button{
+  flex-shrink:0;background:none;border:0;cursor:pointer;
+  font-size:1.1rem;line-height:1;color:var(--danger-ink);
+  padding:.1rem .4rem;
+}
+.media-error-banner button:focus-visible{
+  outline:2px solid var(--danger);outline-offset:2px;border-radius:6px;
+}
+
 /* Spec: NO blurred chrome on this page's tile chips (master grid drops
    backdrop-filter entirely; budget ≤2 blurred surfaces page-wide). */
 [data-page="media"] .photo-tile-check{backdrop-filter:none;background:rgba(0,0,0,.62)}
@@ -132,6 +149,46 @@
   .media-upload-retry:hover{border-color:var(--brand);background:var(--brand-tint)}
 }
 .media-upload-retry:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* ── Upload progress item (actual markup — media-upload-item{,--status}) ──
+   .media-upload-row above predates the wired <li> markup; kept for now,
+   these rules target what MediaClient.tsx actually renders. */
+.media-upload-item{
+  display:flex;align-items:center;gap:.75rem;
+  background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:.6rem .85rem;
+}
+.media-upload-item-name{
+  flex:1 1 auto;min-width:0;
+  font-size:.85rem;font-weight:600;color:var(--ink);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.media-upload-item-pct{
+  flex-shrink:0;font-size:.75rem;font-weight:600;color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.media-upload-item-retry{
+  flex-shrink:0;
+  background:none;border:1px solid var(--line);border-radius:9999px;
+  padding:.35rem .8rem;min-height:32px;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:.78rem;
+  color:var(--ink);cursor:pointer;
+  transition:border-color .15s ease,background .15s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  .media-upload-item-retry:hover{border-color:var(--brand);background:var(--brand-tint)}
+}
+.media-upload-item-retry:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+/* States: local-pending/optimizing/uploading/committing share the brand-tinted
+   percentage; committed and failed get a settled border + tint like the
+   error banner's danger treatment. */
+.media-upload-item--local-pending .media-upload-item-pct,
+.media-upload-item--optimizing .media-upload-item-pct,
+.media-upload-item--uploading .media-upload-item-pct,
+.media-upload-item--committing .media-upload-item-pct{color:var(--brand)}
+.media-upload-item--committed{border-color:var(--success-rim);background:var(--success-tint)}
+.media-upload-item--failed{border-color:var(--danger-rim);background:var(--danger-tint)}
+.media-upload-item--failed .media-upload-item-name{color:var(--danger-ink)}
 
 /* ── Recent uploads strip ───────────────────────────────────────────── */
 .media-recent-scroller{position:relative}

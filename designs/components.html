@@ -2382,6 +2382,60 @@
       </article>
     </div>
   </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 16. MEDIA UPLOAD & ALERTS                          -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="media-upload">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">16 · Media upload &amp; alerts</p>
+      <h2 class="cs-h2">Upload-progress item &amp; error banner</h2>
+      <p class="cs-h2-sub">Page-local primitives from <code class="cs-code">app/events/[id]/media/MediaClient.tsx</code> + <code class="cs-code">designs/pages/media/media.css</code> — the upload-queue row (Photos and Videos panels share the same markup, filtered by <code class="cs-code">item.kind</code>) and the dismissible <code class="cs-code">mediaMutation.error</code> banner.</p>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">MU1</span> · Upload item states · <code class="cs-code">.media-upload-item--{status}</code></p>
+        <div class="cs-stage cs-stage--col" style="padding:1.25rem;gap:.5rem;align-items:stretch">
+          <ul class="media-upload-progress" role="list">
+            <li class="media-upload-item media-upload-item--local-pending">
+              <span class="media-upload-item-name">IMG_0142.heic</span>
+              <span class="media-upload-item-pct">0%</span>
+            </li>
+            <li class="media-upload-item media-upload-item--optimizing">
+              <span class="media-upload-item-name">IMG_0143.heic</span>
+              <span class="media-upload-item-pct">0%</span>
+            </li>
+            <li class="media-upload-item media-upload-item--uploading">
+              <span class="media-upload-item-name">reception-clip.mp4</span>
+              <span class="media-upload-item-pct">42%</span>
+            </li>
+            <li class="media-upload-item media-upload-item--committing">
+              <span class="media-upload-item-name">sangeet-photo.jpg</span>
+              <span class="media-upload-item-pct">100%</span>
+            </li>
+            <li class="media-upload-item media-upload-item--committed">
+              <span class="media-upload-item-name">mehendi-hands.jpg</span>
+            </li>
+            <li class="media-upload-item media-upload-item--failed">
+              <span class="media-upload-item-name">baraat-video.mov</span>
+              <button type="button" class="media-upload-item-retry">Retry</button>
+            </li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">MU2</span> · Error banner · <code class="cs-code">.media-error-banner</code></p>
+        <div class="cs-stage cs-stage--col" style="padding:1.25rem;align-items:stretch">
+          <div class="media-error-banner" role="alert">
+            Failed to update album assignment
+            <button type="button" aria-label="Dismiss">×</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
 </main>
 
 <!-- ────────────────────── FOOTER ────────────────────── -->
