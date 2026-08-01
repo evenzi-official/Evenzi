@@ -250,7 +250,6 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
   // ── Shared
   const [albums, setAlbums] = useState<Album[]>(initialAlbums)
   const [activeTab, setActiveTab] = useState<MediaTab>('photos')
-  const albumSeqRef = useRef(0)
 
   // ── Upload pipeline state
   const [uploadItems, setUploadItems] = useState<UploadItem[]>([])
@@ -270,7 +269,6 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
       controllersRef.current.forEach((controller) => controller.abort())
       blobUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const [urlCache, setUrlCache] = useState<Record<string, { url: string; thumbUrl?: string; expiresAt: number }>>({})
