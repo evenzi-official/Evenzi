@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { runPhotoUploadPipeline, runVideoUploadPipeline, createUploadQueue } from '@/lib/media/uploadPipeline'
 import { formatDuration } from '@/lib/media/formatDuration'
 import { useOptimisticMediaMutation } from '@/lib/media/useOptimisticMediaMutation'
@@ -218,6 +219,10 @@ interface MediaClientProps {
 
 export function MediaClient({ eventName: _eventName, eventId, initialPhotos, initialVideos, initialAlbums, storage }: MediaClientProps) {
   const mediaMutation = useOptimisticMediaMutation()
+  // Refreshes the server component's props (incl. `storage`, which is otherwise
+  // a static snapshot from page.tsx) after any mutation that changes storage
+  // usage — re-fetches in the background without a full page reload.
+  const router = useRouter()
 
   // ── Photos state
   const [photos, setPhotos] = useState<Photo[]>(initialPhotos)
@@ -393,6 +398,10 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
               uploadedAt: Date.parse(saved.created_at),
             }, ...prev])
           }
+          // Local state updates first (optimistic), then refresh the server
+          // component's props in the background so the storage meter picks up
+          // the real usedBytes/photoCount/videoCount for this commit.
+          router.refresh()
         } catch (err) {
           if ((err as { name?: string })?.name !== 'AbortError') {
             updateUploadItem(item.id, { status: 'failed', error: err instanceof Error ? err.message : 'Upload failed' })
@@ -822,6 +831,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
       revert: () => { setPhotos(snapshot); setCoverId(snapshotCoverId) },
       request: () => fetch(`/api/events/${eventId}/media/${id}`, { method: 'DELETE' }).then((res) => {
         if (!res.ok && res.status !== 204) throw new Error('Failed to delete photo')
+        router.refresh()
       }),
     })
   }
@@ -837,6 +847,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
       revert: () => setVideos(snapshot),
       request: () => fetch(`/api/events/${eventId}/media/${id}`, { method: 'DELETE' }).then((res) => {
         if (!res.ok && res.status !== 204) throw new Error('Failed to delete video')
+        router.refresh()
       }),
     })
   }
@@ -870,6 +881,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
             return [...restored, ...prev]
           })
         }
+        router.refresh()
         return result
       },
     })
@@ -900,6 +912,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
             return [...restored, ...prev]
           })
         }
+        router.refresh()
         return result
       },
     })
