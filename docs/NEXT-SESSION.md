@@ -4,7 +4,34 @@
 
 ---
 
-## ▶ START HERE NEXT — Digital Presence DB layer complete (Wave 1 + 2a + 2b all live); app-layer wiring is next (2026-07-31, session b)
+## ▶ START HERE NEXT — Media & Memories backend-wiring complete; live-browser QA pass is next (2026-08-01)
+
+Session report: [`docs/session-reports/2026-08-01-session-report.md`](session-reports/2026-08-01-session-report.md)
+
+**What happened:** Finished the Media & Memories backend-wiring pass (13 tasks total across this and a prior session) via subagent-driven-development — presigned R2 upload pipeline, commit-route hardening (dual-key verification, magic-byte checks, idempotency), signed-URL read routes, delete/bulk-delete, full album CRUD, and a real storage-usage meter replacing the hardcoded mock. A final whole-branch review (Opus) then caught 7 issues before merge, most notably two Critical bugs: a cross-event IDOR in the commit route (client-supplied R2 keys weren't verified against the calling event), and `thumbnail_key` being written/capped/purged but never served — meaning photo grids downloaded full-res masters and every video tile rendered `<img src>` pointed at a raw `.mp4` (guaranteed failure, feeding an unbounded retry loop). All 7 fixed, re-reviewed and confirmed, merged to `Dev-Vibe` + `Dev-Vibe-Testing` (commit range `7717ffd..f9ceb96`, 20 commits, 114/131 tests passing — 17 pre-existing-baseline failures unrelated to this work).
+
+**What's NOT done:** the live-browser verification pass (spec §8) — real photo/video upload, a HEIC file specifically, storage meter, delete flows, album CRUD, a bulk operation with a deliberate failure, signed-URL expiry recovery, mid-upload navigation-away, at standard breakpoints (360/390/414/768/1024/1440). Code is complete and twice-reviewed but not yet human/browser-QA'd.
+
+### Paste this to start — Media & Memories live-browser QA pass
+
+```
+Run the live-browser verification pass for Media & Memories (spec §8,
+docs/superpowers/specs/2026-07-31-media-memories-fe-wiring-design.md).
+Backend + frontend wiring is complete and merged to Dev-Vibe +
+Dev-Vibe-Testing (see docs/session-reports/2026-08-01-session-report.md).
+Test: real photo + video upload, a HEIC file specifically, the storage
+meter updating live, delete flows (single + bulk with a deliberate
+failure), album CRUD, signed-URL expiry recovery (trigger the onError
+path), and mid-upload navigation-away — at 360/390/414/768/1024/1440px.
+Confirm app/api/media/[...key]/route.ts (pre-existing GET-only serving
+route) was left untouched.
+```
+
+**Known non-blocking follow-ups from the final review** (fix if convenient during QA, not required): retry-counter never resets on success (an id can't recover from hourly signed-URL expiry after 2 lifetime retries), `designs/components.html` doesn't link `media.css` so the new upload-item/error-banner catalog entries render unstyled, `router.refresh()` fires once per file in a batch upload (perf only), bulk-assign partial failure is silent to the user.
+
+---
+
+## ▶ PAST — Digital Presence DB layer complete (Wave 1 + 2a + 2b all live); app-layer wiring still queued (2026-07-31, session b)
 
 Session report: [`docs/session-reports/2026-07-31b-session-report.md`](session-reports/2026-07-31b-session-report.md)
 
@@ -44,7 +71,7 @@ touching code, then pick up from there.
 | Event Settings | ✅ | ✅ | ✅ | DONE |
 | User Settings | ✅ | ✅ | ✅ | DONE |
 | Planning Tools (Checklist + Budget) | ✅ | ✅ | ✅ | DONE 2026-07-30 |
-| Media & Memories | ✅ | ⚠️ | ✅ | FE built, upload endpoint (R2) + storage-meter still not wired |
+| Media & Memories | ✅ | ✅ | ✅ | Backend-wiring DONE 2026-08-01 (merged, twice-reviewed) — live-browser QA pass still pending |
 | Digital Invitations | ✅ | ❌ | ✅ | FE built (7-template designer), nothing persists yet — queued, see below |
 | **Digital Presence — Wave 1 (host editor)** | ✅ | ⚠️ | ❌ | **Schema LIVE.** React pages still static mocks — Dheeraj brief at `handoff-website-wave1.md` |
 | **Digital Presence — Wave 2 (public site)** | ✅ | ⚠️ | ❌ | **Schema LIVE 2026-07-31** (`website_12`–`website_20`) — DB layer done, `anon` RLS live, council-cleared. API routes + guest site pages not built — Dheeraj brief at `handoff-website-wave2.md`, blocked on `events.slug` generator |
