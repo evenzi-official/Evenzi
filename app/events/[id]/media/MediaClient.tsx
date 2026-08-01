@@ -685,20 +685,56 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
       setAssignModalOpen(false)
     }
 
-    mediaMutation.run({
+    mediaMutation.run<{ failed: string[] }>({
       apply: applyLocally,
+      // Full-failure shell: if every id rejects, request() below throws and this
+      // revert() rolls everything back to the pre-assign snapshot + surfaces the
+      // error banner — same shell bulkDeletePhotos/bulkDeleteVideos use.
       revert: () => { setPhotos(photosSnapshot); setVideos(videosSnapshot) },
-      request: () => Promise.all(
-        assignIds.map((mediaId) =>
-          fetch(`/api/events/${eventId}/media/${mediaId}/albums`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mode: assignMode, albumIds: aids }),
-          }).then((res) => {
-            if (!res.ok) throw new Error('Failed to update album assignment')
-          })
+      request: async () => {
+        const settled = await Promise.allSettled(
+          assignIds.map((mediaId) =>
+            fetch(`/api/events/${eventId}/media/${mediaId}/albums`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ mode: assignMode, albumIds: aids }),
+            }).then((res) => {
+              if (!res.ok) throw new Error('Failed to update album assignment')
+            })
+          )
         )
-      ),
+        const failedIds = assignIds.filter((_, i) => settled[i].status === 'rejected')
+
+        if (failedIds.length === assignIds.length) {
+          // Every id failed — throw so mediaMutation.run's revert() above does
+          // the full rollback and the error banner surfaces, same as before.
+          throw new Error('Failed to update album assignment')
+        }
+
+        if (failedIds.length > 0) {
+          // Partial failure: PATCHes that already succeeded stay committed
+          // server-side, so only the specific failed ids' albumIds get reverted
+          // to their pre-assign snapshot value — mirroring bulkDeletePhotos/
+          // bulkDeleteVideos's established partial-failure reconciliation
+          // (batched endpoint returns {deleted, failed}, only failed ids are
+          // restored from the snapshot). request() doesn't throw here, so
+          // mediaMutation.error stays cleared — consistent with that pattern.
+          const failedSet = new Set(failedIds)
+          const revertFailedIds = (list: (Photo | Video)[], snapshot: (Photo | Video)[]) =>
+            list.map((item) => {
+              if (!failedSet.has(item.id)) return item
+              const original = snapshot.find((s) => s.id === item.id)
+              return original ? { ...item, albumIds: original.albumIds } : item
+            })
+          if (assignKind === 'photo') {
+            setPhotos((prev) => revertFailedIds(prev, photosSnapshot) as Photo[])
+          } else {
+            setVideos((prev) => revertFailedIds(prev, videosSnapshot) as Video[])
+          }
+        }
+
+        return { failed: failedIds }
+      },
     })
   }
 
