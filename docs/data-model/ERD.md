@@ -1,6 +1,8 @@
 # Evenzi — Full Data Model ERD, Functions & Flows
 
-> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-06-17.3** — CORE + Planning + Guests + Media + Invitations + Event Hub + Event Settings. Renders on GitHub / VS Code (Mermaid).
+> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-07-30.1** — CORE + Planning + Guests + Media + Invitations + Event Hub + Event Settings + Event Website / Digital Presence Wave 1. Renders on GitHub / VS Code (Mermaid).
+>
+> **Known drift:** the `EVENT_WEBSITE_SETTINGS` entity block below (fields `website_enabled`/`website_slug`/`show_gallery`/etc.) predates the actual shipped shape — live columns are `website_password_enabled`/`website_password_hash`/`search_indexing_enabled`/`announcement_banner_enabled`/`announcement_banner_text`/`site_offline` (see `DATA-MODEL.md` D43/D47). Pre-existing drift, not introduced this session — flagged for a future cleanup pass, not fixed here to keep this change scoped to the new Digital Presence entities.
 >
 > **Schemas:** `config.*` = reference/catalog (admin-seeded, public-read) · `public.*` = live app data (owner-only RLS) · `auth.*` = Supabase-managed identity.
 
@@ -76,18 +78,36 @@ flowchart TB
     EGST[event_guest_settings]
   end
 
+  subgraph SITE["🌐 Event Website / Digital Presence — Wave 1  (public + config schemas)"]
+    CWF[config_website_fonts]
+    CWP[config_website_palettes]
+    CWT[config_website_templates]
+    CWPG[config_website_pages]
+    CWST[config_website_section_types]
+    EWD[event_website_design]
+    EWPG[event_website_pages]
+    EWS2[event_website_sections]
+    ESB[event_story_blocks]
+    EWPM[event_wedding_party_members]
+    EQA[event_qa_items]
+    ETP[event_travel_points]
+    EST[event_stays]
+  end
+
   CFG -. "seeds / defines" .-> CORE
   CFG -. "seeds" .-> PLN
   CFG -. "seeds" .-> GST
   CFG -. "seeds" .-> MED
   CFG -. "seeds" .-> INV
   CFG -. "configures" .-> SETT
+  CFG -. "seeds" .-> SITE
   USR -- "owns" --> CORE
   CORE -- "parent FK" --> PLN
   CORE -- "parent FK" --> GST
   CORE -- "parent FK" --> MED
   CORE -- "parent FK" --> INV
   CORE -- "parent FK" --> SETT
+  CORE -- "parent FK" --> SITE
   CORE -. "aggregated by" .-> HUB
   GST -. "aggregates" .-> HUB
   PLN -. "aggregates" .-> HUB
@@ -581,6 +601,74 @@ erDiagram
     timestamptz updated_at
   }
 
+  %% ---------- EVENT WEBSITE / DIGITAL PRESENCE — WAVE 1 ----------
+  %% Wave 2 (public site, guest_tokens, anon RLS) not migrated yet — not drawn here.
+  CONFIG_WEBSITE_PAGES {
+    uuid id PK
+    text slug UK "home, story, schedule, venue-travel, wedding-party, gallery, qa, rsvp, registry, video"
+    text tier "public | private"
+    bool is_removable "false on home, rsvp"
+  }
+  CONFIG_WEBSITE_SECTION_TYPES {
+    uuid id PK
+    text slug UK "11 types: heading, photo, photogrid, schedule, person, hotel, qa, divider, map, countdown, video"
+    jsonb field_schema
+  }
+  CONFIG_WEBSITE_TEMPLATES {
+    uuid id PK
+    text slug UK
+    uuid default_palette_id FK "empty catalog until lineup locks"
+    uuid default_font_id FK
+  }
+  EVENT_WEBSITE_DESIGN {
+    uuid event_id PK_FK "1:1 sidecar (cascade)"
+    uuid template_id FK "nullable — catalog starts empty"
+    uuid palette_id FK
+    uuid heading_font_id FK
+    uuid body_font_id FK
+    text cover_image_key
+    text og_image_key
+  }
+  EVENT_WEBSITE_PAGES {
+    uuid id PK
+    uuid event_id FK "cascade"
+    uuid page_id FK "config.website_pages"
+    bool is_visible
+  }
+  EVENT_WEBSITE_SECTIONS {
+    uuid id PK
+    uuid event_id FK "denormalized, guard-trigger derived from page_id"
+    uuid page_id FK "cascade"
+    uuid section_type_id FK
+    jsonb data "backs Registry + Video pages only"
+  }
+  EVENT_STORY_BLOCKS {
+    uuid id PK
+    uuid event_id FK "cascade — direct, no guard trigger"
+    text block_type "heading | photo"
+  }
+  EVENT_WEDDING_PARTY_MEMBERS {
+    uuid id PK
+    uuid event_id FK "cascade"
+    text side "bride | groom"
+  }
+  EVENT_QA_ITEMS {
+    uuid id PK
+    uuid event_id FK "cascade"
+    text question
+    text answer
+  }
+  EVENT_TRAVEL_POINTS {
+    uuid id PK
+    uuid event_id FK "cascade"
+    text kind "airport | railway | bus"
+  }
+  EVENT_STAYS {
+    uuid id PK
+    uuid event_id FK "cascade"
+    text name
+  }
+
   %% ---------- EVENT HUB (aggregation view — read-only) ----------
   %% Note: event_hub_summary aggregates from events, event_guest_stats, event_task_progress,
   %%       event_budget_summary, event_sub_events, and event_invitation_cards.
@@ -635,6 +723,19 @@ erDiagram
   EVENTS ||--o{ EVENT_MEDIA : "has"
   EVENTS ||--o{ EVENT_ALBUMS : "has"
   EVENTS ||--o{ EVENT_MEDIA_TAGS : "has"
+  EVENTS ||--|| EVENT_WEBSITE_DESIGN : "1:1"
+  EVENTS ||--o{ EVENT_WEBSITE_PAGES : "has"
+  EVENTS ||--o{ EVENT_WEBSITE_SECTIONS : "has (denorm)"
+  EVENTS ||--o{ EVENT_STORY_BLOCKS : "has"
+  EVENTS ||--o{ EVENT_WEDDING_PARTY_MEMBERS : "has"
+  EVENTS ||--o{ EVENT_QA_ITEMS : "has"
+  EVENTS ||--o{ EVENT_TRAVEL_POINTS : "has"
+  EVENTS ||--o{ EVENT_STAYS : "has"
+
+  CONFIG_WEBSITE_PAGES ||--o{ EVENT_WEBSITE_PAGES : "page_id"
+  EVENT_WEBSITE_PAGES ||--o{ EVENT_WEBSITE_SECTIONS : "page_id (guard-trigger derives event_id)"
+  CONFIG_WEBSITE_SECTION_TYPES ||--o{ EVENT_WEBSITE_SECTIONS : "section_type_id"
+  CONFIG_WEBSITE_TEMPLATES |o--o{ EVENT_WEBSITE_DESIGN : "template_id (nullable)"
 
   EVENT_SUB_EVENTS |o--o{ EVENT_TASKS : "tagged"
   EVENT_SUB_EVENTS |o--o{ EVENT_EXPENSES : "tagged"

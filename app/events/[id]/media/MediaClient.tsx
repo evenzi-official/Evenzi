@@ -1,6 +1,10 @@
 'use client'
 
 import { useState, useMemo, useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { runPhotoUploadPipeline, runVideoUploadPipeline, createUploadQueue } from '@/lib/media/uploadPipeline'
+import { formatDuration } from '@/lib/media/formatDuration'
+import { useOptimisticMediaMutation } from '@/lib/media/useOptimisticMediaMutation'
 
 interface Photo {
   id: string
@@ -36,10 +40,20 @@ interface FilterOption {
   active: boolean
 }
 
+interface UploadItem {
+  id: string
+  file: File
+  kind: 'photo' | 'video'
+  status: 'local-pending' | 'optimizing' | 'uploading' | 'committing' | 'committed' | 'failed'
+  progress: number
+  previewUrl: string
+  error?: string
+}
+
 type SortKey = 'newest' | 'oldest' | 'name'
 type MediaTab = 'photos' | 'videos' | 'albums'
 
-const STORAGE_MOCK = { usedBytes: 0, limitBytes: 5 * 1024 * 1024 * 1024 }
+const STORAGE_LIMIT_BYTES = 5 * 1024 * 1024 * 1024 // hardcoded per D34 — entitlements are [PLANNED]
 
 function pad2(n: number) { return n < 10 ? '0' + n : '' + n }
 function fmtDate(ms: number) {
@@ -70,9 +84,12 @@ interface PhotoTileProps {
   onOpen: (id: string) => void
   onSelect: (id: string, on: boolean) => void
   onAssignOne: (id: string) => void
+  resolveSrc: (item: { id: string; src?: string; poster?: string }) => string
+  urlCache: Record<string, { url: string; thumbUrl?: string; expiresAt: number }>
+  refetchSingleUrl: (mediaId: string) => void
 }
 
-function PhotoTile({ photo, selected, isCover, selectMode, withActions, onOpen, onSelect, onAssignOne }: PhotoTileProps) {
+function PhotoTile({ photo, selected, isCover, selectMode, withActions, onOpen, onSelect, onAssignOne, resolveSrc, urlCache, refetchSingleUrl }: PhotoTileProps) {
   return (
     <article
       className={`dp-tile photo-tile${selected ? ' is-selected' : ''}`}
@@ -98,7 +115,12 @@ function PhotoTile({ photo, selected, isCover, selectMode, withActions, onOpen, 
         onClick={() => selectMode ? onSelect(photo.id, !selected) : onOpen(photo.id)}
       >
         <span className="dp-tile-thumb">
-          <img src={photo.src} alt="" loading="lazy" />
+          <img
+            src={resolveSrc(photo)}
+            alt=""
+            loading="lazy"
+            onError={() => { if (urlCache[photo.id]) refetchSingleUrl(photo.id) }}
+          />
         </span>
       </button>
       <span className="photo-tile-cover-badge" hidden={!isCover}>
@@ -128,9 +150,12 @@ interface VideoTileProps {
   onOpen: (id: string) => void
   onSelect: (id: string, on: boolean) => void
   onAssignOne: (id: string) => void
+  resolveSrc: (item: { id: string; src?: string; poster?: string }) => string
+  urlCache: Record<string, { url: string; thumbUrl?: string; expiresAt: number }>
+  refetchSingleUrl: (mediaId: string) => void
 }
 
-function VideoTile({ video, selected, selectMode, withActions, onOpen, onSelect, onAssignOne }: VideoTileProps) {
+function VideoTile({ video, selected, selectMode, withActions, onOpen, onSelect, onAssignOne, resolveSrc, urlCache, refetchSingleUrl }: VideoTileProps) {
   return (
     <article
       className={`dp-tile photo-tile video-tile${selected ? ' is-selected' : ''}`}
@@ -155,7 +180,12 @@ function VideoTile({ video, selected, selectMode, withActions, onOpen, onSelect,
         onClick={() => selectMode ? onSelect(video.id, !selected) : onOpen(video.id)}
       >
         <span className="dp-tile-thumb">
-          <img src={video.poster} alt="" loading="lazy" />
+          <img
+            src={resolveSrc(video)}
+            alt=""
+            loading="lazy"
+            onError={() => { if (urlCache[video.id]) refetchSingleUrl(video.id) }}
+          />
           <span className="media-vplay-badge">
             <span className="material-symbols-outlined">play_arrow</span>
           </span>
@@ -178,9 +208,24 @@ function VideoTile({ video, selected, selectMode, withActions, onOpen, onSelect,
   )
 }
 
-export function MediaClient({ eventName: _eventName }: { eventName: string }) {
+interface MediaClientProps {
+  eventName: string
+  eventId: string
+  initialPhotos: Photo[]
+  initialVideos: Video[]
+  initialAlbums: Album[]
+  storage: { usedBytes: number; photoCount: number; videoCount: number }
+}
+
+export function MediaClient({ eventName: _eventName, eventId, initialPhotos, initialVideos, initialAlbums, storage }: MediaClientProps) {
+  const mediaMutation = useOptimisticMediaMutation()
+  // Refreshes the server component's props (incl. `storage`, which is otherwise
+  // a static snapshot from page.tsx) after any mutation that changes storage
+  // usage — re-fetches in the background without a full page reload.
+  const router = useRouter()
+
   // ── Photos state
-  const [photos, setPhotos] = useState<Photo[]>([])
+  const [photos, setPhotos] = useState<Photo[]>(initialPhotos)
   const [photoSort, setPhotoSort] = useState<SortKey>('newest')
   const [photoFilterAlbumId, setPhotoFilterAlbumId] = useState<string | null>(null)
   const [photoDateFrom, setPhotoDateFrom] = useState<number | null>(null)
@@ -192,7 +237,7 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
   const [lbIds, setLbIds] = useState<string[]>([])
 
   // ── Videos state
-  const [videos, setVideos] = useState<Video[]>([])
+  const [videos, setVideos] = useState<Video[]>(initialVideos)
   const [videoSort, setVideoSort] = useState<SortKey>('newest')
   const [videoFilterAlbumId, setVideoFilterAlbumId] = useState<string | null>(null)
   const [videoDateFrom, setVideoDateFrom] = useState<number | null>(null)
@@ -203,9 +248,175 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
   const [vLbIds, setVLbIds] = useState<string[]>([])
 
   // ── Shared
-  const [albums, setAlbums] = useState<Album[]>([])
+  const [albums, setAlbums] = useState<Album[]>(initialAlbums)
   const [activeTab, setActiveTab] = useState<MediaTab>('photos')
-  const albumSeqRef = useRef(0)
+
+  // ── Upload pipeline state
+  const [uploadItems, setUploadItems] = useState<UploadItem[]>([])
+  const uploadQueueRef = useRef(createUploadQueue(3))
+  // Every in-flight upload gets its own AbortController so unmount can cancel
+  // the real XHR/fetch calls (lib/media/uploadPipeline.ts wires the signal
+  // into xhr.abort()), not just stop local state updates.
+  const controllersRef = useRef<Map<string, AbortController>>(new Map())
+  // Tracks blob: preview URLs still awaiting their real signed URL from Task 13's
+  // batch fetch, so that effect can revoke them the instant a real URL arrives —
+  // this ref is the single source of truth for outstanding blob URLs (both this
+  // step's unmount cleanup and Task 13's revoke-on-arrival logic read/write it).
+  const blobUrlsRef = useRef<Map<string, string>>(new Map())
+
+  useEffect(() => {
+    return () => {
+      controllersRef.current.forEach((controller) => controller.abort())
+      blobUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
+    }
+  }, [])
+
+  const [urlCache, setUrlCache] = useState<Record<string, { url: string; thumbUrl?: string; expiresAt: number }>>({})
+  // Per-id onError retry counter — caps refetchSingleUrl at 2 attempts per media id
+  // so a permanently-broken signed URL (e.g. a video master behind an <img>) can't
+  // loop onError -> refetch -> onError forever.
+  const retryCountRef = useRef<Map<string, number>>(new Map())
+
+  useEffect(() => {
+    const idsNeedingUrls = [...photos.map(p => p.id), ...videos.map(v => v.id)].filter((id) => !urlCache[id])
+    if (idsNeedingUrls.length === 0) return
+
+    const batches: string[][] = []
+    for (let i = 0; i < idsNeedingUrls.length; i += 200) batches.push(idsNeedingUrls.slice(i, i + 200))
+
+    let cancelled = false
+    Promise.all(
+      batches.map((batch) =>
+        fetch(`/api/events/${eventId}/media/urls`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mediaIds: batch }),
+        }).then((res) => (res.ok ? res.json() : {}))
+      )
+    ).then((results) => {
+      if (cancelled) return
+      const merged: Record<string, { url: string; thumbUrl?: string; expiresAt: number }> = Object.assign({}, ...results)
+      setUrlCache((prev) => ({ ...prev, ...merged }))
+      // Optimistic upload preview lifecycle (spec §5): the moment a just-uploaded
+      // item's real signed URL arrives, revoke its blob: preview — not before
+      // (would flash a broken image) and not never (memory leak across a large
+      // batch-upload session). blobUrlsRef is the single source of truth,
+      // shared with Task 10's unmount cleanup.
+      Object.keys(merged).forEach((id) => {
+        const blobUrl = blobUrlsRef.current.get(id)
+        if (blobUrl) {
+          URL.revokeObjectURL(blobUrl)
+          blobUrlsRef.current.delete(id)
+        }
+      })
+    })
+
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photos.length, videos.length, eventId])
+
+  async function refetchSingleUrl(mediaId: string) {
+    const count = retryCountRef.current.get(mediaId) ?? 0
+    if (count >= 2) return
+    retryCountRef.current.set(mediaId, count + 1)
+    const res = await fetch(`/api/events/${eventId}/media/${mediaId}/url`)
+    if (!res.ok) return
+    const { url, thumbUrl, expiresAt } = await res.json()
+    setUrlCache((prev) => ({ ...prev, [mediaId]: { url, thumbUrl, expiresAt } }))
+  }
+
+  function resolveSrc(item: { id: string; src?: string; poster?: string }): string {
+    // urlCache always wins once populated. Before that (right after a page-load
+    // fetch, before the batch effect above resolves, or right after this
+    // session's own upload commits) it falls through to item.src/poster —
+    // which is '' from page.tsx's initial props, or the blob: preview URL
+    // Task 10 just set. No special-casing needed: this ordering alone produces
+    // "blob preview, then swap to real URL" for free.
+    return urlCache[item.id]?.url ?? item.src ?? item.poster ?? ''
+  }
+
+  // Thumbnail-resolving counterpart to resolveSrc — used anywhere a small preview
+  // renders (grid tiles, recent-uploads strip, album covers, video posters) so
+  // those spots download the size-capped thumbnail_key instead of the full-res
+  // master. Falls back to the master URL (then blob/empty) when no thumbnail
+  // exists yet for that id, so nothing regresses for rows without a thumbnail_key.
+  function resolveThumbSrc(item: { id: string; src?: string; poster?: string }): string {
+    return urlCache[item.id]?.thumbUrl ?? urlCache[item.id]?.url ?? item.src ?? item.poster ?? ''
+  }
+
+  function updateUploadItem(id: string, patch: Partial<UploadItem>) {
+    setUploadItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)))
+  }
+
+  async function handleFilesPicked(files: FileList, kind: 'photo' | 'video') {
+    const newItems: UploadItem[] = Array.from(files).map((file) => ({
+      id: `up-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      file,
+      kind,
+      status: 'local-pending',
+      progress: 0,
+      previewUrl: URL.createObjectURL(file),
+    }))
+    setUploadItems((prev) => [...prev, ...newItems])
+
+    newItems.forEach((item) => {
+      const controller = new AbortController()
+      controllersRef.current.set(item.id, controller)
+
+      uploadQueueRef.current.run(async () => {
+        updateUploadItem(item.id, { status: 'optimizing' })
+        try {
+          const runner = kind === 'photo' ? runPhotoUploadPipeline : runVideoUploadPipeline
+          updateUploadItem(item.id, { status: 'uploading' })
+          const saved = await runner(item.file, eventId, (pct) => {
+            updateUploadItem(item.id, { progress: pct })
+          }, controller.signal)
+          updateUploadItem(item.id, { status: 'committed', progress: 100 })
+          // Track this blob URL as "outstanding" — Task 13's signed-URL batch
+          // effect will pick up `saved.id`, and once the real URL lands in
+          // urlCache it revokes this entry and removes it from the map.
+          blobUrlsRef.current.set(saved.id, item.previewUrl)
+
+          if (kind === 'photo') {
+            setPhotos((prev) => [{
+              id: saved.id,
+              src: item.previewUrl,
+              name: item.file.name,
+              albumIds: [],
+              uploadedAt: Date.parse(saved.created_at),
+              published: false,
+            }, ...prev])
+          } else {
+            setVideos((prev) => [{
+              id: saved.id,
+              poster: item.previewUrl,
+              name: item.file.name,
+              duration: formatDuration(saved.duration_sec ?? 0),
+              albumIds: [],
+              uploadedAt: Date.parse(saved.created_at),
+            }, ...prev])
+          }
+          // Local state updates first (optimistic), then refresh the server
+          // component's props in the background so the storage meter picks up
+          // the real usedBytes/photoCount/videoCount for this commit.
+          router.refresh()
+        } catch (err) {
+          if ((err as { name?: string })?.name !== 'AbortError') {
+            updateUploadItem(item.id, { status: 'failed', error: err instanceof Error ? err.message : 'Upload failed' })
+          }
+        } finally {
+          controllersRef.current.delete(item.id)
+        }
+      })
+    })
+  }
+
+  function retryUpload(itemId: string) {
+    const item = uploadItems.find((it) => it.id === itemId)
+    if (!item) return
+    setUploadItems((prev) => prev.filter((it) => it.id !== itemId))
+    handleFilesPicked({ 0: item.file, length: 1, item: () => item.file } as unknown as FileList, item.kind)
+  }
 
   // ── Modal states
   const [albumModalOpen, setAlbumModalOpen] = useState(false)
@@ -270,11 +481,11 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
     if (videoDateTo != null) vv = vv.filter(v => (v.takenAt ?? v.uploadedAt) <= videoDateTo)
     vv.sort(videoCmp())
 
-    const pct = STORAGE_MOCK.limitBytes > 0
-      ? Math.min(100, Math.round((STORAGE_MOCK.usedBytes / STORAGE_MOCK.limitBytes) * 100))
+    const pct = STORAGE_LIMIT_BYTES > 0
+      ? Math.min(100, Math.round((storage.usedBytes / STORAGE_LIMIT_BYTES) * 100))
       : 0
-    const ms = STORAGE_MOCK.usedBytes >= STORAGE_MOCK.limitBytes ? 'atcap'
-      : STORAGE_MOCK.usedBytes / STORAGE_MOCK.limitBytes >= 0.8 ? 'near' : 'healthy'
+    const ms = storage.usedBytes >= STORAGE_LIMIT_BYTES ? 'atcap'
+      : storage.usedBytes / STORAGE_LIMIT_BYTES >= 0.8 ? 'near' : 'healthy'
 
     function dateLabel(from: number | null, to: number | null) {
       if (from && to) return fmtDate(from) + ' – ' + fmtDate(to)
@@ -306,7 +517,7 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
       filledAlbums,
       meterState: ms,
       meterPct: pct,
-      meterText: fmtGB(STORAGE_MOCK.usedBytes) + ' of ' + fmtGB(STORAGE_MOCK.limitBytes) + ' used',
+      meterText: fmtGB(storage.usedBytes) + ' of ' + fmtGB(STORAGE_LIMIT_BYTES) + ' used',
       meterNote: ms === 'near' ? "You're close to your storage limit."
         : ms === 'atcap' ? 'Storage full — remove photos or upgrade soon.' : null,
       photoSortLabel: photoSort === 'oldest' ? 'Oldest' : photoSort === 'name' ? 'Name A–Z' : 'Newest',
@@ -318,7 +529,7 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
       lbPhoto,
       vLbVideo,
     }
-  }, [photos, videos, albums,
+  }, [photos, videos, albums, storage,
       photoSort, photoFilterAlbumId, photoDateFrom, photoDateTo,
       videoSort, videoFilterAlbumId, videoDateFrom, videoDateTo,
       photoSelected, videoSelected, lbIndex, lbIds, vLbIndex, vLbIds])
@@ -389,21 +600,68 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
   function submitAlbumForm() {
     const name = albumName.trim()
     if (!name) { setAlbumNameError(true); return }
+    const snapshot = albums
+
     if (albumModalMode === 'rename' && albumModalId) {
-      setAlbums(prev => prev.map(a => a.id === albumModalId ? { ...a, name } : a))
+      const albumId = albumModalId
+      mediaMutation.run({
+        apply: () => {
+          setAlbums(prev => prev.map(a => a.id === albumId ? { ...a, name } : a))
+          setAlbumModalOpen(false)
+        },
+        revert: () => { setAlbums(snapshot); setAlbumModalOpen(true); setAlbumNameError(true) },
+        request: async () => {
+          const res = await fetch(`/api/events/${eventId}/media/albums/${albumId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name }),
+          })
+          if (res.status === 409) throw new Error('An album with this name already exists')
+          if (!res.ok) throw new Error('Failed to rename album')
+          return res.json()
+        },
+      })
     } else {
-      albumSeqRef.current++
-      setAlbums(prev => [...prev, { id: 'al-' + albumSeqRef.current, name, preset: false }])
+      const tempId = 'pending-' + Date.now()
+      mediaMutation.run<{ id: string }>({
+        apply: () => {
+          setAlbums(prev => [...prev, { id: tempId, name, preset: false }])
+          setAlbumModalOpen(false)
+        },
+        revert: () => { setAlbums(snapshot); setAlbumModalOpen(true); setAlbumNameError(true) },
+        request: async () => {
+          const res = await fetch(`/api/events/${eventId}/media/albums`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name }),
+          })
+          if (res.status === 409) throw new Error('An album with this name already exists')
+          if (!res.ok) throw new Error('Failed to create album')
+          const created = await res.json()
+          setAlbums(prev => prev.map(a => a.id === tempId ? { id: created.id, name, preset: false } : a))
+          return created
+        },
+      })
     }
-    setAlbumModalOpen(false)
   }
 
   function deleteAlbum(id: string) {
-    setAlbums(prev => prev.filter(a => a.id !== id))
-    setPhotos(prev => prev.map(p => ({ ...p, albumIds: p.albumIds.filter(aid => aid !== id) })))
-    setVideos(prev => prev.map(v => ({ ...v, albumIds: v.albumIds.filter(aid => aid !== id) })))
-    if (photoFilterAlbumId === id) setPhotoFilterAlbumId(null)
-    if (videoFilterAlbumId === id) setVideoFilterAlbumId(null)
+    const albumsSnapshot = albums
+    const photosSnapshot = photos
+    const videosSnapshot = videos
+    mediaMutation.run({
+      apply: () => {
+        setAlbums(prev => prev.filter(a => a.id !== id))
+        setPhotos(prev => prev.map(p => ({ ...p, albumIds: p.albumIds.filter(aid => aid !== id) })))
+        setVideos(prev => prev.map(v => ({ ...v, albumIds: v.albumIds.filter(aid => aid !== id) })))
+        if (photoFilterAlbumId === id) setPhotoFilterAlbumId(null)
+        if (videoFilterAlbumId === id) setVideoFilterAlbumId(null)
+      },
+      revert: () => { setAlbums(albumsSnapshot); setPhotos(photosSnapshot); setVideos(videosSnapshot) },
+      request: () => fetch(`/api/events/${eventId}/media/albums/${id}`, { method: 'DELETE' }).then((res) => {
+        if (!res.ok && res.status !== 204) throw new Error('Failed to delete album')
+      }),
+    })
   }
 
   function openAssign(mode: 'add' | 'remove', ids: string[], kind: 'photo' | 'video') {
@@ -415,30 +673,76 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
   function submitAssign() {
     const aids = Object.keys(assignChosen)
     if (!aids.length) return
-    if (assignKind === 'photo') {
-      setPhotos(prev => prev.map(p => {
-        if (!assignIds.includes(p.id)) return p
-        const next = p.albumIds.slice()
+    const photosSnapshot = photos
+    const videosSnapshot = videos
+
+    function applyLocally() {
+      const patch = (list: (Photo | Video)[]) => list.map((item) => {
+        if (!assignIds.includes(item.id)) return item
+        const next = item.albumIds.slice()
         aids.forEach(aid => {
           const i = next.indexOf(aid)
           if (assignMode === 'add' && i === -1) next.push(aid)
           if (assignMode === 'remove' && i !== -1) next.splice(i, 1)
         })
-        return { ...p, albumIds: next }
-      }))
-    } else {
-      setVideos(prev => prev.map(v => {
-        if (!assignIds.includes(v.id)) return v
-        const next = v.albumIds.slice()
-        aids.forEach(aid => {
-          const i = next.indexOf(aid)
-          if (assignMode === 'add' && i === -1) next.push(aid)
-          if (assignMode === 'remove' && i !== -1) next.splice(i, 1)
-        })
-        return { ...v, albumIds: next }
-      }))
+        return { ...item, albumIds: next }
+      })
+      if (assignKind === 'photo') setPhotos(prev => patch(prev) as Photo[])
+      else setVideos(prev => patch(prev) as Video[])
+      setAssignModalOpen(false)
     }
-    setAssignModalOpen(false)
+
+    mediaMutation.run<{ failed: string[] }>({
+      apply: applyLocally,
+      // Full-failure shell: if every id rejects, request() below throws and this
+      // revert() rolls everything back to the pre-assign snapshot + surfaces the
+      // error banner — same shell bulkDeletePhotos/bulkDeleteVideos use.
+      revert: () => { setPhotos(photosSnapshot); setVideos(videosSnapshot) },
+      request: async () => {
+        const settled = await Promise.allSettled(
+          assignIds.map((mediaId) =>
+            fetch(`/api/events/${eventId}/media/${mediaId}/albums`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ mode: assignMode, albumIds: aids }),
+            }).then((res) => {
+              if (!res.ok) throw new Error('Failed to update album assignment')
+            })
+          )
+        )
+        const failedIds = assignIds.filter((_, i) => settled[i].status === 'rejected')
+
+        if (failedIds.length === assignIds.length) {
+          // Every id failed — throw so mediaMutation.run's revert() above does
+          // the full rollback and the error banner surfaces, same as before.
+          throw new Error('Failed to update album assignment')
+        }
+
+        if (failedIds.length > 0) {
+          // Partial failure: PATCHes that already succeeded stay committed
+          // server-side, so only the specific failed ids' albumIds get reverted
+          // to their pre-assign snapshot value — mirroring bulkDeletePhotos/
+          // bulkDeleteVideos's established partial-failure reconciliation
+          // (batched endpoint returns {deleted, failed}, only failed ids are
+          // restored from the snapshot). request() doesn't throw here, so
+          // mediaMutation.error stays cleared — consistent with that pattern.
+          const failedSet = new Set(failedIds)
+          const revertFailedIds = (list: (Photo | Video)[], snapshot: (Photo | Video)[]) =>
+            list.map((item) => {
+              if (!failedSet.has(item.id)) return item
+              const original = snapshot.find((s) => s.id === item.id)
+              return original ? { ...item, albumIds: original.albumIds } : item
+            })
+          if (assignKind === 'photo') {
+            setPhotos((prev) => revertFailedIds(prev, photosSnapshot) as Photo[])
+          } else {
+            setVideos((prev) => revertFailedIds(prev, videosSnapshot) as Video[])
+          }
+        }
+
+        return { failed: failedIds }
+      },
+    })
   }
 
   function openFilterSheet(cfg: { title: string; sub?: string; options: FilterOption[]; onPick: (id: string | null) => void }) {
@@ -512,32 +816,104 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
   }
 
   function removePhoto(id: string) {
-    const next = photos.filter(p => p.id !== id)
-    if (coverId === id) setCoverId(next.length ? next.slice().sort((a, b) => b.uploadedAt - a.uploadedAt)[0].id : null)
-    setPhotos(next)
-    togglePhotoSelect(id, false)
-    setLightboxOpen(false); setRemovePhotoModalOpen(false)
+    const snapshot = photos
+    const snapshotCoverId = coverId
+    mediaMutation.run({
+      apply: () => {
+        const next = photos.filter(p => p.id !== id)
+        if (coverId === id) setCoverId(next.length ? next.slice().sort((a, b) => b.uploadedAt - a.uploadedAt)[0].id : null)
+        setPhotos(next)
+        togglePhotoSelect(id, false)
+        setLightboxOpen(false); setRemovePhotoModalOpen(false)
+      },
+      revert: () => { setPhotos(snapshot); setCoverId(snapshotCoverId) },
+      request: () => fetch(`/api/events/${eventId}/media/${id}`, { method: 'DELETE' }).then((res) => {
+        if (!res.ok && res.status !== 204) throw new Error('Failed to delete photo')
+        router.refresh()
+      }),
+    })
   }
 
   function removeVideo(id: string) {
-    setVideos(prev => prev.filter(v => v.id !== id))
-    toggleVideoSelect(id, false)
-    setVlightboxOpen(false)
+    const snapshot = videos
+    mediaMutation.run({
+      apply: () => {
+        setVideos(prev => prev.filter(v => v.id !== id))
+        toggleVideoSelect(id, false)
+        setVlightboxOpen(false)
+      },
+      revert: () => setVideos(snapshot),
+      request: () => fetch(`/api/events/${eventId}/media/${id}`, { method: 'DELETE' }).then((res) => {
+        if (!res.ok && res.status !== 204) throw new Error('Failed to delete video')
+        router.refresh()
+      }),
+    })
   }
 
   function bulkDeletePhotos() {
     const ids = Object.keys(photoSelected)
     if (!ids.length) return
-    const next = photos.filter(p => !ids.includes(p.id))
-    if (ids.includes(coverId ?? '')) setCoverId(next.length ? next.slice().sort((a, b) => b.uploadedAt - a.uploadedAt)[0].id : null)
-    setPhotos(next); setPhotoSelectMode(false); setPhotoSelected({}); setBulkDeleteModalOpen(false)
+    const snapshot = photos
+    const snapshotCoverId = coverId
+    mediaMutation.run<{ deleted: string[]; failed: { id: string; reason: string }[] }>({
+      apply: () => {
+        const next = photos.filter(p => !ids.includes(p.id))
+        if (ids.includes(coverId ?? '')) setCoverId(next.length ? next.slice().sort((a, b) => b.uploadedAt - a.uploadedAt)[0].id : null)
+        setPhotos(next); setPhotoSelectMode(false); setPhotoSelected({}); setBulkDeleteModalOpen(false)
+      },
+      revert: () => { setPhotos(snapshot); setCoverId(snapshotCoverId) },
+      request: async () => {
+        const res = await fetch(`/api/events/${eventId}/media/bulk-delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids }),
+        })
+        if (!res.ok) throw new Error('Failed to delete photos')
+        const result = await res.json()
+        // Selection clears entirely regardless of partial failure (spec §5 rule).
+        // Any failed ids are restored to the grid — the optimistic delete over-removed them.
+        if (result.failed.length > 0) {
+          const failedIds = new Set(result.failed.map((f: { id: string }) => f.id))
+          setPhotos((prev) => {
+            const restored = snapshot.filter((p) => failedIds.has(p.id))
+            return [...restored, ...prev]
+          })
+        }
+        router.refresh()
+        return result
+      },
+    })
   }
 
   function bulkDeleteVideos() {
     const ids = Object.keys(videoSelected)
     if (!ids.length) return
-    setVideos(prev => prev.filter(v => !ids.includes(v.id)))
-    setVideoSelectMode(false); setVideoSelected({}); setBulkDeleteModalOpen(false)
+    const snapshot = videos
+    mediaMutation.run<{ deleted: string[]; failed: { id: string; reason: string }[] }>({
+      apply: () => {
+        setVideos(prev => prev.filter(v => !ids.includes(v.id)))
+        setVideoSelectMode(false); setVideoSelected({}); setBulkDeleteModalOpen(false)
+      },
+      revert: () => setVideos(snapshot),
+      request: async () => {
+        const res = await fetch(`/api/events/${eventId}/media/bulk-delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids }),
+        })
+        if (!res.ok) throw new Error('Failed to delete videos')
+        const result = await res.json()
+        if (result.failed.length > 0) {
+          const failedIds = new Set(result.failed.map((f: { id: string }) => f.id))
+          setVideos((prev) => {
+            const restored = snapshot.filter((v) => failedIds.has(v.id))
+            return [...restored, ...prev]
+          })
+        }
+        router.refresh()
+        return result
+      },
+    })
   }
 
   function openAlbum(albumId: string) {
@@ -575,6 +951,13 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
         <h1 className="section-head-title">Media &amp; Memories</h1>
         <p className="section-head-sub">Upload, organize, and relive every moment from your celebration.</p>
       </header>
+
+      {mediaMutation.error && (
+        <div className="media-error-banner" role="alert">
+          {mediaMutation.error}
+          <button type="button" onClick={mediaMutation.clearError} aria-label="Dismiss">×</button>
+        </div>
+      )}
 
       {/* Storage meter */}
       <section
@@ -664,8 +1047,32 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
             <span className="dp-dropzone-hint" id="md-dropzone-hint">JPG, PNG, HEIC · up to 10 MB each</span>
           </button>
           <label className="sr-only" htmlFor="md-file-input">Choose photos to upload</label>
-          <input type="file" id="md-file-input" className="media-file-input" multiple accept="image/jpeg,image/png,image/heic" onChange={() => {}} />
-          <ul className="media-upload-progress" role="list" aria-live="polite" />
+          <input
+            type="file"
+            id="md-file-input"
+            className="media-file-input"
+            multiple
+            accept="image/jpeg,image/png,image/heic"
+            onChange={(e) => { if (e.target.files?.length) handleFilesPicked(e.target.files, 'photo'); e.target.value = '' }}
+          />
+          <ul className="media-upload-progress" role="list">
+            {uploadItems.filter((item) => item.kind === 'photo').map((item) => (
+              <li key={item.id} className={`media-upload-item media-upload-item--${item.status}`}>
+                <span className="media-upload-item-name">{item.file.name}</span>
+                {item.status !== 'failed' && item.status !== 'committed' && (
+                  <span className="media-upload-item-pct" aria-hidden="true">{item.progress}%</span>
+                )}
+                <span className="sr-only" aria-live="polite">
+                  {item.status === 'uploading' && item.progress === 0 ? 'Upload started' : ''}
+                  {item.status === 'committed' ? 'Upload complete' : ''}
+                  {item.status === 'failed' ? `Upload failed: ${item.error}` : ''}
+                </span>
+                {item.status === 'failed' && (
+                  <button type="button" className="media-upload-item-retry" onClick={() => retryUpload(item.id)}>Retry</button>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="media-recent" aria-labelledby="md-recent-h">
@@ -681,7 +1088,8 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
                     <PhotoTile photo={p} selected={!!photoSelected[p.id]} isCover={p.id === coverId}
                       selectMode={photoSelectMode} withActions
                       onOpen={openPhotoLightbox} onSelect={togglePhotoSelect}
-                      onAssignOne={(id) => openAssign('add', [id], 'photo')} />
+                      onAssignOne={(id) => openAssign('add', [id], 'photo')}
+                      resolveSrc={resolveThumbSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
                   </li>
                 ))}
               </ul>
@@ -756,7 +1164,8 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
               <PhotoTile key={p.id} photo={p} selected={!!photoSelected[p.id]} isCover={p.id === coverId}
                 selectMode={photoSelectMode} withActions={false}
                 onOpen={openPhotoLightbox} onSelect={togglePhotoSelect}
-                onAssignOne={(id) => openAssign('add', [id], 'photo')} />
+                onAssignOne={(id) => openAssign('add', [id], 'photo')}
+                resolveSrc={resolveThumbSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
             ))}
           </div>
           {photoIsEmpty && (
@@ -787,7 +1196,7 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
               const ap = albumPhotos(a.id).sort((x, y) => y.uploadedAt - x.uploadedAt)
               const av = albumVideos(a.id).sort((x, y) => y.uploadedAt - x.uploadedAt)
               const np = ap.length, nv = av.length
-              const coverSrc = np ? ap[0].src : av[0]?.poster ?? ''
+              const coverItem: Photo | Video | undefined = np ? ap[0] : av[0]
               const label = albumCountLabel(np, nv)
               return (
                 <article key={a.id} className="dp-tile album-card" data-album-id={a.id}>
@@ -796,7 +1205,12 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
                           onClick={() => openAlbum(a.id)} />
                   <div>
                     <span className="dp-tile-thumb">
-                      <img src={coverSrc} alt="" loading="lazy" />
+                      <img
+                        src={coverItem ? resolveThumbSrc(coverItem) : ''}
+                        alt=""
+                        loading="lazy"
+                        onError={() => { if (coverItem && urlCache[coverItem.id]) refetchSingleUrl(coverItem.id) }}
+                      />
                       {!np && nv > 0 && (
                         <span className="media-vplay-badge"><span className="material-symbols-outlined">play_arrow</span></span>
                       )}
@@ -842,8 +1256,32 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
             <span className="dp-dropzone-hint" id="md-vdropzone-hint">MP4, MOV · up to 200 MB each</span>
           </button>
           <label className="sr-only" htmlFor="md-vfile-input">Choose videos to upload</label>
-          <input type="file" id="md-vfile-input" className="media-file-input" multiple accept="video/mp4,video/quicktime" onChange={() => {}} />
-          <ul className="media-upload-progress" role="list" aria-live="polite" />
+          <input
+            type="file"
+            id="md-vfile-input"
+            className="media-file-input"
+            multiple
+            accept="video/mp4,video/quicktime"
+            onChange={(e) => { if (e.target.files?.length) handleFilesPicked(e.target.files, 'video'); e.target.value = '' }}
+          />
+          <ul className="media-upload-progress" role="list">
+            {uploadItems.filter((item) => item.kind === 'video').map((item) => (
+              <li key={item.id} className={`media-upload-item media-upload-item--${item.status}`}>
+                <span className="media-upload-item-name">{item.file.name}</span>
+                {item.status !== 'failed' && item.status !== 'committed' && (
+                  <span className="media-upload-item-pct" aria-hidden="true">{item.progress}%</span>
+                )}
+                <span className="sr-only" aria-live="polite">
+                  {item.status === 'uploading' && item.progress === 0 ? 'Upload started' : ''}
+                  {item.status === 'committed' ? 'Upload complete' : ''}
+                  {item.status === 'failed' ? `Upload failed: ${item.error}` : ''}
+                </span>
+                {item.status === 'failed' && (
+                  <button type="button" className="media-upload-item-retry" onClick={() => retryUpload(item.id)}>Retry</button>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="media-recent" aria-labelledby="md-vrecent-h">
@@ -858,7 +1296,8 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
                   <li key={v.id}>
                     <VideoTile video={v} selected={!!videoSelected[v.id]} selectMode={videoSelectMode} withActions
                       onOpen={openVideoLightbox} onSelect={toggleVideoSelect}
-                      onAssignOne={(id) => openAssign('add', [id], 'video')} />
+                      onAssignOne={(id) => openAssign('add', [id], 'video')}
+                      resolveSrc={resolveThumbSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
                   </li>
                 ))}
               </ul>
@@ -933,7 +1372,8 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
               <VideoTile key={v.id} video={v} selected={!!videoSelected[v.id]}
                 selectMode={videoSelectMode} withActions={false}
                 onOpen={openVideoLightbox} onSelect={toggleVideoSelect}
-                onAssignOne={(id) => openAssign('add', [id], 'video')} />
+                onAssignOne={(id) => openAssign('add', [id], 'video')}
+                resolveSrc={resolveThumbSrc} urlCache={urlCache} refetchSingleUrl={refetchSingleUrl} />
             ))}
           </div>
           {videoIsEmpty && (
@@ -1216,7 +1656,12 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
           </button>
           {lbPhoto && (
             <>
-              <img className="modal-lightbox-img" src={lbPhoto.src} alt={lbPhoto.name} />
+              <img
+                className="modal-lightbox-img"
+                src={resolveSrc(lbPhoto)}
+                alt={lbPhoto.name}
+                onError={() => { if (urlCache[lbPhoto.id]) refetchSingleUrl(lbPhoto.id) }}
+              />
               <div className="modal-lightbox-nav">
                 <button type="button" className="modal-lightbox-nav-btn modal-lightbox-nav-prev"
                         aria-label="Previous photo" disabled={lbIndex <= 0}
@@ -1262,7 +1707,12 @@ export function MediaClient({ eventName: _eventName }: { eventName: string }) {
           {vLbVideo && (
             <>
               <div className="media-vplayer">
-                <img className="modal-lightbox-img" src={vLbVideo.poster} alt={vLbVideo.name} />
+                <img
+                  className="modal-lightbox-img"
+                  src={resolveThumbSrc(vLbVideo)}
+                  alt={vLbVideo.name}
+                  onError={() => { if (urlCache[vLbVideo.id]) refetchSingleUrl(vLbVideo.id) }}
+                />
                 <button type="button" className="media-vplay" aria-label="Play video">
                   <span aria-hidden="true" className="material-symbols-outlined">play_arrow</span>
                 </button>

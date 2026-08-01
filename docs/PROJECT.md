@@ -201,7 +201,7 @@ Later: vendors can list services, hosts can discover and book vendors, and the p
 - Expense logging with categories
 - Category breakdown view
 
-**Current Status:** Not started. Planning Tools dashboard designed in Stitch.
+**Current Status:** DONE (2026-07-30) — full CRUD, budget tracking, expense logging with custom types, and bulk actions all live and backend-wired at `app/events/[id]/planning`. See `CLAUDE.md` MVP Phase 1 table.
 
 **Design:** Stitch shows checklist section, budget overview ($5,000 / $8,234 / $65,234), and timeline view.
 
