@@ -1009,7 +1009,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
             onChange={(e) => { if (e.target.files?.length) handleFilesPicked(e.target.files, 'photo'); e.target.value = '' }}
           />
           <ul className="media-upload-progress" role="list">
-            {uploadItems.map((item) => (
+            {uploadItems.filter((item) => item.kind === 'photo').map((item) => (
               <li key={item.id} className={`media-upload-item media-upload-item--${item.status}`}>
                 <span className="media-upload-item-name">{item.file.name}</span>
                 {item.status !== 'failed' && item.status !== 'committed' && (
@@ -1217,7 +1217,24 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
             accept="video/mp4,video/quicktime"
             onChange={(e) => { if (e.target.files?.length) handleFilesPicked(e.target.files, 'video'); e.target.value = '' }}
           />
-          <ul className="media-upload-progress" role="list" aria-live="polite" />
+          <ul className="media-upload-progress" role="list">
+            {uploadItems.filter((item) => item.kind === 'video').map((item) => (
+              <li key={item.id} className={`media-upload-item media-upload-item--${item.status}`}>
+                <span className="media-upload-item-name">{item.file.name}</span>
+                {item.status !== 'failed' && item.status !== 'committed' && (
+                  <span className="media-upload-item-pct" aria-hidden="true">{item.progress}%</span>
+                )}
+                <span className="sr-only" aria-live="polite">
+                  {item.status === 'uploading' && item.progress === 0 ? 'Upload started' : ''}
+                  {item.status === 'committed' ? 'Upload complete' : ''}
+                  {item.status === 'failed' ? `Upload failed: ${item.error}` : ''}
+                </span>
+                {item.status === 'failed' && (
+                  <button type="button" className="media-upload-item-retry" onClick={() => retryUpload(item.id)}>Retry</button>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="media-recent" aria-labelledby="md-vrecent-h">
