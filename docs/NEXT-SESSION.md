@@ -4,7 +4,33 @@
 
 ---
 
-## ▶ START HERE NEXT — Digital Presence pushed by Dheeraj; 4 bugs open pending his self-verification (2026-08-02, session c)
+## ▶ START HERE NEXT — Manual bug-fix pass (V0 readiness audit → live testing); 6 bugs fixed, verify on server (2026-08-03)
+
+Session report: [`docs/session-reports/2026-08-03-session-report.md`](session-reports/2026-08-03-session-report.md)
+
+**What happened:** Built a V0 readiness audit + deep wiring audit (104 findings, 12 features) and published it as an interactive artifact (`https://claude.ai/code/artifact/9e517318-3fcc-4e8c-bbf3-f57d08f8fbf0`). Abhijith then manually tested the live app and pasted 7 bugs found along the way; established a new working pattern going forward — **paste bugs → collate → plan fix order together → fix** (not auto-fix on drop). Fixed 4 code bugs + diagnosed and fixed 2 Cloudflare R2 infra misconfigurations (not code): sub-event roadmap ordering, a mislabeled "Planning progress" stat, cover-photo/avatar 400s (R2 public bucket never had public access enabled), and live-only media-upload CORS 403s (R2 private bucket's CORS policy was missing the prod origin). All fixes verified locally (curl + browser) before push. Committed `e83052d` on `Dev-Vibe`, merged clean into `Dev-Vibe-Testing` (`edd0e7a`).
+
+**What's NOT done:**
+1. **Live verification on `evenzi.vercel.app`** — none of today's fixes have been confirmed on the actual production deploy yet, only locally. Sub-event ordering specifically needs a *new* test event to observe (existing events keep their old stored order).
+2. **Confirm the Vercel `R2_PUBLIC_BASE_URL` prod env var save round-tripped** through an actual deploy — only verified in Cloudflare + locally so far.
+3. Abhijith's manual testing pass is ongoing — more bugs likely incoming, follow the collate-then-plan-then-fix pattern.
+4. The effort/complexity estimate for the 104 deep-audit findings exists in chat only — fold into the artifact if wanted.
+
+### Paste this to start — verify today's fixes live
+
+```
+Verify the 6 bugs fixed in the 2026-08-03 session are live on
+evenzi.vercel.app: sub-event roadmap order (create a NEW test event to
+observe — existing events keep old order), "Setup progress" label,
+ticket-sales/discoverable toggles gone from Event Settings, Free plan
+tile gone from billing, cover photo/avatar upload, and Media & Memories
+upload. See docs/session-reports/2026-08-03-session-report.md for the
+full root-cause breakdown per bug.
+```
+
+---
+
+## ▶ PAST — Digital Presence pushed by Dheeraj; 4 bugs open pending his self-verification (2026-08-02, session c)
 
 Session report: [`docs/session-reports/2026-08-02b-session-report.md`](session-reports/2026-08-02b-session-report.md)
 
