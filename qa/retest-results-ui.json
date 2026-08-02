@@ -1,0 +1,30 @@
+{
+  "story": {
+    "status": 201,
+    "body": "{\"block\":{\"id\":\"c5519baf-a248-4511-8a64-7c418de6d41d\",\"block_type\":\"heading\",\"heading\":null,\"body\":null,\"photo_key\":null,\"twocol\":false,\"is_visible\":true,\"display_order\":1}}",
+    "payload": {
+      "block_type": "heading",
+      "display_order": 1
+    }
+  },
+  "schedule": {
+    "status": 200,
+    "body": "{\"id\":\"b299a110-1b05-4a22-9130-9d35d0a3ccb0\",\"show_on_website\":false}",
+    "payload": {
+      "show_on_website": false
+    }
+  },
+  "qa": {
+    "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('input[placeholder=\"What\\'s the dress code?\"]')\n"
+  },
+  "stays": {
+    "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('input[placeholder=\"Indira Gandhi Airport\"]')\n"
+  },
+  "design": {
+    "status": 200,
+    "body": "{\"success\":true}",
+    "payload": {
+      "template_id": "ec8a6b2d-063c-44d1-853a-6a26c42d08b4"
+    }
+  }
+}

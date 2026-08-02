@@ -1,0 +1,30 @@
+{
+  "story": {
+    "status": 201,
+    "body": "{\"block\":{\"id\":\"02bcca36-c605-46b7-a67e-85b822e0bfce\",\"block_type\":\"heading\",\"heading\":\"Our Story\",\"body\":null,\"photo_key\":null,\"twocol\":false,\"is_visible\":true,\"display_order\":0}}"
+  },
+  "schedule": {
+    "status": 200,
+    "body": "{\"id\":\"b299a110-1b05-4a22-9130-9d35d0a3ccb0\",\"show_on_website\":true}"
+  },
+  "qa": {
+    "status": 201,
+    "body": "{\"item\":{\"id\":\"160ff4b3-b1b6-487a-9d36-14d084a5aa90\",\"question\":\"Q?\",\"answer\":\"A!\",\"is_visible\":true,\"display_order\":0}}"
+  },
+  "stays": {
+    "status": 201,
+    "body": "{\"stay\":{\"id\":\"5d1b04e5-09ac-4a9d-b768-9f15fe068d6d\",\"name\":\"Hotel Test\",\"address\":null,\"phone\":null,\"price_band\":\"mid\",\"distance_text\":null,\"map_link\":null,\"booking_url\":null,\"note\":null,\"display_order\":0}}"
+  },
+  "travelPoint": {
+    "status": 201,
+    "body": "{\"point\":{\"id\":\"59739a3b-0b17-4163-ba33-29eb3093990a\",\"kind\":\"airport\",\"name\":\"Airport\",\"distance_text\":\"10km\",\"travel_time_text\":null,\"map_link\":\"https://maps.google.com\",\"note\":\"Terminal 1\",\"display_order\":0}}"
+  },
+  "design": {
+    "status": 500,
+    "body": "{\"error\":\"Failed to save design\"}"
+  },
+  "lookup": {
+    "status": 200,
+    "body": "{\"success\":true}"
+  }
+}
