@@ -11,6 +11,8 @@
 @import "../designs/pages/event-settings/event-settings.css";
 @import "../designs/pages/guests/guests.css";
 @import "../designs/pages/settings/settings.css";
+@import "../designs/pages/website/website.css";
+@import "../designs/pages/website/edit-page.css";
 
 :root {
   /* Brand colors — placeholder values, see docs/BRAND-GUIDELINES.md */
