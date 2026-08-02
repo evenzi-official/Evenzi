@@ -335,7 +335,7 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 - Phone auth is configured for India region (+91 prefix)
 - The `ai/` directory contains agent and pipeline definitions used as knowledge base for Claude Code sessions
 - AMC dashboard code is parked on `Dev-AMC` branch — will be revived as a general-purpose pipeline monitor
-- Vercel deployments are currently in ERROR state (pre-existing issue)
+- Vercel deployments are healthy — latest prod deploy is `READY` (verified 2026-08-02 via Vercel MCP)
 
 ### MVP Phase 1 — In Progress
 
