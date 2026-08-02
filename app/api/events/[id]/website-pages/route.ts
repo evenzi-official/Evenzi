@@ -7,8 +7,8 @@ const uuidSchema = z.string().uuid()
 type ConfigPage = {
   id: string
   slug: string
-  label: string
-  icon: string | null
+  name: string
+  icon_name: string | null
   tier: string
   display_order: number
 }
@@ -55,7 +55,7 @@ export async function GET(
       supabase
         .schema('config')
         .from('website_pages')
-        .select('id, slug, label, icon, tier, display_order') as unknown as Promise<{ data: ConfigPage[] | null; error: unknown }>,
+        .select('id, slug, name, icon_name, tier, display_order') as unknown as Promise<{ data: ConfigPage[] | null; error: unknown }>,
     ])
 
     if (pagesResult.error) {
@@ -74,8 +74,8 @@ export async function GET(
         id: p.id,
         page_id: p.page_id,
         slug: cfg?.slug ?? p.page_id,
-        label: p.custom_title ?? cfg?.label ?? 'Page',
-        icon: cfg?.icon ?? 'web',
+        label: p.custom_title ?? cfg?.name ?? 'Page',
+        icon: cfg?.icon_name ?? 'web',
         tier: cfg?.tier ?? 'public',
         is_visible: p.is_visible,
         custom_title: p.custom_title,

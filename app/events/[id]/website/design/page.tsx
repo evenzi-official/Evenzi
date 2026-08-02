@@ -35,11 +35,21 @@ export default async function WebsiteDesignPage({ params }: Params) {
 
   const eventName = event.name ?? 'Your Event'
 
-  const { data: design } = await supabase
-    .from('event_website_design')
-    .select('template_id, palette_id, heading_font_id, body_font_id')
-    .eq('event_id', id)
-    .maybeSingle()
+  const [designResult, cinematicResult] = await Promise.all([
+    supabase
+      .from('event_website_design')
+      .select('template_id, palette_id, heading_font_id, body_font_id')
+      .eq('event_id', id)
+      .maybeSingle(),
+    supabase
+      .schema('config')
+      .from('website_templates')
+      .select('id')
+      .eq('slug', 'cinematic-scroll')
+      .maybeSingle() as unknown as Promise<{ data: { id: string } | null; error: unknown }>,
+  ])
+  const design = designResult.data
+  const cinematicTemplateId = (cinematicResult.data as { id: string } | null)?.id ?? null
 
   return (
     <div data-page="website-design">
@@ -99,6 +109,7 @@ export default async function WebsiteDesignPage({ params }: Params) {
           <WebsiteDesignClient
             eventId={id}
             initialDesign={design ?? null}
+            cinematicTemplateId={cinematicTemplateId}
             fakeThemes={FAKE_THEMES}
             cinematicCard={
               <Link

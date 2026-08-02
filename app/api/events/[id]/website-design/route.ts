@@ -5,7 +5,7 @@ import { z } from 'zod'
 const uuidSchema = z.string().uuid()
 
 const patchSchema = z.object({
-  template_id:     z.string().uuid().nullable().optional(),
+  template_id:     z.string().max(100).nullable().optional(),
   palette_id:      z.string().uuid().nullable().optional(),
   heading_font_id: z.string().uuid().nullable().optional(),
   body_font_id:    z.string().uuid().nullable().optional(),

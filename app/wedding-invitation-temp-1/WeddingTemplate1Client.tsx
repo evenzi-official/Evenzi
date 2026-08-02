@@ -9,9 +9,32 @@ interface EventData {
   event_details: Record<string, string> | null;
 }
 
+type ContentBlock = {
+  id: string;
+  block_type: 'heading' | 'text' | 'photo';
+  heading: string | null;
+  body: string | null;
+  photo_key: string | null;
+  twocol: boolean;
+  display_order: number;
+};
+
+type WebsitePage = {
+  name: string;
+  slug: string;
+  tier: string;
+  content: ContentBlock[];
+  page_id: string;
+  display_order: number;
+};
+
 interface Props {
   event: EventData | null;
   eventId: string | null;
+  pages?: WebsitePage[];
+  isIdentified?: boolean;
+  guestName?: string | null;
+  slug?: string | null;
 }
 
 function formatLongDate(iso: string | null): string {
@@ -31,7 +54,7 @@ function rsvpDeadline(iso: string | null): string {
   return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-function buildBeats(event: EventData | null) {
+function buildBeats(event: EventData | null, pages: WebsitePage[] = []) {
   const meta = event?.event_details ?? {};
   const partner1 = meta.partner1_name ?? meta.bride_name ?? null;
   const partner2 = meta.partner2_name ?? meta.groom_name ?? null;
@@ -40,7 +63,7 @@ function buildBeats(event: EventData | null) {
       ? `${partner1} & ${partner2}`
       : event?.name ?? 'Our Wedding';
 
-  return [
+  const coreBeats = [
     {
       label: 'Together Forever',
       heading: coupleHeading,
@@ -66,6 +89,22 @@ function buildBeats(event: EventData | null) {
       isRsvp: true,
     },
   ];
+
+  const pageBeats = pages
+    .filter(p => p.slug !== 'home')
+    .map(page => {
+      const blocks = page.content.slice().sort((a, b) => a.display_order - b.display_order);
+      const headingBlock = blocks.find(b => b.heading);
+      const bodyBlock = blocks.find(b => b.body);
+      return {
+        label: page.name,
+        heading: headingBlock?.heading ?? page.name,
+        sub: bodyBlock?.body ?? (blocks.length === 0 ? 'Content coming soon.' : ''),
+        isRsvp: false,
+      };
+    });
+
+  return [...coreBeats, ...pageBeats];
 }
 
 const BEAT_VH = 75;
@@ -107,8 +146,9 @@ const inputStyle: React.CSSProperties = {
   boxSizing: 'border-box',
 };
 
-export default function WeddingTemplate1Client({ event, eventId }: Props) {
-  const BEATS = buildBeats(event);
+export default function WeddingTemplate1Client({ event, eventId, pages, isIdentified, guestName: identifiedGuestName, slug }: Props) {
+  const contentPages = (pages ?? []).filter(p => p.slug !== 'home');
+  const BEATS = buildBeats(event, contentPages);
   const DETAILS_VH = BEATS.length * BEAT_VH;
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -531,6 +571,7 @@ export default function WeddingTemplate1Client({ event, eventId }: Props) {
           )}
         </div>
       </div>
+
     </React.Fragment>
   );
 }

@@ -11,8 +11,8 @@ interface Params { params: Promise<{ id: string }> }
 type ConfigPage = {
   id: string
   slug: string
-  label: string
-  icon: string | null
+  name: string
+  icon_name: string | null
   tier: string
   display_order: number
 }
@@ -44,7 +44,7 @@ export default async function EditPagesPage({ params }: Params) {
     supabase
       .schema('config')
       .from('website_pages')
-      .select('id, slug, label, icon, tier, display_order') as unknown as Promise<{ data: ConfigPage[] | null; error: unknown }>,
+      .select('id, slug, name, icon_name, tier, display_order') as unknown as Promise<{ data: ConfigPage[] | null; error: unknown }>,
   ])
 
   const configMap = new Map<string, ConfigPage>()
@@ -52,20 +52,38 @@ export default async function EditPagesPage({ params }: Params) {
     for (const p of configResult.data) configMap.set(p.id, p)
   }
 
-  const pages = (pagesResult.data ?? []).map((p) => {
+  const toPageShape = (p: { id: string; page_id: string; is_visible: boolean; custom_title: string | null; display_order: number }) => {
     const cfg = configMap.get(p.page_id)
     return {
       id: p.id,
       page_id: p.page_id,
       slug: cfg?.slug ?? p.page_id,
-      label: p.custom_title ?? cfg?.label ?? 'Page',
-      icon: cfg?.icon ?? 'web',
+      label: p.custom_title ?? cfg?.name ?? 'Page',
+      icon: cfg?.icon_name ?? 'web',
       tier: cfg?.tier ?? 'public',
       is_visible: p.is_visible,
       custom_title: p.custom_title,
       display_order: p.display_order,
     }
-  })
+  }
+
+  let pages = (pagesResult.data ?? []).map(toPageShape)
+
+  // First-visit auto-seed: insert one row per config page if none exist yet
+  if (pages.length === 0 && configResult.data && configResult.data.length > 0) {
+    const { data: seeded } = await supabase
+      .from('event_website_pages')
+      .insert(
+        configResult.data.map((cfg) => ({
+          event_id: id,
+          page_id: cfg.id,
+          is_visible: true,
+          display_order: cfg.display_order,
+        }))
+      )
+      .select('id, page_id, is_visible, custom_title, display_order')
+    if (seeded) pages = seeded.map(toPageShape)
+  }
 
   return (
     <div data-page="website-edit-pages">

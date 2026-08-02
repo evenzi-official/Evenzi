@@ -17,8 +17,8 @@ interface Params { params: Promise<{ id: string; pageId: string }> }
 type ConfigPage = {
   id: string
   slug: string
-  label: string
-  icon: string | null
+  name: string
+  icon_name: string | null
   tier: string
 }
 
@@ -48,7 +48,7 @@ export default async function PageEditor({ params }: Params) {
     supabase
       .schema('config')
       .from('website_pages')
-      .select('id, slug, label, icon, tier') as unknown as Promise<{ data: ConfigPage[] | null; error: unknown }>,
+      .select('id, slug, name, icon_name, tier') as unknown as Promise<{ data: ConfigPage[] | null; error: unknown }>,
   ])
 
   const configMap = new Map<string, ConfigPage>()
@@ -64,7 +64,7 @@ export default async function PageEditor({ params }: Params) {
   if (!pageRow) redirect(`/events/${id}/website/edit`)
 
   const cfg = configMap.get(pageRow.page_id)
-  const pageLabel = pageRow.custom_title ?? cfg?.label ?? pageId
+  const pageLabel = pageRow.custom_title ?? cfg?.name ?? pageId
   const pageStatus: 'live' | 'draft' = pageRow.is_visible ? 'live' : 'draft'
 
   let infoCard: React.ReactNode = null
