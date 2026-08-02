@@ -1,9 +1,14 @@
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
+import { createClient } from '@/lib/supabase/server'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { PageFooter } from '@/components/layout/PageFooter'
+import WebsiteDesignClient from './WebsiteDesignClient'
 
 interface Params { params: Promise<{ id: string }> }
 
-const THEMES = [
+const FAKE_THEMES = [
   { id: 'classic',   label: 'Classic',   preview: 'bg-gradient-to-br from-rose-50 to-pink-100' },
   { id: 'modern',    label: 'Modern',    preview: 'bg-gradient-to-br from-slate-100 to-slate-200' },
   { id: 'garden',    label: 'Garden',    preview: 'bg-gradient-to-br from-green-50 to-emerald-100' },
@@ -14,10 +19,40 @@ const THEMES = [
 
 export default async function WebsiteDesignPage({ params }: Params) {
   const { id } = await params
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth')
+
+  const { data: event } = await supabase
+    .from('events')
+    .select('id, name')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .is('deleted_at', null)
+    .single()
+  if (!event) redirect('/home')
+
+  const eventName = event.name ?? 'Your Event'
+
+  const { data: design } = await supabase
+    .from('event_website_design')
+    .select('template_id, palette_id, heading_font_id, body_font_id')
+    .eq('event_id', id)
+    .maybeSingle()
 
   return (
     <div data-page="website-design">
-      {/* Website sub-nav (reused across all website pages) */}
+      <Breadcrumb
+        items={[
+          { label: 'DASHBOARD', href: '/home' },
+          { label: eventName.toUpperCase(), href: `/events/${id}` },
+          { label: 'WEBSITE', href: `/events/${id}/website` },
+          { label: 'DESIGN' },
+        ]}
+        backHref={`/events/${id}/website`}
+      />
+
       <div className="bc-wrap reveal">
         <div className="seg-wrap seg-wrap--page">
           <nav className="seg" aria-label="Website sections">
@@ -53,26 +88,41 @@ export default async function WebsiteDesignPage({ params }: Params) {
               <p className="text-xs font-display font-bold tracking-[0.35em] text-brand mb-1">LOOK &amp; FEEL</p>
               <h2 className="font-display font-bold text-xl text-ink">Choose a theme</h2>
             </div>
-            <button type="button" className="btn-pill btn-pill-primary">
-              Apply
-              <span aria-hidden="true" className="btn-pill-spinner" />
-            </button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {THEMES.map((theme, i) => (
-              <button key={theme.id} type="button" className={`group relative rounded-3xl overflow-hidden aspect-video cursor-pointer border-2 transition-all ${i === 0 ? 'border-brand' : 'border-transparent hover:border-brand/30'}`}>
-                <div className={`w-full h-full ${theme.preview}`} />
+
+          {/* Coming-soon banner for real catalog */}
+          <div className="mb-5 flex items-center gap-3 p-3 rounded-2xl bg-brand-tint border border-brand/20">
+            <span className="material-symbols-outlined text-brand" aria-hidden="true">auto_awesome</span>
+            <p className="text-xs font-display font-semibold text-brand">More premium themes coming soon — the one below is live now.</p>
+          </div>
+
+          <WebsiteDesignClient
+            eventId={id}
+            initialDesign={design ?? null}
+            fakeThemes={FAKE_THEMES}
+            cinematicCard={
+              <Link
+                href={`/wedding-invitation-temp-1?eventId=${id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative rounded-3xl overflow-hidden aspect-video cursor-pointer border-2 border-transparent hover:border-brand/30 block"
+              >
+                <Image
+                  src="/wedding-frames/ezgif-frame-001.jpg"
+                  alt="Cinematic Scroll"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                />
                 <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/40 to-transparent">
-                  <p className="font-display font-bold text-xs text-white">{theme.label}</p>
+                  <p className="font-display font-bold text-xs text-white">Cinematic Scroll</p>
                 </div>
-                {i === 0 && (
-                  <span className="absolute top-2 right-2 w-6 h-6 rounded-full bg-brand flex items-center justify-center">
-                    <span aria-hidden="true" className="material-symbols-outlined text-white" style={{ fontSize: 14 }}>check</span>
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+                <div className="absolute top-2 right-2">
+                  <span className="bg-brand text-white text-[10px] font-display font-bold px-2 py-0.5 rounded-full">LIVE</span>
+                </div>
+              </Link>
+            }
+          />
         </section>
 
         {/* Font picker */}
