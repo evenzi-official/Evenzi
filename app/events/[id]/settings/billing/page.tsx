@@ -93,7 +93,7 @@ export default async function BillingSettingsPage({ params }: { params: Promise<
             <p className="es-section-sub">All prices are per-event. No recurring charges.</p>
           </header>
           <div className="es-plans-grid">
-            {plans.map((plan) => {
+            {plans.filter((plan) => plan.slug !== 'free').map((plan) => {
               const isCurrent = plan.id === ev.plan_id
               const isFeatured = plan.slug === 'elite'
               return (

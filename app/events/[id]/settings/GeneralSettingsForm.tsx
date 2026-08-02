@@ -44,7 +44,6 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
   const [tagline, setTagline] = useState(event.tagline ?? '')
 
   const [showOnDashboard, setShowOnDashboard] = useState(event.showOnDashboard)
-  const [allowTicketSales, setAllowTicketSales] = useState(false)
   const [discoverable, setDiscoverable] = useState(event.discoverable)
 
   const [saving, setSaving] = useState(false)
@@ -311,40 +310,6 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
               aria-checked={showOnDashboard}
               aria-label="Show this event on my dashboard"
               onClick={() => setShowOnDashboard(v => !v)}
-            >
-              <span className="toggle-switch-thumb" aria-hidden="true" />
-            </button>
-          </div>
-
-          <div className="es-toggle-row">
-            <div className="es-toggle-body">
-              <span className="es-toggle-title">Allow ticket sales</span>
-              <span className="es-toggle-desc">Enable paid tickets and an integrated checkout on the public site.</span>
-            </div>
-            <button
-              type="button"
-              className="toggle-switch"
-              role="switch"
-              aria-checked={allowTicketSales}
-              aria-label="Allow ticket sales"
-              onClick={() => setAllowTicketSales(v => !v)}
-            >
-              <span className="toggle-switch-thumb" aria-hidden="true" />
-            </button>
-          </div>
-
-          <div className="es-toggle-row">
-            <div className="es-toggle-body">
-              <span className="es-toggle-title">Discoverable in Evenzi search</span>
-              <span className="es-toggle-desc">Let friends find your public page when they search Evenzi by name.</span>
-            </div>
-            <button
-              type="button"
-              className="toggle-switch"
-              role="switch"
-              aria-checked={discoverable}
-              aria-label="Discoverable in Evenzi search"
-              onClick={() => setDiscoverable(v => !v)}
             >
               <span className="toggle-switch-thumb" aria-hidden="true" />
             </button>
