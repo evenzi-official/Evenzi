@@ -57,3 +57,8 @@ next-env.d.ts
 # Template intake — theme mirrors + Lovable build (large, non-app; inspection only)
 /sandbox/
 designs/pages/website/guest-site/sapphire-mivon/assets/imgs/works/w4.mp4
+
+# Antigravity/manual QA test fixtures (scratch inputs, not deliverables)
+/test_media/
+/qa/test_files/
+/qa/large.mp4
