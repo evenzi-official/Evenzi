@@ -1,17 +1,33 @@
-# Sprint 1 — Dheeraj digest (generated 2026-08-01 08:20)
+# Sprint 1 — Dheeraj digest (generated 2026-08-02 — via ClickUp API)
 
-**Note:** the Active Sprint ClickUp list is currently inaccessible to the MCP connector (stale ID) — this digest is built from a broader tag fetch and may be missing some active-sprint-only context until that's fixed.
+## In progress (ClickUp status — see note below, some are stale)
+- Backend Dev: Event - Edit & Delete (86d2k1nxe) — urgent
+- Frontend Dev: Event - Edit & Delete (86d2k1nx7) — urgent
+- Backend Dev: Event Hub - Quick Actions (86d2k1nu1) — urgent
+- Frontend Dev: Event Hub - Quick Actions (86d2k1ntq) — urgent
+- Backend Dev: Event Hub - Overview Tab (86d2k1nrm) — urgent
+- Frontend Dev: Event Hub - Overview Tab (86d2k1nrc) — urgent
+- Feature: Landing Section (Full Marketing Site) (86d2k1kwh) — normal
+- Feature: Reusable Component Library (86d2jwz25) — urgent
 
-## FYI — Media & Memories backend-wiring landed (no action needed from you yet)
-Abhijith ran a full backend + frontend wiring pass on Media & Memories this session (photo/video upload to R2, real delete/album CRUD, real storage meter, thumbnail routing). Merged to `Dev-Vibe` and `Dev-Vibe-Testing`. The 8 Backend/Frontend Dev subtasks (Photo Upload, Photo Viewer, Gallery Grid, Album Management — both dev tracks) are now `review`, with full session comments on each ClickUp task if you want the detail.
+> **Note:** per repo/CLAUDE.md, Event Edit&Delete, Event Hub Overview, and Reusable Component Library are actually DONE — ClickUp rows weren't updated after merge. Landing Section is genuinely still in progress (P2, partial).
 
-**Not yet done:** live-browser QA pass — Abhijith is running that next. The 4 Component QA subtasks for Media (86d2k1nfy, 86d2k1nkn, 86d2k1ngu, 86d2k1nhn) are still `backlog` — hold off picking those up until that pass lands and Abhijith flags what (if anything) still needs a dedicated QA pass from you.
+## In review (waiting on Abhijith approval)
+- Backend Dev: Media - Photo Viewer (86d2k1nkg)
+- Frontend Dev: Media - Photo Viewer (86d2k1nk7)
+- Backend Dev: Media - Album Management (86d2k1nhh)
+- Frontend Dev: Media - Album Management (86d2k1nh7)
+- Backend Dev: Media - Gallery Grid (86d2k1ngk)
+- Frontend Dev: Media - Gallery Grid (86d2k1nga)
+- Backend Dev: Media - Photo Upload (86d2k1nfn)
+- Frontend Dev: Media - Photo Upload (86d2k1nfd)
 
-## Carried over from 2026-07-30 (still open)
-- Component QA: Event Hub - Layout & Navigation / Overview Tab / Quick Actions (86d2k1n0h/0q/0z, `nr0/rx/ua`) — Urgent priority; Event Hub confirmed DONE, unblocked, ready now
-- Success-page chrome duplication — move it out of the event `[id]` layout (standalone screen)
-- Apply structure-matched skeleton pattern (home is reference) to event-dashboard `loading.tsx` + new screens
-- Pre-existing ToolRail/page-band overlap bug at ≥1024px — cross-cutting, found on both Guest Management and Event Hub, worth its own small fix pass
+(Media & Memories backend-wiring is code-complete and twice-reviewed per NEXT-SESSION.md — these 8 ClickUp rows match that state. Live-browser QA pass is the one thing still owed before these move to done.)
 
-## Blocked
-- (none reported)
+## To do (frontend/QA/integration, his or unassigned)
+- Digital Presence — Custom Pages (FE/BE), RSVP Page (FE/BE/QA), Guest-Specific Views (FE/BE/QA), Guest Auth (QA) — all backlog, see handoff-website-wave1.md / handoff-website-wave2.md
+- Support Chatbot: Frontend Dev + Component QA for Admin Tickets, Admin FAQ, Chat Widget/help, Chat Engine, Ticket Escalation, Ticket Form — all backlog (Support Chatbot not started per CLAUDE.md)
+- Backend Dev: Chat History + Admin Tickets API, Chat Engine, Ticket Endpoint, Admin FAQ API — all backlog
+
+## Note on scope
+Full mvp-phase-1 fetch was 100 tasks (possible pagination cap). This digest is weighted toward what's actionable now; ask Abhijith for the raw ClickUp view if you need the exhaustive backlog list.

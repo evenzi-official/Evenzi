@@ -52,10 +52,11 @@ touching code, then pick up from there.
 
 **Blocking prerequisite, flagged in the Wave 2 handoff doc:** `events.slug` has no generator anywhere in the codebase. Whoever picks this up needs a slug-generation strategy before the Wave 2 routes have anything real to test against.
 
-### Two founder decisions still open (Abhijith, quick — not a build task)
+### Founder decisions — 2 of 3 resolved 2026-08-02
 
-1. **Story/Q&A page tier** — spec §1 proposes Story=public, Q&A=private as defaults. Needs a yes/no before `config.website_pages` gets its final tier seed.
-2. **`x-forwarded-for` gateway-trust verification** — spec §6b.3's rate-limit design depends on Supabase's Kong gateway not letting a client spoof this header. Dheeraj is positioned to help verify this while testing `/lookup` (flagged in his handoff doc) — but someone needs to actually look at the results and decide if the fallback plan (pass IP from Vercel's edge instead) is needed.
+1. ~~**Story/Q&A page tier**~~ — **RESOLVED 2026-08-02.** Story=public, Q&A=private confirmed; `story` flipped live in `config.website_pages` (`website_22`, DATA-MODEL.md D53).
+2. ~~**`events.slug` generation strategy (G13)**~~ — **RESOLVED 2026-08-02**, this was the actual live blocker Dheeraj hit while building Wave 2 routes. Auto-generate on create (slugify(name) + wedding date, random-suffix fallback on collision) + one-time backfill, shipped as `generate_event_slug()` + `create_event_with_details` wiring (`website_21`, DATA-MODEL.md D52). All 19 existing events now have a slug — `/api/e/[slug]/*` is unblocked.
+3. **`x-forwarded-for` gateway-trust verification** — still open. Spec §6b.3's rate-limit design depends on Supabase's Kong gateway not letting a client spoof this header. Dheeraj is positioned to help verify this while testing `/lookup` (flagged in his handoff doc) — but someone needs to actually look at the results and decide if the fallback plan (pass IP from Vercel's edge instead) is needed.
 
 ### Also queued (independent, unblocked) — Digital Invitations backend-wiring
 

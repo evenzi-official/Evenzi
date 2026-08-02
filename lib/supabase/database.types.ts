@@ -2414,6 +2414,10 @@ export type Database = {
         }[]
       }
       gen_random_bytes: { Args: { n: number }; Returns: string }
+      generate_event_slug: {
+        Args: { p_date: string; p_name: string }
+        Returns: string
+      }
       get_guest_website_payload: {
         Args: { p_session_token: string }
         Returns: Json
