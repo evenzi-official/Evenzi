@@ -4,7 +4,37 @@
 
 ---
 
-## ▶ START HERE NEXT — Media & Memories backend-wiring complete; live-browser QA pass is next (2026-08-01)
+## ▶ START HERE NEXT — Digital Presence pushed by Dheeraj; 4 bugs open pending his self-verification (2026-08-02, session c)
+
+Session report: [`docs/session-reports/2026-08-02b-session-report.md`](session-reports/2026-08-02b-session-report.md)
+
+**What happened:** R2 credentials rotated (a leaked secret from original setup, ClickUp `86d3b7dtj`) and functionally verified via a real browser-driven upload — this also unblocks Media & Memories QA below. Dheeraj's Digital Presence push (`d2ad5a5` Wave 1+2, `b5a8389` Wave 3) merged into `Dev-Vibe-Testing`. Antigravity ran the full 18-stage Event Website sweep (`qa/event-website-test-report.md`) — 7 FAIL, 5 INCONCLUSIVE. A targeted retest was requested on just the non-PASS stages (`docs/testing/2026-08-02-antigravity-event-website-retest.md`) to rule out a stale-dev-server false-positive theory. **The retest report itself needed a second validation pass** (`qa/event-website-retest-validation.md`) — cross-checking its own two raw evidence files showed only 2 of its 7 claimed PASSes (Story, Schedule) were backed by a real browser-driven UI action; the rest were either backend-API-only (Q&A, travel points, stays, guest lookup — Playwright timed out finding the real form fields) or self-contradictory (Design template save: 200 in one evidence file, 500 in the other).
+
+**What's NOT done — 4 items need Dheeraj to self-verify in a real browser, not another automated pass:**
+1. **Design page template save** — contradictory evidence, could still be broken.
+2. **Q&A editor** — never actually driven through the UI.
+3. **Venue & Travel** — travel points + stays never actually driven through the UI; `travel_time_text` still returns null even in the most permissive direct-API test.
+4. **Guest lookup** (`/e/[slug]` public flow) — only ever hit via direct API, the guest-facing form itself untested.
+
+A WhatsApp-style message summarizing this was drafted and handed to the founder to relay.
+
+### Paste this to start — Dheeraj self-verification pass, Digital Presence
+
+```
+Antigravity's retest of the Event Website sweep couldn't actually confirm
+5 of its 7 claimed fixes — see qa/event-website-retest-validation.md for
+the full breakdown. Please self-verify these 4 in a real browser before
+marking them fixed: (1) Design page template save (contradictory retest
+evidence — could still be sending template_id: null), (2) Q&A editor
+(never UI-tested), (3) Venue & Travel travel points + stays (never
+UI-tested, and travel_time_text still comes back null even in the
+direct-API path), (4) guest lookup at /e/[slug] (only ever hit via a
+direct API call, never the real guest-facing form).
+```
+
+---
+
+## ▶ PAST — Media & Memories backend-wiring complete; live-browser QA pass is next (2026-08-01)
 
 Session report: [`docs/session-reports/2026-08-01-session-report.md`](session-reports/2026-08-01-session-report.md)
 
@@ -74,8 +104,8 @@ touching code, then pick up from there.
 | Planning Tools (Checklist + Budget) | ✅ | ✅ | ✅ | DONE 2026-07-30 |
 | Media & Memories | ✅ | ✅ | ✅ | Backend-wiring DONE 2026-08-01 (merged, twice-reviewed) — live-browser QA pass still pending |
 | Digital Invitations | ✅ | ❌ | ✅ | FE built (7-template designer), nothing persists yet — queued, see below |
-| **Digital Presence — Wave 1 (host editor)** | ✅ | ⚠️ | ❌ | **Schema LIVE.** React pages still static mocks — Dheeraj brief at `handoff-website-wave1.md` |
-| **Digital Presence — Wave 2 (public site)** | ✅ | ⚠️ | ❌ | **Schema LIVE 2026-07-31** (`website_12`–`website_20`) — DB layer done, `anon` RLS live, council-cleared. API routes + guest site pages not built — Dheeraj brief at `handoff-website-wave2.md`, blocked on `events.slug` generator |
+| **Digital Presence — Wave 1 (host editor)** | ✅ | ⚠️ | ⚠️ | Code pushed 2026-08-02 (`d2ad5a5`). Story + Schedule editors confirmed working; Design template save + Q&A editor unresolved/unverified — see top entry |
+| **Digital Presence — Wave 2 (public site)** | ✅ | ⚠️ | ⚠️ | Code pushed 2026-08-02 (`d2ad5a5`, `b5a8389`). Guest lookup + Venue & Travel unresolved/unverified — see top entry |
 | Admin Module | ❌ | ❌ | ❌ | Not started |
 | Support Chatbot | ❌ | ❌ | ❌ | Planned, unblocked |
 
