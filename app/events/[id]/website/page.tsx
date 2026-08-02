@@ -17,8 +17,8 @@ type WebsitePage = {
 type SummaryPages = {
   id: string
   slug: string
-  label: string
-  icon: string | null
+  name: string
+  icon_name: string | null
   tier: string
   is_visible: boolean
   display_order: number
@@ -61,8 +61,8 @@ export default async function WebsiteOverviewPage({ params }: { params: Promise<
     .map((p) => ({
       id: p.id,
       slug: p.slug,
-      label: p.label,
-      icon: p.icon ?? 'web',
+      label: p.name,
+      icon: p.icon_name ?? 'web',
       is_visible: p.is_visible,
       display_order: p.display_order,
     }))
