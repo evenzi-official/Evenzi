@@ -62,3 +62,5 @@ designs/pages/website/guest-site/sapphire-mivon/assets/imgs/works/w4.mp4
 /test_media/
 /qa/test_files/
 /qa/large.mp4
+/get-pages.ts
+/get-slugs.ts
