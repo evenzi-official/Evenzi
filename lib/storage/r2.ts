@@ -38,6 +38,10 @@ function client(): S3Client {
       region: 'auto',
       endpoint,
       credentials: { accessKeyId, secretAccessKey },
+      // R2 CORS doesn't allow the SDK's default flexible-checksum headers
+      // (x-amz-checksum-crc32 etc.) — this stops the SDK from attaching them
+      // to presigned PUT URLs, which was 403ing preflight from the browser.
+      requestChecksumCalculation: 'WHEN_REQUIRED',
     })
   }
   return _client

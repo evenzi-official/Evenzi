@@ -134,7 +134,7 @@ function FeaturedCard({ event }: { event: EventListItem }) {
 
         <div className="fec-progress">
           <div className="fec-progress-head">
-            <span className="fec-progress-label">Planning progress</span>
+            <span className="fec-progress-label">Setup progress</span>
             <span className="fec-progress-val">{label}</span>
           </div>
           <div className="fec-progress-track">

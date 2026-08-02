@@ -118,7 +118,38 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     // Build RPC params
     const pMetadata = Object.entries(metadata).map(([key, value]) => ({ key, value }))
-    const pSubEvents = subEvents.map((se, index) => ({
+
+    // Re-sort into the catalog's chronological order before assigning
+    // display_order. The wizard auto-selects "default" sub-events (e.g. Wedding
+    // Ceremony, Reception) before the user picks anything else, which otherwise
+    // pins them ahead of earlier-in-the-timeline events (Engagement, Haldi)
+    // that get added later just because they were clicked later.
+    const catalogIds = subEvents
+      .map((se) => se.subEventTypeId)
+      .filter((id): id is string => id != null)
+
+    let catalogOrderMap = new Map<string, number>()
+    if (catalogIds.length > 0) {
+      const { data: catalogRows } = await supabase
+        .schema('config')
+        .from('event_sub_types')
+        .select('id, display_order')
+        .in('id', catalogIds)
+      catalogOrderMap = new Map(
+        ((catalogRows ?? []) as { id: string; display_order: number }[]).map((r) => [r.id, r.display_order])
+      )
+    }
+
+    const orderedSubEvents = [...subEvents].sort((a, b) => {
+      const aOrder = a.subEventTypeId != null ? catalogOrderMap.get(a.subEventTypeId) : undefined
+      const bOrder = b.subEventTypeId != null ? catalogOrderMap.get(b.subEventTypeId) : undefined
+      if (aOrder != null && bOrder != null) return aOrder - bOrder
+      if (aOrder != null) return -1
+      if (bOrder != null) return 1
+      return 0 // both custom — preserve original (click) order, sort is stable
+    })
+
+    const pSubEvents = orderedSubEvents.map((se, index) => ({
       sub_event_type_id: se.subEventTypeId ?? null,
       custom_name: se.customName ?? null,
       display_order: index + 1,
