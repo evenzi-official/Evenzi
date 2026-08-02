@@ -14,6 +14,7 @@ export async function updateSession(request: NextRequest) {
       pathname.startsWith('/auth') ||
       pathname.startsWith('/_next') ||
       pathname.startsWith('/api') ||
+      pathname.startsWith('/e/') ||
       pathname.startsWith('/wedding-invitation-temp-')
     ) {
       return NextResponse.next()
@@ -61,6 +62,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/invite') ||   // guest invitation share URLs — no auth required
+    pathname.startsWith('/e/') ||       // public guest wedding websites — anonymous
     pathname.startsWith('/wedding-invitation-temp-') || // invitation template previews — public
     isDevPlayground
 
