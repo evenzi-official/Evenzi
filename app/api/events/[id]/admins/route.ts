@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { Resend } from 'resend'
+import { buildInviteEmail } from '@/lib/email/inviteEmail'
 
 const uuidSchema = z.string().uuid()
 
@@ -8,6 +10,12 @@ const postSchema = z.object({
   email: z.string().email().max(320),
   role:  z.string().max(50).default('co-host'),
 }).strict()
+
+function baseUrl(): string {
+  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
+  return 'http://localhost:3000'
+}
 
 export async function POST(
   request: Request,
@@ -26,7 +34,7 @@ export async function POST(
     // Verify caller owns this event
     const { data: ev } = await supabase
       .from('events')
-      .select('id')
+      .select('id, name')
       .eq('id', id)
       .eq('user_id', user.id)
       .is('deleted_at', null)
@@ -45,7 +53,8 @@ export async function POST(
 
     const { email, role } = parsed.data
 
-    const { error } = await supabase
+    // Insert and return the new row's id (used as the invite token)
+    const { data: newCollab, error } = await supabase
       .from('event_collaborators')
       .insert({
         event_id:      id,
@@ -53,13 +62,43 @@ export async function POST(
         role,
         status:        'pending',
       })
+      .select('id')
+      .single()
 
     if (error) {
-      if (error.code === '23505') { // unique violation
+      if (error.code === '23505') {
         return NextResponse.json({ error: 'This person is already invited' }, { status: 409 })
       }
       console.error('POST /api/events/[id]/admins failed:', error)
       return NextResponse.json({ error: 'Failed to invite collaborator' }, { status: 500 })
+    }
+
+    // Fetch the owner's display name for the email
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('display_name')
+      .eq('id', user.id)
+      .single()
+
+    const ownerName  = profile?.display_name?.trim() || user.email?.split('@')[0] || 'The host'
+    const eventName  = ev.name ?? 'your event'
+    const inviteUrl  = `${baseUrl()}/auth/accept-invite?token=${newCollab.id}`
+
+    // Send invite email — best-effort, never fail the request
+    if (process.env.RESEND_API_KEY) {
+      try {
+        const resend = new Resend(process.env.RESEND_API_KEY)
+        await resend.emails.send({
+          from:    process.env.RESEND_FROM_EMAIL ?? 'Evenzi <onboarding@resend.dev>',
+          to:      email,
+          subject: `${ownerName} invited you to co-host ${eventName} on Evenzi`,
+          html:    buildInviteEmail({ ownerName, eventName, role, inviteUrl }),
+        })
+      } catch (emailErr) {
+        console.error('[admins] Failed to send invite email:', emailErr)
+      }
+    } else {
+      console.warn('[admins] RESEND_API_KEY not set — invite saved but email not sent. Accept URL:', inviteUrl)
     }
 
     return NextResponse.json({ success: true }, { status: 201 })

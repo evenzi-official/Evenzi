@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { PageFooter } from '@/components/layout/PageFooter'
+import { WebsitePhotosClient } from './WebsitePhotosClient'
 
 interface Params { params: Promise<{ id: string }> }
 
@@ -29,41 +30,7 @@ export default async function WebsitePhotosPage({ params }: Params) {
         </header>
 
         <section className="clay-card p-7 md:p-8 reveal">
-          <div className="flex items-center justify-between mb-6 gap-4">
-            <div>
-              <p className="text-xs font-display font-bold tracking-[0.35em] text-brand mb-1">GALLERY</p>
-              <h2 className="font-display font-bold text-xl text-ink">Website gallery</h2>
-            </div>
-            <button type="button" className="btn-pill btn-pill-primary">
-              <span aria-hidden="true" className="material-symbols-outlined">upload</span>
-              Upload photos
-              <span aria-hidden="true" className="btn-pill-spinner" />
-            </button>
-          </div>
-
-          {/* Cover photo */}
-          <div className="mb-8">
-            <p className="text-xs font-display font-bold tracking-[0.3em] text-muted uppercase mb-3">Cover photo</p>
-            <div className="h-48 rounded-3xl bg-line-soft border-2 border-dashed border-line flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-brand/40 transition-colors">
-              <span aria-hidden="true" className="material-symbols-outlined text-3xl text-muted">add_photo_alternate</span>
-              <p className="text-sm font-display font-semibold text-muted">Click to set cover photo</p>
-            </div>
-          </div>
-
-          {/* Photo grid */}
-          <div>
-            <p className="text-xs font-display font-bold tracking-[0.3em] text-muted uppercase mb-3">Gallery photos</p>
-            <div className="empty-cta-card">
-              <span className="empty-cta-icon" aria-hidden="true"><span className="material-symbols-outlined">collections</span></span>
-              <p className="empty-cta-title">No gallery photos yet</p>
-              <p className="empty-cta-sub">Upload photos to display in the gallery section of your event website.</p>
-              <button type="button" className="btn-pill btn-pill-secondary">
-                <span className="material-symbols-outlined" aria-hidden="true">upload</span>
-                Upload photos
-                <span aria-hidden="true" className="btn-pill-spinner" />
-              </button>
-            </div>
-          </div>
+          <WebsitePhotosClient eventId={id} />
         </section>
       </main>
 

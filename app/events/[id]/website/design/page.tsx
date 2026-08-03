@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { PageFooter } from '@/components/layout/PageFooter'
 import WebsiteDesignClient from './WebsiteDesignClient'
+import { FontPicker } from './FontPicker'
 
 interface Params { params: Promise<{ id: string }> }
 
@@ -141,17 +142,8 @@ export default async function WebsiteDesignPage({ params }: Params) {
           <p className="text-xs font-display font-bold tracking-[0.35em] text-brand mb-1">TYPOGRAPHY</p>
           <h2 className="font-display font-bold text-xl text-ink mb-6">Font pair</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[{ label: 'Heading font', value: 'Cormorant Garamond' }, { label: 'Body font', value: 'Poppins' }].map((f) => (
-              <div key={f.label} className="form-group">
-                <label className="form-label">{f.label}</label>
-                <select className="form-select" defaultValue={f.value}>
-                  <option>Cormorant Garamond</option>
-                  <option>Playfair Display</option>
-                  <option>Poppins</option>
-                  <option>Inter</option>
-                </select>
-              </div>
-            ))}
+            <FontPicker label="Heading font" value="Playfair Display" />
+            <FontPicker label="Body font"    value="Poppins" />
           </div>
         </section>
       </main>

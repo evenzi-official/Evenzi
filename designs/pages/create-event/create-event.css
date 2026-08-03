@@ -155,6 +155,28 @@
 /* Venue input — icon-prefix variant. Replaces inline style="padding-left;font-size" */
 .cc-venue-prefix{padding-left:1.1rem}
 .cc-venue-prefix .material-symbols-outlined{font-size:18px}
+/* Venue autocomplete wrapper + dropdown */
+.cc-venue-wrap{position:relative}
+.cc-venue-listbox{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;
+  z-index:100;list-style:none;margin:0;padding:.3rem;
+  border:1px solid var(--line);border-radius:16px;
+  background:var(--card);box-shadow:var(--shadow-clay);
+  max-height:220px;overflow:auto;
+}
+.cc-venue-option{
+  display:flex;align-items:center;gap:.5rem;
+  padding:.5rem .75rem;border-radius:10px;
+  font-family:'Poppins',sans-serif;font-size:.88rem;color:var(--ink);cursor:pointer;
+}
+.cc-venue-option.is-active,
+.cc-venue-option:hover{background:var(--brand-tint)}
+.cc-venue-option .material-symbols-outlined{font-size:16px;color:var(--muted-soft);flex-shrink:0}
+@keyframes cc-venue-spin{to{transform:rotate(360deg)}}
+.cc-venue-loading-icon{
+  font-size:18px;color:var(--muted-soft);
+  animation:cc-venue-spin .8s linear infinite;
+}
 /* Partners-group: invisible wrapper that lets children participate in the parent grid */
 .cc-partners-group{display:contents}
 .cc-partners-group[hidden]{display:none}

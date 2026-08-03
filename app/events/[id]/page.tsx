@@ -10,6 +10,21 @@ const ICON_MAP: Record<string, string> = {
   coffee: 'local_cafe', spa: 'spa',
 }
 
+// Canonical chronological order for wedding sub-events so the roadmap strip
+// always renders in the correct timeline sequence regardless of how display_order
+// was seeded in config.event_sub_types. Unknown/custom names sort to the end.
+const WEDDING_ROADMAP_ORDER: Record<string, number> = {
+  'pre-wedding shoot': 1,
+  'engagement':        2,
+  'cocktail party':    3,
+  'sangeet':           4,
+  'mehendi':           5,
+  'haldi':             6,
+  'wedding ceremony':  7,
+  'reception':         8,
+  'post-wedding brunch': 9,
+}
+
 // Sub-event row joined in JS with its config.event_sub_types catalog entry.
 interface SubEventRow {
   id: string
@@ -144,6 +159,15 @@ export default async function EventControlPage({
       ? typesById[se.event_sub_type_id] ?? null
       : null,
   }))
+
+  // Apply canonical wedding timeline order on top of display_order so the
+  // roadmap strip always shows the correct sequence even when catalog seed
+  // data has a different ordering.
+  subEvents.sort((a, b) => {
+    const nameOf = (se: SubEventRow) =>
+      (se.custom_name ?? se.event_sub_types?.name ?? '').toLowerCase()
+    return (WEDDING_ROADMAP_ORDER[nameOf(a)] ?? 99) - (WEDDING_ROADMAP_ORDER[nameOf(b)] ?? 99)
+  })
 
   // Hero/overview fields — prefer the view; fall back to the events row.
   const event = {

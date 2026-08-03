@@ -127,7 +127,7 @@ export default function StoryEditor({ eventId, initialBlocks }: { eventId: strin
                   )}
                   <div className="form-group">
                     <label className="form-label">Body text</label>
-                    <textarea className="form-input" rows={4} value={draft.body ?? ''} onChange={(e) => setDraft((d) => ({ ...d, body: e.target.value }))} placeholder="Write your story…" />
+                    <textarea className="form-textarea" rows={6} value={draft.body ?? ''} onChange={(e) => setDraft((d) => ({ ...d, body: e.target.value }))} placeholder="Write your story…" />
                   </div>
                 </>
               )}

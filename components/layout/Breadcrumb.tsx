@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 
 export interface BreadcrumbItem {
   label: string
@@ -20,6 +23,14 @@ const Sep = () => (
 
 export function Breadcrumb({ items, backHref, backLabel, showCopy = true }: BreadcrumbProps) {
   const resolvedBack = backHref ?? (items.length > 1 ? items[items.length - 2].href : '/home')
+  const [copied, setCopied] = useState(false)
+
+  function handleCopy() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }).catch(() => {})
+  }
 
   return (
     <div className="bc-wrap reveal">
@@ -58,8 +69,16 @@ export function Breadcrumb({ items, backHref, backLabel, showCopy = true }: Brea
         {showCopy && (
           <>
             <span className="bc-divider hidden md:inline-block" aria-hidden="true" />
-            <button type="button" className="bc-copy" aria-label="Copy path">
-              <span aria-hidden="true" className="material-symbols-outlined icon-sm-15">content_copy</span>
+            <button
+              type="button"
+              className={`bc-copy${copied ? ' is-copied' : ''}`}
+              aria-label={copied ? 'Link copied!' : 'Copy link'}
+              onClick={handleCopy}
+              title={copied ? 'Copied!' : 'Copy link'}
+            >
+              <span aria-hidden="true" className="material-symbols-outlined icon-sm-15">
+                {copied ? 'check' : 'content_copy'}
+              </span>
             </button>
           </>
         )}

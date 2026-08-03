@@ -10,6 +10,17 @@ import { avatarInitial } from "@/lib/utils"
 type Ownership = "my" | "collab"
 type TimeFilter = "active" | "past"
 
+// Placeholder cover images by event type slug (Unsplash CDN, free to use).
+// Falls back to the wedding image for any unrecognised slug (MVP = weddings only).
+const COVER_PLACEHOLDERS: Record<string, string> = {
+  wedding: 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2?auto=format&fit=crop&w=800&q=80',
+}
+const DEFAULT_PLACEHOLDER = COVER_PLACEHOLDERS.wedding
+
+function coverUrl(event: EventListItem): string {
+  return event.coverImageUrl ?? COVER_PLACEHOLDERS[event.eventType.slug] ?? DEFAULT_PLACEHOLDER
+}
+
 function formatDate(d: string | null): string {
   if (!d) return "Date not set"
   try {
@@ -39,15 +50,17 @@ function isActive(event: EventListItem): boolean {
 
 function setupProgress(event: EventListItem): { pct: number; label: string } {
   const steps = [
-    !!event.primaryDate,
-    !!event.primaryVenue,
-    event.guestCapacity != null,
-    event.subEventCount > 0,
+    { done: !!event.primaryDate,          hint: 'Set your event date' },
+    { done: !!event.primaryVenue,         hint: 'Add a venue' },
+    { done: event.guestCapacity != null,  hint: 'Set guest count' },
+    { done: event.subEventCount > 0,      hint: 'Add sub-events' },
+    { done: !!event.coverImageUrl,        hint: 'Upload a cover photo' },
   ]
-  const done = steps.filter(Boolean).length
+  const done = steps.filter(s => s.done).length
   const pct = Math.round((done / steps.length) * 100)
-  const labels: Record<number, string> = { 0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100% · Setup complete' }
-  return { pct, label: labels[pct] ?? `${pct}%` }
+  const nextHint = steps.find(s => !s.done)?.hint
+  const label = pct === 100 ? '100% · Setup complete' : `${pct}% · ${nextHint ?? 'Almost there'}`
+  return { pct, label }
 }
 
 function FeaturedCard({ event }: { event: EventListItem }) {
@@ -60,11 +73,7 @@ function FeaturedCard({ event }: { event: EventListItem }) {
       <div
         className="fec-cover"
         aria-hidden="true"
-        style={
-          event.coverImageUrl
-            ? { backgroundImage: `linear-gradient(180deg,rgba(0,0,0,.25) 0%,rgba(0,0,0,.05) 45%,rgba(0,0,0,.45) 100%),url(${event.coverImageUrl})` }
-            : { background: "linear-gradient(135deg,var(--brand-tint) 0%,var(--brand-tint-2) 100%)" }
-        }
+        style={{ backgroundImage: `linear-gradient(180deg,rgba(0,0,0,.25) 0%,rgba(0,0,0,.05) 45%,rgba(0,0,0,.45) 100%),url(${coverUrl(event)})` }}
       >
         {isPast && (
           <span className="fec-cover-tag">

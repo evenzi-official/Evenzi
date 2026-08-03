@@ -20,7 +20,9 @@ export function GuestListContent({ eventId, initial }: Props) {
   const [allowPlusOne, setAllowPlusOne]   = useState(initial.allowPlusOnes)
   const [dietaryNotes, setDietaryNotes]   = useState(initial.collectDietaryNotes)
   const [plusOneCap, setPlusOneCap]       = useState(initial.maxPlusOnesPerInvite)
-  const [defaultMsg, setDefaultMsg]       = useState(initial.defaultGuestMessage)
+  const [defaultMsg, setDefaultMsg]       = useState(
+    initial.defaultGuestMessage || "We can't wait to celebrate with you! Tap the link to RSVP and view the schedule."
+  )
   const [saving, setSaving]               = useState(false)
   const [toast, setToast]                 = useState<string | null>(null)
 
@@ -154,7 +156,7 @@ export function GuestListContent({ eventId, initial }: Props) {
               id="es-default-msg"
               className="form-textarea"
               maxLength={400}
-              placeholder="We can't wait to celebrate with you! Tap the link to RSVP and view the schedule."
+              placeholder="Write a warm greeting for your guests…"
               value={defaultMsg}
               onChange={(e) => setDefaultMsg(e.target.value)}
             />
