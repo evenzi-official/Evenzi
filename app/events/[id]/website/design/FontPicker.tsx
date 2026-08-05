@@ -1,11 +1,12 @@
 'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
 
-const FONTS = [
+const FALLBACK_FONTS = [
   { name: 'Cormorant Garamond', weight: '400;600;700' },
   { name: 'Playfair Display',   weight: '400;600;700' },
   { name: 'Poppins',            weight: '400;600;700' },
   { name: 'Inter',              weight: '400;600;700' },
+  { name: 'Lora',               weight: '400;600;700' },
 ]
 
 function loadGoogleFont(name: string, weight: string) {
@@ -21,18 +22,30 @@ function loadGoogleFont(name: string, weight: string) {
 interface Props {
   label: string
   value: string
+  options?: string[]
   onChange?: (v: string) => void
 }
 
-export function FontPicker({ label, value, onChange }: Props) {
+export function FontPicker({ label, value, options, onChange }: Props) {
+  const fonts = (options?.length ? options : FALLBACK_FONTS.map((f) => f.name)).map((name) => ({
+    name,
+    weight: FALLBACK_FONTS.find((f) => f.name === name)?.weight ?? '400;600;700',
+  }))
   const [open, setOpen] = useState(false)
   const [current, setCurrent] = useState(value)
   const wrapRef = useRef<HTMLDivElement>(null)
 
-  // Load all fonts on mount so switching is instant
   useEffect(() => {
-    FONTS.forEach(f => loadGoogleFont(f.name, f.weight))
-  }, [])
+    const names = options?.length ? options : FALLBACK_FONTS.map((f) => f.name)
+    names.forEach((name) => {
+      const weight = FALLBACK_FONTS.find((f) => f.name === name)?.weight ?? '400;600;700'
+      loadGoogleFont(name, weight)
+    })
+  }, [options])
+
+  useEffect(() => {
+    setCurrent(value)
+  }, [value])
 
   // Close on outside click
   const handleOutside = useCallback((e: MouseEvent) => {
@@ -49,7 +62,7 @@ export function FontPicker({ label, value, onChange }: Props) {
     onChange?.(name)
   }
 
-  const currentFont = FONTS.find(f => f.name === current) ?? FONTS[0]
+  const currentFont = fonts.find(f => f.name === current) ?? fonts[0]
 
   return (
     <div className="form-group" ref={wrapRef} style={{ position: 'relative' }}>
@@ -70,7 +83,7 @@ export function FontPicker({ label, value, onChange }: Props) {
 
       {open && (
         <ul role="listbox" aria-label={label} className="fp-listbox">
-          {FONTS.map(f => (
+          {fonts.map(f => (
             <li
               key={f.name}
               role="option"

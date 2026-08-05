@@ -5,9 +5,15 @@ import { createClient } from '@/lib/supabase/server'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { PageFooter } from '@/components/layout/PageFooter'
 import WebsiteDesignClient from './WebsiteDesignClient'
-import { FontPicker } from './FontPicker'
+import FontPairSection from './FontPairSection'
+import PaletteSection from './PaletteSection'
+import CoverOgSection from './CoverOgSection'
+import { getSignedDownloadUrl, R2_BUCKET_PUBLIC } from '@/lib/storage/r2'
 
 interface Params { params: Promise<{ id: string }> }
+
+type ConfigFont = { id: string; name: string; role: string; display_order: number }
+type ConfigPalette = { id: string; name: string; swatch_hex: string[] | null; css_tokens: unknown; display_order: number }
 
 const FAKE_THEMES = [
   { id: 'classic',   label: 'Classic',   preview: 'bg-gradient-to-br from-rose-50 to-pink-100' },
@@ -36,10 +42,10 @@ export default async function WebsiteDesignPage({ params }: Params) {
 
   const eventName = event.name ?? 'Your Event'
 
-  const [designResult, cinematicResult] = await Promise.all([
+  const [designResult, cinematicResult, fontsResult, palettesResult] = await Promise.all([
     supabase
       .from('event_website_design')
-      .select('template_id, palette_id, heading_font_id, body_font_id')
+      .select('template_id, palette_id, heading_font_id, body_font_id, cover_image_key, og_image_key')
       .eq('event_id', id)
       .maybeSingle(),
     supabase
@@ -48,9 +54,35 @@ export default async function WebsiteDesignPage({ params }: Params) {
       .select('id')
       .eq('slug', 'cinematic-scroll')
       .maybeSingle() as unknown as Promise<{ data: { id: string } | null; error: unknown }>,
+    supabase
+      .schema('config')
+      .from('website_fonts')
+      .select('id, name, role, display_order')
+      .eq('enabled', true)
+      .order('display_order') as unknown as Promise<{ data: ConfigFont[] | null; error: unknown }>,
+    supabase
+      .schema('config')
+      .from('website_palettes')
+      .select('id, name, swatch_hex, css_tokens, display_order')
+      .eq('enabled', true)
+      .order('display_order') as unknown as Promise<{ data: ConfigPalette[] | null; error: unknown }>,
   ])
   const design = designResult.data
   const cinematicTemplateId = (cinematicResult.data as { id: string } | null)?.id ?? null
+  const fonts = fontsResult.data ?? []
+  const headingOptions = fonts.filter((f) => f.role === 'heading').map((f) => ({ id: f.id, name: f.name }))
+  const palettes = (palettesResult.data ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    swatch_hex: Array.isArray(p.swatch_hex) ? p.swatch_hex : [],
+  }))
+
+  const coverPreviewUrl = design?.cover_image_key
+    ? await getSignedDownloadUrl(design.cover_image_key, { bucket: R2_BUCKET_PUBLIC, expiresIn: 3600 }).catch(() => null)
+    : null
+  const ogPreviewUrl = design?.og_image_key
+    ? await getSignedDownloadUrl(design.og_image_key, { bucket: R2_BUCKET_PUBLIC, expiresIn: 3600 }).catch(() => null)
+    : null
 
   return (
     <div data-page="website-design">
@@ -137,15 +169,35 @@ export default async function WebsiteDesignPage({ params }: Params) {
           />
         </section>
 
-        {/* Font picker */}
+        <section className="clay-card p-7 md:p-8 reveal mt-6" aria-labelledby="dp-pal-h">
+          <p className="text-xs font-display font-bold tracking-[0.35em] text-brand mb-1">COLOUR</p>
+          <h2 id="dp-pal-h" className="font-display font-bold text-xl text-ink mb-2">Palette</h2>
+          <p className="text-sm text-muted mb-6">Pick a colour story. Guest templates will use these tokens when wired.</p>
+          <PaletteSection
+            eventId={id}
+            palettes={palettes}
+            initialPaletteId={design?.palette_id ?? null}
+          />
+        </section>
+
         <section className="clay-card p-7 md:p-8 reveal mt-6">
           <p className="text-xs font-display font-bold tracking-[0.35em] text-brand mb-1">TYPOGRAPHY</p>
-          <h2 className="font-display font-bold text-xl text-ink mb-6">Font pair</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FontPicker label="Heading font" value="Playfair Display" />
-            <FontPicker label="Body font"    value="Poppins" />
-          </div>
+          <h2 className="font-display font-bold text-xl text-ink mb-2">Headings</h2>
+          <p className="text-sm text-muted mb-6">Body text stays Poppins for clarity.</p>
+          <FontPairSection
+            eventId={id}
+            headingOptions={headingOptions}
+            initialHeadingFontId={design?.heading_font_id ?? null}
+          />
         </section>
+
+        <CoverOgSection
+          eventId={id}
+          coverPreviewUrl={coverPreviewUrl}
+          ogPreviewUrl={ogPreviewUrl}
+          hasCover={!!design?.cover_image_key}
+          hasCustomOg={!!design?.og_image_key}
+        />
       </main>
 
       <PageFooter />

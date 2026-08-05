@@ -4,7 +4,6 @@ import { useRef, useState } from 'react'
 import Link from 'next/link'
 
 export function WebsitePhotosClient({ eventId }: { eventId: string }) {
-  const coverInputRef  = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
   const [toast, setToast] = useState<string | null>(null)
 
@@ -19,39 +18,33 @@ export function WebsitePhotosClient({ eventId }: { eventId: string }) {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-6 gap-4">
-        <div>
-          <p className="text-xs font-display font-bold tracking-[0.35em] text-brand mb-1">GALLERY</p>
-          <h2 className="font-display font-bold text-xl text-ink">Website gallery</h2>
-        </div>
-        <input ref={galleryInputRef} type="file" accept="image/*" multiple className="sr-only" onChange={handleFiles} />
-        <button type="button" className="btn-pill btn-pill-primary" onClick={() => galleryInputRef.current?.click()}>
-          <span aria-hidden="true" className="material-symbols-outlined">upload</span>
-          Upload photos
-        </button>
+      <div className="dp-tip-banner">
+        <span className="material-symbols-outlined" aria-hidden="true">info</span>
+        <span>
+          These photos show on your website&apos;s <strong>Gallery</strong> page — not the site cover (that lives on Design).
+          When Media &amp; Memories launches, shared albums will sync here automatically.
+        </span>
       </div>
 
-      {/* Cover photo */}
-      <div className="mb-8">
-        <p className="text-xs font-display font-bold tracking-[0.3em] text-muted uppercase mb-3">Cover photo</p>
-        <input ref={coverInputRef} type="file" accept="image/*" className="sr-only" onChange={handleFiles} />
-        <button
-          type="button"
-          className="w-full h-48 rounded-3xl bg-line-soft border-2 border-dashed border-line flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-brand/40 transition-colors"
-          onClick={() => coverInputRef.current?.click()}
-        >
-          <span aria-hidden="true" className="material-symbols-outlined text-3xl text-muted">add_photo_alternate</span>
-          <p className="text-sm font-display font-semibold text-muted">Click to set cover photo</p>
-        </button>
-      </div>
+      <section className="clay-card dp-card dp-photos-card" data-photos-state="empty" aria-labelledby="ph-h">
+        <header className="dp-card-head">
+          <div>
+            <h2 id="ph-h" className="dp-card-title">Gallery photos</h2>
+            <p className="dp-card-sub">Guests see these on your Gallery page after they unlock your site.</p>
+          </div>
+          <div className="dp-card-head-aux">
+            <input ref={galleryInputRef} type="file" accept="image/*" multiple className="sr-only" onChange={handleFiles} />
+            <button type="button" className="btn-pill btn-pill-primary" onClick={() => galleryInputRef.current?.click()}>
+              <span aria-hidden="true" className="material-symbols-outlined">upload</span>
+              Upload photos
+            </button>
+          </div>
+        </header>
 
-      {/* Gallery photos */}
-      <div>
-        <p className="text-xs font-display font-bold tracking-[0.3em] text-muted uppercase mb-3">Gallery photos</p>
         <div className="empty-cta-card">
           <span className="empty-cta-icon" aria-hidden="true"><span className="material-symbols-outlined">collections</span></span>
           <p className="empty-cta-title">No gallery photos yet</p>
-          <p className="empty-cta-sub">Upload photos to display in the gallery section of your event website.</p>
+          <p className="empty-cta-sub">Website gallery upload is coming soon. Use Media for now — cover photos are set on the Design tab.</p>
           <div className="flex flex-wrap gap-3 justify-center mt-1">
             <button type="button" className="btn-pill btn-pill-secondary" onClick={() => galleryInputRef.current?.click()}>
               <span className="material-symbols-outlined" aria-hidden="true">upload</span>
@@ -63,7 +56,7 @@ export function WebsitePhotosClient({ eventId }: { eventId: string }) {
             </Link>
           </div>
         </div>
-      </div>
+      </section>
 
       <div className={`bc-toast${toast ? ' is-show' : ''}`} role="status" aria-live="polite">
         <span className="bc-live" aria-hidden="true" />

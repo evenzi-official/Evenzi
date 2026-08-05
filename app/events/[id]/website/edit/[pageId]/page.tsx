@@ -203,6 +203,14 @@ export default async function PageEditor({ params }: Params) {
           <p className="section-head-eyebrow">Website</p>
           <div className="section-head-titlerow">
             <h1 className="section-head-title">Edit: {pageLabel}</h1>
+            {cfg?.tier === 'private' ? (
+              <span className="dp-page-tier dp-tier-private" title="Private — guest must unlock">
+                <span className="material-symbols-outlined" aria-hidden="true">lock</span>
+                Private
+              </span>
+            ) : (
+              <span className="dp-page-tier dp-tier-public">Public</span>
+            )}
             <StatusBadge variant={pageStatus}>{pageStatus === 'live' ? 'Visible' : 'Hidden'}</StatusBadge>
           </div>
         </header>

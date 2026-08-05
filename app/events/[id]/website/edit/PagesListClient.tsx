@@ -1,7 +1,6 @@
 'use client'
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { StatusBadge } from '@/components/ui/StatusBadge'
 
 type Page = {
   id: string
@@ -57,75 +56,86 @@ export default function PagesListClient({ eventId, initialPages }: { eventId: st
   }
 
   return (
-    <section className="clay-card reveal mt-6">
-      <div className="flex items-center justify-between p-6 border-b border-line">
-        <h2 className="font-display font-bold text-base text-ink">All pages</h2>
-        <span className="text-xs text-muted">{pages.filter((p) => p.is_visible).length} of {pages.length} visible</span>
-      </div>
+    <section className="clay-card dp-card reveal mt-6">
+      <header className="dp-card-head">
+        <div>
+          <h2 className="dp-card-title">All pages</h2>
+          <p className="dp-card-sub">{pages.filter((p) => p.is_visible).length} of {pages.length} visible</p>
+        </div>
+      </header>
 
-      <ul role="list" className="divide-y divide-line">
-        {pages.map((pg, i) => (
-          <li key={pg.id} className="flex items-center gap-3 p-4">
-            {/* Reorder buttons */}
-            <div className="flex flex-col gap-0.5 shrink-0">
+      <ul role="list" className="dp-page-list">
+        {pages.map((pg, i) => {
+          const isPrivate = pg.tier === 'private'
+          return (
+            <li key={pg.id} className={`page-list-row${pg.is_visible ? '' : ' is-hidden'}`}>
               <button
+                className="dp-drag"
                 type="button"
-                onClick={() => move(i, -1)}
-                disabled={i === 0}
-                className="dp-icon-btn w-6 h-6 disabled:opacity-30"
-                aria-label="Move up"
+                aria-disabled="true"
+                title="keyboard reorder coming soon"
+                aria-label={`Reorder ${pg.label} — drag coming soon`}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>keyboard_arrow_up</span>
+                <span className="material-symbols-outlined" aria-hidden="true">drag_indicator</span>
               </button>
-              <button
-                type="button"
-                onClick={() => move(i, 1)}
-                disabled={i === pages.length - 1}
-                className="dp-icon-btn w-6 h-6 disabled:opacity-30"
-                aria-label="Move down"
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>keyboard_arrow_down</span>
-              </button>
-            </div>
 
-            {/* Icon */}
-            <span aria-hidden="true" className="w-10 h-10 rounded-2xl bg-brand-tint text-brand flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined icon-fill">{pg.icon}</span>
-            </span>
+              <div className="flex flex-col gap-0.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => move(i, -1)}
+                  disabled={i === 0}
+                  className="dp-icon-btn-sm disabled:opacity-30"
+                  aria-label="Move up"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 14 }}>keyboard_arrow_up</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => move(i, 1)}
+                  disabled={i === pages.length - 1}
+                  className="dp-icon-btn-sm disabled:opacity-30"
+                  aria-label="Move down"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 14 }}>keyboard_arrow_down</span>
+                </button>
+              </div>
 
-            {/* Label + tier */}
-            <div className="flex-1 min-w-0">
-              <p className="font-display font-bold text-sm text-ink">{pg.label}</p>
-              <p className="text-xs text-muted">{pg.tier === 'private' ? 'Private — guests must identify themselves' : 'Public — visible to all visitors'}</p>
-            </div>
+              <div className="dp-page-meta">
+                <span className="material-symbols-outlined dp-page-icon" aria-hidden="true">{pg.icon}</span>
+                <span className="dp-page-name">{pg.label}</span>
+                {isPrivate ? (
+                  <span className="dp-page-tier dp-tier-private" title="Private — guest must unlock">
+                    <span className="material-symbols-outlined" aria-hidden="true">lock</span>
+                    Private
+                  </span>
+                ) : (
+                  <span className="dp-page-tier dp-tier-public">Public</span>
+                )}
+              </div>
 
-            <StatusBadge variant={pg.is_visible ? 'live' : 'draft'}>
-              {pg.is_visible ? 'Visible' : 'Hidden'}
-            </StatusBadge>
-
-            {/* Visibility toggle */}
-            <button
-              type="button"
-              role="switch"
-              aria-checked={pg.is_visible}
-              aria-label={`${pg.is_visible ? 'Hide' : 'Show'} ${pg.label}`}
-              onClick={() => toggleVisibility(pg)}
-              disabled={toggling === pg.id}
-              className="toggle-switch shrink-0"
-            >
-              <span className="toggle-switch-thumb" aria-hidden="true" />
-            </button>
-
-            {/* Edit arrow */}
-            <Link
-              href={`/events/${eventId}/website/edit/${pg.slug}`}
-              className="shrink-0 dp-icon-btn"
-              aria-label={`Edit ${pg.label} page`}
-            >
-              <span className="material-symbols-outlined">chevron_right</span>
-            </Link>
-          </li>
-        ))}
+              <div className="dp-page-actions">
+                <button
+                  type="button"
+                  className="dp-icon-btn-sm"
+                  aria-label={pg.is_visible ? `Hide ${pg.label}` : `Show ${pg.label}`}
+                  onClick={() => toggleVisibility(pg)}
+                  disabled={toggling === pg.id}
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    {pg.is_visible ? 'visibility' : 'visibility_off'}
+                  </span>
+                </button>
+                <Link
+                  href={`/events/${eventId}/website/edit/${pg.slug}`}
+                  className="dp-icon-btn-sm"
+                  aria-label={`Edit ${pg.label}`}
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+                </Link>
+              </div>
+            </li>
+          )
+        })}
       </ul>
     </section>
   )

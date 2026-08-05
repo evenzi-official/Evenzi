@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { Resend } from 'resend'
 import { buildInviteEmail } from '@/lib/email/inviteEmail'
+import { getAppBaseUrl } from '@/lib/url'
 
 const uuidSchema = z.string().uuid()
 
@@ -10,12 +11,6 @@ const postSchema = z.object({
   email: z.string().email().max(320),
   role:  z.string().max(50).default('co-host'),
 }).strict()
-
-function baseUrl(): string {
-  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
-  return 'http://localhost:3000'
-}
 
 export async function POST(
   request: Request,
@@ -82,7 +77,7 @@ export async function POST(
 
     const ownerName  = profile?.display_name?.trim() || user.email?.split('@')[0] || 'The host'
     const eventName  = ev.name ?? 'your event'
-    const inviteUrl  = `${baseUrl()}/auth/accept-invite?token=${newCollab.id}`
+    const inviteUrl  = `${getAppBaseUrl()}/auth/accept-invite?token=${newCollab.id}`
 
     // Send invite email — best-effort, never fail the request
     if (process.env.RESEND_API_KEY) {
