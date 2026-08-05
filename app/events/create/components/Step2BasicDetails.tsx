@@ -10,6 +10,25 @@ interface FieldErrors {
   [field: string]: string
 }
 
+interface NominatimResult {
+  display_name: string
+  address: {
+    city?: string
+    town?: string
+    village?: string
+    municipality?: string
+    county?: string
+    state?: string
+    region?: string
+    country?: string
+  }
+}
+
+interface LocationSuggestion {
+  label: string
+  value: string
+}
+
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 // Sane upper bound on guest count (M12) — mirrors createEventSchema.guestCapacity.
@@ -43,6 +62,13 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
   const [guestCapacityError, setGuestCapacityError] = useState<string>('')
   const [dateError, setDateError] = useState<string>('')
 
+  // Location autocomplete state
+  const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [locationLoading, setLocationLoading] = useState(false)
+  const [activeIdx, setActiveIdx] = useState(-1)
+  const venueContainerRef = useRef<HTMLDivElement>(null)
+
   // Cover image state
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(
     state.basicDetails.coverImageUrl ?? null
@@ -54,6 +80,66 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
 
   const dateMin = EVENT_DATE_MIN_ISO()
   const dateMax = eventDateMaxISO()
+
+  // Nominatim location autocomplete — debounced, 350ms
+  useEffect(() => {
+    const q = primaryVenue.trim()
+    if (q.length < 2) {
+      setLocationSuggestions([])
+      setShowSuggestions(false)
+      return
+    }
+    let cancelled = false
+    const timer = setTimeout(() => {
+      void (async () => {
+        setLocationLoading(true)
+        try {
+          const params = new URLSearchParams({
+            q,
+            format: 'json',
+            limit: '6',
+            addressdetails: '1',
+            'accept-language': 'en',
+          })
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`)
+          if (!res.ok || cancelled) return
+          const data = await res.json() as NominatimResult[]
+          if (cancelled) return
+          const seen = new Set<string>()
+          const suggestions: LocationSuggestion[] = []
+          for (const r of data) {
+            const a = r.address
+            const parts = [
+              a.city ?? a.town ?? a.village ?? a.municipality ?? a.county ?? '',
+              a.state ?? a.region ?? '',
+              a.country ?? '',
+            ].filter(Boolean)
+            const label = parts.length > 0
+              ? parts.join(', ')
+              : r.display_name.split(',').slice(0, 3).map(s => s.trim()).join(', ')
+            if (!seen.has(label)) { seen.add(label); suggestions.push({ label, value: label }) }
+          }
+          setLocationSuggestions(suggestions)
+          setShowSuggestions(suggestions.length > 0)
+          setActiveIdx(-1)
+        } catch { /* silently fail — autocomplete is best-effort */ }
+        finally { if (!cancelled) setLocationLoading(false) }
+      })()
+    }, 350)
+    return () => { cancelled = true; clearTimeout(timer) }
+  }, [primaryVenue])
+
+  // Close suggestions when clicking outside the venue wrapper
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (venueContainerRef.current && !venueContainerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false)
+        setActiveIdx(-1)
+      }
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [])
 
   // A witty, tasteful nudge that reacts to the typed guest count (M12). Returns
   // null below the playful threshold so the helper line stays quiet for normal
@@ -194,6 +280,30 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
   function handleBack(): void {
     dispatch({ type: 'SET_BASIC_DETAILS', payload: buildBasicDetails() })
     dispatch({ type: 'GO_TO_STEP', payload: 1 })
+  }
+
+  function selectSuggestion(s: LocationSuggestion): void {
+    setPrimaryVenue(s.value)
+    setLocationSuggestions([])
+    setShowSuggestions(false)
+    setActiveIdx(-1)
+  }
+
+  function handleVenueKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (!showSuggestions || locationSuggestions.length === 0) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActiveIdx(i => Math.min(i + 1, locationSuggestions.length - 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActiveIdx(i => Math.max(i - 1, 0))
+    } else if (e.key === 'Enter' && activeIdx >= 0) {
+      e.preventDefault()
+      selectSuggestion(locationSuggestions[activeIdx])
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false)
+      setActiveIdx(-1)
+    }
   }
 
   if (!eventType) return null
@@ -375,22 +485,58 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
           ) : null}
         </div>
 
-        {/* Venue — full width with place icon prefix */}
+        {/* Venue — full width with place icon prefix + location autocomplete */}
         <div className="form-group is-full">
           <label className="form-label" htmlFor="cc-venue">Venue location</label>
-          <div className="form-input form-input-group">
-            <span className="form-input-prefix cc-venue-prefix" aria-hidden="true">
-              <span className="material-symbols-outlined">place</span>
-            </span>
-            <input
-              id="cc-venue"
-              type="text"
-              className="form-input-field"
-              value={primaryVenue}
-              placeholder="Search for a city or venue"
-              autoComplete="off"
-              onChange={(e) => setPrimaryVenue(e.target.value)}
-            />
+          <div className="cc-venue-wrap" ref={venueContainerRef}>
+            <div className="form-input form-input-group">
+              <span className="form-input-prefix cc-venue-prefix" aria-hidden="true">
+                <span className="material-symbols-outlined">place</span>
+              </span>
+              <input
+                id="cc-venue"
+                type="text"
+                className="form-input-field"
+                value={primaryVenue}
+                placeholder="Search for a city or venue"
+                autoComplete="off"
+                role="combobox"
+                aria-expanded={showSuggestions}
+                aria-autocomplete="list"
+                aria-controls="cc-venue-listbox"
+                aria-activedescendant={activeIdx >= 0 ? `cc-venue-opt-${activeIdx}` : undefined}
+                onChange={(e) => setPrimaryVenue(e.target.value)}
+                onKeyDown={handleVenueKeyDown}
+                onFocus={() => { if (locationSuggestions.length > 0) setShowSuggestions(true) }}
+              />
+              {locationLoading && (
+                <span className="form-input-suffix" aria-hidden="true">
+                  <span className="material-symbols-outlined cc-venue-loading-icon">progress_activity</span>
+                </span>
+              )}
+            </div>
+            {showSuggestions && locationSuggestions.length > 0 && (
+              <ul
+                id="cc-venue-listbox"
+                className="cc-venue-listbox"
+                role="listbox"
+                aria-label="Location suggestions"
+              >
+                {locationSuggestions.map((s, i) => (
+                  <li
+                    key={s.label}
+                    id={`cc-venue-opt-${i}`}
+                    className={`cc-venue-option${i === activeIdx ? ' is-active' : ''}`}
+                    role="option"
+                    aria-selected={i === activeIdx}
+                    onMouseDown={(e) => { e.preventDefault(); selectSuggestion(s) }}
+                  >
+                    <span className="material-symbols-outlined" aria-hidden="true">place</span>
+                    {s.label}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           <p className="cc-form-helper">
             Tip — city names work too; pick a specific venue later from your dashboard.

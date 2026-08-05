@@ -3,7 +3,9 @@ import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
 import GuestLookupForm from './GuestLookupForm'
+import PasswordGate from './PasswordGate'
 import WeddingTemplate1Client from '@/app/wedding-invitation-temp-1/WeddingTemplate1Client'
+import { PW_COOKIE_NAME } from '@/app/api/e/[slug]/_lib'
 
 interface Params { params: Promise<{ slug: string }> }
 
@@ -29,6 +31,7 @@ type WebsitePage = {
 type WebsitePayload = {
   pages: WebsitePage[]
   design: Record<string, unknown> | null
+  password_enabled?: boolean
 }
 
 type EventMeta = {
@@ -61,7 +64,7 @@ function BlockRenderer({ block }: { block: ContentBlock }) {
         </h3>
       )}
       {block.body && (
-        <p className="text-stone-600 leading-relaxed text-base md:text-lg whitespace-pre-line">
+        <p className="text-stone-600 leading-relaxed text-base md:text-lg whitespace-pre-line" style={{ fontFamily: 'var(--font-poppins), Poppins, sans-serif' }}>
           {block.body}
         </p>
       )}
@@ -105,7 +108,7 @@ function DefaultTemplate({
   eventDate: Date | null
 }) {
   return (
-    <div className="min-h-screen" style={{ background: '#faf9f7', color: '#292524' }}>
+    <div className="min-h-screen" style={{ background: '#faf9f7', color: '#292524', fontFamily: 'var(--font-poppins), Poppins, sans-serif' }}>
       <header className="relative flex flex-col items-center justify-center text-center px-6 pt-24 pb-20 md:pt-32 md:pb-28">
         <p className="text-xs tracking-[0.3em] uppercase text-stone-400 mb-6">You are invited</p>
         <h1 className="font-serif text-5xl md:text-7xl font-light text-stone-800 leading-tight mb-6 italic">
@@ -186,6 +189,16 @@ export default async function GuestWebsitePage({ params }: Params) {
   if (payloadError || rawPayload === null) notFound()
 
   const payload = rawPayload as WebsitePayload
+
+  if (payload.password_enabled) {
+    const pwCookieStore = await cookies()
+    const pwToken = pwCookieStore.get(PW_COOKIE_NAME)?.value ?? null
+    const { data: pwVerified } = await supabase
+      .rpc('is_website_password_verified', { p_slug: slug, p_token: pwToken })
+    if (!pwVerified) {
+      return <PasswordGate slug={slug} />
+    }
+  }
 
   // Try to get event metadata + template_id (best-effort — RLS may restrict anonymous reads)
   let eventMeta: EventMeta | null = null

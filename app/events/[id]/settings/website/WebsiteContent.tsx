@@ -54,6 +54,7 @@ export function WebsiteContent({ eventId, initial }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           website_password_enabled:    passwordProtect,
+          ...(passwordProtect && sitePassword.trim() ? { website_password: sitePassword.trim() } : {}),
           search_indexing_enabled:     searchIndex,
           announcement_banner_enabled: showBanner,
           announcement_banner_text:    bannerText || null,
@@ -64,6 +65,7 @@ export function WebsiteContent({ eventId, initial }: Props) {
         const err = await res.json().catch(() => ({}))
         flashToast((err as { error?: string }).error ?? 'Failed to save — please try again')
       } else {
+        setSitePassword('')
         flashToast('Website settings saved')
       }
     } catch {

@@ -1,13 +1,41 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { PageFooter } from '@/components/layout/PageFooter'
+import { WebsitePhotosClient } from './WebsitePhotosClient'
 
 interface Params { params: Promise<{ id: string }> }
 
 export default async function WebsitePhotosPage({ params }: Params) {
   const { id } = await params
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth')
+
+  const { data: event } = await supabase
+    .from('events')
+    .select('id, name')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .is('deleted_at', null)
+    .single()
+  if (!event) redirect('/home')
+
+  const eventName = event.name ?? 'Your Event'
 
   return (
     <div data-page="website-photos">
+      <Breadcrumb
+        items={[
+          { label: 'DASHBOARD', href: '/home' },
+          { label: eventName.toUpperCase(), href: `/events/${id}` },
+          { label: 'WEBSITE', href: `/events/${id}/website` },
+          { label: 'PHOTOS' },
+        ]}
+        backHref={`/events/${id}/website`}
+      />
+
       <div className="bc-wrap reveal">
         <div className="seg-wrap seg-wrap--page">
           <nav className="seg" aria-label="Website sections">
@@ -25,46 +53,10 @@ export default async function WebsitePhotosPage({ params }: Params) {
           <div className="section-head-titlerow">
             <h1 className="section-head-title">Photos</h1>
           </div>
-          <p className="section-head-sub">Manage photos shown on your public event website — different from your private media library.</p>
+          <p className="section-head-sub">Gallery photos shown to guests — different from your site cover on Design.</p>
         </header>
 
-        <section className="clay-card p-7 md:p-8 reveal">
-          <div className="flex items-center justify-between mb-6 gap-4">
-            <div>
-              <p className="text-xs font-display font-bold tracking-[0.35em] text-brand mb-1">GALLERY</p>
-              <h2 className="font-display font-bold text-xl text-ink">Website gallery</h2>
-            </div>
-            <button type="button" className="btn-pill btn-pill-primary">
-              <span aria-hidden="true" className="material-symbols-outlined">upload</span>
-              Upload photos
-              <span aria-hidden="true" className="btn-pill-spinner" />
-            </button>
-          </div>
-
-          {/* Cover photo */}
-          <div className="mb-8">
-            <p className="text-xs font-display font-bold tracking-[0.3em] text-muted uppercase mb-3">Cover photo</p>
-            <div className="h-48 rounded-3xl bg-line-soft border-2 border-dashed border-line flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-brand/40 transition-colors">
-              <span aria-hidden="true" className="material-symbols-outlined text-3xl text-muted">add_photo_alternate</span>
-              <p className="text-sm font-display font-semibold text-muted">Click to set cover photo</p>
-            </div>
-          </div>
-
-          {/* Photo grid */}
-          <div>
-            <p className="text-xs font-display font-bold tracking-[0.3em] text-muted uppercase mb-3">Gallery photos</p>
-            <div className="empty-cta-card">
-              <span className="empty-cta-icon" aria-hidden="true"><span className="material-symbols-outlined">collections</span></span>
-              <p className="empty-cta-title">No gallery photos yet</p>
-              <p className="empty-cta-sub">Upload photos to display in the gallery section of your event website.</p>
-              <button type="button" className="btn-pill btn-pill-secondary">
-                <span className="material-symbols-outlined" aria-hidden="true">upload</span>
-                Upload photos
-                <span aria-hidden="true" className="btn-pill-spinner" />
-              </button>
-            </div>
-          </div>
-        </section>
+        <WebsitePhotosClient eventId={id} />
       </main>
 
       <PageFooter />

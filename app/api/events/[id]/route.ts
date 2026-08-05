@@ -21,6 +21,7 @@ const updateEventSchema = z
     primary_venue: z.string().max(500).nullable().optional(),
     guest_capacity: z.coerce.number().int().positive().max(100000).nullable().optional(),
     event_details: z.record(z.string(), z.string().nullable()).optional(),
+    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).min(3).max(80).optional(),
   })
   .strict()
 
@@ -275,7 +276,7 @@ export async function PUT(
       )
     }
 
-    const { name, primary_date, primary_venue, guest_capacity, event_details } = parsed.data
+    const { name, primary_date, primary_venue, guest_capacity, event_details, slug } = parsed.data
 
     // Build the update patch — only include provided fields, coercing '' → null.
     const updates: Record<string, unknown> = {}
@@ -283,6 +284,7 @@ export async function PUT(
     if (primary_date !== undefined) updates.primary_date = emptyToNull(primary_date)
     if (primary_venue !== undefined) updates.primary_venue = emptyToNull(primary_venue)
     if (guest_capacity !== undefined) updates.guest_capacity = guest_capacity ?? null
+    if (slug !== undefined) updates.slug = slug
 
     // event_details is a partial shallow-merge of the existing jsonb bag.
     if (event_details !== undefined) {
@@ -339,6 +341,9 @@ export async function PUT(
       // No row matched (not found, soft-deleted, or RLS-hidden non-owned row).
       if (updateError.code === 'PGRST116') {
         return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+      }
+      if (updateError.code === '23505') {
+        return NextResponse.json({ error: 'That URL is taken' }, { status: 409 })
       }
       console.error('PUT /api/events/[id] update failed:', updateError)
       return NextResponse.json({ error: 'Failed to update event' }, { status: 500 })

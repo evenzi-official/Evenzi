@@ -30,9 +30,13 @@ export async function POST(
 
     const { phone, name } = parsed.data
 
+    const forwardedFor = request.headers.get('x-forwarded-for')
+    const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : 'unknown'
+
     const supabase = await createClient()
     const { data: token, error } = await supabase
       .rpc('resolve_guest_by_lookup', { p_slug: slug, p_phone: phone, p_name: name })
+      .setHeader('x-forwarded-for', clientIp)
 
     if (error) {
       const mapped = mapRpcError(error.message)

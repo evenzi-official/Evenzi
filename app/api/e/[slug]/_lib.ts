@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server'
 export const COOKIE_NAME = 'evz_guest_session'
 export const COOKIE_MAX_AGE = 60 * 60 * 24 * 30 // 30 days
 
+export const PW_COOKIE_NAME = 'evz_site_pw'
+export const PW_COOKIE_MAX_AGE = 60 * 60 * 24 * 30 // 30 days
+
 export function mapRpcError(message: string): { status: number; body: string } {
   switch (message) {
     case 'lookup failed':                         return { status: 401, body: 'No matching guest found' }

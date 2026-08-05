@@ -234,6 +234,7 @@ export default function SectionEditor({
   const [showPicker, setShowPicker] = useState(false)
   const [saved, setSaved] = useState(true)
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit')
+  const [device, setDevice] = useState<'mobile' | 'desktop'>('mobile')
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -411,8 +412,30 @@ export default function SectionEditor({
                 <h2 id="ep-prev-h" className="dp-card-title">Preview</h2>
                 <p className="dp-card-sub">What guests see on this page</p>
               </div>
+              <div className="device-toggle" role="radiogroup" aria-label="Preview device">
+                <button
+                  type="button"
+                  className={`device-toggle-btn${device === 'mobile' ? ' is-active' : ''}`}
+                  role="radio"
+                  aria-checked={device === 'mobile'}
+                  aria-label="Mobile preview"
+                  onClick={() => setDevice('mobile')}
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">phone_iphone</span>
+                </button>
+                <button
+                  type="button"
+                  className={`device-toggle-btn${device === 'desktop' ? ' is-active' : ''}`}
+                  role="radio"
+                  aria-checked={device === 'desktop'}
+                  aria-label="Desktop preview"
+                  onClick={() => setDevice('desktop')}
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">desktop_windows</span>
+                </button>
+              </div>
             </header>
-            <div className="dp-preview-stage" data-device-stage="mobile">
+            <div className="dp-preview-stage" data-device-stage={device}>
               <div className="dp-preview-frame is-page-scoped is-scrollable" data-palette="brand-red" data-font="poppins"
                 role="img" aria-label="Live preview (decorative — your fields are the source of truth)">
                 <div className="dp-preview-screen" aria-hidden="true">

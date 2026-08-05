@@ -556,6 +556,10 @@
    cross-fades — already handled in shell.css). */
 
 /* .dp-preview-caption + .device-toggle — moved to shell.css (Step 0 promotion 2026-05-22) */
+/* Iframe paint can escape rounded overflow:hidden and cover the caption. */
+.dp-preview-frame,
+.dp-preview-screen{isolation:isolate;z-index:0}
+.dp-preview-caption{position:relative;z-index:1;margin-top:.35rem}
 
 /* ── Teaser card (Card Templates) ───────────────────────────────────── */
 .dp-card-teaser{

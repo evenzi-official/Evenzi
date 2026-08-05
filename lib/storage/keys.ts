@@ -20,6 +20,15 @@ export function websitePublicKey(eventId: string, purpose: string, uuid: string,
   return `website/${eventId}/${purpose}-${uuid}.${ext}`
 }
 
+export function websiteDesignKey(
+  eventId: string,
+  purpose: 'cover' | 'og',
+  uuid: string,
+  ext = 'webp',
+): string {
+  return `events/${eventId}/website/${purpose}/${uuid}.${ext}`
+}
+
 export function avatarKey(userId: string, uuid: string, ext = 'webp'): string {
   return `users/${userId}/avatar-${uuid}.${ext}`
 }
