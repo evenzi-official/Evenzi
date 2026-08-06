@@ -26,6 +26,7 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
   const [email, setEmail]       = useState('')
   const [role, setRole]         = useState('co-host')
   const [sending, setSending]   = useState(false)
+  const [removingId, setRemovingId] = useState<string | null>(null)
   const [toast, setToast]       = useState<string | null>(null)
 
   function flashToast(msg: string) {
@@ -38,6 +39,24 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
     setModalOpen(false)
     setEmail('')
     setRole('co-host')
+  }
+
+  async function handleRemove(collabId: string) {
+    setRemovingId(collabId)
+    try {
+      const res = await fetch(`/api/events/${eventId}/admins/${collabId}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({})) as { error?: string }
+        flashToast(json.error ?? 'Failed to remove — please try again')
+      } else {
+        setCollabs(prev => prev.filter(c => c.id !== collabId))
+        flashToast('Collaborator removed')
+      }
+    } catch {
+      flashToast('Network error — please try again')
+    } finally {
+      setRemovingId(null)
+    }
   }
 
   async function handleSendInvite() {
@@ -75,7 +94,7 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
 
   return (
     <>
-      <BusyOverlay active={sending} label="Sending invite…" />
+      <BusyOverlay active={sending || removingId !== null} label={sending ? 'Sending invite…' : 'Removing…'} />
       <div className="es-content">
         <header className="es-content-head">
           <div>
@@ -125,12 +144,12 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
               <button
                 type="button"
                 className="fn-icon-btn"
-                aria-disabled="true"
-                title="Coming soon"
-                tabIndex={-1}
-                aria-label={`Edit ${collab.displayName.split(' ')[0]}'s role — coming soon`}
+                onClick={() => handleRemove(collab.id)}
+                disabled={removingId === collab.id}
+                aria-busy={removingId === collab.id}
+                aria-label={`Remove ${collab.displayName.split(' ')[0]}`}
               >
-                <span aria-hidden="true" className="material-symbols-outlined">more_horiz</span>
+                <span aria-hidden="true" className="material-symbols-outlined">person_remove</span>
               </button>
             </div>
           ))}
