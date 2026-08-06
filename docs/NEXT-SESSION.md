@@ -15,27 +15,44 @@ Founder confirmed product intent; **plan later, not blocking Phase A push**:
 
 ---
 
-## ▶ START HERE NEXT — Push Notifications: spec + council done, Cursor build-doc ready to hand off (2026-08-06)
+## ▶ START HERE NEXT — Event Settings Cleanup (parallel session in flight) (2026-08-06)
 
-**What happened:** Brainstormed and specced Push Notifications from scratch (nothing existed — the `user_preferences.push_notifications` toggle and the `FloatingNav` bell were both dead/decorative, badge hardcoded to `1`). Scoped to the already-designed S8 dropdown component in `designs/` plus real browser push. Ran a full 5-agent `/council design` (ui_ux, frontend, tech_lead, product_manager, security) — Critique + Debate + Arbiter. Verdict: 🔴 RE-PLAN, split push into its own pass. 6 criticals surfaced: (1) `collaborator_added`'s push leg can't fire from its DB trigger (plpgsql can't call `web-push`), (2) SSRF via client-supplied push `endpoint`, (3) subscription-hijack via unscoped upsert-by-endpoint, (4) VAPID public key needs the `NEXT_PUBLIC_` prefix or the client can't read it, (5) no dropdown empty state, (6) feature isn't on the MVP roadmap. Founder chose to build the **full feature** (in-app + push) via Cursor, so a self-contained Cursor build-doc was written with every council critical folded in as an inline `COUNCIL FIX`, structured as two verify-before-continue phases.
+**What happened:** Push Notifications shipped and confirmed live (see PAST below). A separate Cursor session is actively building **Event Settings Cleanup** on `feature/event-settings-cleanup` — do not reset that branch or drop its stashes.
 
-**Artifacts (all committed to `Dev-Vibe`):**
-- Spec + council verdict: [`docs/superpowers/specs/2026-08-06-push-notifications-design.md`](superpowers/specs/2026-08-06-push-notifications-design.md) (commits `a028bed`, `f46a44a`)
-- **Cursor build-doc (the handoff):** [`docs/superpowers/plans/2026-08-06-push-notifications-build-doc.md`](superpowers/plans/2026-08-06-push-notifications-build-doc.md) (commit `22f13a4`)
+**Artifacts:**
+- Handoff: [`docs/sprint/sprint-1/handoff-event-settings-cleanup.md`](sprint/sprint-1/handoff-event-settings-cleanup.md)
+- Plan: [`docs/superpowers/plans/2026-08-06-event-settings-cleanup.md`](superpowers/plans/2026-08-06-event-settings-cleanup.md)
 
-**What's NOT done:** no code written — Cursor builds it. Feature is NOT on `CLAUDE.md`'s MVP roadmap (council flagged) — founder implicitly greenlit by choosing to build; add a roadmap row if it should be tracked. On return from Cursor, the build comes back through a **Claude review gate** (per the build-doc's Definition-of-done) before any merge off its branch.
-
-### Paste this to start — hand off to Cursor / review the returned build
+### Paste this to start — resume Event Settings Cleanup
 
 ```
-Push Notifications build-doc is ready for Cursor at
-docs/superpowers/plans/2026-08-06-push-notifications-build-doc.md — full
-feature (Phase A in-app bell + Phase B browser push), every council critical
-folded in as an inline COUNCIL FIX. Hand it to Cursor (auto mode), or if
-Cursor already built it, run the Claude review gate: branch off Dev-Vibe,
-verify the SSRF endpoint allowlist + ownership-scoped subscription upsert +
-NEXT_PUBLIC_ VAPID prefix + notify_recipients SECURITY DEFINER RPC are all
-present, then the Phase A + B verification checklists.
+Continue Event Settings Cleanup on feature/event-settings-cleanup.
+Read docs/sprint/sprint-1/handoff-event-settings-cleanup.md and the Round-3
+council overrides at the top of
+docs/superpowers/plans/2026-08-06-event-settings-cleanup.md. Do not touch
+push-notifications leftovers; that feature is merged and the feature branch
+should already be deleted.
+```
+
+---
+
+## ▶ PAST — Push Notifications shipped + live on prod (2026-08-06)
+
+Session report: [`docs/session-reports/2026-08-06-push-notifications-session-report.md`](session-reports/2026-08-06-push-notifications-session-report.md)
+
+**What happened:** Built Phase A (in-app bell) + Phase B (browser push) from the Cursor build-doc. Merged to `Dev-Vibe` (`814bb3cb`) + `Dev-Vibe-Testing` (`861b1e25`). Prod deploy READY. Fixed `/sw.js` auth redirect. Live smoke OK. Prod Push ON failed once on bad `NEXT_PUBLIC_VAPID_PUBLIC_KEY` shape (private/truncated vs ~87-char public); corrected on Vercel; founder confirmed it works. V0 readiness local artifact: [`docs/ops/v0-readiness.html`](ops/v0-readiness.html).
+
+**What's NOT done / optional:**
+1. Optional VAPID sanitize + `vapid-status` route still in a stash (env fix was enough for live).
+2. Confirm Supabase webhook HMAC header mode if OS toasts ever miss while in-app works.
+3. ClickUp bulk sync still deferred.
+
+### Paste this to start — optional push polish
+
+```
+Optional: land VAPID key sanitize + GET /api/notifications/vapid-status from
+the Dev-Vibe-Testing stash that expanded urlBase64ToUint8Array, then redeploy.
+Only if we want clearer prod diagnostics — live push already works.
 ```
 
 ---

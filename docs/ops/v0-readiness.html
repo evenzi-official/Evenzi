@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Evenzi — V0 Readiness</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --text: #f5f0eb;
+      --muted: #9a9088;
+      --accent: #c45c4a;
+      --ok: #3d9a6a;
+      --warn: #c9a227;
+      --bad: #b33a3a;
+      --border: #2a2a2a;
+      --font: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      --sans: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 2rem 1.25rem 4rem;
+      background: radial-gradient(ellipse at top, #1c1412 0%, var(--bg) 55%);
+      color: var(--text); font-family: var(--sans); line-height: 1.45;
+    }
+    h1 { font-family: var(--font); font-weight: 600; letter-spacing: 0.02em; margin: 0 0 0.35rem; }
+    .sub { color: var(--muted); font-size: 0.92rem; margin-bottom: 1.75rem; max-width: 52rem; }
+    .stats { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .stat {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.85rem 1.1rem; min-width: 7.5rem;
+    }
+    .stat b { display: block; font-size: 1.4rem; font-family: var(--font); }
+    .stat span { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    table { width: 100%; max-width: 56rem; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    th, td { padding: 0.7rem 0.85rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th { color: var(--muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    tr:last-child td { border-bottom: 0; }
+    .ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+    .note { color: var(--muted); font-size: 0.82rem; }
+    .new { color: var(--accent); font-weight: 600; }
+    footer { margin-top: 1.5rem; color: var(--muted); font-size: 0.8rem; max-width: 56rem; }
+  </style>
+</head>
+<body>
+  <h1>Evenzi V0 Readiness</h1>
+  <p class="sub">Repo + live smoke on <code>evenzi.vercel.app</code> (sha <code>861b1e25</code>), not ClickUp. Updated 2026-08-06 after Push Notifications ship.</p>
+  <div class="stats">
+    <div class="stat"><b>40</b><span>✅ cells</span></div>
+    <div class="stat"><b>4</b><span>⚠️ cells</span></div>
+    <div class="stat"><b>7</b><span>❌ cells</span></div>
+    <div class="stat"><b>15</b><span>features</span></div>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>Data</th><th>Backend</th><th>Frontend</th><th>Note</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Auth &amp; Role Selection</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="note">DONE</td></tr>
+      <tr><td>Event CRUD</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="note">DONE</td></tr>
+      <tr><td>Host Dashboard</td><td class="ok">✅</td><td class="ok">✅</td><td class="warn">⚠️</td><td class="note">Collaborations tab empty</td></tr>
+      <tr><td>Event Management Hub</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="note">DONE</td></tr>
+      <tr><td>Guest Management &amp; RSVP</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="note">Send-invites inert</td></tr>
+      <tr><td>Event Settings</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="note">Cleanup branch WIP</td></tr>
+      <tr><td>User Settings</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="note">Push toggle real</td></tr>
+      <tr><td><span class="new">Push Notifications</span></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="note"><span class="new">NEW 08-06</span> — live; founder push ON confirmed</td></tr>
+      <tr><td>Planning Tools</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="note">DONE</td></tr>
+      <tr><td>Media &amp; Memories</td><td class="ok">✅</td><td class="ok">✅</td><td class="warn">⚠️</td><td class="note">Video playback stub</td></tr>
+      <tr><td>Digital Invitations</td><td class="ok">✅</td><td class="bad">❌</td><td class="warn">⚠️</td><td class="note">Nothing persists</td></tr>
+      <tr><td>Digital Presence</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="note">Template mismatch flagged</td></tr>
+      <tr><td>Landing Section</td><td class="ok">✅</td><td class="ok">✅</td><td class="warn">⚠️</td><td class="note">Dead legal links</td></tr>
+      <tr><td>Admin Module</td><td class="bad">❌</td><td class="bad">❌</td><td class="bad">❌</td><td class="note">Not started</td></tr>
+      <tr><td>Support Chatbot</td><td class="bad">❌</td><td class="bad">❌</td><td class="bad">❌</td><td class="note">Planned</td></tr>
+    </tbody>
+  </table>
+  <footer>
+    Canonical local copy (Claude.ai artifact <code>9e517318…</code> is not editable from this environment).
+    Open via <code>open docs/ops/v0-readiness.html</code> or any static server.
+  </footer>
+</body>
+</html>
