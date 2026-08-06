@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { BusyOverlay } from '@/components/ui/BusyOverlay'
+import { Portal } from '@/components/ui/Portal'
 
 interface Collaborator {
   id:          string
@@ -172,63 +173,65 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
 
       </div>
 
-      {/* Invite co-host modal */}
-      <div
-        className={`modal-scrim${modalOpen ? ' is-open' : ''}`}
-        aria-hidden={!modalOpen}
-        onClick={(e) => { if (e.target === e.currentTarget) closeModal() }}
-      >
-        <div className="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="es-cohost-title">
-          <header className="modal-head">
-            <div className="modal-head-lead">
-              <h2 className="modal-title" id="es-cohost-title">Invite a co-host</h2>
-              <p className="modal-sub">They&apos;ll get an email invite to help manage this event.</p>
+      {/* Invite co-host modal — portaled so .reveal transform doesn't clip fixed scrim */}
+      <Portal>
+        <div
+          className={`modal-scrim${modalOpen ? ' is-open' : ''}`}
+          aria-hidden={!modalOpen}
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal() }}
+        >
+          <div className="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="es-cohost-title">
+            <header className="modal-head">
+              <div className="modal-head-lead">
+                <h2 className="modal-title" id="es-cohost-title">Invite a co-host</h2>
+                <p className="modal-sub">They&apos;ll get an email invite to help manage this event.</p>
+              </div>
+              <button className="modal-close" type="button" onClick={closeModal} aria-label="Close">
+                <span className="material-symbols-outlined" aria-hidden="true">close</span>
+              </button>
+            </header>
+            <div className="form-group">
+              <label className="form-label" htmlFor="es-cohost-email">Email address</label>
+              <input
+                id="es-cohost-email"
+                type="email"
+                className="form-input"
+                autoComplete="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-            <button className="modal-close" type="button" onClick={closeModal} aria-label="Close">
-              <span className="material-symbols-outlined" aria-hidden="true">close</span>
-            </button>
-          </header>
-          <div className="form-group">
-            <label className="form-label" htmlFor="es-cohost-email">Email address</label>
-            <input
-              id="es-cohost-email"
-              type="email"
-              className="form-input"
-              autoComplete="email"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label" htmlFor="es-cohost-role">Role</label>
-            <select
-              id="es-cohost-role"
-              className="form-input"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            >
-              <option value="co-host">Co-host</option>
-              <option value="photographer">Photographer</option>
-              <option value="planner">Planner</option>
-              <option value="viewer">Viewer</option>
-            </select>
-          </div>
-          <div className="modal-actions">
-            <button type="button" className="btn-pill btn-pill-secondary" onClick={closeModal} disabled={sending}>Cancel</button>
-            <button
-              type="button"
-              className={`btn-pill btn-pill-primary${sending ? ' is-loading' : ''}`}
-              onClick={handleSendInvite}
-              disabled={sending || !email.trim()}
-              aria-busy={sending}
-            >
-              Send invite
-              <span aria-hidden="true" className="btn-pill-spinner" />
-            </button>
+            <div className="form-group">
+              <label className="form-label" htmlFor="es-cohost-role">Role</label>
+              <select
+                id="es-cohost-role"
+                className="form-input"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option value="co-host">Co-host</option>
+                <option value="photographer">Photographer</option>
+                <option value="planner">Planner</option>
+                <option value="viewer">Viewer</option>
+              </select>
+            </div>
+            <div className="modal-actions">
+              <button type="button" className="btn-pill btn-pill-secondary" onClick={closeModal} disabled={sending}>Cancel</button>
+              <button
+                type="button"
+                className={`btn-pill btn-pill-primary${sending ? ' is-loading' : ''}`}
+                onClick={handleSendInvite}
+                disabled={sending || !email.trim()}
+                aria-busy={sending}
+              >
+                Send invite
+                <span aria-hidden="true" className="btn-pill-spinner" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </Portal>
 
       <div className={`bc-toast${toast ? ' is-show' : ''}`} role="status" aria-live="polite">
         <span className="bc-live" aria-hidden="true" />

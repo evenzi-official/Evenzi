@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { Portal } from '@/components/ui/Portal'
 
 interface BusyOverlayProps {
   active: boolean
@@ -42,18 +43,20 @@ export function BusyOverlay({ active, label = 'Saving…' }: BusyOverlayProps): 
   }, [active])
 
   return (
-    <div className={`busy-overlay${active ? ' is-active' : ''}`} aria-hidden={!active}>
-      <div
-        ref={cardRef}
-        className="busy-overlay-card"
-        role="status"
-        aria-live="polite"
-        aria-busy={active}
-        tabIndex={-1}
-      >
-        <span className="busy-overlay-spinner" aria-hidden="true" />
-        <span className="busy-overlay-label">{label}</span>
+    <Portal>
+      <div className={`busy-overlay${active ? ' is-active' : ''}`} aria-hidden={!active}>
+        <div
+          ref={cardRef}
+          className="busy-overlay-card"
+          role="status"
+          aria-live="polite"
+          aria-busy={active}
+          tabIndex={-1}
+        >
+          <span className="busy-overlay-spinner" aria-hidden="true" />
+          <span className="busy-overlay-label">{label}</span>
+        </div>
       </div>
-    </div>
+    </Portal>
   )
 }

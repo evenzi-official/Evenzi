@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { FormGroup } from '@/components/ui/FormGroup'
 import { FormInput } from '@/components/ui/FormInput'
 import { BusyOverlay } from '@/components/ui/BusyOverlay'
+import { Portal } from '@/components/ui/Portal'
 import { updateEventSchema } from '@/lib/validations/events'
 
 // Variable fields (partner names) live in events.event_details (jsonb), keyed by the
@@ -323,58 +324,60 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
 
       </div>
 
-      {/* Delete confirmation — reuses the shell .modal-confirm-cautionary primitive */}
-      <div
-        className={`modal-scrim${confirmOpen ? ' is-open' : ''}`}
-        aria-hidden={!confirmOpen}
-        onClick={(e) => {
-          if (e.target === e.currentTarget && !deleting) closeConfirm()
-        }}
-      >
-        <div className="modal-confirm-cautionary modal-card" role="alertdialog" aria-modal="true" aria-labelledby="es-delete-title">
-          <div className="modal-confirm-icon is-cautionary">
-            <span aria-hidden="true" className="material-symbols-outlined">delete_forever</span>
-          </div>
-          <h3 className="modal-confirm-title" id="es-delete-title">Delete this event?</h3>
-          <p className="modal-confirm-text">
-            This permanently removes the event and all its data, guests, and media. This cannot be undone.
-          </p>
-          <div className="form-group">
-            <label className="form-label" htmlFor="es-delete-confirm-text">
-              Type <strong>DELETE</strong> to confirm
-            </label>
-            <input
-              id="es-delete-confirm-text"
-              type="text"
-              className="form-input"
-              autoComplete="off"
-              value={deleteConfirmText}
-              onChange={(e) => setDeleteConfirmText(e.target.value)}
-              disabled={deleting}
-            />
-          </div>
-          <div className="modal-actions">
-            <button
-              type="button"
-              className="btn-pill btn-pill-secondary"
-              onClick={closeConfirm}
-              disabled={deleting}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className={`btn-pill btn-pill-danger${deleting ? ' is-loading' : ''}`}
-              onClick={handleDelete}
-              disabled={deleting || deleteConfirmText.trim().toUpperCase() !== 'DELETE'}
-              aria-busy={deleting}
-            >
-              Delete event
-              <span aria-hidden="true" className="btn-pill-spinner" />
-            </button>
+      {/* Delete confirmation — portaled so .reveal transform doesn't clip fixed scrim */}
+      <Portal>
+        <div
+          className={`modal-scrim${confirmOpen ? ' is-open' : ''}`}
+          aria-hidden={!confirmOpen}
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !deleting) closeConfirm()
+          }}
+        >
+          <div className="modal-confirm-cautionary modal-card" role="alertdialog" aria-modal="true" aria-labelledby="es-delete-title">
+            <div className="modal-confirm-icon is-cautionary">
+              <span aria-hidden="true" className="material-symbols-outlined">delete_forever</span>
+            </div>
+            <h3 className="modal-confirm-title" id="es-delete-title">Delete this event?</h3>
+            <p className="modal-confirm-text">
+              This permanently removes the event and all its data, guests, and media. This cannot be undone.
+            </p>
+            <div className="form-group">
+              <label className="form-label" htmlFor="es-delete-confirm-text">
+                Type <strong>DELETE</strong> to confirm
+              </label>
+              <input
+                id="es-delete-confirm-text"
+                type="text"
+                className="form-input"
+                autoComplete="off"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                disabled={deleting}
+              />
+            </div>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn-pill btn-pill-secondary"
+                onClick={closeConfirm}
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={`btn-pill btn-pill-danger${deleting ? ' is-loading' : ''}`}
+                onClick={handleDelete}
+                disabled={deleting || deleteConfirmText.trim().toUpperCase() !== 'DELETE'}
+                aria-busy={deleting}
+              >
+                Delete event
+                <span aria-hidden="true" className="btn-pill-spinner" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </Portal>
 
       {/* Toast — reuses the shell .bc-toast primitive */}
       <div
