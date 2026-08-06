@@ -2154,6 +2154,37 @@ html{scroll-behavior:smooth}
   transition:opacity .22s cubic-bezier(.2,.7,.2,1), visibility 0s linear .22s;
 }
 .dark .modal-scrim{background:rgba(0,0,0,.65)}
+
+/* Busy overlay — full-viewport block during in-flight save/delete */
+.busy-overlay{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  background:color-mix(in oklab, var(--bg, #0d0d0d) 72%, transparent);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+  opacity:0;pointer-events:none;
+  transition:opacity .15s ease;
+}
+.busy-overlay.is-active{opacity:1;pointer-events:all}
+.busy-overlay-card{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  padding:24px 32px;border-radius:16px;
+  background:var(--card, #18181b);border:1px solid var(--line, #2a2a2a);
+  box-shadow:var(--shadow-clay);
+  outline:none;
+}
+.busy-overlay-spinner{
+  width:28px;height:28px;border-radius:999px;
+  border:3px solid var(--line, #2a2a2a);border-top-color:var(--brand, #ee3f3a);
+  animation:busy-spin .7s linear infinite;
+}
+@media (prefers-reduced-motion: reduce){
+  .busy-overlay{transition:none}
+  .busy-overlay-spinner{animation:none;border-top-color:var(--brand, #ee3f3a);opacity:.85}
+}
+.busy-overlay-label{font-size:13px;font-weight:600;color:var(--ink-soft, #e5e7eb)}
+@keyframes busy-spin{to{transform:rotate(360deg)}}
+
 .modal-scrim.is-open{
   opacity:1;visibility:visible;pointer-events:auto;
   transition:opacity .22s cubic-bezier(.2,.7,.2,1), visibility 0s linear 0s;

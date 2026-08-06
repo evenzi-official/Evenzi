@@ -1798,6 +1798,19 @@
       <p class="cs-h2-sub">Single component, two presentations. ≥768px → centered modal. &lt;768px → bottom sheet with drag handle. Static demos below force one variant each via <code class="cs-code">.modal-static</code>.</p>
     </header>
 
+    <article class="cs-component" style="margin-bottom:1.25rem">
+      <p class="cs-label"><span class="cs-label-name">DLG0</span> · Busy overlay · full-page block during save/delete</p>
+      <p class="cs-h2-sub" style="margin:.25rem 0 .75rem;font-size:13px;color:var(--muted)">Viewport-covering interaction lock with focus-trap. React: <code class="cs-code">&lt;BusyOverlay active label="Saving…" /&gt;</code> — classes <code class="cs-code">.busy-overlay</code> + <code class="cs-code">.is-active</code>, card <code class="cs-code">.busy-overlay-card</code>.</p>
+      <div class="cs-stage" style="padding:1rem;min-height:220px;position:relative;overflow:hidden">
+        <div class="busy-overlay is-active" style="position:absolute" role="presentation">
+          <div class="busy-overlay-card" role="status" aria-live="polite" aria-busy="true" tabindex="-1">
+            <span class="busy-overlay-spinner" aria-hidden="true"></span>
+            <span class="busy-overlay-label">Saving…</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
     <div class="cs-grid cs-grid--wide">
       <!-- DLG1 modal (centered) -->
       <article class="cs-component">
