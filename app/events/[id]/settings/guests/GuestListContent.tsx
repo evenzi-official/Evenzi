@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { BusyOverlay } from '@/components/ui/BusyOverlay'
 
 interface InitialGuestSettings {
   rsvpEnabled:          boolean
@@ -60,6 +61,7 @@ export function GuestListContent({ eventId, initial }: Props) {
 
   return (
     <>
+      <BusyOverlay active={saving} label="Saving…" />
       <div className="es-content">
         <header className="es-content-head">
           <div>

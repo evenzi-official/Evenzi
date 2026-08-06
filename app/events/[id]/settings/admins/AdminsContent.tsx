@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { BusyOverlay } from '@/components/ui/BusyOverlay'
 
 interface Collaborator {
   id:          string
@@ -53,7 +54,7 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
       } else {
         const name = email.split('@')[0] ?? email
         setCollabs(prev => [...prev, {
-          id:          crypto.randomUUID(),
+          id:          (json as { id?: string }).id ?? crypto.randomUUID(),
           displayName: name,
           email:       email.trim(),
           role,
@@ -74,6 +75,7 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
 
   return (
     <>
+      <BusyOverlay active={sending} label="Sending invite…" />
       <div className="es-content">
         <header className="es-content-head">
           <div>

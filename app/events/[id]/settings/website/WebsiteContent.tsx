@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { BusyOverlay } from '@/components/ui/BusyOverlay'
 
 interface InitialWebsiteSettings {
   passwordEnabled: boolean
@@ -92,6 +93,10 @@ export function WebsiteContent({ eventId, initial }: Props) {
 
   return (
     <>
+      <BusyOverlay
+        active={saving || takingOffline}
+        label={takingOffline ? (siteOffline ? 'Bringing site online…' : 'Taking site offline…') : 'Saving…'}
+      />
       <div className="es-content">
         <header className="es-content-head">
           <div>
