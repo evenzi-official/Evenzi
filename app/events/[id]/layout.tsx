@@ -35,7 +35,7 @@ export default async function EventLayout({
   return (
     <div className="min-h-dvh" data-page="event">
       <ScrollProgress />
-      <FloatingNav eventId={id} notificationCount={1} userInitial={initial} avatarUrl={profile?.avatar_url ?? null} />
+      <FloatingNav eventId={id} userInitial={initial} avatarUrl={profile?.avatar_url ?? null} />
       <ToolRail eventId={id} isLive />
       {children}
       <HelpFab />

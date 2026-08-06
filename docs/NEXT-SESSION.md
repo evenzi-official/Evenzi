@@ -4,6 +4,17 @@
 
 ---
 
+## ▶ Parked enhancements — collab invite-in-bell + co-host event access (2026-08-06)
+
+Founder confirmed product intent; **plan later, not blocking Phase A push**:
+
+1. **Bell invite to accept** — invitee gets an in-app notification with Accept (today: email/`/auth/accept-invite?token=` only).
+2. **Co-host can open `/events/[id]`** — today owner-only RLS → app 404 after accept. Home → Collaborations tab also unwired (empty arrays). See build-doc “Enhancement backlog” in [`docs/superpowers/plans/2026-08-06-push-notifications-build-doc.md`](superpowers/plans/2026-08-06-push-notifications-build-doc.md).
+
+**Workaround for A7:** owner (A) triggers RSVP/expense; co-host (B) watches bell on `/home`. Do not open event hub as B until access ships.
+
+---
+
 ## ▶ START HERE NEXT — Push Notifications: spec + council done, Cursor build-doc ready to hand off (2026-08-06)
 
 **What happened:** Brainstormed and specced Push Notifications from scratch (nothing existed — the `user_preferences.push_notifications` toggle and the `FloatingNav` bell were both dead/decorative, badge hardcoded to `1`). Scoped to the already-designed S8 dropdown component in `designs/` plus real browser push. Ran a full 5-agent `/council design` (ui_ux, frontend, tech_lead, product_manager, security) — Critique + Debate + Arbiter. Verdict: 🔴 RE-PLAN, split push into its own pass. 6 criticals surfaced: (1) `collaborator_added`'s push leg can't fire from its DB trigger (plpgsql can't call `web-push`), (2) SSRF via client-supplied push `endpoint`, (3) subscription-hijack via unscoped upsert-by-endpoint, (4) VAPID public key needs the `NEXT_PUBLIC_` prefix or the client can't read it, (5) no dropdown empty state, (6) feature isn't on the MVP roadmap. Founder chose to build the **full feature** (in-app + push) via Cursor, so a self-contained Cursor build-doc was written with every council critical folded in as an inline `COUNCIL FIX`, structured as two verify-before-continue phases.
