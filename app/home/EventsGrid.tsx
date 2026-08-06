@@ -288,19 +288,20 @@ function ErrorSection() {
 
 interface Props {
   events: EventListItem[]
+  collabEvents: EventListItem[]
   userDisplay: string
   avatarUrl?: string | null
   hasError?: boolean
 }
 
-export default function EventsGrid({ events, userDisplay, avatarUrl = null, hasError = false }: Props) {
+export default function EventsGrid({ events, collabEvents, userDisplay, avatarUrl = null, hasError = false }: Props) {
   const [ownership, setOwnership] = useState<Ownership>("my")
   const [time, setTime] = useState<TimeFilter>("active")
 
   const myActive = events.filter(isActive)
   const myPast = events.filter((e) => !isActive(e))
-  const collabActive: EventListItem[] = []
-  const collabPast: EventListItem[] = []
+  const collabActive = collabEvents.filter(isActive)
+  const collabPast = collabEvents.filter((e) => !isActive(e))
 
   const visibleEvents =
     ownership === "my"

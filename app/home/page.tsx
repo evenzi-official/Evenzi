@@ -12,11 +12,26 @@ interface EventListRow {
   name: string | null;
   primary_date: string | null;
   primary_venue: string | null;
-  guest_capacity: number | null; 
+  guest_capacity: number | null;
   cover_image_url: string | null;
   status: string;
   created_at: string;
   event_sub_events: { id: string }[] | null;
+}
+
+function mapEventRow(row: EventListRow): EventListItem {
+  return {
+    id: row.id,
+    name: row.name,
+    eventType: { name: "Event", slug: "event", iconName: null },
+    primaryDate: row.primary_date,
+    primaryVenue: row.primary_venue,
+    guestCapacity: row.guest_capacity,
+    coverImageUrl: row.cover_image_url,
+    status: row.status,
+    subEventCount: row.event_sub_events?.length ?? 0,
+    createdAt: row.created_at,
+  };
 }
 
 export default async function HomePage() {
@@ -47,21 +62,38 @@ export default async function HomePage() {
     console.error("[home] failed to load events:", error);
   }
 
-  const hasError = Boolean(error);
+  const { data: collabRows, error: collabError } = await supabase
+    .from("event_collaborators")
+    .select(`
+      event_id,
+      events!inner(
+        id, name, primary_date, primary_venue, guest_capacity,
+        cover_image_url, status, created_at, deleted_at,
+        event_sub_events ( id )
+      )
+    `)
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .is("events.deleted_at", null);
+
+  if (collabError) {
+    console.error("[home] failed to load collab events:", collabError);
+  }
+
+  const hasError = Boolean(error) || Boolean(collabError);
   const rows = (data ?? []) as unknown as EventListRow[];
 
-  const events: EventListItem[] = rows.map((row) => ({
-    id: row.id,
-    name: row.name,
-    eventType: { name: "Event", slug: "event", iconName: null },
-    primaryDate: row.primary_date,
-    primaryVenue: row.primary_venue,
-    guestCapacity: row.guest_capacity,
-    coverImageUrl: row.cover_image_url,
-    status: row.status,
-    subEventCount: row.event_sub_events?.length ?? 0,
-    createdAt: row.created_at,
-  }));
+  const events: EventListItem[] = rows.map(mapEventRow);
+
+  type CollabJoinRow = {
+    events: EventListRow | EventListRow[] | null;
+  };
+  const collabEvents: EventListItem[] = ((collabRows ?? []) as unknown as CollabJoinRow[])
+    .map((row) => {
+      const ev = Array.isArray(row.events) ? row.events[0] : row.events;
+      return ev ? mapEventRow(ev) : null;
+    })
+    .filter((e): e is EventListItem => e !== null);
 
   // The name the host set in Settings wins, so editing it there actually shows
   // up here. Falls back to the email local-part / phone only when it isn't set.
@@ -82,6 +114,7 @@ export default async function HomePage() {
   return (
     <EventsGrid
       events={events}
+      collabEvents={collabEvents}
       userDisplay={userDisplay}
       avatarUrl={profile?.avatar_url ?? null}
       hasError={hasError}
