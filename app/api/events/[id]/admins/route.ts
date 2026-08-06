@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { Resend } from 'resend'
 import { buildInviteEmail } from '@/lib/email/inviteEmail'
 import { getAppBaseUrl } from '@/lib/url'
+import { requireEventWrite } from '@/lib/auth/eventAccess'
 
 const uuidSchema = z.string().uuid()
 
@@ -26,12 +27,13 @@ export async function POST(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    // Verify caller owns this event
+    const access = await requireEventWrite(supabase, id, user.id, 'admins')
+    if (!access.ok) return access.response
+
     const { data: ev } = await supabase
       .from('events')
       .select('id, name')
       .eq('id', id)
-      .eq('user_id', user.id)
       .is('deleted_at', null)
       .single()
     if (!ev) return NextResponse.json({ error: 'Event not found' }, { status: 404 })
@@ -64,11 +66,14 @@ export async function POST(
       if (error.code === '23505') {
         return NextResponse.json({ error: 'This person is already invited' }, { status: 409 })
       }
+      if (error.code === '23514') {
+        return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
+      }
       console.error('POST /api/events/[id]/admins failed:', error)
       return NextResponse.json({ error: 'Failed to invite collaborator' }, { status: 500 })
     }
 
-    // Fetch the owner's display name for the email
+    // Fetch the caller's display name for the email
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('display_name')
