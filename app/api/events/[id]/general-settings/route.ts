@@ -5,9 +5,7 @@ import { z } from 'zod'
 const uuidSchema = z.string().uuid()
 
 const patchSchema = z.object({
-  tagline:          z.string().max(80).nullable().optional(),
-  show_on_dashboard: z.boolean().optional(),
-  discoverable:     z.boolean().optional(),
+  tagline: z.string().max(80).nullable().optional(),
 }).strict()
 
 function nullify(v: string | null | undefined): string | null | undefined {
@@ -55,12 +53,10 @@ export async function PATCH(
       return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }, { status: 400 })
     }
 
-    const { tagline, show_on_dashboard, discoverable } = parsed.data
+    const { tagline } = parsed.data
 
     const upsertData: Record<string, unknown> = { event_id: id, user_id: user.id }
     if (tagline !== undefined) upsertData.tagline = nullify(tagline)
-    if (show_on_dashboard !== undefined) upsertData.show_on_dashboard = show_on_dashboard
-    if (discoverable !== undefined) upsertData.discoverable = discoverable
 
     const { error } = await supabase
       .from('event_general_settings')

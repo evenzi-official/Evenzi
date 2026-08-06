@@ -21,8 +21,6 @@ export interface GeneralSettingsEvent {
   city:            string | null
   eventDetails:    Record<string, string>
   tagline:         string | null
-  showOnDashboard: boolean
-  discoverable:    boolean
 }
 
 type ToastTone = 'success' | 'error'
@@ -42,9 +40,6 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
   const [venue, setVenue] = useState(event.primaryVenue ?? '')
   const [city, setCity] = useState(event.city ?? '')
   const [tagline, setTagline] = useState(event.tagline ?? '')
-
-  const [showOnDashboard, setShowOnDashboard] = useState(event.showOnDashboard)
-  const [discoverable, setDiscoverable] = useState(event.discoverable)
 
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -139,9 +134,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            tagline:          nullify(tagline),
-            show_on_dashboard: showOnDashboard,
-            discoverable,
+            tagline: nullify(tagline),
           }),
         }),
       ])
@@ -288,34 +281,6 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
           </div>
         </section>
 
-        {/* Event list rules */}
-        <section className="es-section">
-          <header className="es-section-head">
-            <h2 className="es-section-title">
-              <span aria-hidden="true" className="material-symbols-outlined icon-fill">visibility</span>
-              Event list rules
-            </h2>
-            <p className="es-section-sub">Choose how this event appears on your dashboard and to potential viewers.</p>
-          </header>
-
-          <div className="es-toggle-row">
-            <div className="es-toggle-body">
-              <span className="es-toggle-title">Show this event on my dashboard</span>
-              <span className="es-toggle-desc">Hide while you&apos;re still planning; turn back on when ready to share.</span>
-            </div>
-            <button
-              type="button"
-              className="toggle-switch"
-              role="switch"
-              aria-checked={showOnDashboard}
-              aria-label="Show this event on my dashboard"
-              onClick={() => setShowOnDashboard(v => !v)}
-            >
-              <span className="toggle-switch-thumb" aria-hidden="true" />
-            </button>
-          </div>
-        </section>
-
         {/* Help card */}
         <div className="es-help-card">
           <div className="es-help-body">
@@ -354,14 +319,6 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
           </div>
         </section>
 
-        <footer className="es-footer">
-          <span>© 2026 Evenzi · All rights reserved</span>
-          <div className="es-footer-links">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Help</a>
-          </div>
-        </footer>
       </div>
 
       {/* Delete confirmation — reuses the shell .modal-confirm-cautionary primitive */}

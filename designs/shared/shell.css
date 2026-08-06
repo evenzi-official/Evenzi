@@ -1234,6 +1234,9 @@ html{scroll-behavior:smooth}
   outline:none;
 }
 .form-input::placeholder{color:var(--muted-soft);font-weight:500}
+.form-input[type="date"],
+.form-input[type="time"],
+.form-input[type="datetime-local"]{color-scheme:dark}
 @media (hover:hover) and (pointer:fine){.form-input:hover{border-color:color-mix(in oklab,var(--brand) 35%,var(--brand-tint-2))}}
 .form-input:focus{
   border-color:var(--brand);
