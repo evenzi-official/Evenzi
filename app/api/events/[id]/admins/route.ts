@@ -9,7 +9,7 @@ const uuidSchema = z.string().uuid()
 
 const postSchema = z.object({
   email: z.string().email().max(320),
-  role:  z.string().max(50).default('co-host'),
+  role:  z.enum(['co-host', 'planner', 'photographer', 'viewer']).default('co-host'),
 }).strict()
 
 export async function POST(
@@ -96,7 +96,7 @@ export async function POST(
       console.warn('[admins] RESEND_API_KEY not set — invite saved but email not sent. Accept URL:', inviteUrl)
     }
 
-    return NextResponse.json({ success: true }, { status: 201 })
+    return NextResponse.json({ success: true, id: newCollab.id }, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
