@@ -12,10 +12,11 @@ const TOOLS = [
 
 interface ToolRailProps {
   eventId: string
-  isLive?: boolean
+  isLive: boolean
+  liveUrl: string | null
 }
 
-export function ToolRail({ eventId, isLive = false }: ToolRailProps) {
+export function ToolRail({ eventId, isLive, liveUrl }: ToolRailProps) {
   const pathname = usePathname()
 
   function isActive(toolId: string) {
@@ -37,10 +38,15 @@ export function ToolRail({ eventId, isLive = false }: ToolRailProps) {
         </Link>
       ))}
       <span className="tr-divider" aria-hidden="true" />
-      {isLive && (
-        <span className="tr-status" aria-hidden="true">
+      {isLive && liveUrl ? (
+        <a href={liveUrl} target="_blank" rel="noopener noreferrer" className="tr-status" aria-label="Site is live — open it">
           <span className="bc-live" />
           LIVE
+        </a>
+      ) : (
+        <span className="tr-status is-offline" aria-label="Site is offline">
+          <span className="bc-live is-offline-dot" aria-hidden="true" />
+          OFFLINE
         </span>
       )}
     </aside>

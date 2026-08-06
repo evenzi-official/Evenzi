@@ -16,7 +16,7 @@ export default async function GeneralSettingsPage({ params }: { params: Promise<
       .single(),
     supabase
       .from('event_general_settings')
-      .select('tagline, show_on_dashboard, discoverable')
+      .select('tagline')
       .eq('event_id', id)
       .single(),
   ])
@@ -32,8 +32,6 @@ export default async function GeneralSettingsPage({ params }: { params: Promise<
     city:             eventDetails['city'] ?? null,
     eventDetails,
     tagline:          gs?.tagline          ?? null,
-    showOnDashboard:  gs?.show_on_dashboard ?? true,
-    discoverable:     gs?.discoverable      ?? false,
   }
 
   return (

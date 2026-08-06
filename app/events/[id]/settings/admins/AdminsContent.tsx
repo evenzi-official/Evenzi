@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { BusyOverlay } from '@/components/ui/BusyOverlay'
+import { Portal } from '@/components/ui/Portal'
 
 interface Collaborator {
   id:          string
@@ -25,6 +27,7 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
   const [email, setEmail]       = useState('')
   const [role, setRole]         = useState('co-host')
   const [sending, setSending]   = useState(false)
+  const [removingId, setRemovingId] = useState<string | null>(null)
   const [toast, setToast]       = useState<string | null>(null)
 
   function flashToast(msg: string) {
@@ -37,6 +40,24 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
     setModalOpen(false)
     setEmail('')
     setRole('co-host')
+  }
+
+  async function handleRemove(collabId: string) {
+    setRemovingId(collabId)
+    try {
+      const res = await fetch(`/api/events/${eventId}/admins/${collabId}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({})) as { error?: string }
+        flashToast(json.error ?? 'Failed to remove — please try again')
+      } else {
+        setCollabs(prev => prev.filter(c => c.id !== collabId))
+        flashToast('Collaborator removed')
+      }
+    } catch {
+      flashToast('Network error — please try again')
+    } finally {
+      setRemovingId(null)
+    }
   }
 
   async function handleSendInvite() {
@@ -53,7 +74,7 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
       } else {
         const name = email.split('@')[0] ?? email
         setCollabs(prev => [...prev, {
-          id:          crypto.randomUUID(),
+          id:          (json as { id?: string }).id ?? crypto.randomUUID(),
           displayName: name,
           email:       email.trim(),
           role,
@@ -74,6 +95,7 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
 
   return (
     <>
+      <BusyOverlay active={sending || removingId !== null} label={sending ? 'Sending invite…' : 'Removing…'} />
       <div className="es-content">
         <header className="es-content-head">
           <div>
@@ -123,12 +145,12 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
               <button
                 type="button"
                 className="fn-icon-btn"
-                aria-disabled="true"
-                title="Coming soon"
-                tabIndex={-1}
-                aria-label={`Edit ${collab.displayName.split(' ')[0]}'s role — coming soon`}
+                onClick={() => handleRemove(collab.id)}
+                disabled={removingId === collab.id}
+                aria-busy={removingId === collab.id}
+                aria-label={`Remove ${collab.displayName.split(' ')[0]}`}
               >
-                <span aria-hidden="true" className="material-symbols-outlined">more_horiz</span>
+                <span aria-hidden="true" className="material-symbols-outlined">person_remove</span>
               </button>
             </div>
           ))}
@@ -143,79 +165,73 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
             <span className="es-help-title">Need help managing roles?</span>
             <span className="es-help-desc">Our guide explains permissions for Owner, Co-host, and Planner — and what each can edit on your behalf.</span>
           </div>
-          <button type="button" className="btn-pill btn-pill-secondary">
+          <a href="mailto:evenzi.official@gmail.com" className="btn-pill btn-pill-secondary">
             <span aria-hidden="true" className="material-symbols-outlined">menu_book</span>
             Read the guide
-          </button>
+          </a>
         </div>
 
-        <footer className="es-footer">
-          <span>© 2026 Evenzi · All rights reserved</span>
-          <div className="es-footer-links">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Help</a>
-          </div>
-        </footer>
       </div>
 
-      {/* Invite co-host modal */}
-      <div
-        className={`modal-scrim${modalOpen ? ' is-open' : ''}`}
-        aria-hidden={!modalOpen}
-        onClick={(e) => { if (e.target === e.currentTarget) closeModal() }}
-      >
-        <div className="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="es-cohost-title">
-          <header className="modal-head">
-            <div className="modal-head-lead">
-              <h2 className="modal-title" id="es-cohost-title">Invite a co-host</h2>
-              <p className="modal-sub">They&apos;ll get an email invite to help manage this event.</p>
+      {/* Invite co-host modal — portaled so .reveal transform doesn't clip fixed scrim */}
+      <Portal>
+        <div
+          className={`modal-scrim${modalOpen ? ' is-open' : ''}`}
+          aria-hidden={!modalOpen}
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal() }}
+        >
+          <div className="modal-card lg-glass-card" role="dialog" aria-modal="true" aria-labelledby="es-cohost-title">
+            <header className="modal-head">
+              <div className="modal-head-lead">
+                <h2 className="modal-title" id="es-cohost-title">Invite a co-host</h2>
+                <p className="modal-sub">They&apos;ll get an email invite to help manage this event.</p>
+              </div>
+              <button className="modal-close" type="button" onClick={closeModal} aria-label="Close">
+                <span className="material-symbols-outlined" aria-hidden="true">close</span>
+              </button>
+            </header>
+            <div className="form-group">
+              <label className="form-label" htmlFor="es-cohost-email">Email address</label>
+              <input
+                id="es-cohost-email"
+                type="email"
+                className="form-input"
+                autoComplete="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-            <button className="modal-close" type="button" onClick={closeModal} aria-label="Close">
-              <span className="material-symbols-outlined" aria-hidden="true">close</span>
-            </button>
-          </header>
-          <div className="form-group">
-            <label className="form-label" htmlFor="es-cohost-email">Email address</label>
-            <input
-              id="es-cohost-email"
-              type="email"
-              className="form-input"
-              autoComplete="email"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label" htmlFor="es-cohost-role">Role</label>
-            <select
-              id="es-cohost-role"
-              className="form-input"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            >
-              <option value="co-host">Co-host</option>
-              <option value="photographer">Photographer</option>
-              <option value="planner">Planner</option>
-              <option value="viewer">Viewer</option>
-            </select>
-          </div>
-          <div className="modal-actions">
-            <button type="button" className="btn-pill btn-pill-secondary" onClick={closeModal} disabled={sending}>Cancel</button>
-            <button
-              type="button"
-              className={`btn-pill btn-pill-primary${sending ? ' is-loading' : ''}`}
-              onClick={handleSendInvite}
-              disabled={sending || !email.trim()}
-              aria-busy={sending}
-            >
-              Send invite
-              <span aria-hidden="true" className="btn-pill-spinner" />
-            </button>
+            <div className="form-group">
+              <label className="form-label" htmlFor="es-cohost-role">Role</label>
+              <select
+                id="es-cohost-role"
+                className="form-input"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option value="co-host">Co-host</option>
+                <option value="photographer">Photographer</option>
+                <option value="planner">Planner</option>
+                <option value="viewer">Viewer</option>
+              </select>
+            </div>
+            <div className="modal-actions">
+              <button type="button" className="btn-pill btn-pill-secondary" onClick={closeModal} disabled={sending}>Cancel</button>
+              <button
+                type="button"
+                className={`btn-pill btn-pill-primary${sending ? ' is-loading' : ''}`}
+                onClick={handleSendInvite}
+                disabled={sending || !email.trim()}
+                aria-busy={sending}
+              >
+                Send invite
+                <span aria-hidden="true" className="btn-pill-spinner" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </Portal>
 
       <div className={`bc-toast${toast ? ' is-show' : ''}`} role="status" aria-live="polite">
         <span className="bc-live" aria-hidden="true" />

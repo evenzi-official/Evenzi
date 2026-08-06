@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { requireEventWrite } from '@/lib/auth/eventAccess'
 
 const uuidSchema = z.string().uuid()
 
@@ -18,17 +19,6 @@ function nullify(v: string | null | undefined): string | null | undefined {
   return v.trim() === '' ? null : v
 }
 
-async function verifyOwnership(supabase: Awaited<ReturnType<typeof createClient>>, eventId: string, userId: string) {
-  const { data } = await supabase
-    .from('events')
-    .select('id')
-    .eq('id', eventId)
-    .eq('user_id', userId)
-    .is('deleted_at', null)
-    .single()
-  return !!data
-}
-
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -43,9 +33,16 @@ export async function PATCH(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    if (!await verifyOwnership(supabase, id, user.id)) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    }
+    const access = await requireEventWrite(supabase, id, user.id, 'guests')
+    if (!access.ok) return access.response
+
+    const { data: ownedEvent } = await supabase
+      .from('events')
+      .select('user_id')
+      .eq('id', id)
+      .is('deleted_at', null)
+      .single()
+    if (!ownedEvent) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     let body: unknown
     try { body = await request.json() } catch {
@@ -59,7 +56,7 @@ export async function PATCH(
 
     const { rsvp_enabled, allow_plus_ones, max_plus_ones_per_invite, collect_dietary_notes, default_guest_message } = parsed.data
 
-    const upsertData: Record<string, unknown> = { event_id: id, user_id: user.id }
+    const upsertData: Record<string, unknown> = { event_id: id, user_id: ownedEvent.user_id }
     if (rsvp_enabled !== undefined) upsertData.rsvp_enabled = rsvp_enabled
     if (allow_plus_ones !== undefined) upsertData.allow_plus_ones = allow_plus_ones
     if (max_plus_ones_per_invite !== undefined) upsertData.max_plus_ones_per_invite = max_plus_ones_per_invite

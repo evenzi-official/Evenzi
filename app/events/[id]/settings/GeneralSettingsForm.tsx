@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FormGroup } from '@/components/ui/FormGroup'
 import { FormInput } from '@/components/ui/FormInput'
+import { BusyOverlay } from '@/components/ui/BusyOverlay'
+import { Portal } from '@/components/ui/Portal'
 import { updateEventSchema } from '@/lib/validations/events'
 
 // Variable fields (partner names) live in events.event_details (jsonb), keyed by the
@@ -21,8 +23,6 @@ export interface GeneralSettingsEvent {
   city:            string | null
   eventDetails:    Record<string, string>
   tagline:         string | null
-  showOnDashboard: boolean
-  discoverable:    boolean
 }
 
 type ToastTone = 'success' | 'error'
@@ -42,9 +42,6 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
   const [venue, setVenue] = useState(event.primaryVenue ?? '')
   const [city, setCity] = useState(event.city ?? '')
   const [tagline, setTagline] = useState(event.tagline ?? '')
-
-  const [showOnDashboard, setShowOnDashboard] = useState(event.showOnDashboard)
-  const [discoverable, setDiscoverable] = useState(event.discoverable)
 
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -129,25 +126,23 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
 
     setSaving(true)
     try {
-      const [evRes, gsRes] = await Promise.all([
-        fetch(`/api/events/${event.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(parsed.data),
-        }),
-        fetch(`/api/events/${event.id}/general-settings`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            tagline:          nullify(tagline),
-            show_on_dashboard: showOnDashboard,
-            discoverable,
-          }),
-        }),
-      ])
+      const evRes = await fetch(`/api/events/${event.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsed.data),
+      })
+      if (!evRes.ok) {
+        flashToast(evRes.status === 404 ? 'Event not found.' : 'Could not save event details.', 'error')
+        return
+      }
 
-      if (!evRes.ok || !gsRes.ok) {
-        flashToast(!evRes.ok && evRes.status === 404 ? 'Event not found.' : 'Could not save changes.', 'error')
+      const gsRes = await fetch(`/api/events/${event.id}/general-settings`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tagline: nullify(tagline) }),
+      })
+      if (!gsRes.ok) {
+        flashToast('Event details saved, but the tagline failed to save — please retry.', 'error')
         return
       }
 
@@ -183,6 +178,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
 
   return (
     <>
+      <BusyOverlay active={saving || deleting} label={deleting ? 'Deleting event…' : 'Saving changes…'} />
       <div className="es-content">
         <header className="es-content-head">
           <div>
@@ -288,44 +284,16 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
           </div>
         </section>
 
-        {/* Event list rules */}
-        <section className="es-section">
-          <header className="es-section-head">
-            <h2 className="es-section-title">
-              <span aria-hidden="true" className="material-symbols-outlined icon-fill">visibility</span>
-              Event list rules
-            </h2>
-            <p className="es-section-sub">Choose how this event appears on your dashboard and to potential viewers.</p>
-          </header>
-
-          <div className="es-toggle-row">
-            <div className="es-toggle-body">
-              <span className="es-toggle-title">Show this event on my dashboard</span>
-              <span className="es-toggle-desc">Hide while you&apos;re still planning; turn back on when ready to share.</span>
-            </div>
-            <button
-              type="button"
-              className="toggle-switch"
-              role="switch"
-              aria-checked={showOnDashboard}
-              aria-label="Show this event on my dashboard"
-              onClick={() => setShowOnDashboard(v => !v)}
-            >
-              <span className="toggle-switch-thumb" aria-hidden="true" />
-            </button>
-          </div>
-        </section>
-
         {/* Help card */}
         <div className="es-help-card">
           <div className="es-help-body">
             <span className="es-help-title">Need help with these settings?</span>
             <span className="es-help-desc">Our support team can walk you through anything that&apos;s not making sense.</span>
           </div>
-          <button type="button" className="btn-pill btn-pill-secondary">
+          <a href="mailto:evenzi.official@gmail.com" className="btn-pill btn-pill-secondary">
             <span aria-hidden="true" className="material-symbols-outlined">support_agent</span>
             Contact support
-          </button>
+          </a>
         </div>
 
         {/* Danger zone */}
@@ -354,68 +322,62 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
           </div>
         </section>
 
-        <footer className="es-footer">
-          <span>© 2026 Evenzi · All rights reserved</span>
-          <div className="es-footer-links">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Help</a>
-          </div>
-        </footer>
       </div>
 
-      {/* Delete confirmation — reuses the shell .modal-confirm-cautionary primitive */}
-      <div
-        className={`modal-scrim${confirmOpen ? ' is-open' : ''}`}
-        aria-hidden={!confirmOpen}
-        onClick={(e) => {
-          if (e.target === e.currentTarget && !deleting) closeConfirm()
-        }}
-      >
-        <div className="modal-confirm-cautionary modal-card" role="alertdialog" aria-modal="true" aria-labelledby="es-delete-title">
-          <div className="modal-confirm-icon is-cautionary">
-            <span aria-hidden="true" className="material-symbols-outlined">delete_forever</span>
-          </div>
-          <h3 className="modal-confirm-title" id="es-delete-title">Delete this event?</h3>
-          <p className="modal-confirm-text">
-            This permanently removes the event and all its data, guests, and media. This cannot be undone.
-          </p>
-          <div className="form-group">
-            <label className="form-label" htmlFor="es-delete-confirm-text">
-              Type <strong>DELETE</strong> to confirm
-            </label>
-            <input
-              id="es-delete-confirm-text"
-              type="text"
-              className="form-input"
-              autoComplete="off"
-              value={deleteConfirmText}
-              onChange={(e) => setDeleteConfirmText(e.target.value)}
-              disabled={deleting}
-            />
-          </div>
-          <div className="modal-actions">
-            <button
-              type="button"
-              className="btn-pill btn-pill-secondary"
-              onClick={closeConfirm}
-              disabled={deleting}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className={`btn-pill btn-pill-danger${deleting ? ' is-loading' : ''}`}
-              onClick={handleDelete}
-              disabled={deleting || deleteConfirmText.trim().toUpperCase() !== 'DELETE'}
-              aria-busy={deleting}
-            >
-              Delete event
-              <span aria-hidden="true" className="btn-pill-spinner" />
-            </button>
+      {/* Delete confirmation — portaled so .reveal transform doesn't clip fixed scrim */}
+      <Portal>
+        <div
+          className={`modal-scrim${confirmOpen ? ' is-open' : ''}`}
+          aria-hidden={!confirmOpen}
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !deleting) closeConfirm()
+          }}
+        >
+          <div className="modal-confirm-cautionary modal-card" role="alertdialog" aria-modal="true" aria-labelledby="es-delete-title">
+            <div className="modal-confirm-icon is-cautionary">
+              <span aria-hidden="true" className="material-symbols-outlined">delete_forever</span>
+            </div>
+            <h3 className="modal-confirm-title" id="es-delete-title">Delete this event?</h3>
+            <p className="modal-confirm-text">
+              This permanently removes the event and all its data, guests, and media. This cannot be undone.
+            </p>
+            <div className="form-group">
+              <label className="form-label" htmlFor="es-delete-confirm-text">
+                Type <strong>DELETE</strong> to confirm
+              </label>
+              <input
+                id="es-delete-confirm-text"
+                type="text"
+                className="form-input"
+                autoComplete="off"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                disabled={deleting}
+              />
+            </div>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn-pill btn-pill-secondary"
+                onClick={closeConfirm}
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={`btn-pill btn-pill-danger${deleting ? ' is-loading' : ''}`}
+                onClick={handleDelete}
+                disabled={deleting || deleteConfirmText.trim().toUpperCase() !== 'DELETE'}
+                aria-busy={deleting}
+              >
+                Delete event
+                <span aria-hidden="true" className="btn-pill-spinner" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </Portal>
 
       {/* Toast — reuses the shell .bc-toast primitive */}
       <div

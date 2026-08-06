@@ -259,6 +259,40 @@
 @media (hover:hover) and (pointer:fine){.cec-action:hover{gap:.5rem}}
 .cec-action .material-symbols-outlined{font-size:14px}
 
+/* Pending collab invite — same clay family as compact cards; actions instead of link */
+.pending-invite-stack{
+  display:flex;flex-direction:column;gap:1rem;
+}
+.pending-invite-card{
+  display:flex;flex-direction:column;
+  border-radius:24px;overflow:hidden;
+  background:var(--card);border:1px solid var(--line);
+  box-shadow:var(--shadow-clay);
+}
+.pic-body{padding:1.1rem 1.15rem;display:flex;flex-direction:column;gap:.65rem}
+.pic-type{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:9px;
+  letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin:0;
+}
+.pic-title{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;
+  color:var(--ink);letter-spacing:-.005em;line-height:1.2;margin:0;
+}
+.pic-meta{
+  display:flex;align-items:center;gap:.4rem;
+  font-size:12px;color:var(--muted);font-weight:500;margin:0;
+}
+.pic-meta .material-symbols-outlined{font-size:14px;color:var(--brand)}
+.pic-actions{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;
+  gap:.55rem;margin-top:.35rem;padding-top:.75rem;
+  border-top:1px solid var(--line-soft);
+}
+.pending-invite-followup{
+  margin:0;font-family:'Poppins',sans-serif;font-weight:500;font-size:13px;
+  color:var(--muted);line-height:1.5;text-align:center;
+}
+
 /* Compact card width is driven by .event-side (stack / 2-up / stack) */
 
 

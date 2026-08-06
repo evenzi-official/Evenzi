@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { requireEventWrite } from '@/lib/auth/eventAccess'
 import { z } from 'zod'
 
 const uuidSchema = z.string().uuid()
@@ -16,11 +17,6 @@ const patchSchema = z.object({
   display_order: z.number().int().min(0).optional(),
 }).strict()
 
-async function verifyOwnership(supabase: Awaited<ReturnType<typeof createClient>>, eventId: string, userId: string) {
-  const { data } = await supabase
-    .from('events').select('id').eq('id', eventId).eq('user_id', userId).is('deleted_at', null).single()
-  return !!data
-}
 
 export async function PATCH(
   request: Request,
@@ -35,7 +31,8 @@ export async function PATCH(
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    if (!await verifyOwnership(supabase, id, user.id)) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    const access = await requireEventWrite(supabase, id, user.id, 'website')
+    if (!access.ok) return access.response
 
     let body: unknown
     try { body = await request.json() } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
@@ -70,7 +67,8 @@ export async function DELETE(
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    if (!await verifyOwnership(supabase, id, user.id)) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    const access = await requireEventWrite(supabase, id, user.id, 'website')
+    if (!access.ok) return access.response
 
     const { error } = await supabase
       .from('event_stays')

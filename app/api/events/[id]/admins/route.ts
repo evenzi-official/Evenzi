@@ -4,12 +4,13 @@ import { z } from 'zod'
 import { Resend } from 'resend'
 import { buildInviteEmail } from '@/lib/email/inviteEmail'
 import { getAppBaseUrl } from '@/lib/url'
+import { requireEventWrite } from '@/lib/auth/eventAccess'
 
 const uuidSchema = z.string().uuid()
 
 const postSchema = z.object({
   email: z.string().email().max(320),
-  role:  z.string().max(50).default('co-host'),
+  role:  z.enum(['co-host', 'planner', 'photographer', 'viewer']).default('co-host'),
 }).strict()
 
 export async function POST(
@@ -26,12 +27,13 @@ export async function POST(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    // Verify caller owns this event
+    const access = await requireEventWrite(supabase, id, user.id, 'admins')
+    if (!access.ok) return access.response
+
     const { data: ev } = await supabase
       .from('events')
       .select('id, name')
       .eq('id', id)
-      .eq('user_id', user.id)
       .is('deleted_at', null)
       .single()
     if (!ev) return NextResponse.json({ error: 'Event not found' }, { status: 404 })
@@ -64,11 +66,14 @@ export async function POST(
       if (error.code === '23505') {
         return NextResponse.json({ error: 'This person is already invited' }, { status: 409 })
       }
+      if (error.code === '23514') {
+        return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
+      }
       console.error('POST /api/events/[id]/admins failed:', error)
       return NextResponse.json({ error: 'Failed to invite collaborator' }, { status: 500 })
     }
 
-    // Fetch the owner's display name for the email
+    // Fetch the caller's display name for the email
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('display_name')
@@ -96,7 +101,23 @@ export async function POST(
       console.warn('[admins] RESEND_API_KEY not set — invite saved but email not sent. Accept URL:', inviteUrl)
     }
 
-    return NextResponse.json({ success: true }, { status: 201 })
+    // In-app bell for existing users — best-effort, never fail the invite
+    try {
+      const { error: notifyError } = await supabase.rpc('notify_user_by_email', {
+        p_event_id: id,
+        p_actor_id: user.id,
+        p_email: email,
+        p_title: ownerName,
+        p_body: `Invited as ${role} on ${eventName}`,
+      })
+      if (notifyError) {
+        console.error('[admins] notify_user_by_email failed:', notifyError)
+      }
+    } catch (notifyErr) {
+      console.error('[admins] notify_user_by_email threw:', notifyErr)
+    }
+
+    return NextResponse.json({ success: true, id: newCollab.id }, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

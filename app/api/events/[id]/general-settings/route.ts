@@ -1,30 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { requireEventWrite } from '@/lib/auth/eventAccess'
 
 const uuidSchema = z.string().uuid()
 
 const patchSchema = z.object({
-  tagline:          z.string().max(80).nullable().optional(),
-  show_on_dashboard: z.boolean().optional(),
-  discoverable:     z.boolean().optional(),
+  tagline: z.string().max(80).nullable().optional(),
 }).strict()
 
 function nullify(v: string | null | undefined): string | null | undefined {
   if (v === undefined) return undefined
   if (v === null) return null
   return v.trim() === '' ? null : v
-}
-
-async function verifyOwnership(supabase: Awaited<ReturnType<typeof createClient>>, eventId: string, userId: string) {
-  const { data } = await supabase
-    .from('events')
-    .select('id')
-    .eq('id', eventId)
-    .eq('user_id', userId)
-    .is('deleted_at', null)
-    .single()
-  return !!data
 }
 
 export async function PATCH(
@@ -41,9 +29,16 @@ export async function PATCH(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    if (!await verifyOwnership(supabase, id, user.id)) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    }
+    const access = await requireEventWrite(supabase, id, user.id, 'general')
+    if (!access.ok) return access.response
+
+    const { data: ownedEvent } = await supabase
+      .from('events')
+      .select('user_id')
+      .eq('id', id)
+      .is('deleted_at', null)
+      .single()
+    if (!ownedEvent) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     let body: unknown
     try { body = await request.json() } catch {
@@ -55,12 +50,10 @@ export async function PATCH(
       return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }, { status: 400 })
     }
 
-    const { tagline, show_on_dashboard, discoverable } = parsed.data
+    const { tagline } = parsed.data
 
-    const upsertData: Record<string, unknown> = { event_id: id, user_id: user.id }
+    const upsertData: Record<string, unknown> = { event_id: id, user_id: ownedEvent.user_id }
     if (tagline !== undefined) upsertData.tagline = nullify(tagline)
-    if (show_on_dashboard !== undefined) upsertData.show_on_dashboard = show_on_dashboard
-    if (discoverable !== undefined) upsertData.discoverable = discoverable
 
     const { error } = await supabase
       .from('event_general_settings')

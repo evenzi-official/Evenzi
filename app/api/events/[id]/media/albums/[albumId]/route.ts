@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { requireEventWrite } from '@/lib/auth/eventAccess'
 import { renameAlbumSchema, uuidSchema } from '@/lib/validations/media'
-import { assertEventOwnership } from '@/lib/media/ownership'
 
 export async function PATCH(
   request: Request,
@@ -17,8 +17,9 @@ export async function PATCH(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const owned = await assertEventOwnership(supabase, id, user.id)
-    if (!owned) return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    const access = await requireEventWrite(supabase, id, user.id, 'media')
+    if (!access.ok) return access.response
+
 
     let body: unknown
     try { body = await request.json() } catch {
@@ -67,8 +68,9 @@ export async function DELETE(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const owned = await assertEventOwnership(supabase, id, user.id)
-    if (!owned) return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    const access = await requireEventWrite(supabase, id, user.id, 'media')
+    if (!access.ok) return access.response
+
 
     // Links-only delete (D32) — event_media_albums cascades on FK, media rows survive.
     const { error: deleteError } = await supabase.from('event_albums').delete().eq('id', albumId).eq('event_id', id)

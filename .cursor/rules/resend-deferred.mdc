@@ -1,0 +1,10 @@
+---
+description: Resend account exists but API keys deferred until founder asks
+alwaysApply: true
+---
+
+# Resend — keys deferred
+
+Abhijith has created a Resend account. Do **not** prompt to add `RESEND_API_KEY` / `RESEND_FROM_EMAIL` to `.env.local` or Vercel until he asks.
+
+Invite email stays best-effort (server log Accept URL when unset). In-app Collaborations + bell invite accept work without Resend.

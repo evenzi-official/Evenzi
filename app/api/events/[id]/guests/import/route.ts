@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { requireEventWrite } from '@/lib/auth/eventAccess'
 import { importGuestsSchema, uuidSchema } from '@/lib/validations/guests'
 
 export async function POST(
@@ -15,6 +16,9 @@ export async function POST(
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const access = await requireEventWrite(supabase, id, user.id, 'guests')
+    if (!access.ok) return access.response
 
     let body: unknown
     try { body = await request.json() } catch {
