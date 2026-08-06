@@ -16,6 +16,17 @@ function nullify(v: string | null | undefined): string | null | undefined {
   return v.trim() === '' ? null : v
 }
 
+async function verifyOwnership(supabase: Awaited<ReturnType<typeof createClient>>, eventId: string, userId: string) {
+  const { data } = await supabase
+    .from('events')
+    .select('id')
+    .eq('id', eventId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .single()
+  return !!data
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -29,6 +40,10 @@ export async function PATCH(
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    if (!await verifyOwnership(supabase, id, user.id)) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
 
     let body: unknown
     try { body = await request.json() } catch {
