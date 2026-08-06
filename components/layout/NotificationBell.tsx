@@ -13,6 +13,7 @@ const ICONS: Record<string, string> = {
   collaborator_added: 'person_add',
   expense_recorded: 'payments',
   invites_sent: 'forward_to_inbox',
+  collab_invite_received: 'mail',
 }
 
 function notificationIcon(type: string): string {
@@ -31,6 +32,7 @@ export function NotificationBell(): React.ReactElement {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [panelStyle, setPanelStyle] = useState<React.CSSProperties>({})
+  const [actingEventId, setActingEventId] = useState<string | null>(null)
 
   const fetchNotifications = useCallback(async (opts?: { silent?: boolean }) => {
     if (!opts?.silent) setLoading(true)
@@ -153,6 +155,28 @@ export function NotificationBell(): React.ReactElement {
     if (n.linkPath) router.push(n.linkPath)
   }
 
+  const handleCollabInviteAction = async (
+    n: AppNotification,
+    action: 'accept' | 'decline'
+  ): Promise<void> => {
+    setActingEventId(n.eventId)
+    try {
+      const res = await fetch(
+        `/api/collaborators/invites/by-event/${n.eventId}/${action}`,
+        { method: 'POST' }
+      )
+      if (!res.ok) {
+        console.error(`[notif] collab invite ${action} failed:`, res.status)
+        return
+      }
+      await fetchNotifications({ silent: true })
+    } catch (err) {
+      console.error(`[notif] collab invite ${action} error:`, err)
+    } finally {
+      setActingEventId(null)
+    }
+  }
+
   const panel = (
     <div
       ref={panelRef}
@@ -214,35 +238,82 @@ export function NotificationBell(): React.ReactElement {
         )}
 
         {!error &&
-          notifications.map((n) => (
-            <li
-              key={n.id}
-              className={`fn-notif-item${n.readAt ? '' : ' is-unread'}`}
-            >
-              <button
-                type="button"
-                onClick={() => void handleItemClick(n)}
-                style={{
-                  all: 'unset',
-                  display: 'contents',
-                  cursor: 'pointer',
-                }}
+          notifications.map((n) =>
+            n.type === 'collab_invite_received' ? (
+              <li
+                key={n.id}
+                className={`fn-notif-item${n.readAt ? '' : ' is-unread'}`}
               >
                 <span className="fn-notif-icon" aria-hidden="true">
                   <span className="material-symbols-outlined">{notificationIcon(n.type)}</span>
                 </span>
-                <div>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <p className="fn-notif-text line-clamp-2">
                     <strong>{n.title}</strong>
                     {n.body ? ` — ${n.body}` : ''}
                   </p>
                   <p className="fn-notif-time">{formatRelativeTime(n.createdAt)}</p>
                   {!n.readAt && <span className="sr-only">Unread</span>}
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '0.5rem',
+                      marginTop: '0.5rem',
+                    }}
+                  >
+                    <button
+                      type="button"
+                      className="btn-pill btn-pill-secondary btn-pill-sm"
+                      disabled={actingEventId === n.eventId}
+                      aria-busy={actingEventId === n.eventId}
+                      onClick={() => void handleCollabInviteAction(n, 'decline')}
+                    >
+                      Decline
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-pill btn-pill-primary btn-pill-sm"
+                      disabled={actingEventId === n.eventId}
+                      aria-busy={actingEventId === n.eventId}
+                      onClick={() => void handleCollabInviteAction(n, 'accept')}
+                    >
+                      Accept
+                    </button>
+                  </div>
                 </div>
                 <span className="fn-notif-unread" aria-hidden="true" />
-              </button>
-            </li>
-          ))}
+              </li>
+            ) : (
+              <li
+                key={n.id}
+                className={`fn-notif-item${n.readAt ? '' : ' is-unread'}`}
+              >
+                <button
+                  type="button"
+                  onClick={() => void handleItemClick(n)}
+                  style={{
+                    all: 'unset',
+                    display: 'contents',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <span className="fn-notif-icon" aria-hidden="true">
+                    <span className="material-symbols-outlined">{notificationIcon(n.type)}</span>
+                  </span>
+                  <div>
+                    <p className="fn-notif-text line-clamp-2">
+                      <strong>{n.title}</strong>
+                      {n.body ? ` — ${n.body}` : ''}
+                    </p>
+                    <p className="fn-notif-time">{formatRelativeTime(n.createdAt)}</p>
+                    {!n.readAt && <span className="sr-only">Unread</span>}
+                  </div>
+                  <span className="fn-notif-unread" aria-hidden="true" />
+                </button>
+              </li>
+            )
+          )}
       </ul>
 
       <footer className="fn-notif-footer">

@@ -95,6 +95,33 @@ export default async function HomePage() {
     })
     .filter((e): e is EventListItem => e !== null);
 
+  // Pending collab invites for the Collaborations tab (DEFINER RPC; fails if
+  // email is unconfirmed — treat as empty so the rest of home still loads).
+  type PendingInviteRow = {
+    id: string;
+    event_id: string;
+    event_name: string | null;
+    role: string;
+    invited_at: string;
+    owner_display_name: string | null;
+  };
+  const { data: pendingRows, error: pendingError } = await supabase.rpc(
+    "list_my_pending_invites"
+  );
+  if (pendingError) {
+    console.error("[home] failed to load pending invites:", pendingError);
+  }
+  const pendingInvites = ((pendingRows ?? []) as PendingInviteRow[]).map(
+    (row) => ({
+      id: row.id,
+      eventId: row.event_id,
+      eventName: row.event_name ?? "Untitled Event",
+      role: row.role,
+      invitedAt: row.invited_at,
+      ownerDisplayName: row.owner_display_name ?? "Host",
+    })
+  );
+
   // The name the host set in Settings wins, so editing it there actually shows
   // up here. Falls back to the email local-part / phone only when it isn't set.
   const { data: profile } = await supabase
@@ -115,6 +142,7 @@ export default async function HomePage() {
     <EventsGrid
       events={events}
       collabEvents={collabEvents}
+      pendingInvites={pendingInvites}
       userDisplay={userDisplay}
       avatarUrl={profile?.avatar_url ?? null}
       hasError={hasError}

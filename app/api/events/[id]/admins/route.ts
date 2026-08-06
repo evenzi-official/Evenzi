@@ -101,6 +101,22 @@ export async function POST(
       console.warn('[admins] RESEND_API_KEY not set — invite saved but email not sent. Accept URL:', inviteUrl)
     }
 
+    // In-app bell for existing users — best-effort, never fail the invite
+    try {
+      const { error: notifyError } = await supabase.rpc('notify_user_by_email', {
+        p_event_id: id,
+        p_actor_id: user.id,
+        p_email: email,
+        p_title: ownerName,
+        p_body: `Invited as ${role} on ${eventName}`,
+      })
+      if (notifyError) {
+        console.error('[admins] notify_user_by_email failed:', notifyError)
+      }
+    } catch (notifyErr) {
+      console.error('[admins] notify_user_by_email threw:', notifyErr)
+    }
+
     return NextResponse.json({ success: true, id: newCollab.id }, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

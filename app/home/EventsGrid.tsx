@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import type { EventListItem } from "@/lib/types/events"
 import { ScrollProgress } from "@/components/layout/ScrollProgress"
@@ -9,6 +10,20 @@ import { avatarInitial } from "@/lib/utils"
 
 type Ownership = "my" | "collab"
 type TimeFilter = "active" | "past"
+
+export interface PendingInvite {
+  id: string
+  eventId: string
+  eventName: string
+  role: string
+  invitedAt: string
+  ownerDisplayName: string
+}
+
+function formatRole(role: string): string {
+  if (!role) return role
+  return role.charAt(0).toUpperCase() + role.slice(1)
+}
 
 // Placeholder cover images by event type slug (Unsplash CDN, free to use).
 // Falls back to the wedding image for any unrecognised slug (MVP = weddings only).
@@ -233,6 +248,67 @@ function EmptySection({ isCollab }: { isCollab?: boolean }) {
   )
 }
 
+function PendingInviteCard({
+  invite,
+  busy,
+  onAccept,
+  onDecline,
+}: {
+  invite: PendingInvite
+  busy: boolean
+  onAccept: () => void
+  onDecline: () => void
+}) {
+  return (
+    <div className="clay-card" style={{ padding: "1rem 1.125rem" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem 1rem" }}>
+        <div style={{ flex: "1 1 12rem", minWidth: 0 }}>
+          <p style={{ margin: 0, fontWeight: 600, fontSize: "1.05rem", color: "var(--ink)" }}>
+            {invite.eventName}
+          </p>
+          <p style={{ margin: "0.25rem 0 0", fontSize: "0.875rem", color: "var(--muted)" }}>
+            <span
+              style={{
+                display: "inline-block",
+                marginRight: "0.5rem",
+                padding: "0.1rem 0.5rem",
+                borderRadius: "999px",
+                background: "var(--brand-tint)",
+                color: "var(--ink)",
+                fontSize: "0.75rem",
+                fontWeight: 600,
+              }}
+            >
+              {formatRole(invite.role)}
+            </span>
+            Invited by {invite.ownerDisplayName}
+          </p>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+          <button
+            type="button"
+            className="btn-pill btn-pill-secondary btn-pill-sm"
+            disabled={busy}
+            aria-busy={busy}
+            onClick={onDecline}
+          >
+            Decline
+          </button>
+          <button
+            type="button"
+            className="btn-pill btn-pill-primary btn-pill-sm"
+            disabled={busy}
+            aria-busy={busy}
+            onClick={onAccept}
+          >
+            Accept
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function sortForDashboard(events: EventListItem[]): EventListItem[] {
   const upcoming = events
     .filter((e) => { const d = daysUntil(e.primaryDate); return d !== null && d > 0 })
@@ -289,14 +365,55 @@ function ErrorSection() {
 interface Props {
   events: EventListItem[]
   collabEvents: EventListItem[]
+  pendingInvites?: PendingInvite[]
   userDisplay: string
   avatarUrl?: string | null
   hasError?: boolean
 }
 
-export default function EventsGrid({ events, collabEvents, userDisplay, avatarUrl = null, hasError = false }: Props) {
+function TimeFilterSeg({
+  time,
+  setTime,
+}: {
+  time: TimeFilter
+  setTime: (t: TimeFilter) => void
+}) {
+  return (
+    <div className="seg seg--fill" role="radiogroup" aria-label="Time filter">
+      <button
+        type="button"
+        role="radio"
+        aria-checked={time === "active"}
+        className={`seg-item${time === "active" ? " is-active" : ""}`}
+        onClick={() => setTime("active")}
+      >
+        <span>Active</span>
+      </button>
+      <button
+        type="button"
+        role="radio"
+        aria-checked={time === "past"}
+        className={`seg-item${time === "past" ? " is-active" : ""}`}
+        onClick={() => setTime("past")}
+      >
+        <span>Past</span>
+      </button>
+    </div>
+  )
+}
+
+export default function EventsGrid({
+  events,
+  collabEvents,
+  pendingInvites = [],
+  userDisplay,
+  avatarUrl = null,
+  hasError = false,
+}: Props) {
+  const router = useRouter()
   const [ownership, setOwnership] = useState<Ownership>("my")
   const [time, setTime] = useState<TimeFilter>("active")
+  const [actingId, setActingId] = useState<string | null>(null)
 
   const myActive = events.filter(isActive)
   const myPast = events.filter((e) => !isActive(e))
@@ -312,7 +429,68 @@ export default function EventsGrid({ events, collabEvents, userDisplay, avatarUr
         ? collabActive
         : collabPast
 
+  const showPendingAboveTime =
+    ownership === "collab" && pendingInvites.length > 0
+
   const avatarLetter = avatarInitial(userDisplay)
+
+  async function acceptInvite(id: string): Promise<void> {
+    setActingId(id)
+    try {
+      const res = await fetch(`/api/collaborators/invites/${id}/accept`, {
+        method: "POST",
+      })
+      if (!res.ok) {
+        console.error("[home] accept invite failed:", res.status)
+        return
+      }
+      router.refresh()
+    } catch (err) {
+      console.error("[home] accept invite error:", err)
+    } finally {
+      setActingId(null)
+    }
+  }
+
+  async function declineInvite(id: string): Promise<void> {
+    if (!window.confirm("Decline this collaboration invite?")) return
+    setActingId(id)
+    try {
+      const res = await fetch(`/api/collaborators/invites/${id}/decline`, {
+        method: "POST",
+      })
+      if (!res.ok) {
+        console.error("[home] decline invite failed:", res.status)
+        return
+      }
+      router.refresh()
+    } catch (err) {
+      console.error("[home] decline invite error:", err)
+    } finally {
+      setActingId(null)
+    }
+  }
+
+  let eventsBody: React.ReactNode
+  if (hasError) {
+    eventsBody = <ErrorSection />
+  } else if (
+    ownership === "collab" &&
+    pendingInvites.length === 0 &&
+    collabEvents.length === 0
+  ) {
+    eventsBody = <EmptySection isCollab />
+  } else if (
+    ownership === "collab" &&
+    pendingInvites.length > 0 &&
+    visibleEvents.length === 0
+  ) {
+    eventsBody = null
+  } else {
+    eventsBody = (
+      <EventSection events={visibleEvents} isCollab={ownership === "collab"} />
+    )
+  }
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100dvh' }}>
@@ -374,37 +552,40 @@ export default function EventsGrid({ events, collabEvents, userDisplay, avatarUr
             </button>
           </div>
 
-          <div className="seg seg--fill" role="radiogroup" aria-label="Time filter">
-            <button
-              type="button"
-              role="radio"
-              aria-checked={time === "active"}
-              className={`seg-item${time === "active" ? " is-active" : ""}`}
-              onClick={() => setTime("active")}
-            >
-              <span>Active</span>
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={time === "past"}
-              className={`seg-item${time === "past" ? " is-active" : ""}`}
-              onClick={() => setTime("past")}
-            >
-              <span>Past</span>
-            </button>
-          </div>
+          {!showPendingAboveTime && (
+            <TimeFilterSeg time={time} setTime={setTime} />
+          )}
         </div>
+
+        {showPendingAboveTime && (
+          <section
+            className="mt-6 md:mt-8"
+            aria-label="Pending collaboration invites"
+            style={{ display: "grid", gap: "0.75rem" }}
+          >
+            {pendingInvites.map((invite) => (
+              <PendingInviteCard
+                key={invite.id}
+                invite={invite}
+                busy={actingId === invite.id}
+                onAccept={() => void acceptInvite(invite.id)}
+                onDecline={() => void declineInvite(invite.id)}
+              />
+            ))}
+          </section>
+        )}
+
+        {showPendingAboveTime && (
+          <div className="filter-row home-filter-row mt-6 md:mt-8">
+            <TimeFilterSeg time={time} setTime={setTime} />
+          </div>
+        )}
 
         <section
           className="mt-10 md:mt-12"
           aria-label={`${ownership === "my" ? "My" : "Collaborative"} ${time} events`}
         >
-          {hasError ? (
-            <ErrorSection />
-          ) : (
-            <EventSection events={visibleEvents} isCollab={ownership === "collab"} />
-          )}
+          {eventsBody}
         </section>
       </main>
     </div>
