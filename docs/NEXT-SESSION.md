@@ -4,27 +4,47 @@
 
 ---
 
-## ▶ START HERE NEXT — Push Notifications: spec + council done, Cursor build-doc ready to hand off (2026-08-06)
+## ▶ START HERE NEXT — Event Settings Cleanup Part C → D → E (2026-08-06 evening)
 
-**What happened:** Brainstormed and specced Push Notifications from scratch (nothing existed — the `user_preferences.push_notifications` toggle and the `FloatingNav` bell were both dead/decorative, badge hardcoded to `1`). Scoped to the already-designed S8 dropdown component in `designs/` plus real browser push. Ran a full 5-agent `/council design` (ui_ux, frontend, tech_lead, product_manager, security) — Critique + Debate + Arbiter. Verdict: 🔴 RE-PLAN, split push into its own pass. 6 criticals surfaced: (1) `collaborator_added`'s push leg can't fire from its DB trigger (plpgsql can't call `web-push`), (2) SSRF via client-supplied push `endpoint`, (3) subscription-hijack via unscoped upsert-by-endpoint, (4) VAPID public key needs the `NEXT_PUBLIC_` prefix or the client can't read it, (5) no dropdown empty state, (6) feature isn't on the MVP roadmap. Founder chose to build the **full feature** (in-app + push) via Cursor, so a self-contained Cursor build-doc was written with every council critical folded in as an inline `COUNCIL FIX`, structured as two verify-before-continue phases.
+**What happened:** Cursor built **Part A (Tasks 1–6) + Part B (Tasks 7–9)** on `feature/event-settings-cleanup` (tip `6f76594`). Playwright smoke `tests/event-settings-part-ab.spec.ts` passed live. BusyOverlay (focus-trap) is settings-only for now — **platform-wide BusyOverlay deferred** until this feature is fully done.
 
-**Artifacts (all committed to `Dev-Vibe`):**
-- Spec + council verdict: [`docs/superpowers/specs/2026-08-06-push-notifications-design.md`](superpowers/specs/2026-08-06-push-notifications-design.md) (commits `a028bed`, `f46a44a`)
-- **Cursor build-doc (the handoff):** [`docs/superpowers/plans/2026-08-06-push-notifications-build-doc.md`](superpowers/plans/2026-08-06-push-notifications-build-doc.md) (commit `22f13a4`)
+**Authoritative docs:**
+- Plan: [`docs/superpowers/plans/2026-08-06-event-settings-cleanup.md`](superpowers/plans/2026-08-06-event-settings-cleanup.md)
+- Handoff: [`docs/sprint/sprint-1/handoff-event-settings-cleanup.md`](sprint/sprint-1/handoff-event-settings-cleanup.md)
+- Session report: [`docs/session-reports/2026-08-06-event-settings-ab-session-report.md`](session-reports/2026-08-06-event-settings-ab-session-report.md)
 
-**What's NOT done:** no code written — Cursor builds it. Feature is NOT on `CLAUDE.md`'s MVP roadmap (council flagged) — founder implicitly greenlit by choosing to build; add a roadmap row if it should be tracked. On return from Cursor, the build comes back through a **Claude review gate** (per the build-doc's Definition-of-done) before any merge off its branch.
+**What's NOT done:** Part C (ToolRail / invite API / Collaborations tab), Part D (tiered permissions — HARD GATE: Task 13 Steps 4–6 + Task 15 same sitting), Part E (Usage tab, blocked by Task 16).
 
-### Paste this to start — hand off to Cursor / review the returned build
+### Paste this to start — continue from Part C
 
 ```
-Push Notifications build-doc is ready for Cursor at
-docs/superpowers/plans/2026-08-06-push-notifications-build-doc.md — full
-feature (Phase A in-app bell + Phase B browser push), every council critical
-folded in as an inline COUNCIL FIX. Hand it to Cursor (auto mode), or if
-Cursor already built it, run the Claude review gate: branch off Dev-Vibe,
-verify the SSRF endpoint allowlist + ownership-scoped subscription upsert +
-NEXT_PUBLIC_ VAPID prefix + notify_recipients SECURITY DEFINER RPC are all
-present, then the Phase A + B verification checklists.
+Continue Event Settings Cleanup on branch feature/event-settings-cleanup
+(tip includes 6f76594). Parts A+B DONE — do not redo. Start at Part C Task 10
+(ToolRail LIVE/OFFLINE from real site_offline ?? false matching Website tab),
+then Task 12 (admins POST returns id + z.enum role), then Task 11.
+Then Part D 13–17 respecting HARD GATE (Task 13 Steps 4–6 + Task 15 same
+sitting). Part E Task 18 after Task 16. Platform-wide BusyOverlay is deferred.
+Docs: docs/superpowers/plans/2026-08-06-event-settings-cleanup.md +
+docs/sprint/sprint-1/handoff-event-settings-cleanup.md. Verify branch before
+every edit — do not mix push-notifications / Dev-Vibe-Testing WIP.
+```
+
+---
+
+## ▶ PAST — Push Notifications: spec + council done; build WIP on separate branch (2026-08-06)
+
+**What happened:** Spec + `/council design` + Cursor build-doc authored earlier today. Separately, push-notifications implementation WIP lives on `feature/push-notifications` (and stashes) — do not mix with Event Settings Cleanup.
+
+**Artifacts:**
+- Spec: [`docs/superpowers/specs/2026-08-06-push-notifications-design.md`](superpowers/specs/2026-08-06-push-notifications-design.md)
+- Build-doc: [`docs/superpowers/plans/2026-08-06-push-notifications-build-doc.md`](superpowers/plans/2026-08-06-push-notifications-build-doc.md)
+
+### Paste this to start — review / finish push notifications
+
+```
+Push Notifications: review or finish build on feature/push-notifications
+against docs/superpowers/plans/2026-08-06-push-notifications-build-doc.md.
+Claude review gate before merge. Do not mix with feature/event-settings-cleanup.
 ```
 
 ---
