@@ -12,6 +12,8 @@ export function mapRpcError(message: string): { status: number; body: string } {
     case 'too many attempts, try again later':    return { status: 429, body: 'Too many attempts — please try again later' }
     case 'invalid session':                       return { status: 401, body: 'Session expired — please identify yourself again' }
     case 'guest is not tagged to this sub-event': return { status: 403, body: 'You are not registered for this event' }
+    case 'plus_ones_not_allowed':                 return { status: 400, body: 'Plus-ones are not enabled for this event' }
+    case 'dietary_not_collected':                 return { status: 400, body: 'Dietary notes are not collected for this event' }
     default:                                      return { status: 500, body: 'Something went wrong' }
   }
 }

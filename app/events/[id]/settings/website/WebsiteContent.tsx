@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { BusyOverlay } from '@/components/ui/BusyOverlay'
 
 interface InitialWebsiteSettings {
   passwordEnabled: boolean
@@ -16,13 +17,6 @@ interface Props {
   eventId: string
   initial: InitialWebsiteSettings
 }
-
-const PAGES = [
-  { icon: 'home',       name: 'Home',             status: 'Published', published: true },
-  { icon: 'how_to_reg', name: 'RSVP',             status: 'Published', published: true },
-  { icon: 'redeem',     name: 'Registry',          status: 'Published', published: true },
-  { icon: 'event',      name: 'Story & schedule',  status: 'Draft',     published: false },
-] as const
 
 export function WebsiteContent({ eventId, initial }: Props) {
   const [passwordProtect, setPasswordProtect] = useState(initial.passwordEnabled)
@@ -99,6 +93,10 @@ export function WebsiteContent({ eventId, initial }: Props) {
 
   return (
     <>
+      <BusyOverlay
+        active={saving || takingOffline}
+        label={takingOffline ? (siteOffline ? 'Bringing site online…' : 'Taking site offline…') : 'Saving…'}
+      />
       <div className="es-content">
         <header className="es-content-head">
           <div>
@@ -106,10 +104,6 @@ export function WebsiteContent({ eventId, initial }: Props) {
             <p className="es-content-lead">Control how your event website looks, behaves, and reaches the right people.</p>
           </div>
           <div className="es-content-actions">
-            <a className="btn-pill btn-pill-secondary" href="#">
-              <span aria-hidden="true" className="material-symbols-outlined">open_in_new</span>
-              View live site
-            </a>
             <button
               type="button"
               className={`btn-pill btn-pill-primary${saving ? ' is-loading' : ''}`}
@@ -192,34 +186,19 @@ export function WebsiteContent({ eventId, initial }: Props) {
           </div>
         </section>
 
-        {/* Pages */}
+        {/* Manage website content */}
         <section className="es-section">
           <header className="es-section-head">
             <h2 className="es-section-title">
               <span aria-hidden="true" className="material-symbols-outlined icon-fill">web</span>
-              Pages
+              Website content
             </h2>
-            <a href="#" className="cc-review-edit">
-              <span aria-hidden="true" className="material-symbols-outlined">edit</span>
-              Modify all
-            </a>
+            <p className="es-section-sub">Pages, design, and photos live in the website editor — not here.</p>
           </header>
-          <div className="es-pages">
-            {PAGES.map((page) => (
-              <div key={page.name} className="es-page-row">
-                <span className="es-page-icon" aria-hidden="true">
-                  <span className="material-symbols-outlined icon-fill">{page.icon}</span>
-                </span>
-                <div className="es-page-body">
-                  <span className="es-page-name">{page.name}</span>
-                  <span className={`es-page-status${page.published ? ' is-published' : ''}`}>{page.status}</span>
-                </div>
-                <button type="button" className="btn-pill btn-pill-secondary">
-                  <span aria-hidden="true" className="material-symbols-outlined">edit</span> Edit
-                </button>
-              </div>
-            ))}
-          </div>
+          <a href={`/events/${eventId}/website`} className="btn-pill btn-pill-secondary es-btn-self">
+            <span aria-hidden="true" className="material-symbols-outlined">arrow_forward</span>
+            Manage your website
+          </a>
         </section>
 
         {/* Announcement banner */}
@@ -288,14 +267,6 @@ export function WebsiteContent({ eventId, initial }: Props) {
           </div>
         </section>
 
-        <footer className="es-footer">
-          <span>© 2026 Evenzi · All rights reserved</span>
-          <div className="es-footer-links">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Help</a>
-          </div>
-        </footer>
       </div>
 
       <div className={`bc-toast${toast ? ' is-show' : ''}`} role="status" aria-live="polite">

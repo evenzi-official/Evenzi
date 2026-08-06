@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { requireEventWrite } from '@/lib/auth/eventAccess'
 import type {
   EventTypeRow,
   EventSubEventRow,
@@ -261,6 +262,9 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const writeAccess = await requireEventWrite(supabase, id, user.id, 'general')
+    if (!writeAccess.ok) return writeAccess.response
+
     let body: unknown
     try {
       body = await request.json()
@@ -399,8 +403,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const writeAccess = await requireEventWrite(supabase, id, user.id, 'delete')
+    if (!writeAccess.ok) return writeAccess.response
+
     // Soft delete: set deleted_at. The `.is('deleted_at', null)` filter makes a second
-    // delete return no row → 404. RLS (events_owner_all) hides non-owned rows the same way.
+    // delete return no row → 404. RLS + requireEventWrite keep delete owner-only.
     const { data: deletedRow, error: deleteError } = await supabase
       .from('events')
       .update({ deleted_at: new Date().toISOString() })

@@ -10,6 +10,7 @@ const SETTINGS_TABS = [
   { href: (id: string) => `/events/${id}/settings/guests`,   label: 'Guest list',     icon: 'how_to_reg',  exact: false },
   { href: (id: string) => `/events/${id}/settings/registry`, label: 'Registry',       icon: 'redeem',      exact: false },
   { href: (id: string) => `/events/${id}/settings/billing`,  label: 'Plan & billing', icon: 'credit_card', exact: false },
+  { href: (id: string) => `/events/${id}/settings/usage`,    label: 'Usage',          icon: 'monitoring',  exact: false },
 ] as const
 
 export function SettingsNav({ id }: { id: string }) {

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { requireEventWrite } from '@/lib/auth/eventAccess'
 import { commitMediaSchema, uuidSchema } from '@/lib/validations/media'
-import { assertEventOwnership } from '@/lib/media/ownership'
 import { headObject, getObjectRange, deleteObject, R2_BUCKET_PRIVATE } from '@/lib/storage/r2'
 import { eventPrefix } from '@/lib/storage/keys'
 
@@ -39,8 +39,9 @@ export async function POST(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const owned = await assertEventOwnership(supabase, id, user.id)
-    if (!owned) return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    const access = await requireEventWrite(supabase, id, user.id, 'media')
+    if (!access.ok) return access.response
+
 
     let body: unknown
     try { body = await request.json() } catch {

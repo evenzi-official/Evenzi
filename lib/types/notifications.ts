@@ -3,6 +3,7 @@ export type NotificationType =
   | 'collaborator_added'
   | 'expense_recorded'
   | 'invites_sent'
+  | 'collab_invite_received'
 
 export interface AppNotification {
   id: string
