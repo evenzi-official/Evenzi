@@ -149,14 +149,6 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
           </a>
         </div>
 
-        <footer className="es-footer">
-          <span>© 2026 Evenzi · All rights reserved</span>
-          <div className="es-footer-links">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Help</a>
-          </div>
-        </footer>
       </div>
 
       {/* Invite co-host modal */}

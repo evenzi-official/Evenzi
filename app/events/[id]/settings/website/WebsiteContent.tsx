@@ -262,14 +262,6 @@ export function WebsiteContent({ eventId, initial }: Props) {
           </div>
         </section>
 
-        <footer className="es-footer">
-          <span>© 2026 Evenzi · All rights reserved</span>
-          <div className="es-footer-links">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Help</a>
-          </div>
-        </footer>
       </div>
 
       <div className={`bc-toast${toast ? ' is-show' : ''}`} role="status" aria-live="polite">
