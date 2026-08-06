@@ -43,11 +43,13 @@ Everything else below is current, verified against the running code on 2026-08-0
 
 **Fix:** relabel the whole tab as not-yet-available, same pattern as Guest Management's "Send invites" (disabled control + honest tooltip/copy, not a silently-fake success state). No new table, no new API route, no partial build (i.e. don't wire the link-only half for real — both features move together so the tab reads as one coherent "coming soon" state rather than one real control next to one fake one).
 
-## 4. Guests tab — wire the toggles to what they claim to control
+## 4. Guests tab — backend enforcement only (correction: no guest RSVP form exists yet)
 
 `event_guest_settings.allow_plus_ones` / `.collect_dietary_notes` persist correctly but nothing downstream reads them — confirmed `app/api/e/[slug]/rsvp/route.ts` accepts `plus_one_count` and `dietary_notes` unconditionally regardless of the host's toggle state.
 
-**Fix:** `app/api/e/[slug]/rsvp/route.ts` reads `event_guest_settings` for the event before accepting the submission; strips/rejects `plus_one_count` when `allow_plus_ones=false` and `dietary_notes` when `collect_dietary_notes=false`. The guest-facing RSVP form itself (wherever it renders these fields) should also conditionally hide them based on the same flags — needs a read of `event_guest_settings` (or an extension of `get_guest_website_payload`) at that call site; exact plumbing to be confirmed at plan time by locating the actual RSVP form component.
+**Correction found while planning:** there is no guest-facing RSVP submission form anywhere in the live guest site. Traced `app/e/[slug]/page.tsx` fully — after `GuestLookupForm` identifies a guest, the page only renders a "Welcome, {name}" banner. Nothing in `app/e/**` calls `POST /api/e/[slug]/rsvp`. The route is real and live (Wave 2b), but no UI exists yet that calls it. (`app/wedding-invitation-temp-1/` matches "/rsvp" in a repo-wide search but is the unrelated design-test page per `CLAUDE.md`, not the real site.)
+
+**Fix, scoped down accordingly:** `app/api/e/[slug]/rsvp/route.ts` reads `event_guest_settings` for the event before accepting the submission; rejects the request (400) if `plus_one_count` is present while `allow_plus_ones=false`, or `dietary_notes` is present while `collect_dietary_notes=false`. This is backend-only hardening — makes the route safe for whenever a guest RSVP form does get built. **Building that guest-facing RSVP form is explicitly out of scope for this pass** (§10) — it's a real Digital Presence feature (guest-facing UI, not a settings-tab fix), materially bigger than this cleanup, and should get its own spec.
 
 ## 5. Billing tab — no code change, but fix the two dead buttons
 
@@ -101,6 +103,7 @@ No new backend — every number this tab needs is already computed somewhere els
 
 ## 10. Explicitly out of scope
 
+- Guest-facing RSVP submission form (`app/e/[slug]`) — doesn't exist yet, discovered while planning §4. Backend enforcement ships in this pass; the actual form is its own Digital Presence spec.
 - Legal pages (`/legal/*`) — flagged (§6), not built.
 - Payment gateway / real "Upgrade now" — blocked on LLP registration, tracked separately in the launch-readiness backlog.
 - Registry's real backend (link or cash fund) — deferred per §3.
