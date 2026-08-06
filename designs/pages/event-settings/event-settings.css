@@ -350,6 +350,26 @@
   color:var(--ink);line-height:1.4;
 }
 
+/* ── Usage tab (storage bar + stat tiles) ─────────────────────────── */
+.es-usage-bar{
+  width:100%;height:8px;border-radius:9999px;
+  background:var(--line-soft);overflow:hidden;
+}
+.es-usage-bar-fill{
+  display:block;height:100%;width:0;border-radius:inherit;
+  background:var(--brand);
+  transition:width .3s ease;
+}
+@media (prefers-reduced-motion: reduce){.es-usage-bar-fill{transition:none}}
+.es-usage-stat{
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:1.25rem;
+  color:var(--ink);margin:0;font-variant-numeric:tabular-nums;
+}
+.es-usage-no-access{
+  font-family:'Poppins',sans-serif;font-weight:500;font-size:13px;
+  line-height:1.5;color:var(--muted);margin:0;
+}
+
 /* Footer mini-row on each page */
 .es-footer{
   margin-top:3rem;padding-top:1.5rem;
