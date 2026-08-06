@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FormGroup } from '@/components/ui/FormGroup'
 import { FormInput } from '@/components/ui/FormInput'
+import { BusyOverlay } from '@/components/ui/BusyOverlay'
 import { updateEventSchema } from '@/lib/validations/events'
 
 // Variable fields (partner names) live in events.event_details (jsonb), keyed by the
@@ -124,23 +125,23 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
 
     setSaving(true)
     try {
-      const [evRes, gsRes] = await Promise.all([
-        fetch(`/api/events/${event.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(parsed.data),
-        }),
-        fetch(`/api/events/${event.id}/general-settings`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            tagline: nullify(tagline),
-          }),
-        }),
-      ])
+      const evRes = await fetch(`/api/events/${event.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsed.data),
+      })
+      if (!evRes.ok) {
+        flashToast(evRes.status === 404 ? 'Event not found.' : 'Could not save event details.', 'error')
+        return
+      }
 
-      if (!evRes.ok || !gsRes.ok) {
-        flashToast(!evRes.ok && evRes.status === 404 ? 'Event not found.' : 'Could not save changes.', 'error')
+      const gsRes = await fetch(`/api/events/${event.id}/general-settings`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tagline: nullify(tagline) }),
+      })
+      if (!gsRes.ok) {
+        flashToast('Event details saved, but the tagline failed to save — please retry.', 'error')
         return
       }
 
@@ -176,6 +177,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
 
   return (
     <>
+      <BusyOverlay active={saving || deleting} label={deleting ? 'Deleting event…' : 'Saving changes…'} />
       <div className="es-content">
         <header className="es-content-head">
           <div>
