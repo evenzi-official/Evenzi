@@ -1,7 +1,24 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { requireEventWrite } from '@/lib/auth/eventAccess'
+import { notifyRecipientsSafe } from '@/lib/notifications/notify'
 import { createExpenseSchema, uuidSchema } from '@/lib/validations/planning'
+
+function formatInr(amount: number): string {
+  const n = Math.round(amount)
+  const neg = n < 0
+  const s = String(Math.abs(n))
+  if (s.length <= 3) return (neg ? '-₹' : '₹') + s
+  const last3 = s.slice(-3)
+  let rest = s.slice(0, -3)
+  const parts: string[] = []
+  while (rest.length > 2) {
+    parts.unshift(rest.slice(-2))
+    rest = rest.slice(0, -2)
+  }
+  if (rest) parts.unshift(rest)
+  return (neg ? '-₹' : '₹') + parts.join(',') + ',' + last3
+}
 
 export async function POST(
   request: Request,
@@ -50,6 +67,22 @@ export async function POST(
       console.error('POST /api/events/[id]/planning/expenses failed:', insertError)
       return NextResponse.json({ error: 'Failed to create expense' }, { status: 500 })
     }
+
+    const { data: typeRow } = await supabase
+      .from('event_expense_types')
+      .select('name')
+      .eq('id', expenseTypeId)
+      .single()
+
+    const payee = vendorName?.trim() || typeRow?.name || 'expense'
+    void notifyRecipientsSafe({
+      eventId: id,
+      actorId: user.id,
+      type: 'expense_recorded',
+      title: 'Payment recorded',
+      body: `${formatInr(amount)} to ${payee}`,
+      linkPath: `/events/${id}/planning`,
+    })
 
     return NextResponse.json({
       expense: {

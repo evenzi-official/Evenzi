@@ -6,6 +6,17 @@
 
 ## ▶ START HERE NEXT — Event Settings Cleanup Part C → D → E (2026-08-06 evening)
 
+## ▶ Parked enhancements — collab invite-in-bell + co-host event access (2026-08-06)
+
+Founder confirmed product intent; **plan later, not blocking Phase A push**:
+
+1. **Bell invite to accept** — invitee gets an in-app notification with Accept (today: email/`/auth/accept-invite?token=` only).
+2. **Co-host can open `/events/[id]`** — today owner-only RLS → app 404 after accept. Home → Collaborations tab also unwired (empty arrays). See build-doc “Enhancement backlog” in [`docs/superpowers/plans/2026-08-06-push-notifications-build-doc.md`](superpowers/plans/2026-08-06-push-notifications-build-doc.md).
+
+**Workaround for A7:** owner (A) triggers RSVP/expense; co-host (B) watches bell on `/home`. Do not open event hub as B until access ships.
+
+---
+
 **What happened:** Cursor built **Part A (Tasks 1–6) + Part B (Tasks 7–9)** on `feature/event-settings-cleanup` (tip `6f76594`). Playwright smoke `tests/event-settings-part-ab.spec.ts` passed live. BusyOverlay (focus-trap) is settings-only for now — **platform-wide BusyOverlay deferred** until this feature is fully done.
 
 **Authoritative docs:**

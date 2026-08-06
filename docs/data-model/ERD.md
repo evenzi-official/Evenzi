@@ -1,6 +1,6 @@
 # Evenzi — Full Data Model ERD, Functions & Flows
 
-> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-07-30.1** — CORE + Planning + Guests + Media + Invitations + Event Hub + Event Settings + Event Website / Digital Presence Wave 1. Renders on GitHub / VS Code (Mermaid).
+> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-08-06.1** — CORE + Planning + Guests + Media + Invitations + Event Hub + Event Settings + Event Website / Digital Presence + **In-app notifications (D55)**. Renders on GitHub / VS Code (Mermaid).
 >
 > **Known drift:** the `EVENT_WEBSITE_SETTINGS` entity block below (fields `website_enabled`/`website_slug`/`show_gallery`/etc.) predates the actual shipped shape — live columns are `website_password_enabled`/`website_password_hash`/`search_indexing_enabled`/`announcement_banner_enabled`/`announcement_banner_text`/`site_offline` (see `DATA-MODEL.md` D43/D47). Pre-existing drift, not introduced this session — flagged for a future cleanup pass, not fixed here to keep this change scoped to the new Digital Presence entities.
 >
@@ -31,6 +31,7 @@ flowchart TB
   subgraph USR["👤 Identity / Users"]
     UP[user_profiles]
     UPR[user_preferences]
+    N[notifications]
   end
 
   subgraph CORE["📅 Events Core"]
@@ -38,6 +39,9 @@ flowchart TB
     ESE[event_sub_events]
     EC[event_collaborators]
   end
+
+  N --> UP
+  N --> E
 
   subgraph PLN["📋 Planning"]
     ET[event_tasks]

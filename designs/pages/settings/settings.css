@@ -171,6 +171,27 @@
 .choice-card.is-active .choice-card-dot{background:var(--brand);border-color:var(--brand)}
 .choice-card.is-active .choice-card-dot .material-symbols-outlined{opacity:1}
 .choice-card.is-active .choice-card-state{color:var(--brand)}
+.choice-card.is-blocked{
+  opacity:.7;
+  cursor:not-allowed;
+}
+@media (hover:hover) and (pointer:fine){
+  .choice-card.is-blocked:hover{
+    transform:none;
+    box-shadow:none;
+    border-color:var(--line);
+  }
+}
+.choice-card.is-blocked .choice-card-dot{
+  border-color:var(--danger-rim);
+  background:var(--danger-tint);
+}
+.choice-card.is-blocked .choice-card-dot .material-symbols-outlined{
+  opacity:1;
+  color:var(--danger-ink);
+  font-variation-settings:'FILL' 0,'wght' 600;
+}
+.choice-card.is-blocked .choice-card-state{color:var(--danger-ink)}
 
 /* ── Action footer: save + discard (uses .btn-pill from shell.css) ──
    Bottom safe-area padding keeps the buttons clear of the iOS home indicator

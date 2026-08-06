@@ -6,6 +6,15 @@ interface Props {
   searchParams: Promise<{ token?: string }>
 }
 
+interface PendingInvite {
+  id: string
+  event_id: string
+  event_name: string | null
+  invited_email: string | null
+  role: string
+  status: string
+}
+
 export default async function AcceptInvitePage({ searchParams }: Props) {
   const { token } = await searchParams
 
@@ -15,37 +24,35 @@ export default async function AcceptInvitePage({ searchParams }: Props) {
 
   const supabase = await createClient()
 
-  // Look up the collaborator row by id (the token IS the row id)
-  const { data: collab } = await supabase
-    .from('event_collaborators')
-    .select('id, event_id, invited_email, role, status')
-    .eq('id', token)
-    .single()
+  // Owner-only RLS on event_collaborators hides pending rows from invitees —
+  // lookup must go through get_pending_invite (SECURITY DEFINER).
+  const { data: inviteRows, error: lookupError } = await supabase.rpc('get_pending_invite', {
+    p_token: token,
+  })
+
+  if (lookupError) {
+    console.error('[accept-invite] get_pending_invite failed:', lookupError)
+    return <InviteError message="This invite link is invalid or has already been used." />
+  }
+
+  const collab = (Array.isArray(inviteRows) ? inviteRows[0] : inviteRows) as PendingInvite | undefined
 
   if (!collab) {
     return <InviteError message="This invite link is invalid or has already been used." />
   }
 
   if (collab.status === 'active') {
-    // Already accepted — just send them to the event
-    redirect(`/events/${collab.event_id}`)
+    // Event hub is still owner-only RLS — co-hosts get 404 on /events/[id].
+    // Land on home until can_access_event / collab read access ships.
+    redirect('/home')
   }
 
-  // Fetch event name for the UI
-  const { data: event } = await supabase
-    .from('events')
-    .select('name')
-    .eq('id', collab.event_id)
-    .single()
-
-  const eventName = event?.name ?? 'the event'
+  const eventName = collab.event_name ?? 'the event'
   const roleLabel = collab.role.charAt(0).toUpperCase() + collab.role.slice(1).replace(/-/g, ' ')
 
-  // Check if the current user is logged in
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    // Not logged in — show sign-in prompt
     return (
       <InviteShell>
         <div style={{ textAlign: 'center' }}>
@@ -87,7 +94,6 @@ export default async function AcceptInvitePage({ searchParams }: Props) {
     )
   }
 
-  // User is logged in — check email matches
   const userEmail = user.email?.toLowerCase().trim()
   const invitedEmail = collab.invited_email?.toLowerCase().trim()
 
@@ -119,26 +125,24 @@ export default async function AcceptInvitePage({ searchParams }: Props) {
     )
   }
 
-  // Email matches — accept the invite
-  const { error: updateError } = await supabase
-    .from('event_collaborators')
-    .update({
-      status:      'active',
-      user_id:     user.id,
-      accepted_at: new Date().toISOString(),
-      updated_at:  new Date().toISOString(),
-    })
-    .eq('id', collab.id)
+  // Accept via DEFINER RPC (bypasses owner-only RLS; also fires collaborator_added notify).
+  const { data: acceptedEventId, error: acceptError } = await supabase.rpc('accept_event_invite', {
+    p_token: token,
+  })
 
-  if (updateError) {
-    console.error('[accept-invite] Failed to accept invite:', updateError)
+  if (acceptError || !acceptedEventId) {
+    console.error('[accept-invite] accept_event_invite failed:', acceptError)
+    const msg = acceptError?.message ?? ''
+    if (msg.includes('wrong account')) {
+      return <InviteError message="This invite belongs to a different email address." />
+    }
     return <InviteError message="Something went wrong accepting your invite — please try again." />
   }
 
-  redirect(`/events/${collab.event_id}`)
+  // Event hub + children are still owner-only RLS — co-hosts get app notFound (404)
+  // on /events/[id]. Land on home until can_access_event ships (enhancement backlog).
+  redirect('/home')
 }
-
-// ── Shared layout shell ───────────────────────────────────────────────────────
 
 function InviteShell({ children }: { children: React.ReactNode }) {
   return (
