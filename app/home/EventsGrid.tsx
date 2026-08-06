@@ -260,34 +260,22 @@ function PendingInviteCard({
   onDecline: () => void
 }) {
   return (
-    <div className="clay-card" style={{ padding: "1rem 1.125rem" }}>
-      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem 1rem" }}>
-        <div style={{ flex: "1 1 12rem", minWidth: 0 }}>
-          <p style={{ margin: 0, fontWeight: 600, fontSize: "1.05rem", color: "var(--ink)" }}>
-            {invite.eventName}
-          </p>
-          <p style={{ margin: "0.25rem 0 0", fontSize: "0.875rem", color: "var(--muted)" }}>
-            <span
-              style={{
-                display: "inline-block",
-                marginRight: "0.5rem",
-                padding: "0.1rem 0.5rem",
-                borderRadius: "999px",
-                background: "var(--brand-tint)",
-                color: "var(--ink)",
-                fontSize: "0.75rem",
-                fontWeight: 600,
-              }}
-            >
-              {formatRole(invite.role)}
-            </span>
-            Invited by {invite.ownerDisplayName}
-          </p>
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+    <article className="pending-invite-card">
+      <div className="pic-body">
+        <span className="status-badge status-pending">
+          <span className="status-dot" aria-hidden="true" />
+          Pending invite
+        </span>
+        <p className="pic-type">{formatRole(invite.role)}</p>
+        <p className="pic-title">{invite.eventName}</p>
+        <p className="pic-meta">
+          <span aria-hidden="true" className="material-symbols-outlined">person</span>
+          Invited by {invite.ownerDisplayName}
+        </p>
+        <div className="pic-actions">
           <button
             type="button"
-            className="btn-pill btn-pill-secondary btn-pill-sm"
+            className="btn-pill btn-pill-secondary"
             disabled={busy}
             aria-busy={busy}
             onClick={onDecline}
@@ -296,16 +284,17 @@ function PendingInviteCard({
           </button>
           <button
             type="button"
-            className="btn-pill btn-pill-primary btn-pill-sm"
+            className="btn-pill btn-pill-primary"
             disabled={busy}
             aria-busy={busy}
             onClick={onAccept}
           >
             Accept
+            <span aria-hidden="true" className="material-symbols-outlined">arrow_forward</span>
           </button>
         </div>
       </div>
-    </div>
+    </article>
   )
 }
 
@@ -429,7 +418,7 @@ export default function EventsGrid({
         ? collabActive
         : collabPast
 
-  const showPendingAboveTime =
+  const showPending =
     ownership === "collab" && pendingInvites.length > 0
 
   const avatarLetter = avatarInitial(userDisplay)
@@ -485,7 +474,11 @@ export default function EventsGrid({
     pendingInvites.length > 0 &&
     visibleEvents.length === 0
   ) {
-    eventsBody = null
+    eventsBody = (
+      <p className="pending-invite-followup">
+        Accepted collaborations will show up here under Active or Past.
+      </p>
+    )
   } else {
     eventsBody = (
       <EventSection events={visibleEvents} isCollab={ownership === "collab"} />
@@ -552,16 +545,13 @@ export default function EventsGrid({
             </button>
           </div>
 
-          {!showPendingAboveTime && (
-            <TimeFilterSeg time={time} setTime={setTime} />
-          )}
+          <TimeFilterSeg time={time} setTime={setTime} />
         </div>
 
-        {showPendingAboveTime && (
+        {showPending && (
           <section
-            className="mt-6 md:mt-8"
+            className="pending-invite-stack mt-8 md:mt-10"
             aria-label="Pending collaboration invites"
-            style={{ display: "grid", gap: "0.75rem" }}
           >
             {pendingInvites.map((invite) => (
               <PendingInviteCard
@@ -573,12 +563,6 @@ export default function EventsGrid({
               />
             ))}
           </section>
-        )}
-
-        {showPendingAboveTime && (
-          <div className="filter-row home-filter-row mt-6 md:mt-8">
-            <TimeFilterSeg time={time} setTime={setTime} />
-          </div>
         )}
 
         <section

@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Evenzi — V0 Readiness</title>
+<style>
+  :root {
+    --bg:            #f9fafb;
+    --card:          #ffffff;
+    --brand:         #BB0020;
+    --brand-hover:   #1f2937;
+    --brand-tint:    rgba(187,0,32,0.05);
+    --brand-tint-2:  rgba(187,0,32,0.10);
+    --cream-soft:    rgba(187,0,32,0.08);
+    --ink:           #111827;
+    --ink-soft:      #374151;
+    --muted:         #6b7280;
+    --muted-soft:    #9ca3af;
+    --line:          #e5e7eb;
+    --line-soft:     #f3f4f6;
+    --success:       #15803d;
+    --success-ink:   #15803d;
+    --success-tint:  rgba(22,163,74,0.10);
+    --success-rim:   rgba(22,163,74,0.28);
+    --danger:        #ef4444;
+    --danger-ink:    #dc2626;
+    --danger-tint:   rgba(239,68,68,0.10);
+    --danger-rim:    rgba(239,68,68,0.28);
+    --warning:       #f59e0b;
+    --warning-ink:   #b45309;
+    --warning-tint:  rgba(245,158,11,0.12);
+    --warning-rim:   rgba(245,158,11,0.30);
+    --info:          #6b7280;
+    --info-tint:     rgba(107,114,128,0.10);
+    --info-rim:      rgba(107,114,128,0.26);
+    --shadow-clay:       0 8px 24px -8px rgba(17,24,39,.08), 0 2px 6px -2px rgba(0,0,0,.04), inset 0 1px 0 rgba(255,255,255,.7);
+    --shadow-clay-pill:  0 4px 12px -4px rgba(187,0,32,.20), inset 0 1px 0 rgba(255,255,255,.4);
+    --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+    --font-body: "Poppins", -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d0d0d; --card: #18181b;
+      --brand: #ee3f3a; --brand-hover: #ff5a55;
+      --brand-tint: rgba(238,63,58,0.10); --brand-tint-2: rgba(238,63,58,0.18);
+      --cream-soft: rgba(238,63,58,0.08);
+      --ink: #f9fafb; --ink-soft: #e5e7eb; --muted: #a8a8a8; --muted-soft: #7a7a7a;
+      --line: #2a2a2a; --line-soft: #1f1f1f;
+      --success: #4ade80; --success-ink: #4ade80; --success-tint: rgba(74,222,128,0.12); --success-rim: rgba(74,222,128,0.32);
+      --danger: #f87171; --danger-ink: #f87171; --danger-tint: rgba(248,113,113,0.14); --danger-rim: rgba(248,113,113,0.34);
+      --warning: #fbbf24; --warning-ink: #fbbf24; --warning-tint: rgba(251,191,36,0.14); --warning-rim: rgba(251,191,36,0.34);
+      --info: #9ca3af; --info-tint: rgba(156,163,175,0.12); --info-rim: rgba(156,163,175,0.30);
+      --shadow-clay: 0 8px 24px -8px rgba(0,0,0,.55), 0 2px 6px -2px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
+      --shadow-clay-pill: 0 4px 12px -4px rgba(238,63,58,.45), inset 0 1px 0 rgba(255,255,255,.08);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d0d0d; --card: #18181b;
+    --brand: #ee3f3a; --brand-hover: #ff5a55;
+    --brand-tint: rgba(238,63,58,0.10); --brand-tint-2: rgba(238,63,58,0.18);
+    --cream-soft: rgba(238,63,58,0.08);
+    --ink: #f9fafb; --ink-soft: #e5e7eb; --muted: #a8a8a8; --muted-soft: #7a7a7a;
+    --line: #2a2a2a; --line-soft: #1f1f1f;
+    --success: #4ade80; --success-ink: #4ade80; --success-tint: rgba(74,222,128,0.12); --success-rim: rgba(74,222,128,0.32);
+    --danger: #f87171; --danger-ink: #f87171; --danger-tint: rgba(248,113,113,0.14); --danger-rim: rgba(248,113,113,0.34);
+    --warning: #fbbf24; --warning-ink: #fbbf24; --warning-tint: rgba(251,191,36,0.14); --warning-rim: rgba(251,191,36,0.34);
+    --info: #9ca3af; --info-tint: rgba(156,163,175,0.12); --info-rim: rgba(156,163,175,0.30);
+    --shadow-clay: 0 8px 24px -8px rgba(0,0,0,.55), 0 2px 6px -2px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
+    --shadow-clay-pill: 0 4px 12px -4px rgba(238,63,58,.45), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  :root[data-theme="light"] {
+    --bg: #f9fafb; --card: #ffffff;
+    --brand: #BB0020; --brand-hover: #1f2937;
+    --brand-tint: rgba(187,0,32,0.05); --brand-tint-2: rgba(187,0,32,0.10);
+    --cream-soft: rgba(187,0,32,0.08);
+    --ink: #111827; --ink-soft: #374151; --muted: #6b7280; --muted-soft: #9ca3af;
+    --line: #e5e7eb; --line-soft: #f3f4f6;
+    --success: #15803d; --success-ink: #15803d; --success-tint: rgba(22,163,74,0.10); --success-rim: rgba(22,163,74,0.28);
+    --danger: #ef4444; --danger-ink: #dc2626; --danger-tint: rgba(239,68,68,0.10); --danger-rim: rgba(239,68,68,0.28);
+    --warning: #f59e0b; --warning-ink: #b45309; --warning-tint: rgba(245,158,11,0.12); --warning-rim: rgba(245,158,11,0.30);
+    --info: #6b7280; --info-tint: rgba(107,114,128,0.10); --info-rim: rgba(107,114,128,0.26);
+    --shadow-clay: 0 8px 24px -8px rgba(17,24,39,.08), 0 2px 6px -2px rgba(0,0,0,.04), inset 0 1px 0 rgba(255,255,255,.7);
+    --shadow-clay-pill: 0 4px 12px -4px rgba(187,0,32,.20), inset 0 1px 0 rgba(255,255,255,.4);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 44px 28px 96px; }
+  a { color: inherit; }
+
+  /* ── Masthead / logo ────────────────────────────────── */
+  .masthead {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 24px; padding-bottom: 26px; border-bottom: 1px solid var(--line);
+    margin-bottom: 28px; flex-wrap: wrap;
+  }
+  .brand-lockup { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 40px; height: 40px; border-radius: 11px; background: var(--brand); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 800; font-size: 19px;
+    box-shadow: var(--shadow-clay-pill); flex-shrink: 0;
+  }
+  .brand-word { font-family: var(--font-display); font-weight: 800; font-size: 26px; letter-spacing: -0.05em; color: var(--brand); line-height: 1; }
+  .brand-caption { font-size: 9px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+  .masthead-sub { color: var(--muted); font-size: 13.5px; max-width: 58ch; margin: 10px 0 0; }
+  .masthead-meta { text-align: right; font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: 0.02em; }
+  .masthead-meta .who { color: var(--brand); font-weight: 700; }
+
+  /* ── Launch strip ────────────────────────────────────── */
+  .launch-strip { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .launch-item { display: flex; align-items: center; gap: 8px; background: var(--brand-tint); border: 1px solid var(--brand-tint-2); border-radius: 999px; padding: 7px 16px 7px 14px; }
+  .launch-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--brand); }
+  .launch-val { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; color: var(--ink); }
+  .launch-val.link { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--brand-tint-2); }
+  .launch-val.link:hover { color: var(--brand); border-bottom-color: var(--brand); }
+
+  /* ── Section headings ───────────────────────────────── */
+  .section { margin-bottom: 52px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+  .section-head h2 { font-family: var(--font-display); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; margin: 0; color: var(--ink); }
+  .section-head .hint { font-size: 12px; color: var(--muted); }
+
+  /* ── Overview grid ──────────────────────────────────── */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .overview-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-clay); padding: 20px 22px; }
+
+  .countdown-num { font-family: var(--font-mono); font-size: 46px; font-weight: 700; color: var(--brand); line-height: 1; font-variant-numeric: tabular-nums; }
+  .countdown-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-top: 8px; }
+  .countdown-date { font-size: 12px; color: var(--muted-soft); margin-top: 3px; font-family: var(--font-mono); }
+
+  .stack-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 12px; }
+  .stack-bar { display: flex; height: 26px; border-radius: 7px; overflow: hidden; background: var(--line-soft); border: 1px solid var(--line); }
+  .stack-seg { height: 100%; cursor: pointer; transition: filter 0.15s ease; border-right: 2px solid var(--card); }
+  .stack-seg:last-child { border-right: none; }
+  .stack-seg:hover { filter: brightness(1.08); }
+  .stack-seg.seg-wired { background: var(--success); }
+  .stack-seg.seg-partial { background: var(--warning); }
+  .stack-seg.seg-stub { background: var(--danger); }
+  .stack-legend { display: flex; gap: 18px; margin-top: 12px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-soft); cursor: pointer; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+  .legend-dot.wired { background: var(--success); }
+  .legend-dot.partial { background: var(--warning); }
+  .legend-dot.stub { background: var(--danger); }
+  .legend-item b { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+
+  .overview-row2 { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 20px; }
+
+  /* per-feature comparative bar chart */
+  .fbar-list { display: flex; flex-direction: column; gap: 9px; }
+  .fbar-row {
+    display: grid;
+    grid-template-columns: 168px 1fr 74px;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 8px;
+    transition: background 0.12s ease;
+  }
+  .fbar-row:hover { background: var(--brand-tint); }
+  .fbar-name { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fbar-track { display: flex; height: 16px; border-radius: 5px; overflow: hidden; background: var(--line-soft); border: 1px solid var(--line); }
+  .fbar-seg { height: 100%; border-right: 1.5px solid var(--card); }
+  .fbar-seg:last-child { border-right: none; }
+  .fbar-seg.seg-wired { background: var(--success); }
+  .fbar-seg.seg-partial { background: var(--warning); }
+  .fbar-seg.seg-stub { background: var(--danger); }
+  .fbar-pct { font-family: var(--font-mono); font-size: 11.5px; font-variant-numeric: tabular-nums; text-align: right; color: var(--muted); }
+
+  .audit-stats { display: flex; flex-wrap: wrap; gap: 22px; font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .audit-stats b { color: var(--ink); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  /* ── Critical findings ──────────────────────────────── */
+  .crit-grid { display: flex; flex-direction: column; gap: 10px; }
+  .crit-card {
+    display: grid; grid-template-columns: 4px 1fr; gap: 16px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 15px 18px; box-shadow: var(--shadow-clay); cursor: pointer;
+  }
+  .crit-card .stripe { border-radius: 3px; background: var(--danger); }
+  .crit-card .kicker { font-family: var(--font-mono); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--danger-ink); margin-bottom: 3px; }
+  .crit-card b { display: block; font-size: 14px; margin-bottom: 4px; }
+  .crit-card span { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+  .crit-card code { font-family: var(--font-mono); font-size: 11.5px; background: var(--line-soft); border-radius: 4px; padding: 1px 5px; }
+  .crit-card.resolved .stripe { background: var(--success); }
+  .crit-card.resolved .kicker { color: var(--success-ink); }
+  .crit-card.resolved .kicker::after { content: " · RESOLVED 08-05"; color: var(--success-ink); opacity: 0.85; }
+
+  /* ── Accordion ───────────────────────────────────────── */
+  .accordion-controls { display: flex; gap: 10px; margin-bottom: 12px; }
+  .accordion-controls button {
+    font-family: var(--font-body); font-size: 12px; font-weight: 600;
+    background: var(--card); color: var(--ink-soft); border: 1px solid var(--line);
+    border-radius: 999px; padding: 6px 14px; cursor: pointer;
+  }
+  .accordion-controls button:hover { border-color: var(--brand); color: var(--brand); }
+
+  .accordion { display: flex; flex-direction: column; gap: 10px; }
+  .acc-item {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow-clay); overflow: hidden; scroll-margin-top: 20px;
+    transition: opacity 0.15s ease, max-height 0.15s ease;
+  }
+  .acc-item[hidden] { display: none; }
+  .acc-item summary {
+    list-style: none; cursor: pointer; padding: 15px 18px;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .acc-item summary::-webkit-details-marker { display: none; }
+  .acc-chevron { width: 16px; height: 16px; flex-shrink: 0; color: var(--muted); transition: transform 0.15s ease; }
+  .acc-item[open] .acc-chevron { transform: rotate(90deg); }
+  .acc-name { font-weight: 700; font-size: 14px; flex: 1 1 160px; min-width: 140px; }
+  .acc-pills { display: flex; gap: 5px; }
+  .pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%; font-size: 12px; font-weight: 700;
+    line-height: 1; border: 1px solid transparent;
+  }
+  .pill.done { background: var(--success-tint); color: var(--success-ink); border-color: var(--success-rim); }
+  .pill.partial { background: var(--warning-tint); color: var(--warning-ink); border-color: var(--warning-rim); }
+  .pill.none { background: var(--danger-tint); color: var(--danger-ink); border-color: var(--danger-rim); }
+  .acc-minibar { display: flex; height: 8px; width: 90px; border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+  .acc-minibar span { height: 100%; }
+  .acc-minibar .seg-wired { background: var(--success); }
+  .acc-minibar .seg-partial { background: var(--warning); }
+  .acc-minibar .seg-stub { background: var(--danger); }
+  .acc-count { font-family: var(--font-mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .acc-takeaway { flex-basis: 100%; font-size: 12.5px; color: var(--muted); margin-top: -4px; padding-left: 30px; }
+
+  .acc-body { padding: 4px 18px 18px 18px; border-top: 1px solid var(--line-soft); }
+  .findings { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .finding {
+    display: grid; grid-template-columns: 3px 1fr; gap: 12px;
+    padding: 9px 12px; border-radius: 8px; background: var(--line-soft);
+  }
+  .finding .fstripe { border-radius: 2px; }
+  .finding.f-wired .fstripe { background: var(--success); }
+  .finding.f-partial .fstripe { background: var(--warning); }
+  .finding.f-stub .fstripe { background: var(--danger); }
+  .finding.f-info .fstripe { background: var(--info); }
+  .finding .ftag {
+    display: inline-block; font-family: var(--font-mono); font-size: 9.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em; padding: 1px 6px; border-radius: 4px; margin-right: 7px;
+  }
+  .finding.f-wired .ftag { background: var(--success-tint); color: var(--success-ink); }
+  .finding.f-partial .ftag { background: var(--warning-tint); color: var(--warning-ink); }
+  .finding.f-stub .ftag { background: var(--danger-tint); color: var(--danger-ink); }
+  .finding.f-info .ftag { background: var(--info-tint); color: var(--info); }
+  .finding p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--ink-soft); }
+  .finding code { font-family: var(--font-mono); font-size: 11.5px; background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+  .acc-note { font-size: 12.5px; color: var(--muted); margin: 10px 0 0; }
+
+  /* ── Domain cards ────────────────────────────────────── */
+  .domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .domain-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px 20px; box-shadow: var(--shadow-clay); }
+  .domain-card h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 12px; color: var(--brand); display: flex; align-items: center; gap: 8px; }
+  .domain-card ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+  .domain-card li { font-size: 13.5px; line-height: 1.45; padding-left: 16px; position: relative; }
+  .domain-card li::before { content: ""; position: absolute; left: 0; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--line); }
+  .domain-card li.tag-added::before { background: var(--brand); }
+  .domain-card li .tag { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--brand); background: var(--brand-tint-2); border-radius: 999px; padding: 1px 8px; margin-left: 6px; white-space: nowrap; }
+  .domain-card li.done { color: var(--muted); }
+  .domain-card li.done::before { background: var(--success); }
+  .domain-card li.done .strike { text-decoration: line-through; }
+  .domain-card code { font-family: var(--font-mono); font-size: 12px; background: var(--line-soft); border-radius: 4px; padding: 1px 5px; }
+
+  /* ── Issues punch list ──────────────────────────────── */
+  .issues { display: flex; flex-direction: column; gap: 10px; }
+  .issue { display: grid; grid-template-columns: 4px 1fr auto; gap: 16px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; box-shadow: var(--shadow-clay); }
+  .issue .stripe { align-self: stretch; border-radius: 3px; background: var(--danger); }
+  .issue.warn .stripe { background: var(--warning); }
+  .issue.info .stripe { background: var(--brand); }
+  .issue .body b { display: block; font-size: 13.5px; margin-bottom: 3px; }
+  .issue .body span { font-size: 12.5px; color: var(--muted); }
+  .issue .body code { font-family: var(--font-mono); font-size: 12px; background: var(--line-soft); border-radius: 4px; padding: 1px 5px; }
+  .issue .kind { font-family: var(--font-mono); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--danger-ink); white-space: nowrap; }
+  .issue.warn .kind { color: var(--warning-ink); }
+  .issue.info .kind { color: var(--brand); }
+
+  footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+  @media (max-width: 760px) {
+    .overview-grid { grid-template-columns: 1fr; }
+    .fbar-row { grid-template-columns: 110px 1fr 50px; }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding: 32px 16px 64px; }
+    .masthead { flex-direction: column; align-items: flex-start; }
+    .masthead-meta { text-align: left; }
+    .acc-takeaway { padding-left: 0; }
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <div class="brand-lockup">
+        <div class="brand-mark">E</div>
+        <div>
+          <div class="brand-word">Evenzi</div>
+          <div class="brand-caption">Capture · Share · Cherish</div>
+        </div>
+      </div>
+      <p class="masthead-sub">V0 Readiness — MVP feature matrix, full wiring audit (every button/CTA traced end to end), and the launch-readiness backlog.</p>
+    </div>
+    <div class="masthead-meta">
+      <div class="who">Dev-Vibe-Testing → evenzi.vercel.app</div>
+      <div>audited 2026-08-03 · DP fix 08-05 · push 08-06 · collab invite 2026-08-07</div>
+    </div>
+  </div>
+
+  <div class="launch-strip">
+    <div class="launch-item"><span class="launch-lbl">Launch date</span><span class="launch-val">Aug 31, 2026</span></div>
+    <div class="launch-item"><span class="launch-lbl">Testing URL</span><a class="launch-val link" href="https://evenzi.vercel.app" target="_blank" rel="noopener">evenzi.vercel.app</a></div>
+    <div class="launch-item"><span class="launch-lbl">Main domain</span><a class="launch-val link" href="https://www.evenzii.com" target="_blank" rel="noopener">www.evenzii.com</a></div>
+  </div>
+
+  <!-- ── OVERVIEW ───────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Overview</h2>
+      <span class="hint">Click any segment or bar to jump into the matrix below</span>
+    </div>
+
+    <div class="overview-grid">
+      <div class="overview-card" style="display:flex; flex-direction:column; justify-content:center;">
+        <div class="countdown-num" id="countdownNum">—</div>
+        <div class="countdown-lbl">days to launch</div>
+        <div class="countdown-date">Aug 31, 2026</div>
+      </div>
+
+      <div class="overview-card">
+        <div class="stack-title">MVP matrix — 51 cells (Data / Backend / Frontend × 17 features)</div>
+        <div class="stack-bar">
+          <div class="stack-seg seg-wired" data-filter="done" style="width:80.4%"></div>
+          <div class="stack-seg seg-partial" data-filter="partial" style="width:5.9%"></div>
+          <div class="stack-seg seg-stub" data-filter="none" style="width:13.7%"></div>
+        </div>
+        <div class="stack-legend">
+          <div class="legend-item" data-filter="done"><span class="legend-dot wired"></span>Done <b>41</b></div>
+          <div class="legend-item" data-filter="partial"><span class="legend-dot partial"></span>Partial <b>3</b></div>
+          <div class="legend-item" data-filter="none"><span class="legend-dot stub"></span>Not started <b>7</b></div>
+          <div class="legend-item" data-filter="all"><span class="legend-dot" style="background:var(--muted-soft)"></span>Show all</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overview-row2">
+      <div class="overview-card">
+        <div class="stack-title">Deep-audit findings by feature — 117 checks, sorted worst-first (% of checks fully wired)</div>
+        <div class="fbar-list" id="fbarList"><!-- rows injected identically in markup below for no-JS fallback --></div>
+        <div class="stack-legend" style="margin-top:16px;">
+          <div class="legend-item"><span class="legend-dot wired"></span>Wired <b id="totWired">75</b></div>
+          <div class="legend-item"><span class="legend-dot partial"></span>Partial <b id="totPartial">16</b></div>
+          <div class="legend-item"><span class="legend-dot stub"></span>Stub / dead <b id="totStub">18</b></div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--info)"></span>Informational <b>8</b> <span style="color:var(--muted-soft)">(correct, not a bug)</span></div>
+        </div>
+        <div class="audit-stats">
+          <span>2026-08-03 baseline: 6 parallel audit agents</span>
+          <span><b>224</b> tool calls</span>
+          <span><b>~695K</b> subagent tokens spent</span>
+          <span><b>~19 min</b> agent compute (wall-clock ~7 min, parallel)</span>
+        </div>
+        <div class="audit-stats" style="margin-top:2px;">
+          <span>2026-08-05 fix pass: <b>inline, no subagents</b> (weekly token budget was tight)</span>
+          <span><b>3</b> DB migrations</span>
+          <span>Digital Presence Design/Overview/Photos/Pages rebuilt to match the design system 1:1, reviewed live</span>
+        </div>
+        <div class="audit-stats" style="margin-top:2px;">
+          <span>2026-08-06: Push Notifications Phase A+B shipped — <code>0a25eed</code> → <code>Dev-Vibe</code>/<code>Dev-Vibe-Testing</code> (<code>861b1e25</code>)</span>
+          <span>Live on <code>evenzi.vercel.app</code>: <code>/sw.js</code> 200, <code>dispatch-push</code> 401 (not 404)</span>
+          <span>Manual B7 (OS toast + <code>push_dispatch_log</code>) + webhook HMAC mode still pending confirm</span>
+        </div>
+        <div class="audit-stats" style="margin-top:2px;">
+          <span>2026-08-07: Collab invite in-app — Accept/Decline on Collaborations + bell; SQL <code>collab_invite_01–03</code>; branch <code>feature/collab-invite-in-app</code> (<code>7091482e</code>)</span>
+          <span>Pending-invite UI design-drift fixed (single filter row + <code>.pending-invite-card</code>)</span>
+          <span>Resend email best-effort (keys deferred); Usage tab + Portal overlays on cleanup lineage</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CRITICAL FINDINGS ──────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Critical findings</h2>
+      <span class="hint">The severity items — fix before Aug 31</span>
+    </div>
+    <div class="crit-grid">
+      <div class="crit-card resolved" data-jump="digital-presence">
+        <div class="stripe"></div>
+        <div>
+          <div class="kicker">Security · IDOR</div>
+          <b>Fixed — website-settings PATCH now ownership-checked</b>
+          <span>Added the same <code>verifyOwnership</code> check every sibling route already used, before the upsert. Live-verified: an unauthenticated/non-owner request now 401s/404s instead of writing. <code>app/api/events/[id]/website-settings/route.ts</code>.</span>
+        </div>
+      </div>
+      <div class="crit-card resolved" data-jump="digital-presence">
+        <div class="stripe"></div>
+        <div>
+          <div class="kicker">Security · Rate limit bypass</div>
+          <b>Fixed — and a second, worse bug found in the process</b>
+          <span>Forwarded the real client IP into the DB call (it was never attached to the server-to-server request). Live-testing that fix then surfaced a second bug: a failed guess raised a Postgres exception that rolled back its own rate-limit-counter insert, so brute-force guessing never actually accumulated — 7 wrong guesses in a row, zero rows logged, no lockout ever. Fixed via a small migration; re-tested the same sequence post-fix: 5 fails logged correctly, 6th blocked with 429.</span>
+        </div>
+      </div>
+      <div class="crit-card resolved" data-jump="host-dashboard">
+        <div class="stripe"></div>
+        <div>
+          <div class="kicker">Dead vertical slice · mostly fixed 08-07</div>
+          <b>Fixed — in-app Accept/Decline on Collaborations + bell</b>
+          <span>Pending invites via <code>list_my_pending_invites</code>; accept/decline APIs + RPCs; notify on invite when user exists; email path still <code>/auth/accept-invite?token=</code> (Resend best-effort, keys deferred). Remaining: merge to <code>Dev-Vibe</code>/prod; co-host hub RLS edge cases if any still 404. Branch <code>feature/collab-invite-in-app</code> <code>7091482e</code>.</span>
+        </div>
+      </div>
+      <div class="crit-card" data-jump="event-settings">
+        <div class="stripe"></div>
+        <div>
+          <div class="kicker">No-op CTA</div>
+          <b>"Upgrade now" does nothing — no payment system exists</b>
+          <span>Plan &amp; Billing renders a full pricing page with "Most popular" badges. The upgrade button has no <code>onClick</code>, no <code>href</code>, no form. Grepping the repo for billing/payment infra returns nothing beyond this display page.</span>
+        </div>
+      </div>
+      <div class="crit-card" data-jump="media">
+        <div class="stripe"></div>
+        <div>
+          <div class="kicker">Core feature broken</div>
+          <b>Video playback has no implementation</b>
+          <span>The lightbox "Play video" button has no <code>onClick</code> at all, and there is no <code>&lt;video&gt;</code> element anywhere in the component. Hosts can upload a video but nobody can ever watch it.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MVP MATRIX (ACCORDION) ─────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>MVP feature matrix</h2>
+      <span class="hint" id="filterHint">Every finding from the deep-wiring audit — click a row to expand</span>
+    </div>
+    <div class="accordion-controls">
+      <button type="button" id="expandAll">Expand all</button>
+      <button type="button" id="collapseAll">Collapse all</button>
+      <button type="button" id="clearFilter" style="display:none;">Clear filter ×</button>
+    </div>
+
+    <div class="accordion" id="accordion">
+
+      <!-- 1. Fix Vercel Deployment -->
+      <details class="acc-item" id="acc-vercel" data-data="done" data-backend="done" data-frontend="done">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Fix Vercel Deployment</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-count">not deep-audited</span>
+        </summary>
+        <div class="acc-body">
+          <p class="acc-note">Latest prod deploy <code>dpl_FBjDZ…</code> is READY. CLAUDE.md's stale "ERROR state" note corrected 2026-08-03. No code-level wiring to audit here.</p>
+        </div>
+      </details>
+
+      <!-- 2. Auth & Role Selection -->
+      <details class="acc-item" id="acc-auth" data-data="done" data-backend="done" data-frontend="done">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Auth &amp; Role Selection</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:71.4%"></span><span class="seg-partial" style="width:14.3%"></span><span class="seg-stub" style="width:14.3%"></span></span>
+          <span class="acc-count">8 findings</span>
+          <span class="acc-takeaway">Core flows are solid. One orphaned route, two dead legal links.</span>
+        </summary>
+        <div class="acc-body">
+          <ul class="findings">
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Phone OTP send — real <code>signInWithOtp</code>, toast, advances to verify screen. <code>app/auth/page.tsx:45-59</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Phone OTP verify — real <code>verifyOtp</code>, session check, redirect. <code>app/auth/page.tsx:61-80</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Google OAuth — real callback exchange, role-aware redirect. <code>app/auth/page.tsx:82-95</code>, <code>app/auth/callback/route.ts:35-52</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Role selection "Host" — writes <code>role_slug</code> to <code>user_profiles</code>; middleware enforces gating. <code>app/auth/role-selection/page.tsx:15-45</code>, <code>lib/supabase/middleware.ts:76-107</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>"Back to Login" — real <code>signOut()</code> + redirect. <code>app/auth/role-selection/page.tsx:47-50</code></p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>"Vendor" role option — correctly <code>disabled</code>, labeled "Coming soon." Honest, not a bug. <code>components/auth/RoleSelectCard.tsx:106-131</code></p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Terms of Service / Privacy Policy links — dead <code>href="#"</code>. <code>app/auth/page.tsx:237-238</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><code>POST /api/auth/verify</code> — correctly built, but never called from anywhere in the app. Orphaned route. <code>app/api/auth/verify/route.ts</code></p></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 3. Event CRUD -->
+      <details class="acc-item" id="acc-crud" data-data="done" data-backend="done" data-frontend="done">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Event CRUD (4-step wizard)</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:50%"></span><span class="seg-partial" style="width:30%"></span><span class="seg-stub" style="width:20%"></span></span>
+          <span class="acc-count">10 findings</span>
+          <span class="acc-takeaway">Create/edit/delete all genuinely wired. Delete copy overstates what happens; two dead controls.</span>
+        </summary>
+        <div class="acc-body">
+          <ul class="findings">
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Step 1 event type — server-fetched from <code>config.event_types</code>. <code>app/events/create/page.tsx:55</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Step 2 cover-photo upload — real upload via <code>POST /api/events/cover</code>. <code>Step2BasicDetails.tsx:78-113</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Step 3/4 submit — <code>POST /api/events</code>, zod-validated, real RPC <code>create_event_with_details</code>. <code>Step4ReviewConfirm.tsx:71-114</code>, <code>api/events/route.ts:70-175</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Edit (PUT) — real parallel writes to <code>events</code> + <code>event_general_settings</code>. <code>GeneralSettingsForm.tsx:111-162</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Delete — real soft-delete (<code>deleted_at</code>), type-DELETE-to-confirm modal. <code>api/events/[id]/route.ts:375-423</code></p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Delete copy says "permanently removes...guests and media" — only soft-deletes the event row; guests/media aren't cascaded, just orphaned. <code>GeneralSettingsForm.tsx:415-417</code></p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Footer Privacy/Terms/Help links — <code>href="#"</code>. <code>GeneralSettingsForm.tsx:394-397</code></p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Event type field hardcoded to "Wedding," disabled select — mislabels non-wedding events. <code>GeneralSettingsForm.tsx:253-259</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Allow ticket sales" toggle — local state only, never sent in the save payload, no DB column backs it. <code>GeneralSettingsForm.tsx:47,321-334</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Contact support" button — no <code>onClick</code>. <code>GeneralSettingsForm.tsx:360-363</code></p></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 4. Host Dashboard -->
+      <details class="acc-item" id="acc-host-dashboard" data-data="done" data-backend="done" data-frontend="done">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Host Dashboard</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:83.3%"></span><span class="seg-partial" style="width:16.7%"></span></span>
+          <span class="acc-count">6 findings — Collaborations wired 08-07</span>
+          <span class="acc-takeaway">Events list solid. Collaborations now loads accepted collabs + pending invite cards with Accept/Decline.</span>
+        </summary>
+        <div class="acc-body">
+          <ul class="findings">
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Events list + Active/Past filter — server-fetched, real filter over real data. <code>app/home/page.tsx</code>, <code>EventsGrid.tsx</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>"Manage event" click-through — real navigation.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>"Create event" CTA — real navigation into the wizard.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Header greeting/avatar — real <code>user_profiles</code> read with fallback chain.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>"Collaborations" tab</b> — accepted collabs from DB + pending invites via <code>list_my_pending_invites</code>; Accept/Decline → <code>/api/collaborators/invites/…</code>; stays on Collaborations after accept. Design: single filter row + <code>.pending-invite-card</code>. <em>Updated 2026-08-07</em> (was hardcoded empty arrays).</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>"Live website" button links unconditionally, even for events that aren't published yet.</p></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 5. Landing Section -->
+      <details class="acc-item" id="acc-landing" data-data="done" data-backend="done" data-frontend="partial">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Landing Section (Marketing)</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill partial" title="Frontend">~</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:50%"></span><span class="seg-stub" style="width:50%"></span></span>
+          <span class="acc-count">4 findings</span>
+          <span class="acc-takeaway">Sign-up flow works. Nav and footer legal links are dead.</span>
+        </summary>
+        <div class="acc-body">
+          <ul class="findings">
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Sign In / Get Early Access → <code>/auth</code>, real route. <code>app/page.tsx:18-20</code>, <code>scroll-morph-hero.tsx:214</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Footer "Help" mailto — real. <code>PageFooter.tsx:18</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>Nav "Features"/"About" links point to anchor IDs that don't exist anywhere on the rendered page. <code>app/page.tsx:66,72,181,188</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>Footer Privacy/Terms links — <code>/legal/</code> route doesn't exist in the app at all. These 404. <code>PageFooter.tsx:16-17</code></p></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 6. Reusable Component Library -->
+      <details class="acc-item" id="acc-complib" data-data="done" data-backend="done" data-frontend="done">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Reusable Component Library</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-count">not deep-audited</span>
+        </summary>
+        <div class="acc-body">
+          <p class="acc-note">Achieved via React composition as components are built, not a standalone library artifact. No discrete backend/data surface to audit.</p>
+        </div>
+      </details>
+
+      <!-- 7. Event Management Hub -->
+      <details class="acc-item" id="acc-event-hub" data-data="done" data-backend="done" data-frontend="done">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Event Management Hub</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:55.6%"></span><span class="seg-stub" style="width:44.4%"></span></span>
+          <span class="acc-count">9 findings</span>
+          <span class="acc-takeaway">Hero/navigation is real. "Your timeline" and "Recent activity" are permanent placeholders.</span>
+        </summary>
+        <div class="acc-body">
+          <ul class="findings">
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Hero title/venue/date — real read from <code>events</code> + <code>event_hub_summary</code>, error-checked. <code>app/events/[id]/page.tsx:61-94</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Guests stat tile — real read from the view. <code>page.tsx:153,290-297</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Sub-event journey strip — real read joined with <code>config.event_sub_types</code>. <code>page.tsx:98-146,366-462</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Quick action tiles (Send invites / Track RSVPs / Manage budget / Plan timeline) — real links. <code>page.tsx:264-279</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Feature bento tiles — real links to existing pages. <code>page.tsx:475-496</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"RSVP rate" stat tile — data is fetched from the view, but the tile body is hardcoded to <code>—</code>, never interpolated. <code>page.tsx:83,299-306</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Budget used" stat tile — same pattern, fetched then discarded. <code>page.tsx:83-84,307-314</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>"Your timeline" panel</b> — always renders the static empty state; never queries <code>event_tasks</code>, even though Planning is fully wired elsewhere. <code>page.tsx:514-521</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>"Recent activity" panel</b> — permanent placeholder; no activity-log table or API exists anywhere in the codebase. <code>page.tsx:524-536</code></p></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 8. Guest Management & RSVP -->
+      <details class="acc-item" id="acc-guests" data-data="done" data-backend="done" data-frontend="done">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Guest Management &amp; RSVP</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:92.9%"></span><span class="seg-partial" style="width:7.1%"></span></span>
+          <span class="acc-count">14 findings</span>
+          <span class="acc-takeaway">Cleanest feature in the audit. "Send invites" is disabled correctly and honestly, not silently broken.</span>
+        </summary>
+        <div class="acc-body">
+          <ul class="findings">
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Add guest — real insert incl. sub-event/tag links. <code>GuestFormModal.tsx:112-122</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Edit guest — real update + relink. <code>GuestFormModal.tsx:88-111</code>, <code>[guestId]/route.ts:5-101</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Remove guest — real scoped delete, 404s cleanly. <code>[guestId]/route.ts:103-136</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>RSVP status setter (per guest) — optimistic update + rollback on failure. <code>GuestManagementClient.tsx:115-137,456-467</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Assign to functions, single + bulk — real writes both paths. <code>:174-198,493-503</code>, <code>bulk/route.ts:61-81</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Search / status filter / sub-event &amp; tag filter / sort — real client-side filtering over real fetched data. <code>:91-113</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Tag combobox (create-on-the-fly) — real insert + attach. <code>GuestFormModal.tsx:49-66</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Tag Manager modal (add/delete) — real. <code>TagManagerModal.tsx</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>CSV import — real parser, validation gate blocks import on any row error, server re-checks duplicates. <code>ImportCsvModal.tsx</code>, <code>import/route.ts</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Bulk tag / assign / delete — real writes, correct upsert/delete semantics, confirm before delete. <code>bulk/route.ts</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>"Send invites" (toolbar + per-row) — correctly <code>disabled</code> with an honest "coming soon" tooltip. Not a silent no-op — done right. <code>:259-265,410-412</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>RSVP response-rate stat — real computed from live guest data. <code>:112-113,218-227</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Zero-assigned-function warning banner — real count-driven. <code>:89,305-313</code></p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Single-guest "Add guest" has no duplicate-phone guard server-side, unlike the CSV import path which re-checks. Minor inconsistency. <code>api/.../guests/route.ts:42-60</code></p></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 9. Event Settings -->
+      <details class="acc-item" id="acc-event-settings" data-data="done" data-backend="partial" data-frontend="done">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Event Settings</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill partial" title="Backend">~</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:10%"></span><span class="seg-partial" style="width:30%"></span><span class="seg-stub" style="width:60%"></span></span>
+          <span class="acc-count">10 findings + Admins (below)</span>
+          <span class="acc-takeaway">Most decorative tab in the app. Registry and Plan &amp; Billing are especially hollow — see Critical findings.</span>
+        </summary>
+        <div class="acc-body">
+          <p class="acc-note"><b>General tab:</b> Name/date/venue/tagline saves and Delete are real — see Event CRUD card above (same files, not re-listed here to avoid double-counting).</p>
+          <ul class="findings">
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span><b>Website tab —</b> password-protect toggle saves the boolean, but the actual password text typed into the field is never sent to the API at all. <code>WebsiteContent.tsx:29,56-61</code></p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span><b>Website tab —</b> "Take site offline," password-protect, search-indexing, and the announcement banner all persist correctly to <code>event_website_settings</code> — but the public site route never reads that table at all. Fully unenforced. Zero references in <code>app/e/[slug]/page.tsx</code>.</p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Website tab —</b> "View live site" link — <code>href="#"</code>. <code>:107</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Website tab —</b> "Modify all" and per-page "Edit" buttons — <code>href="#"</code> / no <code>onClick</code>. <code>:200-218</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Registry tab —</b> "Add link" / "Create fund" are <code>setTimeout</code> calls that flash a fake success toast. No <code>fetch</code>, no API route exists for registry at all — not even localStorage. Worse than the "browser only" claim in the docs; nothing persists anywhere. <code>RegistryContent.tsx:20-28</code></p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span><b>Guests tab —</b> RSVP-enabled / plus-ones / dietary-notes toggles genuinely persist to <code>event_guest_settings</code>, but nothing downstream (RSVP route, invite flow, import) ever reads them. Copy says "these rules apply to every guest" — currently they apply to nothing.</p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Guests tab —</b> "View the guide" button — no <code>onClick</code>. <code>:170</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Plan &amp; Billing —</b> current plan display reads real <code>events.plan_id</code> joined against <code>config.plans</code>. Accurate.</p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Plan &amp; Billing —</b> "Upgrade now" — no <code>onClick</code>, no href, no form. No payment system exists anywhere in the repo. See Critical findings. <code>billing/page.tsx:126-129</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Plan &amp; Billing —</b> "Contact support" button — dead, same pattern as General tab. <code>:142</code></p></li>
+          </ul>
+          <p class="acc-note"><b>Admins tab</b> (co-host invite): known stub — invite only inserts a DB row, no email, no accept flow, no permission enforcement anywhere. See Critical findings and the Host Dashboard card above for the full dead vertical slice.</p>
+        </div>
+      </details>
+
+      <!-- 10. User Settings -->
+      <details class="acc-item" id="acc-user-settings" data-data="done" data-backend="done" data-frontend="done">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">User Settings</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:83.3%"></span><span class="seg-partial" style="width:16.7%"></span></span>
+          <span class="acc-count">6 findings — push consumer landed 08-06</span>
+          <span class="acc-takeaway">Profile/avatar/sign-out solid. Push toggle now drives real browser push (see Push Notifications). Email/SMS still preference-only.</span>
+        </summary>
+        <div class="acc-body">
+          <ul class="findings">
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Save profile — real <code>PATCH</code>, updates <code>user_profiles.display_name</code>.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Avatar upload — genuine R2 upload with type/size validation, updates <code>avatar_url</code>. Fully wired, no gaps.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Connected methods (Google/Phone) — real read from <code>user.identities</code> + <code>user_profiles.phone</code>.</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>2FA toggle — <code>disabled</code>, labeled "Coming soon." Honest.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Push notifications toggle</b> — now opt-in → permission → <code>PushManager.subscribe</code> → <code>POST /api/notifications/push-subscription</code>, then <code>PATCH push_notifications=true</code>. OFF unsubscribes + deletes. VAPID public key SSR'd from server. See Push Notifications feature card. <em>Updated 2026-08-06</em> (was "prefs with zero consumers").</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Email / SMS alert toggles still persist to <code>user_preferences</code> with no send pipeline (email/SMS delivery not in V0 scope).</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Sign out — real <code>signOut()</code> + redirect.</p></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 11. Planning Tools -->
+      <details class="acc-item" id="acc-planning" data-data="done" data-backend="done" data-frontend="done">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Planning Tools (Checklist + Budget)</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:88.9%"></span><span class="seg-partial" style="width:11.1%"></span></span>
+          <span class="acc-count">10 findings</span>
+          <span class="acc-takeaway">Second-cleanest feature. Only real gap is a minor RLS-covered scoping nit; receipt upload is an honestly-labeled stub.</span>
+        </summary>
+        <div class="acc-body">
+          <ul class="findings">
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Create task — real insert, resolves default priority/status server-side.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Edit task — real scoped <code>PATCH</code>, code path confirmed correct even though not UI-clicked live.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Toggle done/reopen — optimistic update + rollback on failure.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Delete task — real scoped <code>DELETE</code>.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Bulk complete/delete/set-date/assign — real, "complete" via RPC <code>bulk_set_task_status</code> (RLS-gated).</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Set/update total budget — real upsert against <code>event_budgets</code>.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Add/edit/delete expense — real, scoped.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Add custom expense type + duplicate rejection — DB-enforced via a real unique index, genuine <code>409</code> on collision.</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Bulk "complete" RPC doesn't filter by <code>event_id</code>, relies solely on RLS ownership. Not cross-tenant exploitable, but a crafted request could complete tasks on the caller's own <em>other</em> events. Low severity, UI never triggers it.</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Receipt upload — confirmed stub, but honestly labeled "Prototype — won't save yet" directly in the UI copy. File is never sent in the save payload. Disclosed, not a lie.</p></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 12. Media & Memories -->
+      <details class="acc-item" id="acc-media" data-data="done" data-backend="done" data-frontend="partial">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Media &amp; Memories (Photo Gallery)</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill partial" title="Frontend">~</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:62.5%"></span><span class="seg-stub" style="width:37.5%"></span></span>
+          <span class="acc-count">9 findings</span>
+          <span class="acc-takeaway">Upload/delete/album pipeline is solid, both prior critical bugs confirmed fixed. Video playback doesn't exist — see Critical findings.</span>
+        </summary>
+        <div class="acc-body">
+          <ul class="findings">
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Upload pipeline — real presigned R2 PUT + magic-byte content-type validation before commit.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Cross-event IDOR fix — confirmed present in every media route, not reverted.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><code>thumbnail_key</code> fix — confirmed present, signed and served correctly for tiles/covers.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Delete / bulk-delete — scoped, per-id failure reporting, client reconciles correctly.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Albums — create/rename/delete/assign, ownership-checked, duplicate-name <code>409</code>.</p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Set cover" button — pure client state, never persisted anywhere. Refresh the page and the cover badge silently resets. No backend concept of a cover exists.</p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Video playback</b> — "Play video" button has no <code>onClick</code> at all; no <code>&lt;video&gt;</code> element exists anywhere in the component. See Critical findings.</p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Notify me" (storage-limit) button — dead, no <code>onClick</code>.</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Storage limit is hardcoded to 5GB, not entitlement-driven — flagged <code>[PLANNED]</code> in the code's own comment. Not a lie, meter just isn't wired to plan data yet.</p></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 13. Digital Presence -->
+      <details class="acc-item" id="acc-digital-presence" data-data="done" data-backend="done" data-frontend="done" open>
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Digital Presence (Event Website)</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:80%"></span><span class="seg-partial" style="width:20%"></span></span>
+          <span class="acc-count">18 findings — 2026-08-05 fix + design-parity pass</span>
+          <span class="acc-takeaway">Both Critical security items fixed and re-verified live. Full Overview/Design/Photos/Pages rebuild to match the design system, reviewed. Three things deliberately flagged rather than fixed — see Info tags.</span>
+        </summary>
+        <div class="acc-body">
+          <p class="acc-note">Biggest single change in this fix pass — was the worst-scoring feature in the 08-03 audit (57% wired), now among the best. Full session log: <code>docs/superpowers/plans/2026-08-05-digital-presence-audit-plan.md</code>.</p>
+          <ul class="findings">
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Security —</b> website-settings IDOR fixed (see Critical findings, resolved).</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Security —</b> guest-lookup rate limiter fixed, incl. a second worse bug found in the process (see Critical findings, resolved).</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Website password protection — built end to end: hash-on-save (pgcrypto, no new npm dep), a real guest-facing password gate on <code>/e/[slug]</code>, rate-limited verify RPC sharing the same per-IP bucket as guest lookup, session cookie. Live-tested wrong/right password + reload persistence.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Live site URL — was hardcoded to <code>evenzi.app</code>, a domain that doesn't exist (confirmed via a "Safari Can't Find the Server" screenshot). Now built from the real env + slug; Overview badge now also reflects real online/offline state instead of always saying "Live."</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Offline-site gate — confirmed <em>already correctly enforced</em> (contradicts the 08-03 audit's claim of zero enforcement; likely fixed in Dheeraj's 08-02 push, after that audit ran). Live-verified: <code>site_offline=true</code> → 404, <code>false</code> → 200.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Font-pair picker — was fully dead (empty catalog table, zero rows, no <code>onChange</code>). Catalog seeded with real data, wired to save, and restructured from an incorrect 2-picker model to the design's correct single-picker-plus-fixed-Poppins-body model.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Palette picker — net new. 8 real color stories, hex values pulled directly from the design system's CSS, persists correctly.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Cover &amp; social-share image upload — net new. Reuses the same presigned-R2 + magic-byte-verification pipeline already proven in Media &amp; Memories; ownership-checked. Crop-on-upload UI honestly labeled "coming later" rather than silently shipped incomplete.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Pages panel — tier badges (Public/Private) and eye-icon visibility controls added to match the design. Correctly stayed on its own tab rather than moving inline to Overview (an earlier scoping call that held).</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>"Site URL &amp; Status" card — net new. Draft/Published badge, Publish button, and the Visibility toggle all correctly share one underlying <code>site_offline</code> flag rather than adding a duplicate status column. RSVP-collection toggle correctly discovered and reused a pre-existing <code>event_guest_settings.rsvp_enabled</code> column instead of adding new schema.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Get-started checklist — was 4 items with 2 permanently hardcoded to incomplete regardless of real state. Now 8 items, each backed by a real data check (cover photo, hero copy, sub-events, wedding party, password, Q&amp;A, photos, publish status).</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Story / Schedule / Q&amp;A / Travel &amp; Stays / Wedding party / RSVP submission / public guest-site rendering — carried over from the 08-03 audit, all still genuinely wired, unaffected by this pass.</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Home page + RSVP page custom sections still localStorage-only and still not disclosed as such — not addressed this pass, carried over as open.</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Registry / Video sections — still localStorage-only, still honestly self-disclosed. Unchanged, not launch-ready.</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Cover/OG image crop UI — upload works, real crop-and-zoom interaction from the design isn't built yet. Disclosed in-product, not silently dropped.</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Accepted tradeoff: the 5-attempt/15-min rate limit counts a real guest's own typos too — a guest who mistypes their name 5x locks themselves out. Flagged, not fixed.</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Known gap, not closed: the guest name+phone lookup API has no awareness of the password gate — a caller who already knows a guest's phone+name could bypass password-protection by calling the lookup API directly instead of going through the UI. Same class as the rate-limit tradeoff above — defense-in-depth against a determined, informed attacker, not the primary "randoms browsing a public link" threat model.</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Template system mismatch flagged back, not force-fixed: the design assumes a 5-template gallery; React ships one different real template ("Cinematic Scroll"). Deliberately not resolved without a product decision — the real template wasn't deleted or reshaped to fit.</p></li>
+          </ul>
+        </div>
+      </details>
+
+
+      <!-- 13b. Push Notifications (added 2026-08-06) -->
+      <details class="acc-item" id="acc-push" data-data="done" data-backend="done" data-frontend="done" open>
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Push Notifications (in-app + browser)</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:88.9%"></span><span class="seg-partial" style="width:11.1%"></span></span>
+          <span class="acc-count">9 findings — shipped 2026-08-06</span>
+          <span class="acc-takeaway">Phase A bell + Phase B web-push live on evenzi.vercel.app. Manual OS-toast B7 + webhook HMAC header mode still need human confirm.</span>
+        </summary>
+        <div class="acc-body">
+          <p class="acc-note">Commit <code>0a25eed</code> → merged <code>Dev-Vibe</code> (<code>814bb3cb</code>) → <code>Dev-Vibe-Testing</code> (<code>861b1e25</code>). Deploy <code>dpl_J6pFsPak…</code> READY, aliased to prod. Spec/build-doc: <code>docs/superpowers/specs/2026-08-06-push-notifications-design.md</code>, <code>docs/superpowers/plans/2026-08-06-push-notifications-build-doc.md</code>.</p>
+          <ul class="findings">
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Schema — <code>notifications</code>, <code>push_subscriptions</code>, <code>push_dispatch_log</code> + CHECK types; SQL under <code>docs/superpowers/plans/sql/notifications_01–04</code>.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Hardened <code>notify()</code> → inserts in-app rows; INSERT webhook → HMAC <code>POST /api/notifications/dispatch-push</code> → <code>web-push</code>.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>In-app S8 bell — <code>NotificationBell</code> in <code>FloatingNav</code>; list / mark-read / mark-all-read APIs.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Service worker — <code>public/sw.js</code> public (middleware + matcher exclude); live <code>GET /sw.js</code> → <b>200</b> (was 307→/auth).</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>SSRF allowlist on push endpoint + ownership-scoped subscription upsert (council criticals).</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Vercel env present: <code>NEXT_PUBLIC_VAPID_PUBLIC_KEY</code>, <code>VAPID_PRIVATE_KEY</code>, <code>VAPID_SUBJECT</code>, <code>NOTIFICATIONS_WEBHOOK_SECRET</code>, <code>SUPABASE_SERVICE_ROLE_KEY</code>.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Live smoke 2026-08-06: <code>dispatch-push</code> unsigned/bad-HMAC → <b>401</b> (route live, not 404); <code>/api/notifications</code> → 401.</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Ops: Supabase webhook created, but confirm header is <b>HMAC-SHA256 hex of raw body</b> (not static secret paste). Manual B7 — Chrome/Safari Settings → Push ON → trigger RSVP/expense → OS toast + <code>push_dispatch_log</code> row — not yet founder-confirmed.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Bell Accept/Decline for <code>collab_invite_received</code> — wired 2026-08-07 on <code>feature/collab-invite-in-app</code> (was parked). Re-invite needed for rows created before notify wiring.</p></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 14. Admin Module -->
+      <details class="acc-item" id="acc-admin" data-data="none" data-backend="none" data-frontend="none">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Admin Module (Developer Panel)</span>
+          <span class="acc-pills"><span class="pill none" title="Data">–</span><span class="pill none" title="Backend">–</span><span class="pill none" title="Frontend">–</span></span>
+          <span class="acc-count">confirmed nonexistent</span>
+        </summary>
+        <div class="acc-body">
+          <p class="acc-note">No platform-level admin panel exists anywhere. The per-event "admins" UI is the collaborator/co-host feature, already covered under Event Settings. <code>app/dev/</code> and <code>app/api/dev/</code> are a dev-only Cloudflare R2 upload test spike — both API routes explicitly <code>return 404 in NODE_ENV === 'production'</code>. Not started, confirmed by code, not just by absence.</p>
+        </div>
+      </details>
+
+      <!-- 15. Digital Invitations -->
+      <details class="acc-item" id="acc-invitations" data-data="done" data-backend="none" data-frontend="partial">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Digital Invitations (WhatsApp)</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill none" title="Backend">–</span><span class="pill partial" title="Frontend">~</span></span>
+          <span class="acc-minibar"><span class="seg-partial" style="width:66.7%"></span><span class="seg-stub" style="width:33.3%"></span></span>
+          <span class="acc-count">4 findings</span>
+          <span class="acc-takeaway">The WhatsApp share link genuinely works. Everything else on this page is decorative.</span>
+        </summary>
+        <div class="acc-body">
+          <ul class="findings">
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Zero <code>fetch</code>/<code>localStorage</code> calls anywhere in the 576-line client — the "Saved" autosave indicator is purely cosmetic. Already known going into this audit.</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>"Upload your card" — file picker works and the image renders in the editor, but it's a blob URL (<code>URL.createObjectURL</code>) — never uploaded/persisted, lost on refresh.</p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Download" button — no <code>onClick</code> at all. Clicking does nothing.</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>"Share on WhatsApp" — the <code>wa.me</code> link is genuine and does open WhatsApp with a pre-filled message. But the confirm modal promises "Your card downloads, then attaches in WhatsApp" — no download/export logic exists anywhere; only text is shared, never the card image.</p></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 16. Support Chatbot -->
+      <details class="acc-item" id="acc-chatbot" data-data="none" data-backend="none" data-frontend="none">
+        <summary>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="acc-name">Support Chatbot</span>
+          <span class="acc-pills"><span class="pill none" title="Data">–</span><span class="pill none" title="Backend">–</span><span class="pill none" title="Frontend">–</span></span>
+          <span class="acc-count">confirmed nonexistent</span>
+        </summary>
+        <div class="acc-body">
+          <p class="acc-note">Confirmed via exhaustive grep across <code>app</code>, <code>components</code>, <code>lib</code> — zero chat-related code, no vendor SDK reference, no route. Genuinely not started.</p>
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+  <!-- ── LAUNCH DOMAINS ─────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Launch-readiness backlog</h2>
+      <span class="hint">Beyond the app — split by domain, since shipping V0 is more than website dev</span>
+    </div>
+    <div class="domain-grid">
+      <div class="domain-card">
+        <h3>Growth infra</h3>
+        <ul>
+          <li class="done"><span class="strike">Push notifications</span> — Phase A+B live on <code>evenzi.vercel.app</code> 2026-08-06; B7 + HMAC header mode pending confirm</li>
+          <li class="done"><span class="strike">Collab invite Accept/Decline (Collaborations + bell)</span> — built 2026-08-07 on <code>feature/collab-invite-in-app</code>; merge/prod pending</li>
+          <li>Payment gateway integration <span class="tag">blocked</span></li>
+        </ul>
+      </div>
+      <div class="domain-card">
+        <h3>Static &amp; legal pages</h3>
+        <ul>
+          <li>About, Contact, Services, FAQ, Terms, Privacy Policy</li>
+          <li class="tag-added">Refund / Cancellation Policy <span class="tag">added</span></li>
+          <li class="tag-added">Cookie Policy <span class="tag">added</span></li>
+          <li class="tag-added">Guest data / DPDP compliance note <span class="tag">added</span></li>
+        </ul>
+      </div>
+      <div class="domain-card">
+        <h3>Marketing</h3>
+        <ul>
+          <li>Marketing strategy</li>
+          <li class="tag-added">Pricing page / plan definition <span class="tag">added</span></li>
+          <li class="tag-added">SEO basics — sitemap, robots.txt, OG tags <span class="tag">added</span></li>
+        </ul>
+      </div>
+      <div class="domain-card">
+        <h3>Social &amp; brand</h3>
+        <ul>
+          <li>Social account creation + marketing start (Instagram / FB / Pinterest)</li>
+        </ul>
+      </div>
+      <div class="domain-card">
+        <h3>Competitive intel</h3>
+        <ul>
+          <li class="done"><span class="strike">Competitor analysis</span> — 2 excel sheets shared with team, call pending. Off Claude's plate.</li>
+        </ul>
+      </div>
+      <div class="domain-card">
+        <h3>Business &amp; legal entity</h3>
+        <ul>
+          <li class="tag-added">LLP registration status <span class="tag">added</span> — hard blocker for payment gateway (needs registered entity + GST + current account)</li>
+        </ul>
+      </div>
+      <div class="domain-card">
+        <h3>Ops &amp; reliability</h3>
+        <ul>
+          <li class="tag-added">Error monitoring — Sentry or similar <span class="tag">added</span></li>
+          <li class="tag-added">Supabase backup policy <span class="tag">added</span></li>
+          <li class="done"><span class="strike">Rate-limiting on public <code>/e/[slug]</code> guest routes</span> — confirmed broken 08-03, fixed + re-verified live 08-05 (see Critical findings, resolved)</li>
+        </ul>
+      </div>
+      <div class="domain-card">
+        <h3>Support</h3>
+        <ul>
+          <li>Support Chatbot — confirmed not started</li>
+          <li class="tag-added">Interim support channel until chatbot ships <span class="tag">added</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ISSUES (non-code items only — code issues live in the matrix above) ── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>To address / issues</h2>
+      <span class="hint">Non-code decisions — code-level bugs now live inside each feature's findings above</span>
+    </div>
+    <div class="issues">
+      <div class="issue info">
+        <div class="stripe"></div>
+        <div class="body">
+          <b>WhatsApp invitation sending — mechanism undecided</b>
+          <span>Business API (paid, verified, delivery tracking) vs <code>wa.me</code> click-to-chat (free, manual). Blocks Digital Invitations backend.</span>
+        </div>
+        <div class="kind">Open question</div>
+      </div>
+      <div class="issue warn">
+        <div class="stripe"></div>
+        <div class="body">
+          <b>Invitation card visual redesign</b>
+          <span>Cards read too plain. Richer detail per card — illustration/ornamental elements, texture, typography. Same 7 layouts kept, polish pass only.</span>
+        </div>
+        <div class="kind">Design debt</div>
+      </div>
+      <div class="issue info">
+        <div class="stripe"></div>
+        <div class="body">
+          <b>Testing/prod alias is current for push — <code>evenzi.vercel.app</code> = <code>Dev-Vibe-Testing</code> @ <code>861b1e25</code></b>
+          <span>Was stale as of 08-05 DP pass; 08-06 push deploy <code>dpl_J6pFsPak…</code> READY and aliased. Main domain <code>www.evenzii.com</code> still a separate DNS question. Branch preview URLs remain Vercel-SSO gated.</span>
+        </div>
+        <div class="kind">Updated 08-06</div>
+      </div>
+      <div class="issue warn">
+        <div class="stripe"></div>
+        <div class="body">
+          <b>Push ops — confirm webhook HMAC mode + manual B7</b>
+          <span>Route rejects unsigned/wrong-sig with 401 (good). Need one real RSVP/expense → OS toast + <code>push_dispatch_log</code>, and confirm Supabase sends <code>x-evenzi-webhook-signature</code> as hex HMAC of raw body.</span>
+        </div>
+        <div class="kind">Ops</div>
+      </div>
+      <div class="issue">
+        <div class="stripe"></div>
+        <div class="body">
+          <b>Broken cover-photo icon on prod's Edit: Home page — unconfirmed root cause</b>
+          <span>Flagged live during tonight's walkthrough, not yet investigated. Likely a dead/expired image URL rather than a design-parity issue; wasn't chased down given everything else in flight.</span>
+        </div>
+        <div class="kind">Unconfirmed</div>
+      </div>
+      <div class="issue info">
+        <div class="stripe"></div>
+        <div class="body">
+          <b>Dev-environment bug found + fixed: missing <code>buffer</code>/<code>resend</code> packages</b>
+          <span><code>node_modules</code> was missing a direct dependency (<code>resend</code>) and a transitive one (<code>buffer</code>, needed by the Supabase browser client) — <code>npm run dev</code> hard-crashed on any Supabase-auth page. Not introduced this session; fixed via <code>npm install</code>.</span>
+        </div>
+        <div class="kind">Fixed</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Derived from repo state, Supabase, and Vercel — not ClickUp. 08-03 baseline · 08-05 DP · 08-06 push · 08-07 collab invite. Canonical: <code>docs/ops/v0-readiness.html</code> · Claude.ai <code>9e517318…</code>.</span>
+    <span>Evenzi · Dev-Vibe-Testing</span>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  // ── Countdown ──────────────────────────────────────────
+  var launch = new Date("2026-08-31T00:00:00");
+  var now = new Date();
+  var diffDays = Math.ceil((launch - now) / (1000 * 60 * 60 * 24));
+  document.getElementById("countdownNum").textContent = diffDays > 0 ? diffDays : "0";
+
+  // ── Per-feature bar chart data (health-sorted, worst first) ──
+  var features = [
+    { id: "acc-invitations",       name: "Digital Invitations",   wired: 0,  partial: 2, stub: 1 },
+    { id: "acc-event-settings",    name: "Event Settings",        wired: 1,  partial: 3, stub: 6 },
+    { id: "acc-landing",           name: "Landing Section",       wired: 2,  partial: 0, stub: 2 },
+    { id: "acc-crud",              name: "Event CRUD",            wired: 5,  partial: 3, stub: 2 },
+    { id: "acc-event-hub",         name: "Event Management Hub",  wired: 5,  partial: 0, stub: 4 },
+    { id: "acc-digital-presence",  name: "Digital Presence",      wired: 12, partial: 3, stub: 0 },
+    { id: "acc-media",             name: "Media &amp; Memories",  wired: 5,  partial: 0, stub: 3 },
+    { id: "acc-host-dashboard",    name: "Host Dashboard",        wired: 5,  partial: 1, stub: 0 },
+    { id: "acc-auth",              name: "Auth &amp; Roles",      wired: 5,  partial: 1, stub: 1 },
+    { id: "acc-user-settings",     name: "User Settings",         wired: 5,  partial: 1, stub: 0 },
+    { id: "acc-push",              name: "Push Notifications",    wired: 8,  partial: 1, stub: 0 },
+    { id: "acc-planning",          name: "Planning Tools",        wired: 8,  partial: 1, stub: 0 },
+    { id: "acc-guests",            name: "Guest Management",      wired: 13, partial: 1, stub: 0 }
+  ];
+  features.forEach(function (f) { f.total = f.wired + f.partial + f.stub; f.pct = f.total ? (f.wired / f.total) : 0; });
+  features.sort(function (a, b) { return a.pct - b.pct; });
+
+  var list = document.getElementById("fbarList");
+  features.forEach(function (f) {
+    var row = document.createElement("div");
+    row.className = "fbar-row";
+    row.setAttribute("data-jump", f.id);
+    var wPct = (f.wired / f.total * 100).toFixed(1);
+    var pPct = (f.partial / f.total * 100).toFixed(1);
+    var sPct = (f.stub / f.total * 100).toFixed(1);
+    row.innerHTML =
+      '<span class="fbar-name">' + f.name + '</span>' +
+      '<span class="fbar-track" title="' + f.wired + ' wired · ' + f.partial + ' partial · ' + f.stub + ' stub">' +
+        '<span class="fbar-seg seg-wired" style="width:' + wPct + '%"></span>' +
+        '<span class="fbar-seg seg-partial" style="width:' + pPct + '%"></span>' +
+        '<span class="fbar-seg seg-stub" style="width:' + sPct + '%"></span>' +
+      '</span>' +
+      '<span class="fbar-pct">' + Math.round(f.pct * 100) + '%</span>';
+    list.appendChild(row);
+  });
+
+  // ── Jump-to-accordion (bar rows + critical cards) ──
+  function jumpTo(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    document.querySelectorAll(".acc-item[hidden]").forEach(function (i) { i.hidden = false; });
+    el.open = true;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.style.outline = "2px solid var(--brand)";
+    el.style.outlineOffset = "2px";
+    setTimeout(function () { el.style.outline = ""; }, 1600);
+  }
+  document.querySelectorAll("[data-jump]").forEach(function (node) {
+    node.addEventListener("click", function () { jumpTo(node.getAttribute("data-jump")); });
+  });
+
+  // ── Expand all / collapse all ──
+  document.getElementById("expandAll").addEventListener("click", function () {
+    document.querySelectorAll(".acc-item").forEach(function (i) { i.open = true; });
+  });
+  document.getElementById("collapseAll").addEventListener("click", function () {
+    document.querySelectorAll(".acc-item").forEach(function (i) { i.open = false; });
+  });
+
+  // ── Summary strip → filter accordion ──
+  var filterHint = document.getElementById("filterHint");
+  var clearBtn = document.getElementById("clearFilter");
+  function applyFilter(status) {
+    var items = document.querySelectorAll(".acc-item");
+    if (status === "all" || !status) {
+      items.forEach(function (i) { i.hidden = false; });
+      filterHint.textContent = "Every finding from the deep-wiring audit — click a row to expand";
+      clearBtn.style.display = "none";
+      return;
+    }
+    var firstMatch = null;
+    items.forEach(function (i) {
+      var match = i.getAttribute("data-data") === status || i.getAttribute("data-backend") === status || i.getAttribute("data-frontend") === status;
+      i.hidden = !match;
+      if (match) { i.open = true; if (!firstMatch) firstMatch = i; }
+    });
+    var label = status === "done" ? "Done" : status === "partial" ? "Partial" : "Not started";
+    filterHint.textContent = 'Filtered to features with a "' + label + '" cell — click Clear filter to reset';
+    clearBtn.style.display = "inline-block";
+    if (firstMatch) firstMatch.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  document.querySelectorAll("[data-filter]").forEach(function (node) {
+    node.addEventListener("click", function () { applyFilter(node.getAttribute("data-filter")); });
+  });
+  clearBtn.addEventListener("click", function () { applyFilter("all"); });
+})();
+</script>
+
+</body></html>
