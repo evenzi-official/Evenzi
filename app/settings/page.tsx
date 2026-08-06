@@ -81,6 +81,7 @@ export default async function UserSettingsPage() {
           emailAlerts={preferences?.email_alerts ?? true}
           pushNotifications={preferences?.push_notifications ?? true}
           smsAlerts={preferences?.sms_alerts ?? false}
+          vapidPublicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? null}
         />
         <AccountSection />
       </main>

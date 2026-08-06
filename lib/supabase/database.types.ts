@@ -1529,6 +1529,39 @@ export type Database = {
           },
         ]
       }
+      event_website_password_sessions: {
+        Row: {
+          created_at: string
+          event_id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_website_password_sessions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_website_password_sessions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_website_sections: {
         Row: {
           created_at: string
@@ -1850,6 +1883,113 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          event_id: string
+          id: string
+          link_path: string | null
+          read_at: string | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          event_id: string
+          id?: string
+          link_path?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          link_path?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_hub_summary"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "notifications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_dispatch_log: {
+        Row: {
+          dispatched_at: string
+          notification_id: string
+        }
+        Insert: {
+          dispatched_at?: string
+          notification_id: string
+        }
+        Update: {
+          dispatched_at?: string
+          notification_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_dispatch_log_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: true
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_subscriptions: {
+        Row: {
+          auth_key: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auth_key: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auth_key?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_preferences: {
         Row: {
@@ -2370,6 +2510,17 @@ export type Database = {
       }
     }
     Functions: {
+      _notify_event_recipients: {
+        Args: {
+          p_actor_id: string
+          p_body: string
+          p_event_id: string
+          p_link_path: string
+          p_title: string
+          p_type: string
+        }
+        Returns: undefined
+      }
       _seed_event_settings: {
         Args: { p_event_id: string; p_user_id: string }
         Returns: undefined
@@ -2423,7 +2574,31 @@ export type Database = {
         Returns: Json
       }
       get_public_website_payload: { Args: { p_slug: string }; Returns: Json }
+      get_push_delivery_targets: {
+        Args: { p_user_id: string }
+        Returns: {
+          auth_key: string
+          endpoint: string
+          p256dh: string
+        }[]
+      }
+      hash_website_password: { Args: { p_password: string }; Returns: string }
       is_website_gate_open: { Args: { p_event_id: string }; Returns: boolean }
+      is_website_password_verified: {
+        Args: { p_slug: string; p_token: string }
+        Returns: boolean
+      }
+      notify_recipients: {
+        Args: {
+          p_actor_id: string
+          p_body: string
+          p_event_id: string
+          p_link_path: string
+          p_title: string
+          p_type: string
+        }
+        Returns: undefined
+      }
       resolve_guest_by_lookup: {
         Args: { p_name: string; p_phone: string; p_slug: string }
         Returns: string
@@ -2438,6 +2613,10 @@ export type Database = {
           p_token: string
         }
         Returns: undefined
+      }
+      verify_website_password: {
+        Args: { p_password: string; p_slug: string }
+        Returns: string
       }
     }
     Enums: {

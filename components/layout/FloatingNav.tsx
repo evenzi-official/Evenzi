@@ -1,11 +1,11 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { NotificationBell } from './NotificationBell'
 import { ThemeToggle } from './ThemeToggle'
 
 interface FloatingNavProps {
   eventId?: string
-  notificationCount?: number
   userInitial?: string
   /** Profile photo. Falls back to `userInitial` when absent. */
   avatarUrl?: string | null
@@ -17,7 +17,6 @@ interface FloatingNavProps {
 
 export function FloatingNav({
   eventId,
-  notificationCount = 0,
   userInitial = 'A',
   avatarUrl = null,
   showCreateEvent = false,
@@ -71,13 +70,7 @@ export function FloatingNav({
               <span className="dash-create-label">Create event</span>
             </Link>
           )}
-          <button
-            aria-label={notificationCount > 0 ? `Notifications, ${notificationCount} unread` : 'Notifications'}
-            className="fn-icon-btn"
-          >
-            <span aria-hidden="true" className="material-symbols-outlined">notifications</span>
-            {notificationCount > 0 && <span aria-hidden="true" className="fn-dot" />}
-          </button>
+          <NotificationBell />
           <ThemeToggle />
           <Link
             href="/settings"
