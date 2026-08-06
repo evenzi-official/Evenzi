@@ -18,7 +18,9 @@
 
 ---
 
-## Part A — Independent small fixes (any order, can run in parallel)
+## Part A — Small fixes (sequential — file line-numbers shift between tasks)
+
+> **Council correction:** these tasks touch overlapping files (`GeneralSettingsForm.tsx`, `WebsiteContent.tsx`) and later tasks' line-number references only resolve correctly once earlier tasks have already run. Execute in the numbered order below, not in parallel, unless you first re-derive line numbers per file with a fresh `grep`/`Read` before editing.
 
 ### Task 1: Website tab — strip the duplicate Pages/live-link surface
 
@@ -122,7 +124,7 @@ Apply the equivalent to `RegistryContent.tsx`: delete `handleSaveLink`/`handleSa
 
 - [ ] **Step 2: Disable the input fields too, so the whole section reads as inert, not almost-working**
 
-Add `disabled` to all 5 inputs/textareas (`es-registry-url`, `es-registry-label`, `es-fund-name`, `es-fund-goal`, `es-fund-message`).
+Add `disabled` **and** `title="Registry links — coming soon"` (fund fields: `title="Cash funds — coming soon"`) to all 5 inputs/textareas (`es-registry-url`, `es-registry-label`, `es-fund-name`, `es-fund-goal`, `es-fund-message`) — matching the same discoverable-reason pattern used on the two buttons in Step 1, not just a bare `disabled` (council finding: a screen-reader user in forms-mode navigation gets no field-level context from `disabled` alone).
 
 - [ ] **Step 3: Update the header copy to set expectations**
 
@@ -142,17 +144,58 @@ git commit -m "fix(settings): relabel Registry tab as coming-soon instead of fak
 
 ---
 
-### Task 3: Guest RSVP route — enforce plus-ones/dietary toggles server-side
+### Task 3: Guest RSVP route — enforce plus-ones/dietary toggles inside `submit_rsvp` itself, not via a direct table read
+
+> **Council finding, fixed here:** the original version of this task read `event_guest_settings` directly from the route's Supabase client. Both Security Expert (reasoned from `lib/supabase/server.ts`'s auth-cookie logic) and Backend Engineer (live-queried `smjkbmkxweevqpvygabe`) independently confirmed this is dead code in production — the guest RSVP flow authenticates via a custom cookie (`COOKIE_NAME`), never Supabase Auth, so `auth.uid()` is null for this caller; `event_guest_settings`' RLS is `to authenticated` only (owner-only besides that), so the read returns nothing regardless of the caller's actual guest-session validity, and the `?? ''` fallback masked the failure instead of surfacing it. The route's own mocked unit tests passed while the feature did nothing real. Fixed by moving the check inside `submit_rsvp` itself — already `security definer`, so it can read `event_guest_settings` regardless of the caller's RLS, the same pattern `is_website_gate_open()`/`get_public_website_payload()` already use for other guest-facing reads.
 
 **Files:**
-- Modify: `app/api/e/[slug]/rsvp/route.ts`
+- Migration (via Supabase MCP `apply_migration`, project `smjkbmkxweevqpvygabe`): extend `submit_rsvp`
+- Modify: `app/api/e/[slug]/rsvp/route.ts` (pass through, no enforcement logic of its own)
 - Test: `__tests__/api/e/[slug]/rsvp.test.ts` (new)
 
 **Interfaces:**
-- Consumes: `event_guest_settings` table (`allow_plus_ones: boolean`, `collect_dietary_notes: boolean`), existing `submit_rsvp` RPC (unchanged)
-- Produces: nothing new — this is defense on an existing route (see spec §4: no guest-facing form calls this route yet; this makes it safe for whenever one does)
+- Consumes: `event_guest_settings` table (`allow_plus_ones: boolean`, `collect_dietary_notes: boolean`), read from inside `submit_rsvp`'s own `security definer` context — not from the route's RLS-bound client
+- Produces: `submit_rsvp` now raises `'plus_ones_not_allowed'` / `'dietary_not_collected'` (mapped to 400 by the route's existing `mapRpcError` helper) instead of silently accepting the fields
 
-- [ ] **Step 1: Write the failing tests**
+- [ ] **Step 0: Read `submit_rsvp`'s current definition before touching it**
+
+Run `mcp__<supabase-project>__execute_sql` with `select pg_get_functiondef('public.submit_rsvp'::regproc);` (adjust the signature if `submit_rsvp` is overloaded — check `\df submit_rsvp` equivalent first via `select proname, pg_get_function_identity_arguments(oid) from pg_proc where proname = 'submit_rsvp';`). Confirm its exact parameter names (`p_token`, `p_sub_event_id`, `p_response_status`, `p_plus_one_count`, `p_dietary_notes` per the existing route code) and how it currently resolves `event_id` from the token, since the new checks need that same `event_id` value, not a second lookup.
+
+- [ ] **Step 1: Extend `submit_rsvp` to check `event_guest_settings` before writing**
+
+Apply via `apply_migration` (name: `rsvp_guest_settings_enforcement`), inserting the check into the function body at the point where `event_id` is already resolved (exact insertion point depends on Step 0's findings — this is the logic to add, not necessarily the full function):
+
+```sql
+  -- (after event_id is resolved from the token, before the RSVP write)
+  if p_plus_one_count is not null then
+    if not (select allow_plus_ones from public.event_guest_settings where event_id = v_event_id) then
+      raise exception 'plus_ones_not_allowed';
+    end if;
+  end if;
+
+  if p_dietary_notes is not null then
+    if not (select collect_dietary_notes from public.event_guest_settings where event_id = v_event_id) then
+      raise exception 'dietary_not_collected';
+    end if;
+  end if;
+```
+
+(`v_event_id` here stands in for whatever local variable Step 0 finds the function already uses — match the real name.)
+
+- [ ] **Step 2: Add the two new error mappings to `mapRpcError`**
+
+In `app/api/e/[slug]/_lib.ts`, add two cases to the existing `switch`:
+
+```typescript
+    case 'plus_ones_not_allowed':                 return { status: 400, body: 'Plus-ones are not enabled for this event' }
+    case 'dietary_not_collected':                 return { status: 400, body: 'Dietary notes are not collected for this event' }
+```
+
+- [ ] **Step 3: Confirm the route needs no other change**
+
+`app/api/e/[slug]/rsvp/route.ts` already forwards `plus_one_count`/`dietary_notes` to `submit_rsvp` unconditionally (existing code, `...(plus_one_count !== undefined && { p_plus_one_count: plus_one_count })` etc.) and already routes any RPC error through `mapRpcError` (existing code, `const mapped = mapRpcError(error.message)`). No route-level change is needed — the enforcement now lives entirely inside the RPC, and the route's existing error-handling path picks up the two new cases automatically once Step 2 lands.
+
+- [ ] **Step 4: Write the failing tests**
 
 ```typescript
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -167,22 +210,9 @@ import { POST } from '@/app/api/e/[slug]/rsvp/route'
 
 const SLUG = 'anya-kabir-20270131'
 
-function makeSupabaseMock(opts: { allowPlusOnes: boolean; collectDietary: boolean; rsvpError?: { message: string } }) {
+function makeSupabaseMock(rpcError?: { message: string }) {
   return {
-    rpc: vi.fn().mockImplementation((fn: string) => {
-      if (fn === 'submit_rsvp') {
-        return Promise.resolve({ error: opts.rsvpError ?? null })
-      }
-      return Promise.resolve({ data: null, error: null })
-    }),
-    from: vi.fn().mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({
-        data: { allow_plus_ones: opts.allowPlusOnes, collect_dietary_notes: opts.collectDietary },
-        error: null,
-      }),
-    }),
+    rpc: vi.fn().mockResolvedValue({ error: rpcError ?? null }),
   }
 }
 
@@ -195,11 +225,11 @@ function makeRequest(body: Record<string, unknown>) {
 
 const ctx = { params: Promise.resolve({ slug: SLUG }) }
 
-describe('POST /api/e/[slug]/rsvp — guest-settings enforcement', () => {
+describe('POST /api/e/[slug]/rsvp — guest-settings enforcement (inside submit_rsvp)', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('rejects plus_one_count when allow_plus_ones is false', async () => {
-    createServerClientMock.mockReturnValue(makeSupabaseMock({ allowPlusOnes: false, collectDietary: true }))
+  it('maps plus_ones_not_allowed from the RPC to a 400', async () => {
+    createServerClientMock.mockReturnValue(makeSupabaseMock({ message: 'plus_ones_not_allowed' }))
     const res = await POST(makeRequest({
       sub_event_id: '550e8400-e29b-41d4-a716-446655440000',
       response_status: 'confirmed',
@@ -208,8 +238,8 @@ describe('POST /api/e/[slug]/rsvp — guest-settings enforcement', () => {
     expect(res.status).toBe(400)
   })
 
-  it('rejects dietary_notes when collect_dietary_notes is false', async () => {
-    createServerClientMock.mockReturnValue(makeSupabaseMock({ allowPlusOnes: true, collectDietary: false }))
+  it('maps dietary_not_collected from the RPC to a 400', async () => {
+    createServerClientMock.mockReturnValue(makeSupabaseMock({ message: 'dietary_not_collected' }))
     const res = await POST(makeRequest({
       sub_event_id: '550e8400-e29b-41d4-a716-446655440000',
       response_status: 'confirmed',
@@ -218,8 +248,8 @@ describe('POST /api/e/[slug]/rsvp — guest-settings enforcement', () => {
     expect(res.status).toBe(400)
   })
 
-  it('accepts both fields when both toggles are on', async () => {
-    createServerClientMock.mockReturnValue(makeSupabaseMock({ allowPlusOnes: true, collectDietary: true }))
+  it('succeeds when the RPC raises no error', async () => {
+    createServerClientMock.mockReturnValue(makeSupabaseMock())
     const res = await POST(makeRequest({
       sub_event_id: '550e8400-e29b-41d4-a716-446655440000',
       response_status: 'confirmed',
@@ -231,53 +261,27 @@ describe('POST /api/e/[slug]/rsvp — guest-settings enforcement', () => {
 })
 ```
 
-- [ ] **Step 2: Run the tests, confirm they fail**
+Note this test suite is now deliberately simpler than the original — it only verifies the route correctly forwards fields and maps RPC errors, since the actual enforcement logic lives in SQL (Step 1) and can't be meaningfully unit-tested through a mocked `.rpc()` call. Step 6 below covers the real enforcement with a live check instead.
+
+- [ ] **Step 5: Run the tests, confirm they pass**
 
 Run: `npx vitest run __tests__/api/e/\[slug\]/rsvp.test.ts`
-Expected: FAIL — route currently accepts both fields unconditionally, so the 400-expecting tests fail.
+Expected: PASS, all 3 — this test suite was never red/green against the *enforcement* itself (that's SQL, not TS), only against the route's pass-through/error-mapping, which was already correct before this task.
 
-- [ ] **Step 3: Implement the enforcement**
+- [ ] **Step 6: Live verification of the actual enforcement — do not skip, this is what the whole task exists for**
 
-In `app/api/e/[slug]/rsvp/route.ts`, after the existing zod `parsed` check and before the `supabase.rpc('submit_rsvp', ...)` call, resolve the event id from the token's session first — actually the route only has `token` + `slug`, not `event_id`, directly. Read guest settings via a join through the slug instead:
+Using the Supabase SQL editor or `mcp__<supabase-project>__execute_sql` directly (not through the Next.js app, since no guest-facing form exists yet per spec §4): call `submit_rsvp` directly with a real guest token against an event where `event_guest_settings.allow_plus_ones = false`, passing a non-null `p_plus_one_count`. Confirm it raises `plus_ones_not_allowed`, not a silent success. Repeat for `collect_dietary_notes = false` + a non-null `p_dietary_notes`. This is the only step in this task that actually proves the fix works — the mocked unit tests above cannot, by construction, exercise real RLS/RPC behavior, which is exactly what let the original bug ship with green tests.
 
-```typescript
-    const { sub_event_id, response_status, plus_one_count, dietary_notes } = parsed.data
-
-    const supabase = await createClient()
-
-    if (plus_one_count !== undefined || dietary_notes !== undefined) {
-      const { data: settings } = await supabase
-        .from('event_guest_settings')
-        .select('allow_plus_ones, collect_dietary_notes')
-        .eq('event_id', (await supabase.from('events').select('id').eq('slug', slug).single()).data?.id ?? '')
-        .single()
-
-      if (plus_one_count !== undefined && settings?.allow_plus_ones === false) {
-        return NextResponse.json({ error: 'Plus-ones are not enabled for this event' }, { status: 400 })
-      }
-      if (dietary_notes !== undefined && settings?.collect_dietary_notes === false) {
-        return NextResponse.json({ error: 'Dietary notes are not collected for this event' }, { status: 400 })
-      }
-    }
-
-    const { error } = await supabase.rpc('submit_rsvp', {
-```
-
-- [ ] **Step 4: Run the tests, confirm they pass**
-
-Run: `npx vitest run __tests__/api/e/\[slug\]/rsvp.test.ts`
-Expected: PASS, all 3 tests.
-
-- [ ] **Step 5: Full test suite + typecheck**
+- [ ] **Step 7: Full test suite + typecheck**
 
 Run: `npm run test:run && npx tsc --noEmit`
 Expected: clean, no regressions.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
-git add app/api/e/\[slug\]/rsvp/route.ts __tests__/api/e/\[slug\]/rsvp.test.ts
-git commit -m "fix(rsvp): enforce event_guest_settings plus-ones/dietary toggles server-side"
+git add app/api/e/\[slug\]/_lib.ts __tests__/api/e/\[slug\]/rsvp.test.ts
+git commit -m "fix(rsvp): move plus-ones/dietary enforcement into submit_rsvp itself, not an RLS-blocked route read"
 ```
 
 ---
@@ -563,13 +567,15 @@ git commit -m "feat(ui): add reusable BusyOverlay primitive, catalog in componen
 
 - [ ] **Step 1: Import and render the overlay**
 
-Add `import { BusyOverlay } from '@/components/ui/BusyOverlay'` and render `<BusyOverlay active={saving} label="Saving changes…" />` and a second one for delete: since only one overlay should ever be visible at once, use a single overlay driven by either state:
+Add `import { BusyOverlay } from '@/components/ui/BusyOverlay'` and render a single overlay driven by either in-flight state:
 
 ```tsx
       <BusyOverlay active={saving || deleting} label={deleting ? 'Deleting event…' : 'Saving changes…'} />
 ```
 
 Place it as a top-level sibling in the returned fragment, alongside the existing toast `<div>`.
+
+**Council finding — fix before this ships:** `confirmOpen` currently only flips to `false` on delete *success* (`closeConfirm()` inside the try block, after the fetch resolves) — so for the entire duration of `handleDelete()`'s in-flight request, the delete-confirm `.modal-scrim` (z-index 80) is still open underneath `BusyOverlay` (z-index 9999), which has no focus-trap. The overlay visually replaces the modal mid-interaction with no transition, and a keyboard user can still Tab past it. Fix: close the confirm modal the instant the delete starts, not when it finishes — `BusyOverlay` becomes the sole blocking UI for the duration of the request.
 
 - [ ] **Step 2: Replace the `Promise.all` dual-save with sequential calls and precise error messaging**
 
@@ -609,16 +615,45 @@ Replace the `handleSave` body (lines 130-161) with:
 
 This sequences the two writes (core event fields first, since they're the more important half) and tells the user precisely which half failed instead of one generic message — the event write always either fully succeeds or fully fails before the settings write is even attempted, so there's no window where both look "saved" but only one is.
 
-- [ ] **Step 3: Typecheck and lint**
+- [ ] **Step 3: Close the delete-confirm modal before the delete request starts, not after**
+
+Change `handleDelete` (existing code, lines 163-182) so `setConfirmOpen(false)` fires immediately on click, before the `fetch`, instead of only in the success path:
+
+```typescript
+  async function handleDelete(): Promise<void> {
+    if (deleting) return
+    setConfirmOpen(false)
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/events/${event.id}`, { method: 'DELETE' })
+
+      if (!res.ok) {
+        flashToast(res.status === 404 ? 'Event already deleted.' : 'Could not delete event.', 'error')
+        setDeleting(false)
+        return
+      }
+
+      flashToast('Event deleted', 'success')
+      router.push('/home')
+    } catch {
+      flashToast('Could not delete event.', 'error')
+      setDeleting(false)
+    }
+  }
+```
+
+`BusyOverlay` (Step 1) now becomes the only full-viewport blocking UI during the delete request — the confirm modal never coexists with it.
+
+- [ ] **Step 5: Typecheck and lint**
 
 Run: `npx tsc --noEmit && npx eslint app/events/[id]/settings/GeneralSettingsForm.tsx`
 Expected: clean.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add app/events/\[id\]/settings/GeneralSettingsForm.tsx
-git commit -m "feat(settings): wire BusyOverlay into General tab, sequence dual-save with precise error messages"
+git commit -m "feat(settings): wire BusyOverlay into General tab, sequence dual-save, fix modal/overlay stacking"
 ```
 
 ---
@@ -644,6 +679,45 @@ Import `BusyOverlay`, render `<BusyOverlay active={saving} label="Saving…" />`
 - [ ] **Step 3: Admins tab**
 
 Import `BusyOverlay`, render `<BusyOverlay active={sending} label="Sending invite…" />`.
+
+**Council finding — fix before this ships:** `handleSendInvite`'s current implementation only calls `closeModal()` inside the success branch (after the fetch resolves), so the invite `.modal-scrim` stays open underneath `BusyOverlay` for the whole request, same stacking bug as Task 8's delete modal. Fix `handleSendInvite` to close the modal the instant the request starts:
+
+```typescript
+  async function handleSendInvite() {
+    setModalOpen(false)
+    setSending(true)
+    try {
+      const res = await fetch(`/api/events/${eventId}/admins`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), role }),
+      })
+      const json = await res.json().catch(() => ({})) as { error?: string; id?: string }
+      if (!res.ok) {
+        flashToast(json.error ?? 'Failed to invite — please try again')
+      } else {
+        const name = email.split('@')[0] ?? email
+        setCollabs(prev => [...prev, {
+          id:          json.id ?? crypto.randomUUID(),
+          displayName: name,
+          email:       email.trim(),
+          role,
+          status:      'pending',
+          initials:    name.slice(0, 2).toUpperCase(),
+        }])
+        setEmail('')
+        setRole('co-host')
+        flashToast('Invite sent')
+      }
+    } catch {
+      flashToast('Network error — please try again')
+    } finally {
+      setSending(false)
+    }
+  }
+```
+
+(This also folds in Task 12's real-invite-id fix — `json.id` — so Task 12 becomes a no-op if this task runs after it; if run before Task 12, apply Task 12's route change first so `json.id` is actually present in the response.)
 
 - [ ] **Step 4: Typecheck and lint all 3**
 
@@ -671,7 +745,9 @@ git commit -m "feat(settings): wire BusyOverlay into Website, Guests, and Admins
 **Interfaces:**
 - Produces: `ToolRail` now takes `isLive: boolean`, `liveUrl: string | null` instead of the old bare `isLive` boolean flag.
 
-- [ ] **Step 1: Fetch real status in the layout**
+- [ ] **Step 1: Fetch real status in the layout — reuse the Website tab's existing default, don't invent a second one**
+
+**Council finding:** the Website tab (`app/events/[id]/settings/website/page.tsx:38`) already reads this exact column and defaults missing rows to `?? false` (not offline). A second, independent read in `layout.tsx` with a different default (`?? true`) would make the ToolRail pill disagree with the Website tab's own toggle on the same page load for any brand-new event. Match the existing default exactly.
 
 In `app/events/[id]/layout.tsx`, add after the existing profile fetch:
 
@@ -688,7 +764,7 @@ In `app/events/[id]/layout.tsx`, add after the existing profile fetch:
     .eq('event_id', id)
     .single()
 
-  const siteOffline = siteSettings?.site_offline ?? true
+  const siteOffline = siteSettings?.site_offline ?? false // matches website/page.tsx:38's existing default — do not diverge
   const liveUrl = ev?.slug && !siteOffline ? `${getAppBaseUrl()}/e/${ev.slug}` : null
 ```
 
@@ -890,25 +966,49 @@ git commit -m "fix(admins): return and use the real collaborator row id instead 
 
 ## Part D — Tiered co-host permissions (largest block — spec §7, §12)
 
-This part is materially bigger than every other task combined (spec §12). It touches RLS on multiple tables and every API route currently doing owner-only checks. Build in this exact order: RLS foundation (14) → TS access helper (15) → apply to the Settings-domain routes this spec already touches (16) → apply to the remaining domain routes (17) → remove/demote UI (18). Each sub-task is independently reviewable and shippable — the app is safe (still owner-only, just not yet collaborator-aware) after any one of them lands, since nothing here loosens existing access, it only extends it.
+> **Council verdict on the original version of this Part: 🔴 RE-PLAN.** A 5-agent council (Tech Lead, Security Expert, Data Modeller, Backend Engineer, Frontend Engineer — Critique + Debate + Arbiter) reviewed this plan before any task started and found 6 critical, live-verified defects in the original Part D design: (1) `public.events`, `event_website_settings`, and `event_collaborators` were never RLS-converted despite the plan granting app-layer capabilities against them — confirmed live (Backend Engineer + arbiter, queried `smjkbmkxweevqpvygabe` directly) that all three carry exactly one owner-only policy each, meaning the permission system would have silently no-op'd for every real collaborator; (2) the table list omitted `event_task_assignees`, `event_expense_types`, `event_guest_tags`, `event_sub_events`, breaking task-assignment/expense-dropdown/tag-manager for collaborators even on the tables that WERE converted; (3) the original `can_access_event()` SQL had a real logic bug — its unconditional `p_capability is null` branch gave every collaborator role blanket cross-domain read access, not just `viewer`; (4) the original Task 17 PATCH route accepted unvalidated role text, letting a co-host self-promote to `role: 'owner'` and inherit Billing/Delete; (5) no CHECK constraint on `event_collaborators.role`; (6) Task 3's RSVP-toggle enforcement was dead code against an unauthenticated guest session (fixed below in Task 3's revision, not here). Full verdict, dissenting/converging reasoning, and the two overruled severity calls are preserved in the session transcript — this section is the corrected plan, not a diff against the original.
+>
+> This part is materially bigger than every other task combined (spec §12). It touches RLS on 13 tables and every API route currently doing owner-only checks. Build in this exact order: **Step 0 live audit → RLS foundation with corrected predicate logic (13) → TS access helper (14) → apply to Settings-domain routes (15) → apply to Planning/Guests/Media routes with the 4 previously-missing tables (16) → remove/demote UI with the role-escalation fix (17)**. Unlike the original version's claim, **Tasks 13 and 15 are not independently shippable across separate deploys** — Security Expert's Finding 4 (endorsed by the panel) established that landing RLS ahead of the app-layer route check opens a window where a collaborator can write via a direct Supabase REST call (using the publishable key already shipped to the browser) before the Next.js route exposes that capability in the UI. Land Task 13 and Task 15 in the same PR/deploy.
 
 **Why RLS has to come first:** every event-child table currently has RLS policies of the shape `EXISTS (select 1 from events where events.id = <table>.event_id and events.user_id = (select auth.uid()))` — owner-only, at the database layer, per `DATA-MODEL.md` D26. Even if every API route added a perfect app-level capability check, a collaborator's Supabase queries would still return empty/blocked results underneath, because RLS runs regardless of what the route's own logic decided. D26 already flagged this exact conversion as deferred to "the later collaborator pass" — this is that pass.
 
-### Task 13: RLS — `can_access_event()` shared predicate + two worked table migrations
+### Task 13: RLS foundation — live table audit, corrected `can_read_event()`/`can_write_event()` predicates, full conversion of the 6 confirmed-critical tables
 
 **Files:**
-- Migration (via Supabase MCP `apply_migration`, project `smjkbmkxweevqpvygabe`): new function + 2 tables' policies
+- Migration (via Supabase MCP `apply_migration`, project `smjkbmkxweevqpvygabe`): two new functions + policies on `events`, `event_general_settings`, `event_guest_settings`, `event_website_settings`, `event_collaborators` + a CHECK constraint + an index
 - Modify: `docs/data-model/DATA-MODEL.md` (decision log + RLS section)
 
 **Interfaces:**
-- Produces: `public.can_access_event(p_event_id uuid, p_capability text default null) returns boolean` — SQL function, `security definer set search_path = public`, callable from any RLS policy.
+- Produces: `public.can_read_event(p_event_id uuid, p_capability text default null) returns boolean` and `public.can_write_event(p_event_id uuid, p_capability text) returns boolean` — two SQL functions, `security definer set search_path = public`.
 
-- [ ] **Step 1: Create the predicate function**
+**Council-driven redesign, read before implementing:** the original single-function `can_access_event()` had its `p_capability is null` branch fire unconditionally for every role, on every SELECT policy that (incorrectly) always passed `null` — collapsing "viewer reads everything" and "any table's baseline SELECT policy" into the same code path, so a `photographer` could read guest/task/budget data directly. Splitting into two functions with distinct semantics closes this:
+- `can_read_event(event_id, capability)` — `capability = null` means "baseline: is this caller on the event's team at all" (used only by genuinely event-wide tables: `events` itself, `event_sub_events`). `capability = '<domain>'` means "can this caller read this domain's data" — `viewer` passes every domain check unconditionally (matches spec: "read-only everywhere"); `co-host`/`planner`/`photographer` pass only within their own scoped domains, exactly mirroring `EventAccess.canRead()` from Task 14.
+- `can_write_event(event_id, capability)` — `capability` is required (no default), `viewer` has **no branch that ever returns true** here at all — not just app-layer-blocked, RLS-layer-blocked too.
+
+- [ ] **Step 0: Live audit of every `event_id`-scoped table's current RLS — do this before writing any conversion list**
+
+The original plan hand-enumerated tables to convert and missed 5 real ones (caught only because 3 different council agents independently cross-checked it). Don't repeat that. Run against the live project:
+
+```sql
+select t.table_name, p.policyname, p.cmd, p.qual
+from information_schema.tables t
+left join pg_policies p on p.tablename = t.table_name
+where t.table_schema = 'public'
+  and t.table_name in (
+    select table_name from information_schema.columns
+    where column_name = 'event_id' and table_schema = 'public'
+  )
+order by t.table_name;
+```
+
+Also run `select policyname, cmd, qual from pg_policies where tablename = 'events';` separately (its own PK is `id`, not `event_id`, so it won't show up in the query above). Cross-reference the output against this task's own table list (below) and Task 16's — if the live audit finds an `event_id`-scoped table with an owner-only policy that isn't accounted for in either task, add it to Task 16 before proceeding, don't defer it silently.
+
+- [ ] **Step 1: Create both predicate functions**
 
 Apply via `mcp__<supabase-project>__apply_migration` (name: `collab_access_01`):
 
 ```sql
-create or replace function public.can_access_event(p_event_id uuid, p_capability text default null)
+create or replace function public.can_read_event(p_event_id uuid, p_capability text default null)
 returns boolean
 security definer set search_path = public
 language sql stable as $$
@@ -925,79 +1025,164 @@ language sql stable as $$
             and c.status = 'active'
             and (
               p_capability is null
+              or c.role = 'viewer'
               or (c.role = 'co-host' and p_capability not in ('billing', 'delete'))
               or (c.role = 'planner' and p_capability in ('guests', 'planning'))
               or (c.role = 'photographer' and p_capability = 'media')
-              or (c.role = 'viewer' and p_capability is null)
             )
         )
       )
   );
 $$;
 
-revoke all on function public.can_access_event(uuid, text) from public;
-grant execute on function public.can_access_event(uuid, text) to anon, authenticated;
+create or replace function public.can_write_event(p_event_id uuid, p_capability text)
+returns boolean
+security definer set search_path = public
+language sql stable as $$
+  select exists (
+    select 1 from public.events e
+    where e.id = p_event_id
+      and e.deleted_at is null
+      and (
+        e.user_id = (select auth.uid())
+        or exists (
+          select 1 from public.event_collaborators c
+          where c.event_id = e.id
+            and c.user_id = (select auth.uid())
+            and c.status = 'active'
+            and (
+              (c.role = 'co-host' and p_capability not in ('billing', 'delete'))
+              or (c.role = 'planner' and p_capability in ('guests', 'planning'))
+              or (c.role = 'photographer' and p_capability = 'media')
+            )
+        )
+      )
+  );
+$$;
+
+revoke all on function public.can_read_event(uuid, text) from public, anon, authenticated;
+grant execute on function public.can_read_event(uuid, text) to authenticated;
+revoke all on function public.can_write_event(uuid, text) from public, anon, authenticated;
+grant execute on function public.can_write_event(uuid, text) to authenticated;
 ```
 
-Note the explicit `revoke ... from public` + `grant ... to anon, authenticated` pair (not just `revoke from public` alone) — per the D50/`website_16` lesson already recorded in `DATA-MODEL.md`: Supabase grants EXECUTE to `anon`/`authenticated` directly via default privileges, so `revoke from public` alone is a no-op for them. This function needs to be callable from RLS checks regardless of role, so the explicit grant here is correct (not a repeat of that bug — the bug was granting when the function should have stayed internal-only; this function is meant to be broadly callable).
+Two council-driven changes from the original migration text: (a) `can_write_event` has no `role = 'viewer'` branch anywhere — a viewer cannot pass a write check at the RLS layer, not just the app layer; (b) `EXECUTE` is granted to `authenticated` only, not `anon` — every consuming policy in this plan is `to authenticated`, and Security Expert's suggestion (no legitimate anon caller exists) is adopted. Note the explicit `revoke ... from public, anon, authenticated` + scoped `grant` pair, per the D50/`website_16` lesson already recorded in `DATA-MODEL.md`: Supabase grants EXECUTE to `anon`/`authenticated` directly via default privileges, so `revoke from public` alone is a no-op for them — this migration revokes from all three roles explicitly, then grants back only to `authenticated`.
 
 - [ ] **Step 2: Run `get_advisors` (security) immediately after applying**
 
-Use `mcp__<supabase-project>__get_advisors` with type `security`. Confirm no new findings. Per the D50 lesson, this is the only check that observes actual granted privileges rather than the SQL that was intended to set them — run it right after this migration, not at the end of the whole Part D.
+Use `mcp__<supabase-project>__get_advisors` with type `security`. Confirm no new findings — specifically confirm `anon` has no EXECUTE on either function. Per the D50 lesson, this is the only check that observes actual granted privileges rather than the SQL that was intended to set them.
 
-- [ ] **Step 3: Convert `event_general_settings` RLS as the first worked example**
+- [ ] **Step 3: Add the CHECK constraint on `event_collaborators.role` and a covering index**
 
-Apply via `apply_migration` (name: `collab_access_02_general_settings`):
+Apply via `apply_migration` (name: `collab_access_02_collaborators_hardening`):
 
 ```sql
-drop policy if exists "owner_select_general_settings" on public.event_general_settings;
-drop policy if exists "owner_all_general_settings" on public.event_general_settings;
+alter table public.event_collaborators
+  add constraint ck_event_collaborators_role
+  check (role in ('co-host', 'planner', 'photographer', 'viewer'));
 
+create index if not exists idx_event_collaborators_user_event
+  on public.event_collaborators (user_id, event_id)
+  where status = 'active';
+```
+
+`'owner'` is deliberately excluded from the allowed values — owner identity lives only on `events.user_id` (per D16, owner is never a collaborator row), so no value in this column should ever be `'owner'`. This is the DB-layer half of closing the Task 17 role-escalation bug (the app-layer half is Task 17's revised zod schema) — Security Expert's debate-round finding was explicit that the zod fix alone is insufficient, since a direct Supabase REST call bypasses Next.js validation entirely; this constraint holds regardless of which path writes the row. The partial index (`where status = 'active'`) backs both predicate functions' `event_collaborators` lookups, which now run on effectively every authenticated request touching a converted table.
+
+- [ ] **Step 4: Convert `public.events` — the table every other collaborator-facing query depends on**
+
+Apply via `apply_migration` (name: `collab_access_03_events`). First confirm the real existing policy name: `select policyname, cmd, qual from pg_policies where tablename = 'events';` (the plan's earlier IDOR-fix session referenced this as `events_owner_all` — confirm live, don't assume).
+
+```sql
+drop policy if exists "<real policy name from the query above>" on public.events;
+
+create policy "owner_all_events" on public.events
+  for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+
+create policy "collab_select_events" on public.events
+  for select to authenticated
+  using (public.can_read_event(id, null));
+```
+
+Two policies, not one — `owner_all_events` preserves the owner's full `FOR ALL` access unchanged (including the UPDATE/DELETE this plan's Global Constraints require stay hardcoded, since only the owner-matching predicate grants those), and the new `collab_select_events` adds baseline SELECT for any active collaborator regardless of role. Without this, every page in Tasks 11/18 that starts with `.from('events')...single()` 404s a collaborator before any child-table fix matters — this was the arbiter's most-cited blocking gap.
+
+- [ ] **Step 5: Convert `event_general_settings`, `event_guest_settings`, `event_website_settings`**
+
+Same two-policy shape (owner `FOR ALL` unchanged + collaborator SELECT/write split), capability-scoped this time since these are domain tables, not baseline. Apply via `apply_migration` (name: `collab_access_04_settings_tables`) after confirming each table's real existing policy name via the same `pg_policies` query as Step 4:
+
+```sql
+-- event_general_settings — capability 'general'
+drop policy if exists "<real name>" on public.event_general_settings;
+create policy "owner_all_general_settings" on public.event_general_settings
+  for all to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 create policy "collab_select_general_settings" on public.event_general_settings
-  for select to authenticated
-  using (public.can_access_event(event_id, null));
-
+  for select to authenticated using (public.can_read_event(event_id, 'general'));
 create policy "collab_write_general_settings" on public.event_general_settings
-  for all to authenticated
-  using (public.can_access_event(event_id, 'general'))
-  with check (public.can_access_event(event_id, 'general'));
+  for all to authenticated using (public.can_write_event(event_id, 'general')) with check (public.can_write_event(event_id, 'general'));
+
+-- event_guest_settings — capability 'guests'
+drop policy if exists "<real name>" on public.event_guest_settings;
+create policy "owner_all_guest_settings" on public.event_guest_settings
+  for all to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+create policy "collab_select_guest_settings" on public.event_guest_settings
+  for select to authenticated using (public.can_read_event(event_id, 'guests'));
+create policy "collab_write_guest_settings" on public.event_guest_settings
+  for all to authenticated using (public.can_write_event(event_id, 'guests')) with check (public.can_write_event(event_id, 'guests'));
+
+-- event_website_settings — capability 'website'
+drop policy if exists "<real name>" on public.event_website_settings;
+create policy "owner_all_website_settings" on public.event_website_settings
+  for all to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+create policy "collab_select_website_settings" on public.event_website_settings
+  for select to authenticated using (public.can_read_event(event_id, 'website'));
+create policy "collab_write_website_settings" on public.event_website_settings
+  for all to authenticated using (public.can_write_event(event_id, 'website')) with check (public.can_write_event(event_id, 'website'));
 ```
 
-(Exact existing policy names must be confirmed first — run `mcp__<supabase-project>__execute_sql` with `select policyname from pg_policies where tablename = 'event_general_settings';` before writing the `drop policy` statements, and use the real names found, not the placeholder names above if they differ.)
+Each table's DROP+CREATE pair is one `apply_migration` call, not split across multiple round-trips — confirms atomicity (Backend Engineer's blind-spot finding: a policy swap split across two separate migration calls could leave a brief no-policy or old-policy-only window; a single `apply_migration` call runs as one transaction). DROP+CREATE (not `ALTER POLICY`) is the correct tool here, not a deviation from the D50 precedent — D50's `ALTER POLICY` case only changed a `USING` clause on an existing same-shaped policy; this conversion changes policy *shape* (one `FOR ALL` becomes three: owner `FOR ALL` + collaborator `SELECT` + collaborator `FOR ALL`), which `ALTER POLICY` cannot express.
 
-- [ ] **Step 4: Convert `event_guest_settings` RLS as the second worked example**
+- [ ] **Step 6: Add self-select + write policies to `event_collaborators` itself**
 
-Same pattern, capability `'guests'`:
+This table was never touched by any policy in the original plan despite Task 17 writing to it directly. Apply via `apply_migration` (name: `collab_access_05_collaborators_policies`) — confirm the real existing policy name first:
 
 ```sql
--- (after confirming real existing policy names via the same pg_policies query)
-create policy "collab_select_guest_settings" on public.event_guest_settings
-  for select to authenticated
-  using (public.can_access_event(event_id, null));
+drop policy if exists "<real name, e.g. collaborators_via_event>" on public.event_collaborators;
 
-create policy "collab_write_guest_settings" on public.event_guest_settings
+create policy "owner_all_collaborators" on public.event_collaborators
   for all to authenticated
-  using (public.can_access_event(event_id, 'guests'))
-  with check (public.can_access_event(event_id, 'guests'));
+  using (event_id in (select id from public.events where user_id = (select auth.uid())))
+  with check (event_id in (select id from public.events where user_id = (select auth.uid())));
+
+create policy "collab_self_select" on public.event_collaborators
+  for select to authenticated
+  using (user_id = (select auth.uid()));
+
+create policy "collab_write_admins" on public.event_collaborators
+  for all to authenticated
+  using (public.can_write_event(event_id, 'admins'))
+  with check (public.can_write_event(event_id, 'admins'));
 ```
 
-- [ ] **Step 5: `get_advisors` again**
+Three distinct policies fixing three distinct failure modes the council identified as separate (Data Modeller's debate-round table): `owner_all_collaborators` preserves today's owner behavior; `collab_self_select` is what makes `getEventAccess()`'s own self-lookup query work at all (this was the live-confirmed root cause of the entire permission system's silent no-op — without this policy, a collaborator querying for their own row gets zero rows back regardless of anything else in this plan); `collab_write_admins` is the RLS-layer backstop for Task 17's DELETE/PATCH, so a co-host's admin action is enforced at both the route and the database, not the route alone.
 
-Confirm clean after both table conversions.
+- [ ] **Step 7: `get_advisors` again, then confirm every conversion live**
 
-- [ ] **Step 6: Document in DATA-MODEL.md**
+Run `get_advisors` (security). Then run the Step 0 audit query again, filtered to the 5 tables converted in this task (`events`, `event_general_settings`, `event_guest_settings`, `event_website_settings`, `event_collaborators`) — confirm each shows the new policy set, not the old single owner-only policy.
 
-Add a new `### Collaborator access (`collab_access_01`–`02`)` subsection under the RLS section, describing `can_access_event()`'s signature and the capability matrix (owner: all 8; co-host: all except billing/delete; planner: guests+planning; photographer: media; viewer: read-only via the `null`-capability SELECT policies). Add a decision-log entry (next available `D` number) recording this is the D26-deferred collaborator RLS conversion, starting with `event_general_settings` and `event_guest_settings`, remaining tables converted in Task 16.
+- [ ] **Step 8: Document in DATA-MODEL.md**
 
-- [ ] **Step 7: Regenerate TypeScript types**
+Add a new subsection under the RLS section describing `can_read_event()`/`can_write_event()`'s signatures, the capability matrix, and the `event_collaborators.role` CHECK constraint. Add a decision-log entry (next available `D` number) recording: this is the D26-deferred collaborator RLS conversion; it covers `events`, `event_general_settings`, `event_guest_settings`, `event_website_settings`, `event_collaborators` in this task, remaining Planning/Guests/Media tables in Task 16; and that a council review (2026-08-06) caught and fixed a real logic bug in an earlier draft of the predicate function (single-function version's unconditional null-capability branch granted unintended blanket read) before it was ever applied to the live database — record this the same way `D50`/`website_16` record the `revoke from public` lesson, since it's the same category of "reads as correct, wrong until tested/reviewed" bug this project keeps a running list of.
 
-Run the project's type-generation step (per established convention — `mcp__<supabase-project>__generate_typescript_types`, written to `lib/supabase/database.types.ts`). No type shape changes are expected (RLS doesn't change columns), but this confirms the migration didn't break schema introspection.
+- [ ] **Step 9: Regenerate TypeScript types**
 
-- [ ] **Step 8: Commit the docs change (migrations themselves are already live via MCP, not file-based)**
+Run `mcp__<supabase-project>__generate_typescript_types`, written to `lib/supabase/database.types.ts`. No column-shape changes are expected; this confirms the migrations didn't break schema introspection (a cheap check, not a deep one — `apply_migration` itself would already have failed loudly on a DDL error).
+
+- [ ] **Step 10: Commit the docs change (migrations themselves are already live via MCP, not file-based)**
 
 ```bash
 git add docs/data-model/DATA-MODEL.md
-git commit -m "docs: record can_access_event() RLS predicate + general/guest-settings conversion"
+git commit -m "docs: record can_read_event()/can_write_event() RLS predicates + 5-table conversion, council-corrected"
 ```
 
 ---
@@ -1218,6 +1403,8 @@ git commit -m "feat(auth): add getEventAccess/requireEventWrite tiered-capabilit
 
 ### Task 15: Apply the capability helper to the Settings-domain routes
 
+> **Council requirement — not independently shippable from Task 13.** Security Expert's Finding 4 (endorsed by the panel, not overruled): if Task 13's RLS lands without this task's route-level checks landing in the same deploy, there's a window where a collaborator can write via a direct Supabase REST call (publishable key + their own session JWT) before the app UI exposes that capability. Merge/deploy Task 13 and Task 15 together.
+
 **Files:**
 - Modify: `app/api/events/[id]/general-settings/route.ts`
 - Modify: `app/api/events/[id]/guest-settings/route.ts`
@@ -1225,7 +1412,7 @@ git commit -m "feat(auth): add getEventAccess/requireEventWrite tiered-capabilit
 - Modify: `app/api/events/[id]/admins/route.ts` (POST)
 
 **Interfaces:**
-- Consumes: `requireEventWrite` from Task 14
+- Consumes: `requireEventWrite` from Task 14 (which now calls `can_write_event()` at the RLS layer via each table's `collab_write_*` policy from Task 13 — the app-layer and DB-layer checks are two independent enforcement points on the same capability string, by design)
 
 - [ ] **Step 1: Replace `verifyOwnership` with `requireEventWrite` — worked example on `general-settings/route.ts`**
 
@@ -1277,26 +1464,36 @@ git commit -m "feat(permissions): apply tiered capability checks to Settings-dom
 
 ---
 
-### Task 16: Extend RLS + capability checks to Planning, Guests, and Media routes
+### Task 16: Extend RLS + capability checks to Planning, Guests, and Media routes — corrected table list
+
+> **Council finding, fixed here:** the original version of this task omitted 4 tables — `event_task_assignees`, `event_expense_types`, `event_guest_tags`, `event_sub_events` — all still owner-only RLS despite being read/written by tables this task DOES convert. Left unfixed, a `planner` collaborator could write `event_expenses` but not read `event_expense_types` (breaks the expense-type dropdown) or write `event_task_assignees` (breaks task assignment — the exact feature D23 built collaborators for); a `guests`-capability collaborator couldn't manage `event_guest_tags` (tag manager silently fails). Cross-check this task's table list against the Step 0 live audit from Task 13 before starting — if that audit surfaced anything beyond the 13 tables below, add it here.
 
 **Files:**
-- RLS migration (via MCP): `event_tasks`, `event_budgets`, `event_expenses` (capability `'planning'`); `event_guests`, `event_guest_sub_events`, `event_guest_tag_links` (capability `'guests'`); `event_media`, `event_albums`, `event_media_albums` (capability `'media'`)
+- RLS migration (via MCP): `event_tasks`, `event_budgets`, `event_expenses`, `event_task_assignees`, `event_expense_types` (capability `'planning'`); `event_guests`, `event_guest_sub_events`, `event_guest_tag_links`, `event_guest_tags` (capability `'guests'`); `event_media`, `event_albums`, `event_media_albums` (capability `'media'`); `event_sub_events` (baseline read only, `can_read_event(event_id, null)` — read by every role via Event Hub/Guest Mgmt, no collaborator write path exists for it in this plan's scope, so no `collab_write_*` policy is added; keep the existing owner-only `FOR ALL` policy unchanged for writes)
 - Modify (apply `requireEventWrite` the same way as Task 15): every route file listed in Step 3
 
 **Interfaces:**
-- Consumes: `can_access_event()` (Task 13), `requireEventWrite` (Task 14)
+- Consumes: `can_read_event()`/`can_write_event()` (Task 13), `requireEventWrite` (Task 14)
 
 - [ ] **Step 1: Convert RLS on the Planning tables**
 
-Same pattern as Task 13 Steps 3-4, capability `'planning'`, for `event_tasks`, `event_budgets`, `event_expenses`. Confirm real existing policy names via `pg_policies` before dropping, exactly as in Task 13.
+Same two-policy-plus-owner shape as Task 13 Step 5, capability `'planning'`, for `event_tasks`, `event_budgets`, `event_expenses`, `event_task_assignees`, `event_expense_types` — 5 tables, not 3. Confirm real existing policy names via `pg_policies` before dropping, exactly as in Task 13.
 
-- [ ] **Step 2: Convert RLS on the Guests and Media tables**
+- [ ] **Step 2: Convert RLS on the Guests, Media, and `event_sub_events` tables**
 
-Same pattern, capability `'guests'` for `event_guests`/`event_guest_sub_events`/`event_guest_tag_links`; capability `'media'` for `event_media`/`event_albums`/`event_media_albums`. Run `get_advisors` after each domain's conversion, not just once at the end.
+Same pattern, capability `'guests'` for `event_guests`/`event_guest_sub_events`/`event_guest_tag_links`/`event_guest_tags` (4 tables, not 3); capability `'media'` for `event_media`/`event_albums`/`event_media_albums`. For `event_sub_events`, add only a `collab_select_sub_events` policy using `can_read_event(event_id, null)` — no write policy, per the table note above. Run `get_advisors` after each domain's conversion, not just once at the end.
 
 - [ ] **Step 3: Apply `requireEventWrite` to every route in these three domains**
 
-Exact file list, each getting the identical transform from Task 15 Step 1 (swap whatever ownership check currently exists for `requireEventWrite(supabase, id, user.id, '<capability>')`):
+**Council finding, fixed here:** the original instruction ("grep for the existing check, replace it") failed when spot-checked against real files — `guests/route.ts`, `media/route.ts`, and `planning/tasks/route.ts` all authenticate the caller but have **no app-level ownership check at all today**, relying entirely on RLS. There's nothing to "replace" in those files; `requireEventWrite` needs to be **added**, not swapped in. Before editing any file in the list below, run this per file to know which case you're in:
+
+```bash
+grep -n "verifyOwnership\|\.eq('user_id', user\.id)\|auth\.getUser()" <file>
+```
+
+If the file has an ownership check (any shape), replace it with `requireEventWrite`. If it only has `auth.getUser()` and nothing else, add the `requireEventWrite` call immediately after the auth check, in the same position the check would go in every other route in this codebase.
+
+Exact file list:
 
 Planning (`'planning'`):
 - `app/api/events/[id]/planning/budget/route.ts`
@@ -1326,11 +1523,13 @@ Media (`'media'`):
 - `app/api/events/[id]/media/upload-url/route.ts`
 - `app/api/events/[id]/media/urls/route.ts`
 
-Each file: find its existing ownership-check block (`grep -n "verifyOwnership\|user_id.*user.id" <file>` to locate it precisely per file, since not all of these currently use the named-helper pattern — some may inline `.eq('user_id', user.id)` directly on a different table), replace with the `requireEventWrite` call, same shape as Task 15 Step 1.
+(No separate route files exist for `event_task_assignees`/`event_expense_types` — they're written through the Planning tasks/expenses routes already in this list, e.g. assigning a task writes an `event_task_assignees` row from within `planning/tasks/[taskId]/route.ts`. Confirm this via `grep -rln "event_task_assignees\|event_expense_types" app/api/events/\[id\]/planning` before assuming no route-level change is needed for those two tables — if a dedicated route is found, add it to this list.)
 
-- [ ] **Step 4: Update/add tests per route**
+Apply `requireEventWrite`, per the Step 3 decision-tree above, to every file below:
 
-Same approach as Task 15 Step 3 — update existing test mocks for the new `getEventAccess` call pattern; add coverage for the 4 cases (owner/non-collaborator/wrong-role/right-role) on routes that don't have tests yet. Given the volume (20 files), prioritize the write-heavy routes (`route.ts` POST/PUT handlers) over the narrower `[id]`-scoped single-resource ones if time-constrained — flag any skipped routes explicitly in the commit message rather than silently leaving them untested.
+- [ ] **Step 4: Update/add tests per route — hard requirement, not a time-permitting nice-to-have**
+
+**Council finding, fixed here:** the original version of this step allowed skipping test coverage on some of these ~20 routes "if time-constrained." Overruled by the panel — this is exactly the surface class that already produced 2 live IDOR bugs earlier this same session (spec §0), and a soft "flag it in the commit message" is not a compensating control for an unauthorized-write bug. Every route in this task's file list gets the full 4-case test (owner succeeds / non-owner-non-collaborator gets 404 / wrong-role collaborator gets 404 / right-role collaborator succeeds) before this task is considered done — no exceptions, no deferred routes. If the full list can't fit in one session, split it into sequenced sub-commits by domain (Planning, then Guests, then Media) rather than shipping any of them under-tested.
 
 - [ ] **Step 5: Full suite + typecheck**
 
@@ -1352,13 +1551,15 @@ git commit -m "feat(permissions): extend tiered capability checks + RLS to Plann
 
 ### Task 17: Remove/demote a collaborator
 
+> **Council finding, fixed here — was the single most severe defect the review found:** the original version of this task's `PATCH` schema was `z.object({ role: z.string().max(50) })`, no enum restriction. Since `isEventRole()` (Task 14) explicitly accepts `'owner'` as a valid value, a co-host with `'admins'` capability could `PATCH` **their own** collaborator row to `role: 'owner'` and, on their next request, inherit the full owner capability set including Billing and Delete-event — directly contradicting this plan's own Global Constraint that those two stay hardcoded to `events.user_id`. Fixed below with a closed zod enum excluding `'owner'`, backed by Task 13's DB-level CHECK constraint as defense-in-depth against any write path that bypasses this route entirely (a direct Supabase REST call, a future admin script). The council also flagged (lower severity, bundled here as a drive-by rather than its own task) that the original `DELETE`/`PATCH` shape took the target id via query-param/body instead of this codebase's established path-segment convention (compare `media/[mediaId]/route.ts`) — fixed by moving both handlers to their own `[collaboratorId]/route.ts` file.
+
 **Files:**
-- Modify: `app/api/events/[id]/admins/route.ts` (add `DELETE`, `PATCH`)
+- Create: `app/api/events/[id]/admins/[collaboratorId]/route.ts` (`DELETE`, `PATCH`)
 - Modify: `app/events/[id]/settings/admins/AdminsContent.tsx`
-- Test: `__tests__/api/events/[id]/admins/route.test.ts` (new or extended)
+- Test: `__tests__/api/events/[id]/admins/[collaboratorId]/route.test.ts` (new)
 
 **Interfaces:**
-- Produces: `DELETE /api/events/[id]/admins?collaboratorId=<uuid>`, `PATCH /api/events/[id]/admins` with body `{ collaboratorId: string, role: string }`
+- Produces: `DELETE /api/events/[id]/admins/[collaboratorId]`, `PATCH /api/events/[id]/admins/[collaboratorId]` with body `{ role: 'co-host' | 'planner' | 'photographer' | 'viewer' }`
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -1369,7 +1570,7 @@ const { createServerClientMock } = vi.hoisted(() => ({ createServerClientMock: v
 vi.mock('@supabase/ssr', () => ({ createServerClient: createServerClientMock }))
 vi.mock('next/headers', () => ({ cookies: vi.fn().mockResolvedValue({ getAll: () => [], set: vi.fn() }) }))
 
-import { DELETE, PATCH } from '@/app/api/events/[id]/admins/route'
+import { DELETE, PATCH } from '@/app/api/events/[id]/admins/[collaboratorId]/route'
 
 const EVENT_ID = '550e8400-e29b-41d4-a716-446655440000'
 const COLLAB_ID = '660e8400-e29b-41d4-a716-446655440001'
@@ -1395,62 +1596,93 @@ function makeSupabase(opts: { isOwner: boolean }) {
   }
 }
 
-describe('DELETE /api/events/[id]/admins', () => {
+const ctx = { params: Promise.resolve({ id: EVENT_ID, collaboratorId: COLLAB_ID }) }
+
+describe('DELETE /api/events/[id]/admins/[collaboratorId]', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('rejects a non-owner, non-co-host caller with 404', async () => {
     createServerClientMock.mockReturnValue(makeSupabase({ isOwner: false }))
-    const req = new Request(`http://localhost/api/events/${EVENT_ID}/admins?collaboratorId=${COLLAB_ID}`, { method: 'DELETE' })
-    const res = await DELETE(req, { params: Promise.resolve({ id: EVENT_ID }) })
+    const req = new Request(`http://localhost/api/events/${EVENT_ID}/admins/${COLLAB_ID}`, { method: 'DELETE' })
+    const res = await DELETE(req, ctx)
     expect(res.status).toBe(404)
   })
 
   it('removes the collaborator when the caller is the owner', async () => {
     createServerClientMock.mockReturnValue(makeSupabase({ isOwner: true }))
-    const req = new Request(`http://localhost/api/events/${EVENT_ID}/admins?collaboratorId=${COLLAB_ID}`, { method: 'DELETE' })
-    const res = await DELETE(req, { params: Promise.resolve({ id: EVENT_ID }) })
+    const req = new Request(`http://localhost/api/events/${EVENT_ID}/admins/${COLLAB_ID}`, { method: 'DELETE' })
+    const res = await DELETE(req, ctx)
     expect(res.status).toBe(204)
   })
 })
 
-describe('PATCH /api/events/[id]/admins', () => {
+describe('PATCH /api/events/[id]/admins/[collaboratorId]', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('updates the role when the caller has admins capability', async () => {
     createServerClientMock.mockReturnValue(makeSupabase({ isOwner: true }))
-    const req = new Request(`http://localhost/api/events/${EVENT_ID}/admins`, {
+    const req = new Request(`http://localhost/api/events/${EVENT_ID}/admins/${COLLAB_ID}`, {
       method: 'PATCH',
-      body: JSON.stringify({ collaboratorId: COLLAB_ID, role: 'planner' }),
+      body: JSON.stringify({ role: 'planner' }),
     })
-    const res = await PATCH(req, { params: Promise.resolve({ id: EVENT_ID }) })
+    const res = await PATCH(req, ctx)
     expect(res.status).toBe(200)
+  })
+
+  it('rejects role: "owner" with 400 — the escalation vector the council found', async () => {
+    createServerClientMock.mockReturnValue(makeSupabase({ isOwner: true }))
+    const req = new Request(`http://localhost/api/events/${EVENT_ID}/admins/${COLLAB_ID}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role: 'owner' }),
+    })
+    const res = await PATCH(req, ctx)
+    expect(res.status).toBe(400)
+  })
+
+  it('rejects an unrecognized role string with 400', async () => {
+    createServerClientMock.mockReturnValue(makeSupabase({ isOwner: true }))
+    const req = new Request(`http://localhost/api/events/${EVENT_ID}/admins/${COLLAB_ID}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role: 'super-admin' }),
+    })
+    const res = await PATCH(req, ctx)
+    expect(res.status).toBe(400)
   })
 })
 ```
 
 - [ ] **Step 2: Run, confirm failure**
 
-Run: `npx vitest run __tests__/api/events/\[id\]/admins/route.test.ts`
-Expected: FAIL — `DELETE`/`PATCH` not exported yet.
+Run: `npx vitest run __tests__/api/events/\[id\]/admins/\[collaboratorId\]/route.test.ts`
+Expected: FAIL — file doesn't exist yet.
 
 - [ ] **Step 3: Implement both handlers**
 
-Append to `app/api/events/[id]/admins/route.ts`:
+Create `app/api/events/[id]/admins/[collaboratorId]/route.ts`:
 
 ```typescript
+import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { z } from 'zod'
+import { requireEventWrite } from '@/lib/auth/eventAccess'
+
+const uuidSchema = z.string().uuid()
+
+// Deliberately excludes 'owner' — owner identity lives only on events.user_id (D16),
+// never on an event_collaborators row. This is the app-layer half of closing the
+// self-escalation bug the council found; Task 13's CHECK constraint is the DB-layer half.
+const patchSchema = z.object({
+  role: z.enum(['co-host', 'planner', 'photographer', 'viewer']),
+}).strict()
+
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string; collaboratorId: string }> }
 ): Promise<NextResponse> {
   try {
-    const { id } = await params
-    if (!uuidSchema.safeParse(id).success) {
-      return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
-    }
-
-    const collaboratorId = new URL(request.url).searchParams.get('collaboratorId')
-    if (!collaboratorId || !uuidSchema.safeParse(collaboratorId).success) {
-      return NextResponse.json({ error: 'Invalid collaborator ID' }, { status: 400 })
+    const { id, collaboratorId } = await params
+    if (!uuidSchema.safeParse(id).success || !uuidSchema.safeParse(collaboratorId).success) {
+      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
     }
 
     const supabase = await createClient()
@@ -1467,7 +1699,7 @@ export async function DELETE(
       .eq('event_id', id)
 
     if (error) {
-      console.error('DELETE /api/events/[id]/admins failed:', error)
+      console.error('DELETE /api/events/[id]/admins/[collaboratorId] failed:', error)
       return NextResponse.json({ error: 'Failed to remove collaborator' }, { status: 500 })
     }
 
@@ -1477,19 +1709,14 @@ export async function DELETE(
   }
 }
 
-const patchSchema = z.object({
-  collaboratorId: z.string().uuid(),
-  role: z.string().max(50),
-}).strict()
-
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string; collaboratorId: string }> }
 ): Promise<NextResponse> {
   try {
-    const { id } = await params
-    if (!uuidSchema.safeParse(id).success) {
-      return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+    const { id, collaboratorId } = await params
+    if (!uuidSchema.safeParse(id).success || !uuidSchema.safeParse(collaboratorId).success) {
+      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
     }
 
     const supabase = await createClient()
@@ -1512,11 +1739,11 @@ export async function PATCH(
     const { error } = await supabase
       .from('event_collaborators')
       .update({ role: parsed.data.role })
-      .eq('id', parsed.data.collaboratorId)
+      .eq('id', collaboratorId)
       .eq('event_id', id)
 
     if (error) {
-      console.error('PATCH /api/events/[id]/admins failed:', error)
+      console.error('PATCH /api/events/[id]/admins/[collaboratorId] failed:', error)
       return NextResponse.json({ error: 'Failed to update role' }, { status: 500 })
     }
 
@@ -1527,12 +1754,12 @@ export async function PATCH(
 }
 ```
 
-Add `import { requireEventWrite } from '@/lib/auth/eventAccess'` at the top (this file's `POST` handler was already converted to use it in Task 15).
+Note this is a **new file**, not an append to `app/api/events/[id]/admins/route.ts` — the existing `POST` handler (invite) stays in the parent `admins/route.ts` untouched; `DELETE`/`PATCH` live in the new `[collaboratorId]` sub-route, matching this codebase's established path-segment convention (`media/[mediaId]/route.ts`).
 
 - [ ] **Step 4: Run, confirm pass**
 
-Run: `npx vitest run __tests__/api/events/\[id\]/admins/route.test.ts`
-Expected: PASS.
+Run: `npx vitest run __tests__/api/events/\[id\]/admins/\[collaboratorId\]/route.test.ts`
+Expected: PASS, all 5 tests including the two new escalation-rejection cases.
 
 - [ ] **Step 5: Wire the UI — remove control**
 
@@ -1544,7 +1771,7 @@ In `AdminsContent.tsx`, replace the disabled `more_horiz` button (lines 123-132)
   async function handleRemove(collabId: string) {
     setRemovingId(collabId)
     try {
-      const res = await fetch(`/api/events/${eventId}/admins?collaboratorId=${collabId}`, { method: 'DELETE' })
+      const res = await fetch(`/api/events/${eventId}/admins/${collabId}`, { method: 'DELETE' })
       if (!res.ok) {
         flashToast('Failed to remove — please try again')
       } else {
@@ -1584,8 +1811,8 @@ Expected: clean.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add app/api/events/\[id\]/admins/route.ts app/events/\[id\]/settings/admins/AdminsContent.tsx __tests__/api/events/\[id\]/admins
-git commit -m "feat(admins): add remove-collaborator DELETE/PATCH routes, wire remove button in UI"
+git add app/api/events/\[id\]/admins/\[collaboratorId\]/route.ts app/events/\[id\]/settings/admins/AdminsContent.tsx __tests__/api/events/\[id\]/admins
+git commit -m "feat(admins): add remove/demote-collaborator routes with role-escalation fix, wire remove button in UI"
 ```
 
 ---
@@ -1593,6 +1820,8 @@ git commit -m "feat(admins): add remove-collaborator DELETE/PATCH routes, wire r
 ## Part E — Usage tab
 
 ### Task 18: New per-event Usage tab
+
+> **Council ordering requirement — this task must run after Task 16, not in parallel with Part D and not independently.** The arbiter read the live `event_hub_summary` view definition (`security_invoker = on`) and traced this task's 3 columns (`guest_total`, `task_percent`, `budget_percent`) to their source views/tables — `event_guests`/`event_guest_sub_events` (guests), `event_tasks` (tasks), `event_budgets`/`event_expenses` (budget) — all of which are in Task 16's conversion list. Under `security_invoker`, a collaborator querying this view before Task 16 lands gets silently zeroed/null numbers instead of an error (RLS-filtered joins return empty rows, not failures) — this task depends specifically on Task 16, not on Tasks 13/14/15/17. It also depends on Task 13's `events` conversion (Step 4) for the page to load for a collaborator at all, since Step 3 below gates on `.from('events')...single()` before anything else runs.
 
 **Files:**
 - Create: `app/events/[id]/settings/usage/page.tsx`
@@ -1624,6 +1853,7 @@ In `SettingsNav.tsx`, add to `SETTINGS_TABS` (positioned after Billing):
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { PageFooter } from '@/components/layout/PageFooter'
+import { getEventAccess } from '@/lib/auth/eventAccess'
 import { UsageContent } from './UsageContent'
 
 const STORAGE_LIMIT_BYTES = 5 * 1024 * 1024 * 1024 // matches MediaClient.tsx — reused, not reimplemented
@@ -1631,6 +1861,8 @@ const STORAGE_LIMIT_BYTES = 5 * 1024 * 1024 * 1024 // matches MediaClient.tsx �
 export default async function UsageSettingsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth')
 
   const { data: ev } = await supabase
     .from('events')
@@ -1639,6 +1871,11 @@ export default async function UsageSettingsPage({ params }: { params: Promise<{ 
     .is('deleted_at', null)
     .single()
   if (!ev) redirect('/home')
+
+  const access = await getEventAccess(supabase, id, user.id)
+  const canReadGuests = access.canRead('guests')
+  const canReadPlanning = access.canRead('planning')
+  const canReadMedia = access.canRead('media')
 
   const [{ data: media }, { data: hub }, { data: plansRaw }] = await Promise.all([
     supabase.from('event_media').select('byte_size').eq('event_id', id),
@@ -1655,9 +1892,12 @@ export default async function UsageSettingsPage({ params }: { params: Promise<{ 
       <UsageContent
         storageUsedBytes={storageUsedBytes}
         storageLimitBytes={STORAGE_LIMIT_BYTES}
+        canReadMedia={canReadMedia}
         guestTotal={hub?.guest_total ?? 0}
+        canReadGuests={canReadGuests}
         taskPercent={hub?.task_percent ?? null}
         budgetPercent={hub?.budget_percent ?? null}
+        canReadPlanning={canReadPlanning}
         planName={currentPlan?.name ?? 'Free'}
       />
       <PageFooter />
@@ -1666,15 +1906,20 @@ export default async function UsageSettingsPage({ params }: { params: Promise<{ 
 }
 ```
 
+**Council finding, addressed here:** the original version had no way to distinguish "this event genuinely has 0 guests" from "you don't have access to guest data" — both rendered as a bare `0`. Since RLS-filtered joins return empty rows rather than errors, a `photographer` collaborator (who can't read `guests`/`planning` per the capability matrix) would see a fully-populated-looking "0 guests, no tasks, no budget" page and reasonably conclude the app is broken, not that they're viewing a permissions boundary. `canReadGuests`/`canReadPlanning`/`canReadMedia` are passed through so the client component can render an honest "You don't have access to this" state instead of a fake zero.
+
 - [ ] **Step 4: Client display component**
 
 ```tsx
 interface Props {
   storageUsedBytes: number
   storageLimitBytes: number
+  canReadMedia: boolean
   guestTotal: number
+  canReadGuests: boolean
   taskPercent: number | null
   budgetPercent: number | null
+  canReadPlanning: boolean
   planName: string
 }
 
@@ -1682,7 +1927,12 @@ function fmtGB(bytes: number): string {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
 }
 
-export function UsageContent({ storageUsedBytes, storageLimitBytes, guestTotal, taskPercent, budgetPercent, planName }: Props) {
+export function UsageContent({
+  storageUsedBytes, storageLimitBytes, canReadMedia,
+  guestTotal, canReadGuests,
+  taskPercent, budgetPercent, canReadPlanning,
+  planName,
+}: Props) {
   const storagePct = storageLimitBytes > 0 ? Math.min(100, Math.round((storageUsedBytes / storageLimitBytes) * 100)) : 0
 
   return (
@@ -1700,11 +1950,15 @@ export function UsageContent({ storageUsedBytes, storageLimitBytes, guestTotal, 
             <span aria-hidden="true" className="material-symbols-outlined icon-fill">database</span>
             Storage
           </h2>
-          <span className="es-section-tag">{fmtGB(storageUsedBytes)} of {fmtGB(storageLimitBytes)}</span>
+          {canReadMedia && <span className="es-section-tag">{fmtGB(storageUsedBytes)} of {fmtGB(storageLimitBytes)}</span>}
         </header>
-        <div className="es-usage-bar">
-          <div className="es-usage-bar-fill" style={{ width: `${storagePct}%` }} />
-        </div>
+        {canReadMedia ? (
+          <div className="es-usage-bar">
+            <div className="es-usage-bar-fill" style={{ width: `${storagePct}%` }} />
+          </div>
+        ) : (
+          <p className="es-usage-no-access">You don&apos;t have access to storage data — contact the event owner.</p>
+        )}
       </section>
 
       <section className="es-section">
@@ -1714,7 +1968,11 @@ export function UsageContent({ storageUsedBytes, storageLimitBytes, guestTotal, 
             Guests
           </h2>
         </header>
-        <p className="es-usage-stat">{guestTotal}</p>
+        {canReadGuests ? (
+          <p className="es-usage-stat">{guestTotal}</p>
+        ) : (
+          <p className="es-usage-no-access">You don&apos;t have access to guest data — contact the event owner.</p>
+        )}
       </section>
 
       <section className="es-section">
@@ -1724,8 +1982,14 @@ export function UsageContent({ storageUsedBytes, storageLimitBytes, guestTotal, 
             Planning progress
           </h2>
         </header>
-        <p className="es-usage-stat">{taskPercent !== null ? `${taskPercent}% tasks done` : 'No tasks yet'}</p>
-        <p className="es-usage-stat">{budgetPercent !== null ? `${budgetPercent}% of budget spent` : 'No budget set'}</p>
+        {canReadPlanning ? (
+          <>
+            <p className="es-usage-stat">{taskPercent !== null ? `${taskPercent}% tasks done` : 'No tasks yet'}</p>
+            <p className="es-usage-stat">{budgetPercent !== null ? `${budgetPercent}% of budget spent` : 'No budget set'}</p>
+          </>
+        ) : (
+          <p className="es-usage-no-access">You don&apos;t have access to planning data — contact the event owner.</p>
+        )}
       </section>
 
       <section className="es-section">
@@ -1742,6 +2006,8 @@ export function UsageContent({ storageUsedBytes, storageLimitBytes, guestTotal, 
 }
 ```
 
+(`.es-usage-no-access` is a small new text-style rule — muted color, same treatment as `.es-section-sub` — add alongside whatever `.es-usage-*` classes Step 5 below determines are actually new.)
+
 - [ ] **Step 5: Add the two new CSS classes if not already covered by existing `.es-section`/`.stack-bar`-style rules**
 
 Check first: `grep -n "es-usage\|stack-bar" designs/pages/event-settings/event-settings.css designs/shared/shell.css`. If a generic progress-bar class already exists (the V0 Readiness artifact's `.stack-bar`/`.stack-seg` pattern, or Media's own storage-meter CSS), reuse its class names instead of inventing `.es-usage-bar`/`.es-usage-bar-fill` — check `app/events/[id]/media/MediaClient.tsx`'s storage-meter markup for its class names first (`grep -n "meter" app/events/\[id\]/media/MediaClient.tsx`) and match that pattern for visual consistency between the two storage displays. Only add new CSS if genuinely nothing reusable exists.
@@ -1751,9 +2017,11 @@ Check first: `grep -n "es-usage\|stack-bar" designs/pages/event-settings/event-s
 Run: `npx tsc --noEmit && npx eslint app/events/[id]/settings/usage`
 Expected: clean.
 
-- [ ] **Step 7: Live verification**
+- [ ] **Step 7: Live verification — owner AND a non-owner collaborator**
 
-Open the tab for an event with real media/guests/tasks/budget data, confirm all 4 numbers match what Media's own storage meter and the Event Hub's own stat tiles show for the same event (spec §11 — should match exactly since both reuse the same source data).
+As the owner: open the tab for an event with real media/guests/tasks/budget data, confirm all 4 numbers match what Media's own storage meter and the Event Hub's own stat tiles show for the same event (spec §11 — should match exactly since both reuse the same source data).
+
+As a `photographer` collaborator (council finding — the original plan only verified against an owner account): confirm Storage shows real numbers, Guests/Planning show the "You don't have access" message, not `0`.
 
 - [ ] **Step 8: Commit**
 
@@ -1767,6 +2035,14 @@ git commit -m "feat(settings): add read-only per-event Usage tab"
 ## Plan Self-Review Notes
 
 - **Spec coverage:** §2→Task1, §3→Task2, §4→Task3, §5→Task4, §6→Tasks5+8, §7.1(permissions)→Tasks13-16, §7.2(remove/demote)→Task17, §7.3(invite id)→Task12, §7.4(dashboard)→Task11, §8(ToolRail)→Task10, §8(overlay)→Tasks7-9, §9(Usage)→Task18. §0(IDOR)/§1(corrections) already done, reference-only, no task. §10's `/legal/*` and Registry-real-backend items are explicitly not tasked (out of scope, matches spec).
-- **Placeholder scan:** no TBD/TODO left; the two spots that say "confirm exact policy names via `pg_policies` first" (Task 13 Step 3, Task 16 Step 1) are real, necessary preconditions for a DDL statement whose target must be verified against live state before running — not vagueness, the query to run is fully specified.
-- **Type consistency:** `EventCapability`/`EventRole`/`EventAccess`/`getEventAccess`/`requireEventWrite` signatures introduced in Task 14 are used identically in Tasks 15-17. `BusyOverlay`'s `{ active, label? }` props from Task 7 are used identically in Tasks 8-9. `ToolRail`'s new `{ eventId, isLive, liveUrl }` props from Task 10 replace the old bare-boolean signature completely (no stale callers left — `app/events/[id]/layout.tsx` is the only caller, updated in the same task).
-- **Scope check:** Part D (Tasks 13-17) is intentionally the largest, most sequential block, matching spec §12's explicit sizing call-out — each of its 5 tasks is still independently shippable and reviewable on its own.
+- **Placeholder scan:** no TBD/TODO left; every "confirm the real policy name via `pg_policies` first" instruction (Task 13 Steps 4-6, Task 16 Step 1) is a real, necessary precondition for a DDL statement whose target must be verified against live state before running — not vagueness, the query to run is fully specified.
+- **Type consistency:** `EventCapability`/`EventRole`/`EventAccess`/`getEventAccess`/`requireEventWrite` signatures introduced in Task 14 are used identically in Tasks 15-17-18. `BusyOverlay`'s `{ active, label? }` props from Task 7 are used identically in Tasks 8-9. `ToolRail`'s new `{ eventId, isLive, liveUrl }` props from Task 10 replace the old bare-boolean signature completely (no stale callers left). `can_read_event()`/`can_write_event()` (Task 13) are referenced consistently by name in Tasks 15/16's prose — no lingering reference to the original single-function `can_access_event()` design.
+- **Scope check:** Part D (Tasks 13-17) is intentionally the largest, most sequential block, matching spec §12's explicit sizing call-out. Unlike the original draft, Tasks 13 and 15 are explicitly **not** independently shippable (must land same deploy, per the council's Security Finding 4); Task 18 explicitly depends on Task 16 specifically (per arbiter ruling), not on all of Part D and not on nothing.
+
+## Council Review
+
+**Reviewed:** 2026-08-06, 5-agent council (Tech Lead, Security Expert, Data Modeller, Backend Engineer, Frontend Engineer) — Critique + Debate + Arbiter, all phases run.
+
+**Original verdict:** 🔴 RE-PLAN Part D (Tasks 13-17). 6 critical findings (3 tables never RLS-converted despite granted app-layer capabilities, 4 more tables missing from the conversion list, a blanket-read logic bug in the RLS predicate, a live privilege-escalation path via unvalidated role PATCH, no CHECK constraint on `role`, dead-code RSVP enforcement against an unauthenticated guest session — the last already fixed in Task 3's current text) plus 8 important findings (rollout-order exploit window, incomplete route-audit instructions, soft test-coverage language on the highest-risk task, modal/overlay z-index stacking, mislabeled task-ordering, missing lockout guard, missing access-denied empty state, no live-audit process). 3 contested severity/dependency calls resolved by arbiter (2 overruled to lower severity, 1 upheld-with-modification narrowing Task 18's dependency to Task 16 specifically).
+
+**Disposition:** Every critical and important finding is now addressed inline in the task text above (Tasks 1, 2, 8, 9, 10, 13, 15, 16, 17, 18 all carry explicit "council finding, fixed here" callouts at the point of the fix, not just in this summary). Founder directed a full plan revision before any task starts, rather than execute-then-patch — this document is that revision, not a diff. Suggestions (EXECUTE-grant scoping, DROP+CREATE justification, index, rollback plan, DATA-MODEL.md threading, migration atomicity) are folded into Task 13's text where cheap to include; a standalone rollback/kill-switch runbook for the RLS cutover was not added as a separate task — recommend the executing session write one live, informed by whatever the actual `apply_migration` call shapes turn out to be, rather than speculating on rollback SQL here before the forward migration exists.
