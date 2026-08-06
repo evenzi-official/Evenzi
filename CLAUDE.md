@@ -119,7 +119,16 @@ RESEND_API_KEY=re_xxxx                  # Resend API key
 RUNNER_ALERT_EMAIL=you@example.com      # Where to send alerts
 RUNNER_EMAIL_ON_COMPLETE=true           # Send email after each run
 RUNNER_EMAIL_ON_ALERT=true              # Send email on budget alerts + approval gates
+
+# Browser push (Phase B — in-app bell works without these)
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=<vapid-public>   # from `npx web-push generate-vapid-keys`
+VAPID_PRIVATE_KEY=<vapid-private>
+VAPID_SUBJECT=mailto:evenzi.official@gmail.com
+NOTIFICATIONS_WEBHOOK_SECRET=<random-hex>     # HMAC for notifications INSERT → /api/notifications/dispatch-push
+SUPABASE_SERVICE_ROLE_KEY=<service-role>      # required by dispatch-push (service_role RPC only)
 ```
+
+**Push webhook (ops):** Supabase Dashboard → Database → Webhooks → table `notifications` on INSERT → `POST https://evenzi.vercel.app/api/notifications/dispatch-push` (local: tunnel to `:3000`). Header `x-evenzi-webhook-signature` = hex HMAC-SHA256(raw body, `NOTIFICATIONS_WEBHOOK_SECRET`).
 
 ---
 

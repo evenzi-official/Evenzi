@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Manrope, Cormorant_Garamond, Poppins, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { RevealObserver } from "@/components/layout/RevealObserver";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { Preloader } from "@/components/ui/Preloader";
 
 const inter = Inter({
@@ -63,6 +64,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${manrope.variable} ${cormorantGaramond.variable} ${poppins.variable} ${playfairDisplay.variable} antialiased`}>
         <Preloader />
         <RevealObserver />
+        <ServiceWorkerRegister />
         {children}
       </body>
     </html>
