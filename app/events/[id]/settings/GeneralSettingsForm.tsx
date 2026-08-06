@@ -322,10 +322,10 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
             <span className="es-help-title">Need help with these settings?</span>
             <span className="es-help-desc">Our support team can walk you through anything that&apos;s not making sense.</span>
           </div>
-          <button type="button" className="btn-pill btn-pill-secondary">
+          <a href="mailto:evenzi.official@gmail.com" className="btn-pill btn-pill-secondary">
             <span aria-hidden="true" className="material-symbols-outlined">support_agent</span>
             Contact support
-          </button>
+          </a>
         </div>
 
         {/* Danger zone */}

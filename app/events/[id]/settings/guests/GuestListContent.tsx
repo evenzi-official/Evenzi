@@ -169,10 +169,10 @@ export function GuestListContent({ eventId, initial }: Props) {
             <span className="es-help-title">Need help with your guest list?</span>
             <span className="es-help-desc">Our complete guide covers everything from CSV imports to managing multiple events RSVPs.</span>
           </div>
-          <button type="button" className="btn-pill btn-pill-secondary">
+          <a href="mailto:evenzi.official@gmail.com" className="btn-pill btn-pill-secondary">
             <span aria-hidden="true" className="material-symbols-outlined">menu_book</span>
             View the guide
-          </button>
+          </a>
         </div>
 
         <footer className="es-footer">

@@ -139,10 +139,10 @@ export default async function BillingSettingsPage({ params }: { params: Promise<
             <span className="es-help-title">Questions about your plan?</span>
             <span className="es-help-desc">Our support team can help you compare features and find the right plan for your celebration.</span>
           </div>
-          <button type="button" className="btn-pill btn-pill-secondary">
+          <a href="mailto:evenzi.official@gmail.com" className="btn-pill btn-pill-secondary">
             <span aria-hidden="true" className="material-symbols-outlined">support_agent</span>
             Contact support
-          </button>
+          </a>
         </div>
 
         <footer className="es-footer">

@@ -143,10 +143,10 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
             <span className="es-help-title">Need help managing roles?</span>
             <span className="es-help-desc">Our guide explains permissions for Owner, Co-host, and Planner — and what each can edit on your behalf.</span>
           </div>
-          <button type="button" className="btn-pill btn-pill-secondary">
+          <a href="mailto:evenzi.official@gmail.com" className="btn-pill btn-pill-secondary">
             <span aria-hidden="true" className="material-symbols-outlined">menu_book</span>
             Read the guide
-          </button>
+          </a>
         </div>
 
         <footer className="es-footer">
