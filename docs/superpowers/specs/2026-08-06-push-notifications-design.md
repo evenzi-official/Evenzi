@@ -149,7 +149,46 @@ The 4 types in §4 are what's real and live in the product today. This is not me
 
 Given that, this pass deliberately does **not** do a platform-wide scan for every notification-worthy event — that would inflate scope for no structural benefit, since adding one later costs almost nothing. Obvious future candidates, for reference, not built now: planning task overdue/due-soon reminder, event website published (offline → live), RSVP deadline approaching, guest CSV import batch complete, R2 storage quota nearing limit, sub-event added, media upload batch complete. Each becomes its own small addition once that feature's owner decides it's worth notifying on.
 
-## 11. Explicitly out of scope (recap)
+## 12. Council review — 2026-08-06
+
+**Council reviewed:** 2026-08-06 by ui_ux_designer, frontend_engineer, tech_lead, product_manager, security_expert (design mode, Critique + Debate + Arbiter).
+
+### 🔴 Critical — must resolve before this spec is buildable
+1. **`collaborator_added`'s push leg can't fire as designed.** The notification insert happens inside `link_pending_collaborators()`, a plpgsql `SECURITY DEFINER` trigger fired by `handle_new_user()` on `auth.users` insert — pure Postgres, no Node runtime, cannot call the `web-push` package. Needs an explicit out-of-band dispatch (DB webhook / outbox consumer) for this one trigger type, or push is dropped for it. Flagged by Tech Lead, endorsed by Frontend + Security.
+2. **SSRF via client-supplied `endpoint`.** Server POSTs to whatever `endpoint` URL the browser submits, with no allowlist against known push-service hosts (`fcm.googleapis.com`, Mozilla, Apple). Flagged by Security, endorsed by Tech Lead.
+3. **Push-subscription hijack.** Upsert-by-`endpoint` (globally unique) with no `user_id` ownership check on conflict — `PushManager.subscribe()` can return an existing subscription on a shared device, silently reassigning User A's row to User B, and §8's "errors are swallowed" means A loses push with zero signal. Flagged by Security, endorsed by Tech Lead (same IDOR class as this week's `guest-settings`/`general-settings` fixes, commit `68e2f18`).
+4. **VAPID public key not exposed to client as written.** §7 lists `VAPID_PUBLIC_KEY` with no `NEXT_PUBLIC_` prefix — Next.js strips it from the client bundle, so `PushManager.subscribe()` has nothing to read. Flagged by Frontend, confirmed independently by Tech Lead.
+5. **No empty state for the dropdown.** A new host with zero notifications opens the bell to an unstyled blank list. Flagged by UI/UX.
+6. **Feature isn't on the MVP roadmap.** Justified entirely by engineering debt (dead toggle, hardcoded badge), not validated host demand — jumps ahead of P1 Support Chatbot and undeployed Digital Presence. Flagged by Product Manager, corroborated by Tech Lead directly against `CLAUDE.md`'s tables.
+
+### 🟡 Important
+- Porting the S8 vanilla-DOM dropdown to React isn't specified (portal vs. positioning; click-outside/Escape/scroll-close must be re-implemented, not assumed) — Frontend.
+- `NotificationsSection.tsx`'s `toggle()` needs a new async path (permission request + subscribe/unsubscribe + persist) with no stated ordering or partial-failure UX — Frontend.
+- Insert-privilege mechanism for `notifications` left undecided between service-role (bypasses all RLS) and a narrow `SECURITY DEFINER` RPC — materially different blast radius; existing route handlers have neither capability built in — Tech Lead.
+- Push permission-denial has no recovery UX (toggle looks "on" while OS delivery silently never happens) — UI/UX.
+- No loading/fetch-error state for the dropdown — UI/UX.
+- Building full push infra now, immediately before the known `evenzi.vercel.app` → `app.evenzii.com` migration that breaks every subscription — Tech Lead, independently reinforced by PM.
+- Scope bundles a cheap feature (in-app bell, ~a day) with an expensive one (push: SW, VAPID, permission UX, subscription lifecycle) in one pass for a 2-person team — PM, endorsed by Frontend + Security + UI/UX.
+
+### 💡 Suggestions
+- Neither new table has `updated_at` (codebase convention) — Tech Lead.
+- Content-length truncation rule for generated `title`/`body` unstated — UI/UX.
+- Trigger selection reads as engineering-convenience-driven rather than ranked host value (`expense_recorded` is low-urgency) — PM.
+- §9 is QA test steps, not PM-level acceptance criteria — PM.
+- No format validation or per-user cap on push-subscription payloads — Security.
+- No rate limit on the push-send path itself — a won IDOR (#3 above) becomes a harassment/DoS vector against the real device owner — Security (debate blind spot).
+- No stated source/tone for generated notification copy — UI/UX (debate blind spot).
+
+### ⚖️ Arbiter-resolved
+- **Security's "notify() must re-validate recipients per event_id"** — UPHELD-WITH-MODIFICATION: folded into the insert-privilege-mechanism finding above, not tracked separately. The eventual RPC must derive owner/collaborators from `event_id` itself (never trust a caller-supplied list), and the test plan must include a tampered-`event_id` case.
+- **Poll reflow-while-open / pause-on-hidden** (UI/UX vs. Frontend) — UPHELD-WITH-MODIFICATION: merged into one Frontend finding — skip/hold refetch while the dropdown is open (misclick-under-cursor risk) + `document.hidden` gate for background tabs. Single item, suggestion/med.
+
+### Verdict
+🔴 **RE-PLAN, scope split required.** Strong panel consensus (PM raised, Tech Lead + Security + UI/UX + Frontend all independently endorsed): split into two passes.
+- **Pass 1 (buildable now, once criticals #4–#5 and the important findings are folded in):** in-app `notifications` table + bell/dropdown + 3 real triggers (`rsvp_received`, `collaborator_added` minus its push leg, `expense_recorded`) + `invites_sent` schema-only.
+- **Pass 2 (own spec, after Pass 1 ships and the domain migration lands):** browser push — VAPID, service worker, `push_subscriptions`, with SSRF allowlist + ownership-safe upsert designed in from the start, and the `collaborator_added` out-of-band dispatch problem solved explicitly.
+
+
 
 - Dedicated `/notifications` page.
 - Per-type push toggles (single boolean stays).
