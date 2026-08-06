@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { getEventAccess, requireEventWrite, type EventRole, type EventCapability } from '@/lib/auth/eventAccess'
+import { getEventAccess, requireEventWrite, requireEventRead, type EventRole, type EventCapability } from '@/lib/auth/eventAccess'
 
 function makeSupabase(opts: { isOwner: boolean; collabRole?: string; collabStatus?: string }) {
   return {
@@ -78,6 +78,19 @@ describe('requireEventWrite', () => {
   it('returns ok:true when the capability check passes', async () => {
     const result = await requireEventWrite(makeSupabase({ isOwner: true }) as never, 'event-1', 'user-1', 'general')
     expect(result.ok).toBe(true)
+  })
+})
+
+describe('requireEventRead', () => {
+  it('allows a viewer to read any capability', async () => {
+    const result = await requireEventRead(makeSupabase({ isOwner: false, collabRole: 'viewer' }) as never, 'event-1', 'user-5', 'website')
+    expect(result.ok).toBe(true)
+  })
+
+  it('returns 404 for a non-member', async () => {
+    const result = await requireEventRead(makeSupabase({ isOwner: false }) as never, 'event-1', 'user-6', 'guests')
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.response.status).toBe(404)
   })
 })
 

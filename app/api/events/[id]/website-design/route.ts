@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { requireEventWrite, requireEventRead } from '@/lib/auth/eventAccess'
 import { z } from 'zod'
 
 const uuidSchema = z.string().uuid()
@@ -13,16 +14,6 @@ const patchSchema = z.object({
   og_image_key:    z.string().max(512).nullable().optional(),
 }).strict()
 
-async function verifyOwnership(supabase: Awaited<ReturnType<typeof createClient>>, eventId: string, userId: string) {
-  const { data } = await supabase
-    .from('events')
-    .select('id')
-    .eq('id', eventId)
-    .eq('user_id', userId)
-    .is('deleted_at', null)
-    .single()
-  return !!data
-}
 
 export async function GET(
   _request: Request,
@@ -38,9 +29,8 @@ export async function GET(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    if (!await verifyOwnership(supabase, id, user.id)) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    }
+    const access = await requireEventRead(supabase, id, user.id, 'website')
+    if (!access.ok) return access.response
 
     const { data, error } = await supabase
       .from('event_website_design')
@@ -73,9 +63,8 @@ export async function PATCH(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    if (!await verifyOwnership(supabase, id, user.id)) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    }
+    const access = await requireEventWrite(supabase, id, user.id, 'website')
+    if (!access.ok) return access.response
 
     let body: unknown
     try { body = await request.json() } catch {

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { requireEventWrite } from '@/lib/auth/eventAccess'
 import { updateGuestSchema, uuidSchema } from '@/lib/validations/guests'
 
 export async function PATCH(
@@ -15,6 +16,9 @@ export async function PATCH(
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const access = await requireEventWrite(supabase, id, user.id, 'guests')
+    if (!access.ok) return access.response
 
     let body: unknown
     try { body = await request.json() } catch {
@@ -113,6 +117,9 @@ export async function DELETE(
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const access = await requireEventWrite(supabase, id, user.id, 'guests')
+    if (!access.ok) return access.response
 
     const { data: deletedRows, error } = await supabase
       .from('event_guests')

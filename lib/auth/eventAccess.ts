@@ -88,3 +88,17 @@ export async function requireEventWrite(
   }
   return { ok: true }
 }
+
+export async function requireEventRead(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: SupabaseClient<any>,
+  eventId: string,
+  userId: string,
+  capability: EventCapability
+): Promise<{ ok: true } | { ok: false; response: NextResponse }> {
+  const access = await getEventAccess(supabase, eventId, userId)
+  if (!access.canRead(capability)) {
+    return { ok: false, response: NextResponse.json({ error: 'Not found' }, { status: 404 }) }
+  }
+  return { ok: true }
+}
