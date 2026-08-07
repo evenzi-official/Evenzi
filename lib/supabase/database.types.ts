@@ -2529,6 +2529,7 @@ export type Database = {
         Args: { p_event_id: string; p_tier: string }
         Returns: Json
       }
+      accept_event_invite: { Args: { p_token: string }; Returns: string }
       bulk_set_task_status: {
         Args: { p_status_slug: string; p_task_ids: string[] }
         Returns: number
@@ -2573,6 +2574,17 @@ export type Database = {
         Args: { p_session_token: string }
         Returns: Json
       }
+      get_pending_invite: {
+        Args: { p_token: string }
+        Returns: {
+          event_id: string
+          event_name: string
+          id: string
+          invited_email: string
+          role: string
+          status: string
+        }[]
+      }
       get_public_website_payload: { Args: { p_slug: string }; Returns: Json }
       get_push_delivery_targets: {
         Args: { p_user_id: string }
@@ -2588,6 +2600,17 @@ export type Database = {
         Args: { p_slug: string; p_token: string }
         Returns: boolean
       }
+      list_my_pending_invites: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          event_id: string
+          event_name: string
+          id: string
+          invited_at: string
+          owner_display_name: string
+          role: string
+        }[]
+      }
       notify_recipients: {
         Args: {
           p_actor_id: string
@@ -2596,6 +2619,16 @@ export type Database = {
           p_link_path: string
           p_title: string
           p_type: string
+        }
+        Returns: undefined
+      }
+      notify_user_by_email: {
+        Args: {
+          p_actor_id: string
+          p_body: string
+          p_email: string
+          p_event_id: string
+          p_title: string
         }
         Returns: undefined
       }
