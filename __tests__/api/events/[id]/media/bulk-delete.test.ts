@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const { createServerClientMock, deleteObjectMock } = vi.hoisted(() => ({
-  createServerClientMock: vi.fn(),
+const { createClientMock, deleteObjectMock } = vi.hoisted(() => ({
+  createClientMock: vi.fn(),
   deleteObjectMock: vi.fn(),
 }))
 
-vi.mock('@supabase/ssr', () => ({ createServerClient: createServerClientMock }))
+vi.mock('@/lib/supabase/server', () => ({ createClient: createClientMock }))
 vi.mock('next/headers', () => ({ cookies: vi.fn().mockResolvedValue({ getAll: () => [], set: vi.fn() }) }))
 vi.mock('@/lib/storage/r2', async () => {
   const actual = await vi.importActual<typeof import('@/lib/storage/r2')>('@/lib/storage/r2')
@@ -20,11 +20,26 @@ const ID_B = '770e8400-e29b-41d4-a716-446655440002'
 const ID_OTHER_EVENT = '880e8400-e29b-41d4-a716-446655440003'
 
 function makeOwnerChain() {
-  const chain: Record<string, unknown> = { select: vi.fn(), eq: vi.fn(), is: vi.fn() }
-  chain.select = vi.fn().mockReturnValue(chain)
-  chain.eq = vi.fn().mockReturnValue(chain)
-  chain.is = vi.fn().mockReturnValue(chain)
+  const chain: Record<string, unknown> = {}
+  const self = () => chain
+  for (const m of ['select', 'eq', 'is']) chain[m] = vi.fn().mockImplementation(self)
   chain.single = vi.fn().mockResolvedValue({ data: { id: EVENT_ID }, error: null })
+  return chain
+}
+
+function makeDeniedEventsChain() {
+  const chain: Record<string, unknown> = {}
+  const self = () => chain
+  for (const m of ['select', 'eq', 'is']) chain[m] = vi.fn().mockImplementation(self)
+  chain.single = vi.fn().mockResolvedValue({ data: null, error: { message: 'not found' } })
+  return chain
+}
+
+function makeDeniedCollabChain() {
+  const chain: Record<string, unknown> = {}
+  const self = () => chain
+  for (const m of ['select', 'eq']) chain[m] = vi.fn().mockImplementation(self)
+  chain.single = vi.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116', message: 'not found' } })
   return chain
 }
 
@@ -43,11 +58,12 @@ function makeMediaChain(rows: { id: string; storage_key: string; thumbnail_key: 
 
 function makeSupabaseMock(rows: { id: string; storage_key: string; thumbnail_key: string }[]) {
   const { selectChain, delChain } = makeMediaChain(rows)
+  const ownerChain = makeOwnerChain()
   let callCount = 0
   const mock = {
     auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null }) },
     from: vi.fn().mockImplementation((table: string) => {
-      if (table === 'events') return makeOwnerChain()
+      if (table === 'events') return ownerChain
       callCount++
       return callCount === 1 ? selectChain : delChain
     }),
@@ -77,7 +93,7 @@ describe('POST /api/events/[id]/media/bulk-delete', () => {
       { id: ID_B, storage_key: 'k-b', thumbnail_key: 'k-b-thumb' },
     ]
     const { mock, selectChain } = makeSupabaseMock(rows)
-    createServerClientMock.mockReturnValue(mock)
+    createClientMock.mockResolvedValue(mock)
     const res = await POST(req({ ids: [ID_A, ID_B, ID_OTHER_EVENT] }), ctx)
     expect(res.status).toBe(200)
     const body = await res.json()
@@ -93,7 +109,7 @@ describe('POST /api/events/[id]/media/bulk-delete', () => {
 
   it('rejects a batch over 100 ids with 400', async () => {
     const { mock } = makeSupabaseMock([])
-    createServerClientMock.mockReturnValue(mock)
+    createClientMock.mockResolvedValue(mock)
     const ids = Array.from({ length: 101 }, () => ID_A)
     const res = await POST(req({ ids }), ctx)
     expect(res.status).toBe(400)
@@ -102,17 +118,11 @@ describe('POST /api/events/[id]/media/bulk-delete', () => {
   it('returns 404 when the event is not owned by the caller', async () => {
     const { mock } = makeSupabaseMock([])
     mock.from = vi.fn().mockImplementation((table: string) => {
-      if (table === 'events') {
-        const chain: Record<string, unknown> = { select: vi.fn(), eq: vi.fn(), is: vi.fn() }
-        chain.select = vi.fn().mockReturnValue(chain)
-        chain.eq = vi.fn().mockReturnValue(chain)
-        chain.is = vi.fn().mockReturnValue(chain)
-        chain.single = vi.fn().mockResolvedValue({ data: null, error: { message: 'not found' } })
-        return chain
-      }
+      if (table === 'events') return makeDeniedEventsChain()
+      if (table === 'event_collaborators') return makeDeniedCollabChain()
       return makeMediaChain([]).selectChain
     })
-    createServerClientMock.mockReturnValue(mock)
+    createClientMock.mockResolvedValue(mock)
     const res = await POST(req({ ids: [ID_A] }), ctx)
     expect(res.status).toBe(404)
   })

@@ -128,7 +128,7 @@ NOTIFICATIONS_WEBHOOK_SECRET=<random-hex>     # HMAC for notifications INSERT �
 SUPABASE_SERVICE_ROLE_KEY=<service-role>      # required by dispatch-push (service_role RPC only)
 ```
 
-**Push webhook (ops):** Supabase Dashboard → Database → Webhooks → table `notifications` on INSERT → `POST https://evenzi.vercel.app/api/notifications/dispatch-push` (local: tunnel to `:3000`). Header `x-evenzi-webhook-signature` = hex HMAC-SHA256(raw body, `NOTIFICATIONS_WEBHOOK_SECRET`).
+**Push webhook (ops):** Live path is Postgres trigger `notifications-dispatch-push` → `public.dispatch_notification_push()` → `POST https://evenzi.vercel.app/api/notifications/dispatch-push` with `x-evenzi-webhook-signature` = hex HMAC-SHA256(raw JSON body, `NOTIFICATIONS_WEBHOOK_SECRET`). Route also accepts the raw secret as that header (for static-header callers). After cutover, point URL at `app.evenzii.com`.
 
 ---
 

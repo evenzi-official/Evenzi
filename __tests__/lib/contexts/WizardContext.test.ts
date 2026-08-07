@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { wizardReducer, initialWizardState } from '@/lib/contexts/WizardContext'
-import type { WizardState } from '@/lib/contexts/WizardContext'
+import type { WizardState, WizardSubEvent } from '@/lib/contexts/WizardContext'
 import type { EventType, SelectedSubEvent } from '@/lib/types/events'
 
 // --- Fixtures ---
@@ -33,6 +33,23 @@ const mockEventTypeWithoutSubEvents: EventType = {
   displayOrder: 2,
 }
 
+function stubWizardSub(partial: Partial<WizardSubEvent> & Pick<WizardSubEvent, 'subEventTypeId' | 'name'>): WizardSubEvent {
+  return {
+    clientId: partial.clientId ?? 'se_test_1',
+    customName: partial.customName ?? null,
+    iconName: partial.iconName ?? null,
+    eventDate: partial.eventDate ?? null,
+    startTime: partial.startTime ?? null,
+    endTime: partial.endTime ?? null,
+    venue: partial.venue ?? null,
+    venueAddress: partial.venueAddress ?? null,
+    customDesc: partial.customDesc ?? null,
+    ...partial,
+    subEventTypeId: partial.subEventTypeId,
+    name: partial.name,
+  }
+}
+
 // --- Tests ---
 
 describe('wizardReducer', () => {
@@ -43,7 +60,6 @@ describe('wizardReducer', () => {
     })
     expect(next.eventType).toEqual(mockEventTypeWithSubEvents)
     expect(next.totalSteps).toBe(4)
-    // should reset to initial step
     expect(next.currentStep).toBe(1)
   })
 
@@ -58,6 +74,7 @@ describe('wizardReducer', () => {
 
   it('SET_BASIC_DETAILS updates basicDetails', () => {
     const details: WizardState['basicDetails'] = {
+      eventTitle: null,
       primaryDate: '2027-02-14',
       primaryVenue: 'Grand Hall',
       guestCapacity: 200,
@@ -77,19 +94,22 @@ describe('wizardReducer', () => {
       payload: { subEventTypeId: 'sub-1', name: 'Mehendi', iconName: 'leaf' },
     })
     expect(next.selectedSubEvents).toHaveLength(1)
-    expect(next.selectedSubEvents[0]).toEqual({
-      subEventTypeId: 'sub-1',
-      customName: null,
-      name: 'Mehendi',
-      iconName: 'leaf',
-    })
+    expect(next.selectedSubEvents[0]).toEqual(
+      expect.objectContaining({
+        subEventTypeId: 'sub-1',
+        customName: null,
+        name: 'Mehendi',
+        iconName: 'leaf',
+        clientId: expect.any(String),
+      }),
+    )
   })
 
   it('TOGGLE_SUB_EVENT off — removes sub-event if already selected', () => {
     const stateWithSub: WizardState = {
       ...initialWizardState,
       selectedSubEvents: [
-        { subEventTypeId: 'sub-1', customName: null, name: 'Mehendi', iconName: 'leaf' },
+        stubWizardSub({ subEventTypeId: 'sub-1', customName: null, name: 'Mehendi', iconName: 'leaf' }),
       ],
     }
     const next = wizardReducer(stateWithSub, {
@@ -105,25 +125,38 @@ describe('wizardReducer', () => {
       payload: { name: 'Cocktail Night' },
     })
     expect(next.selectedSubEvents).toHaveLength(1)
-    expect(next.selectedSubEvents[0]).toEqual({
-      subEventTypeId: null,
-      customName: 'Cocktail Night',
-      name: 'Cocktail Night',
-      iconName: null,
-    })
+    expect(next.selectedSubEvents[0]).toEqual(
+      expect.objectContaining({
+        subEventTypeId: null,
+        customName: 'Cocktail Night',
+        name: 'Cocktail Night',
+        iconName: null,
+        clientId: expect.any(String),
+      }),
+    )
   })
 
-  it('REMOVE_CUSTOM_SUB_EVENT removes sub-event at given index', () => {
+  it('REMOVE_CUSTOM_SUB_EVENT removes sub-event by clientId', () => {
+    const keep = stubWizardSub({
+      clientId: 'se_keep',
+      subEventTypeId: null,
+      customName: 'Pool Party',
+      name: 'Pool Party',
+    })
+    const drop = stubWizardSub({
+      clientId: 'se_drop',
+      subEventTypeId: 'sub-1',
+      customName: null,
+      name: 'Mehendi',
+      iconName: 'leaf',
+    })
     const stateWithMultiple: WizardState = {
       ...initialWizardState,
-      selectedSubEvents: [
-        { subEventTypeId: 'sub-1', customName: null, name: 'Mehendi', iconName: 'leaf' },
-        { subEventTypeId: null, customName: 'Pool Party', name: 'Pool Party', iconName: null },
-      ],
+      selectedSubEvents: [drop, keep],
     }
     const next = wizardReducer(stateWithMultiple, {
       type: 'REMOVE_CUSTOM_SUB_EVENT',
-      payload: { index: 0 },
+      payload: { clientId: 'se_drop' },
     })
     expect(next.selectedSubEvents).toHaveLength(1)
     expect(next.selectedSubEvents[0].name).toBe('Pool Party')
@@ -138,12 +171,18 @@ describe('wizardReducer', () => {
       type: 'SET_DEFAULT_SUB_EVENTS',
       payload: defaults,
     })
-    expect(next.selectedSubEvents).toEqual(defaults)
+    expect(next.selectedSubEvents).toHaveLength(2)
+    expect(next.selectedSubEvents[0]).toEqual(
+      expect.objectContaining({ subEventTypeId: 'sub-1', name: 'Sangam', clientId: expect.any(String) }),
+    )
+    expect(next.selectedSubEvents[1]).toEqual(
+      expect.objectContaining({ subEventTypeId: 'sub-2', name: 'Pheras', clientId: expect.any(String) }),
+    )
   })
 
   it('SET_DEFAULT_SUB_EVENTS does NOT overwrite existing user selections', () => {
-    const existingSelection: SelectedSubEvent[] = [
-      { subEventTypeId: 'sub-1', customName: null, name: 'Mehendi', iconName: 'leaf' },
+    const existingSelection: WizardSubEvent[] = [
+      stubWizardSub({ subEventTypeId: 'sub-1', customName: null, name: 'Mehendi', iconName: 'leaf' }),
     ]
     const stateWithSelection: WizardState = {
       ...initialWizardState,
@@ -172,6 +211,7 @@ describe('wizardReducer', () => {
       totalSteps: 4,
       eventType: mockEventTypeWithSubEvents,
       basicDetails: {
+        eventTitle: null,
         primaryDate: '2027-02-14',
         primaryVenue: 'Grand Hall',
         guestCapacity: 200,
@@ -179,7 +219,7 @@ describe('wizardReducer', () => {
         coverImageUrl: null,
       },
       selectedSubEvents: [
-        { subEventTypeId: 'sub-1', customName: null, name: 'Mehendi', iconName: 'leaf' },
+        stubWizardSub({ subEventTypeId: 'sub-1', customName: null, name: 'Mehendi', iconName: 'leaf' }),
       ],
     }
     const next = wizardReducer(modified, { type: 'RESET' })

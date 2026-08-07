@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { getClientIp } from '@/lib/http/clientIp'
 import { COOKIE_NAME, COOKIE_MAX_AGE, PW_COOKIE_NAME, mapRpcError } from '../_lib'
 
 const lookupSchema = z.object({
@@ -31,8 +32,9 @@ export async function POST(
 
     const { phone, name } = parsed.data
 
-    const forwardedFor = request.headers.get('x-forwarded-for')
-    const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : 'unknown'
+    // Trusted IP only — never leftmost client-supplied XFF (P1-14).
+    // RPC hashes request.headers x-forwarded-for first hop; we pass a single sanitized value.
+    const clientIp = getClientIp(request)
 
     const supabase = await createClient()
 

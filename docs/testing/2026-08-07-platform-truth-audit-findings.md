@@ -45,6 +45,8 @@
 |----|-----|
 | P1-5 | Sub-events PATCH: session + `requireEventWrite(...,'website')` + RLS `collab_update_sub_events_website` |
 | P1-7 | `submit_rsvp` enforces `rsvp_enabled` + `max_plus_ones_per_invite` (+ mapRpcError) |
+| P1-14 | Trusted client IP helper — no spoofable leftmost XFF for rate-limit buckets |
+| P1-11 | Vitest harness — mock `@/lib/supabase/server` + setup env + lib assertion drift; `npm run test:run` **201/201 green** |
 
 ### Docs
 | ID | Fix |
@@ -59,12 +61,33 @@ Migrations: `security_batch_a_01_revoke_anon_pii_rpcs`, `security_batch_bcd_01_s
 
 | ID | Notes |
 |----|-------|
-| P1-11 | Vitest mock/env harness (52 fails) — test infra, not product |
-| P1-12 | No GET `/admins` JSON list |
-| P1-14 | Spoofable `x-forwarded-for` rate-limit key |
 | P2-* | Auth ToS `#`, stubs, template Q&A, Admin/Chatbot not started |
-| Design Q&A Q1–Q5 | Template catalog, sapphire refs, journey product depth, invitations persist, billing UX |
-| Prod-risk PR-1–PR-6 | Test on evenzi.vercel.app / main later |
+| Design Q&A Q1–Q5 | **Locked 2026-08-07** — see section below |
+| Prod-risk PR-1–PR-6 | **PR-1 FIXED live** (HMAC trigger; dispatch log + 200). See `prod-risk.md`. PR-2 intentional domains. PR-5 PASS. PR-3 partial. Code: `dispatch-push` shared-secret accept + vitest (uncommitted). |
+| Repo cleanup A/B/C | Deferred to a separate session |
+
+---
+
+## Design Q&A — locked (founder 2026-08-07)
+
+| # | Topic | Decision |
+|---|-------|----------|
+| **Q1** | Website **theme** catalog (5 designs vs 1 React template) | **C — Hybrid:** keep **1 live** (`cinematic-scroll`); other theme tiles stay honest “coming soon” (no fake selectable cards). *Not the same as Media & Memories — see note below.* |
+| **Q2** | Guest-site sapphire / midnight-elegant HTML | **A — Design refs / workshop only** until templated in React |
+| **Q3** | Journey page depth | **A — Read-only timeline** of sub-events for V0 (current wiring is enough) |
+| **Q4** | Invitations FE persist | **Next build** — planning in progress; track in Digital Invitations scope (not V0 blocker) |
+| **Q5** | Billing Upgrade CTA | **B — Hide** Upgrade until payment gateway is planned/wired |
+
+**Q1 clarification (Media vs website themes):** **Media & Memories is fully wired** (R2 upload, albums, signed URLs, meter). Q1 is only the **Digital Presence → Design** *website theme* picker (`WebsiteDesignClient` — extra themes show “Soon”). Separate stub: **Website → Photos** tab still says “use Media for now” for *which photos appear on the guest site* — that bridge is not built yet; photos live in Media either way.
+
+**Follow-up builds (not this audit branch unless asked):** Q4 invitations persist · Q5 hide billing Upgrade · optional Website Photos → Media bridge copy/UX
+
+---
+
+| ID | Notes |
+|----|-------|
+| P1-12 | No `GET /api/events/[id]/admins` JSON list — SSR Admins page + invite/remove APIs cover product UI; E2E uses service-role workaround. Revisit if SPA refresh / mobile client needs JSON list. |
+| ENH-icons | **Favicon + Apple/Android home-screen meta icons** — so “Add to Home Screen” / bookmarks show Evenzi branding (not browser default). Take after current session wrap-up. |
 
 ---
 
@@ -74,7 +97,8 @@ Migrations: `security_batch_a_01_revoke_anon_pii_rpcs`, `security_batch_bcd_01_s
 |------|--------|
 | W0–W6 audit | done (W3 initially thin API smoke — superseded) |
 | **W3 full UI click-through** | **PASS** — `w3-full-clickthrough.spec.ts` (host + 4 roles Accept UI + decline + forbidden writes) |
+| **W3 headed Chrome deep click** | **PASS** — `w3-chrome-deep-click.spec.ts` (host 45 steps + collab Accept/Decline; see `w3-chrome-deep-click.md`) |
 | Stage 2 Batches A–D | **done** (code + live SQL) |
-| Prod-risk pass | pending founder schedule |
-| Commits | pending (this branch) |
-| Fixture cleanup | pending founder go-ahead |
+| Prod-risk pass | **done** — PR-1 live-fixed (HMAC trigger verified 200 + dispatch log) |
+| Commits | merged to Dev-Vibe → Dev-Vibe-Testing (end of session) |
+| Fixture cleanup | **next session** with repo cleanup A/B/C |

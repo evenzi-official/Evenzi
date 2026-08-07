@@ -52,7 +52,7 @@ describe('auth callback route', () => {
     }))
     getUserProfileMock.mockResolvedValue({
       id: 'user-1',
-      role: 'host',
+      role_slug: 'host',
       display_name: 'Test User',
       avatar_url: null,
       onboarding_completed: true,

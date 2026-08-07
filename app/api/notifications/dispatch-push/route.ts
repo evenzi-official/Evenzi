@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'crypto'
 import { createServiceClient } from '@/lib/supabase/service'
 import webpush, { WebPushError } from 'web-push'
 import { NextResponse } from 'next/server'
+import { getClientIp } from '@/lib/http/clientIp'
 
 const RATE_LIMIT_WINDOW_MS = 60_000
 const RATE_LIMIT_MAX = 60
@@ -20,15 +21,6 @@ interface NotificationRecord {
   link_path: string | null
 }
 
-function clientIp(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for')
-  if (forwarded) {
-    const first = forwarded.split(',')[0]?.trim()
-    if (first) return first
-  }
-  return request.headers.get('x-real-ip') ?? 'unknown'
-}
-
 function isRateLimited(ip: string): boolean {
   const now = Date.now()
   const bucket = rateBuckets.get(ip) ?? { timestamps: [] }
@@ -42,14 +34,29 @@ function isRateLimited(ip: string): boolean {
   return false
 }
 
+/**
+ * Auth for Supabase `supabase_functions.http_request` triggers and manual callers.
+ *
+ * - Body HMAC (hex): preferred for scripted callers — `HMAC-SHA256(rawBody, secret)`.
+ * - Shared secret: Supabase DB webhooks can only set *static* headers, so ops often
+ *   put `NOTIFICATIONS_WEBHOOK_SECRET` itself in `x-evenzi-webhook-signature`.
+ *   Accept that equality (timing-safe) so the existing trigger works.
+ */
 function verifySignature(rawBody: string, signatureHeader: string | null, secret: string): boolean {
   if (!signatureHeader) return false
-  const expected = createHmac('sha256', secret).update(rawBody).digest('hex')
   try {
+    const provided = Buffer.from(signatureHeader, 'utf8')
+    const asSharedSecret = Buffer.from(secret, 'utf8')
+    if (
+      provided.length === asSharedSecret.length &&
+      timingSafeEqual(provided, asSharedSecret)
+    ) {
+      return true
+    }
+    const expected = createHmac('sha256', secret).update(rawBody).digest('hex')
     const a = Buffer.from(expected, 'utf8')
-    const b = Buffer.from(signatureHeader, 'utf8')
-    if (a.length !== b.length) return false
-    return timingSafeEqual(a, b)
+    if (a.length !== provided.length) return false
+    return timingSafeEqual(a, provided)
   } catch {
     return false
   }
@@ -90,7 +97,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       return NextResponse.json({ error: 'Push dispatch not configured' }, { status: 503 })
     }
 
-    if (isRateLimited(clientIp(request))) {
+    if (isRateLimited(getClientIp(request))) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 

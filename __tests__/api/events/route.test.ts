@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // --- Hoisted mocks ---
 
-const { createServerClientMock } = vi.hoisted(() => ({
-  createServerClientMock: vi.fn(),
+const { createClientMock } = vi.hoisted(() => ({
+  createClientMock: vi.fn(),
 }))
 
-vi.mock('@supabase/ssr', () => ({
-  createServerClient: createServerClientMock,
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: createClientMock,
 }))
 
 vi.mock('next/headers', () => ({
@@ -28,13 +28,16 @@ function makeQueryChain(overrides: Record<string, unknown> = {}) {
   const chain: Record<string, unknown> = {
     select: vi.fn(),
     eq: vi.fn(),
+    in: vi.fn(),
+    is: vi.fn(),
     order: vi.fn(),
+    update: vi.fn(),
     single: vi.fn().mockResolvedValue({ data: null, error: null }),
   }
   // Apply overrides after defaults so caller-supplied mocks aren't stomped
   Object.assign(chain, overrides)
   // Only set chain-return on methods NOT overridden (so resolved values are preserved)
-  const chainable = ['select', 'eq', 'order'] as const
+  const chainable = ['select', 'eq', 'in', 'is', 'order', 'update'] as const
   for (const method of chainable) {
     if (!(method in overrides)) {
       ;(chain[method] as ReturnType<typeof vi.fn>).mockReturnValue(chain)
@@ -45,17 +48,20 @@ function makeQueryChain(overrides: Record<string, unknown> = {}) {
 
 function makeSupabaseMock() {
   const queryChain = makeQueryChain()
+  const schemaFrom = vi.fn().mockReturnValue(queryChain)
   return {
     auth: {
       getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null }),
     },
     from: vi.fn().mockReturnValue(queryChain),
+    schema: vi.fn().mockReturnValue({ from: schemaFrom }),
     rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
+    _schemaFrom: schemaFrom,
   }
 }
 
 function setupMock(supabaseMock: ReturnType<typeof makeSupabaseMock>) {
-  createServerClientMock.mockImplementation(() => supabaseMock)
+  createClientMock.mockResolvedValue(supabaseMock)
 }
 
 // --- POST /api/events ---
@@ -121,7 +127,7 @@ describe('POST /api/events', () => {
     const chain = makeQueryChain({
       single: vi.fn().mockResolvedValue({ data: null, error: { message: 'Not found' } }),
     })
-    supabase.from = vi.fn().mockReturnValue(chain)
+    supabase.schema = vi.fn().mockReturnValue({ from: vi.fn().mockReturnValue(chain) })
     setupMock(supabase)
 
     const request = new Request('http://localhost/api/events', {
@@ -149,7 +155,7 @@ describe('POST /api/events', () => {
         error: null,
       }),
     })
-    supabase.from = vi.fn().mockReturnValue(chain)
+    supabase.schema = vi.fn().mockReturnValue({ from: vi.fn().mockReturnValue(chain) })
     setupMock(supabase)
 
     const request = new Request('http://localhost/api/events', {
@@ -171,13 +177,25 @@ describe('POST /api/events', () => {
 
   it('returns 201 with event details on success', async () => {
     const supabase = makeSupabaseMock()
-    const chain = makeQueryChain({
+    const typeChain = makeQueryChain({
       single: vi.fn().mockResolvedValue({
         data: { id: VALID_UUID, name: 'Wedding', slug: 'wedding', enabled: true },
         error: null,
       }),
     })
-    supabase.from = vi.fn().mockReturnValue(chain)
+    const subTypeChain = makeQueryChain({
+      in: vi.fn().mockResolvedValue({
+        data: [{ id: TYPE_UUID, display_order: 1 }],
+        error: null,
+      }),
+    })
+    supabase.schema = vi.fn().mockReturnValue({
+      from: vi.fn().mockImplementation((table: string) => {
+        if (table === 'event_types') return typeChain
+        if (table === 'event_sub_types') return subTypeChain
+        return makeQueryChain()
+      }),
+    })
     supabase.rpc = vi.fn().mockResolvedValue({
       data: {
         event_id: 'event-abc',
@@ -238,6 +256,8 @@ describe('GET /api/events', () => {
     const chain = makeQueryChain({
       order: vi.fn().mockResolvedValue({ data: [], error: null }),
     })
+    // .is().order() — is must return chain so order is reachable
+    chain.is = vi.fn().mockReturnValue(chain)
     supabase.from = vi.fn().mockReturnValue(chain)
     setupMock(supabase)
 
@@ -250,26 +270,40 @@ describe('GET /api/events', () => {
 
   it('returns mapped events list', async () => {
     const supabase = makeSupabaseMock()
-    const chain = makeQueryChain({
+    const eventsChain = makeQueryChain({
       order: vi.fn().mockResolvedValue({
         data: [
           {
             id: 'event-1',
             name: "Aarav & Ishani's Wedding",
+            event_type_id: VALID_UUID,
             primary_date: '2026-12-14',
             primary_venue: 'Udaipur',
             guest_capacity: 350,
             cover_image_url: null,
             status: 'draft',
             created_at: '2026-04-09T00:00:00Z',
-            event_types: { name: 'Wedding', slug: 'wedding', icon_name: 'rings' },
             event_sub_events: [{ count: 3 }],
           },
         ],
         error: null,
       }),
     })
-    supabase.from = vi.fn().mockReturnValue(chain)
+    eventsChain.is = vi.fn().mockReturnValue(eventsChain)
+
+    const typesChain = makeQueryChain({
+      in: vi.fn().mockResolvedValue({
+        data: [
+          { id: VALID_UUID, name: 'Wedding', slug: 'wedding', icon_name: 'rings' },
+        ],
+        error: null,
+      }),
+    })
+
+    supabase.from = vi.fn().mockReturnValue(eventsChain)
+    supabase.schema = vi.fn().mockReturnValue({
+      from: vi.fn().mockReturnValue(typesChain),
+    })
     setupMock(supabase)
 
     const response = await GET()

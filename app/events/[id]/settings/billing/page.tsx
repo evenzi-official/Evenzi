@@ -60,6 +60,22 @@ export default async function BillingSettingsPage({ params }: { params: Promise<
   const plans = (plansRaw ?? []) as PlanRow[]
   const currentPlan = plans.find(p => p.id === ev.plan_id) ?? plans.find(p => p.slug === 'free') ?? plans[0]
 
+  if (!currentPlan) {
+    return (
+      <main className="page-band reveal pt-6 md:pt-8 pb-24">
+        <div className="es-content">
+          <header className="es-content-head">
+            <div>
+              <h1 className="es-content-title">Plan &amp; billing</h1>
+              <p className="es-content-lead">Plan catalog is unavailable right now. Try again in a moment.</p>
+            </div>
+          </header>
+        </div>
+        <PageFooter />
+      </main>
+    )
+  }
+
   return (
     <main className="page-band reveal pt-6 md:pt-8 pb-24">
       <div className="es-content">

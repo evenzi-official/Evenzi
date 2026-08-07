@@ -4,45 +4,53 @@
 
 ---
 
-## ▶ START HERE NEXT — Verify collab invite on testing + optional Claude artifact redeploy (2026-08-07)
+## ▶ START HERE NEXT — ENH-icons + repo cleanup A/B/C (2026-08-07)
 
-**What happened:** In-app collaborator invite Accept/Decline shipped on Collaborations + bell (`7091482e`), SQL `collab_invite_01–03` live, design-drift fixed (single filter row + `.pending-invite-card`). Event Settings Cleanup tip (Usage tab, Portal overlays, permissions lineage) was on the same branch and merged with it. Local V0 readiness HTML updated at [`docs/ops/v0-readiness.html`](ops/v0-readiness.html). Claude.ai artifact URL **not** republished (Artifact tool is web-only).
+**Parked from platform-truth session (do these next):**
 
-**Authoritative docs:**
-- Plan: [`docs/superpowers/plans/2026-08-07-collab-invite-in-app.md`](superpowers/plans/2026-08-07-collab-invite-in-app.md)
-- Session report: [`docs/session-reports/2026-08-07-collab-invite-session-report.md`](session-reports/2026-08-07-collab-invite-session-report.md)
-- Resend: `.cursor/rules/resend-deferred.mdc` — do not prompt for keys until founder asks
+1. **ENH-icons** — Favicon + Apple touch / Android home-screen meta so Add to Home Screen shows Evenzi branding  
+2. **Repo cleanup A/B/C** — separate cleanup pass (as deferred earlier)  
+3. **Fixture cleanup** (with cleanup pass) — delete `e2e-truth-audit` (`f990d6d7-…`) + Account B `e2e.collab.b@evenzi.test` only when ready  
 
-### Paste this to start — smoke-test collab invite
+**Also queued (not blocking cleanup):**
+
+- **Q4** Digital Invitations **persist** — planning ongoing (separate feature build)  
+- **Q5** Hide Billing Upgrade CTA until payment gateway planned (honesty “Coming soon” may already be on branch — final = hide)  
+- Optional: Website Photos ↔ Media bridge UX  
+- Optional: PR-3 logged-in R2 smoke on `evenzi.vercel.app`  
+- Support Chatbot — continues on `feature/support-chatbot-plan` (main folder); do not mix into cleanup worktree  
+
+**Authoritative docs from last session:**
+
+- Findings: [`docs/testing/2026-08-07-platform-truth-audit-findings.md`](testing/2026-08-07-platform-truth-audit-findings.md)  
+- Prod-risk: [`docs/testing/audit-2026-08-07/prod-risk.md`](testing/audit-2026-08-07/prod-risk.md)  
+- V0 readiness brief (for Claude artifact): [`docs/ops/2026-08-07-v0-readiness-update-brief.md`](ops/2026-08-07-v0-readiness-update-brief.md)  
+- Local readiness HTML: [`docs/ops/v0-readiness.html`](ops/v0-readiness.html)  
+
+**Domains (locked):** UAT = `evenzi.vercel.app` → later `app.evenzii.com`; marketing stays `evenzii.com`.
+
+### Paste this to start
 
 ```
-Smoke-test collab invite on Dev-Vibe-Testing / evenzi.vercel.app after merge:
-(1) Owner invites a confirmed-email user from Event Settings → Admins
-(2) Invitee sees pending card on Collaborations + Accept/Decline in bell
-(3) Accept stays on Collaborations; Decline removes invite
-(4) Optional: paste Claude.ai redeploy prompt for V0 artifact 9e517318…
-Canonical HTML: docs/ops/v0-readiness.html
+Next session parked items:
+(1) ENH-icons — favicon + Apple/Android home-screen icons
+(2) Repo cleanup A/B/C
+(3) Fixture cleanup e2e-truth-audit + Account B when we say go
+Keep chatbot work on feature/support-chatbot-plan isolated.
+Ledger: docs/testing/2026-08-07-platform-truth-audit-findings.md
 ```
-
-### Optional debt
-
-- Event Settings Cleanup Task 16 per-route 4-case test matrix (if still open)
-- Manual B7 push toast + webhook HMAC confirm (carried from 08-06)
-- Digital Invitations persistence / Admin / Chatbot still not started
 
 ---
 
-## ▶ PAST — Event Settings Cleanup + Push Notifications (2026-08-06)
+## ▶ PAST — Platform truth audit + Stage 2 fixes + prod-risk PR-1 (2026-08-07)
 
-Merged via `feature/collab-invite-in-app` tip (included cleanup Parts C–E lineage + Usage + Portal). Prior handoffs:
-- [`docs/superpowers/plans/2026-08-06-event-settings-cleanup.md`](superpowers/plans/2026-08-06-event-settings-cleanup.md)
-- Push: shipped `0a25eed` / testing `861b1e25` — see prior session reports
+Merged via `feature/platform-truth-audit` → `Dev-Vibe` → `Dev-Vibe-Testing`.  
+Session report: [`docs/session-reports/2026-08-07-platform-truth-audit-session-report.md`](session-reports/2026-08-07-platform-truth-audit-session-report.md)
+
+Highlights: P0 security (invite PII, lookup password gate), honesty UI, media video play, Vitest 201 green, push webhook HMAC fixed live, Design Q&A Q1–Q5 locked, W3 full UI + Chrome deep click PASS.
 
 ---
 
-## ▶ PAST — Manual bug-fix pass (V0 readiness audit → live testing); 6 bugs fixed (2026-08-03)
+## ▶ PAST — Collab invite + Event Settings cleanup + Push (2026-08-06/07)
 
-Session report: [`docs/session-reports/2026-08-03-session-report.md`](session-reports/2026-08-03-session-report.md)
-
-Claude artifact (historical): https://claude.ai/code/artifact/9e517318-3fcc-4e8c-bbf3-f57d08f8fbf0  
-Local canonical: [`docs/ops/v0-readiness.html`](ops/v0-readiness.html)
+See prior reports under `docs/session-reports/` and plans under `docs/superpowers/plans/`.
