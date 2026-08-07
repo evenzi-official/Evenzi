@@ -1,0 +1,126 @@
+{
+  "eventId": "f990d6d7-6fd1-49db-82bf-b848974a85a2",
+  "accountBEmail": "e2e.collab.b@evenzi.test",
+  "roles": {
+    "co-host": {
+      "role": "co-host",
+      "invite": {
+        "status": 201,
+        "ok": true,
+        "body": {
+          "success": true,
+          "id": "ee1d3b3c-a663-4961-97a7-e9e914686c93"
+        },
+        "collaboratorId": "ee1d3b3c-a663-4961-97a7-e9e914686c93"
+      },
+      "pendingVisible": true,
+      "accept": {
+        "status": 200,
+        "body": {
+          "success": true,
+          "eventId": "f990d6d7-6fd1-49db-82bf-b848974a85a2"
+        }
+      },
+      "probes": {
+        "media/upload-url": 400,
+        "guests GET": 405,
+        "planning": 405,
+        "website-settings GET": 405,
+        "admins GET": 405
+      },
+      "capabilityExpectations": "media/guests/planning/website/admins allowed (2xx)"
+    },
+    "planner": {
+      "role": "planner",
+      "invite": {
+        "status": 201,
+        "ok": true,
+        "body": {
+          "success": true,
+          "id": "027eee93-7608-45d1-be0a-1118d5dd455f"
+        },
+        "collaboratorId": "027eee93-7608-45d1-be0a-1118d5dd455f"
+      },
+      "pendingVisible": true,
+      "accept": {
+        "status": 200,
+        "body": {
+          "success": true,
+          "eventId": "f990d6d7-6fd1-49db-82bf-b848974a85a2"
+        }
+      },
+      "probes": {
+        "media/upload-url": 404,
+        "guests GET": 405,
+        "planning": 405,
+        "website-settings GET": 405,
+        "admins GET": 405
+      },
+      "capabilityExpectations": "guests+planning 2xx; media/website/admins forbidden"
+    },
+    "photographer": {
+      "role": "photographer",
+      "invite": {
+        "status": 201,
+        "ok": true,
+        "body": {
+          "success": true,
+          "id": "6245ecc3-6190-4cbf-b986-778cdce4b108"
+        },
+        "collaboratorId": "6245ecc3-6190-4cbf-b986-778cdce4b108"
+      },
+      "pendingVisible": true,
+      "accept": {
+        "status": 200,
+        "body": {
+          "success": true,
+          "eventId": "f990d6d7-6fd1-49db-82bf-b848974a85a2"
+        }
+      },
+      "probes": {
+        "media/upload-url": 400,
+        "guests GET": 405,
+        "planning": 405,
+        "website-settings GET": 405,
+        "admins GET": 405
+      },
+      "capabilityExpectations": "media 2xx; guests/planning/website/admins forbidden"
+    },
+    "viewer": {
+      "role": "viewer",
+      "invite": {
+        "status": 201,
+        "ok": true,
+        "body": {
+          "success": true,
+          "id": "8f6da207-a7eb-4831-8635-bc0a79133c70"
+        },
+        "collaboratorId": "8f6da207-a7eb-4831-8635-bc0a79133c70"
+      },
+      "pendingVisible": true,
+      "accept": {
+        "status": 200,
+        "body": {
+          "success": true,
+          "eventId": "f990d6d7-6fd1-49db-82bf-b848974a85a2"
+        }
+      },
+      "probes": {
+        "media/upload-url": 404,
+        "guests GET": 405,
+        "planning": 405,
+        "website-settings GET": 405,
+        "admins GET": 405
+      },
+      "capabilityExpectations": "reads may 2xx; writes forbidden"
+    }
+  },
+  "hostSmoke": {},
+  "decline": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "eventId": "f990d6d7-6fd1-49db-82bf-b848974a85a2"
+    }
+  }
+}

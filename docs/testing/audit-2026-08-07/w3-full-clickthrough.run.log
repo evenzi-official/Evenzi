@@ -1,0 +1,15 @@
+
+Running 3 tests using 1 worker
+
+[1A[2K(node:5162) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:5162) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/3] tests/platform-truth/w3-full-clickthrough.spec.ts:144:5 › W3 host — click through hub + key surfaces
+[1A[2K[2/3] tests/platform-truth/w3-full-clickthrough.spec.ts:247:5 › W3 collab — UI invite + Accept + forbidden writes per role
+[1A[2K[3/3] tests/platform-truth/w3-full-clickthrough.spec.ts:311:5 › W3 decline — Collaborations UI Decline + confirm
+[1A[2K  3 passed (2.7m)

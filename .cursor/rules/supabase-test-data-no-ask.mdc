@@ -1,0 +1,23 @@
+---
+description: Supabase test-data ops — no permission prompts
+alwaysApply: true
+---
+
+# Supabase — test data needs no ask
+
+Founder standing rule (2026-08-07): **Do not prompt for approval** for Supabase SQL / Admin API / MCP `execute_sql` / row deletes when the change is **only test / e2e fixture data**.
+
+## In scope (proceed without asking)
+
+- Users/emails/phones clearly marked `e2e*` / `e2e.*` / Account B style fixtures from platform-truth W0
+- Events named `e2e-*` and their child rows (guests, collabs, media, etc.)
+- Cleaning/resetting those fixtures between tests
+- Seeding disposable data under the same naming convention
+
+## Out of scope (still ask / use Smart Mode approval)
+
+- Schema DDL, RLS policies, GRANT/REVOKE, function replacements affecting **all** tenants
+- Mutations to real non-`e2e` events or production host accounts
+- Anything that changes security posture for the live shared project beyond test rows
+
+If unsure whether a change is test-only, ask once.

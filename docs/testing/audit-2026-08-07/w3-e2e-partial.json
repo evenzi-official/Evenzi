@@ -1,0 +1,57 @@
+{
+  "eventId": "f990d6d7-6fd1-49db-82bf-b848974a85a2",
+  "accountBEmail": "e2e.collab.b@evenzi.test",
+  "roles": {},
+  "hostSmoke": {
+    "/home": {
+      "status": 200,
+      "onAuth": false,
+      "finalUrl": "http://127.0.0.1:3000/home"
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2": {
+      "status": 200,
+      "onAuth": false,
+      "finalUrl": "http://127.0.0.1:3000/events/f990d6d7-6fd1-49db-82bf-b848974a85a2"
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/guests": {
+      "status": 200,
+      "onAuth": false,
+      "finalUrl": "http://127.0.0.1:3000/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/guests"
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/planning": {
+      "status": 200,
+      "onAuth": false,
+      "finalUrl": "http://127.0.0.1:3000/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/planning"
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/media": {
+      "status": 200,
+      "onAuth": false,
+      "finalUrl": "http://127.0.0.1:3000/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/media"
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/website": {
+      "status": 200,
+      "onAuth": false,
+      "finalUrl": "http://127.0.0.1:3000/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/website"
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/settings": {
+      "status": 200,
+      "onAuth": false,
+      "finalUrl": "http://127.0.0.1:3000/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/settings"
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/settings/admins": {
+      "status": 200,
+      "onAuth": false,
+      "finalUrl": "http://127.0.0.1:3000/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/settings/admins"
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/invitations": {
+      "status": 200,
+      "onAuth": false,
+      "finalUrl": "http://127.0.0.1:3000/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/invitations"
+    },
+    "/settings": {
+      "status": 200,
+      "onAuth": false,
+      "finalUrl": "http://127.0.0.1:3000/settings"
+    }
+  }
+}

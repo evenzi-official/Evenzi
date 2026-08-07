@@ -1474,9 +1474,9 @@ grant  execute on function public.event_task_counts(uuid) to authenticated;
 
 Because Supabase lets the app talk to the database directly over the internet, we don't trust app code to keep people out — **the database itself enforces who can see/change each row.** Those rules are RLS.
 
-**Status: COLLABORATOR LAYER PARTIAL (D56).** RLS is ON for every table. Baseline owner-only remains on Planning/Guests/Media/Website-content children until Task 16. The first collaborator conversion (`collab_access_01`–`05`) landed for `events`, `event_general_settings`, `event_guest_settings`, `event_website_settings`, `event_collaborators` via `can_read_event()` / `can_write_event()` (not the earlier single-function `can_access_event()` draft — see D56). App-layer twin: `lib/auth/eventAccess.ts`.
+**Status: COLLABORATOR LAYER LIVE (D56 + D57 + 2026-08-07 Batch D).** RLS is ON for every table. Collaborator read/write via `can_read_event()` / `can_write_event()` is live for Settings sidecars, Planning, Guests, Media (albums/media/links), Website-content, and `event_sub_events` (SELECT for readers; UPDATE for website writers — `collab_update_sub_events_website`, 2026-08-07). App-layer twin: `lib/auth/eventAccess.ts`.
 
-**Live access (Settings domain + events, D56):**
+**Live access (Settings domain + events + modules):**
 
 | Table | Who can read | Who can change |
 |---|---|---|
@@ -1486,7 +1486,8 @@ Because Supabase lets the app talk to the database directly over the internet, w
 | `public.events` | owner + active collaborators (`can_read_event(id, null)`) | owner ALL; co-host UPDATE via `can_write_event(id,'general')` (guard blocks ownership transfer / soft-delete); Delete event owner-only |
 | `public.event_general_settings` / `event_guest_settings` / `event_website_settings` | owner + role-scoped collab SELECT | owner ALL; collab write via matching capability (`general` / `guests` / `website`) |
 | `public.event_collaborators` | owner + self-select (`user_id = auth.uid()`) | owner ALL; co-host INSERT/UPDATE/DELETE via split `collab_*_admins` policies (`can_write_event(...,'admins')`) — no unrestricted FOR ALL |
-| `public.event_sub_events` / Planning / Guests / Media / Website-content | still owner-only (Task 16) | still owner-only (Task 16) |
+| `public.event_sub_events` | owner + collab SELECT (`can_read_event`) | owner ALL; collab UPDATE when `can_write_event(...,'website')` (show_on_website etc.) |
+| Planning / Guests / Media albums+media / Website-content | owner + role-scoped collab (`collab_access_06`–`09`) | owner ALL; collab write via matching capability (`planning` / `guests` / `media` / `website`) |
 Notes: policies target `authenticated`; `auth.uid()` wrapped as `(select auth.uid())`; capability matrix must stay in sync between SQL predicates and `CAPABILITY_MATRIX` in `lib/auth/eventAccess.ts`. Owner-only forever: Delete event, Plan & Billing.
 
 **Deliberately deferred — still owner-only after Task 16 (`collab_access_06`–`09`):**
@@ -1501,7 +1502,7 @@ Notes: policies target `authenticated`; `auth.uid()` wrapped as `(select auth.ui
 
 ### Planning module RLS  `[NOW]`
 
-RLS was **enabled in the table-creation migration** (`planning_03`); the policies were added in `planning_05`. All 4 new `public.*` tables (`event_task_assignees`, `event_budgets`, `event_expense_types`, `event_expenses`) get **one `FOR ALL` owner-only policy** using the same inlined predicate the live CORE child tables use — **not** `can_write_event()` yet (D26 deferred remainder → Task 16 / D56).
+RLS was **enabled in the table-creation migration** (`planning_03`); the policies were added in `planning_05` and later converted under `collab_access_06` to owner + collaborator predicates via `can_read_event` / `can_write_event(...,'planning')`. Do **not** reintroduce a single owner-only `FOR ALL` policy as current truth.
 
 ```sql
 -- event-child pattern (event_budgets shown; expense_types / expenses / task_assignees identical on their own event_id)

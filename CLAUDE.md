@@ -10,9 +10,9 @@ Evenzi is an early-stage wedding/event planning SaaS platform. Users create even
 
 ## Communication Mode
 
-**Terse in inline 1:1 chat, full plain-English in every persisted/team-facing artifact.** In direct chat with the user, lead with the answer, drop filler/hedging/restating, prefer tables over prose — to cut output tokens. This NEVER applies to ClickUp tickets, commit/PR bodies, specs, plans, test plans, spec-kit files, council/subagent prompts, or verbatim approval-gate readouts (e.g. Dheeraj→Abhijith sync) — those stay full and detailed; the "verbatim, no detail dropped" rule always wins. Terse ≠ sloppy: keep technical precision and `file:line`/markdown-link formatting. Override: "explain in full" / "go deep" → full for that answer. Full spec + rationale: `~/.claude/projects/-Users-xcalider-Documents-Projects-Evenzi/memory/feedback_terse_inline_chat.md`.
+**Terse in inline 1:1 chat, full plain-English in every persisted/team-facing artifact.** In direct chat with the user, lead with the answer, drop filler/hedging/restating, prefer tables over prose — to cut output tokens. This NEVER applies to ClickUp tickets, commit/PR bodies, specs, plans, test plans, spec-kit files, council/subagent prompts, or verbatim approval-gate readouts (e.g. Dheeraj→Abhijith sync) — those stay full and detailed; the "verbatim, no detail dropped" rule always wins. Terse ≠ sloppy: keep technical precision and `file:line`/markdown-link formatting. Override: "explain in full" / "go deep" → full for that answer. This paragraph is the full spec — it is also enforced by a UserPromptSubmit hook and restated in the global `~/.claude/CLAUDE.md`, so it is not duplicated in memory.
 
-**WhatsApp messages use WhatsApp syntax, not markdown.** When asked to draft a WhatsApp message (e.g. to Dheeraj), format with WhatsApp markup: `*bold*` (single asterisk), `_italic_` (underscore), `~strikethrough~`, ` ```monospace``` `, `` `inline code` ``, bullets `* ` / `- `, numbered `1. `, quote `> `. No headings or tables (they don't render) — use `*bold*` emphasis lines + bullets. Markdown's `**bold**` shows literal asterisks in WhatsApp, so switch syntax for the whole draft. Memory: `feedback_whatsapp_formatting.md`.
+**WhatsApp messages use WhatsApp syntax, not markdown.** When asked to draft a WhatsApp message (e.g. to Dheeraj), format with WhatsApp markup: `*bold*` (single asterisk), `_italic_` (underscore), `~strikethrough~`, ` ```monospace``` `, `` `inline code` ``, bullets `* ` / `- `, numbered `1. `, quote `> `. No headings or tables (they don't render) — use `*bold*` emphasis lines + bullets. Markdown's `**bold**` shows literal asterisks in WhatsApp, so switch syntax for the whole draft. Always put the drafted message inside a fenced code block, or the chat UI swallows the markup before it can be copied. Also stated in the global `~/.claude/CLAUDE.md`; not duplicated in memory.
 
 ---
 
@@ -232,6 +232,8 @@ Features follow a 3-level hierarchy with approval gates after every phase:
 
 ### ClickUp Workspace Structure
 
+> **ClickUp is dormant** (founder decision, standing since 2026-08-01): no syncing during the launch push — one bulk sweep once dev is done. Skip the ClickUp steps at session start by default and say so in a line rather than asking each time. Statuses in ClickUp are stale and must never be used to judge readiness. Known broken: Active Sprint list ID `901614390914` returns "Team not authorized" — fix it before the sweep. Detail: `memory/project_clickup_dormant.md`.
+
 ```
 Product (Space)
   ├── Ideas              — Raw feature ideas, unrefined
@@ -346,36 +348,33 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 - AMC dashboard code is parked on `Dev-AMC` branch — will be revived as a general-purpose pipeline monitor
 - Vercel deployments are healthy — latest prod deploy is `READY` (verified 2026-08-02 via Vercel MCP)
 
-### MVP Phase 1 — In Progress
+### MVP Phase 1 status
 
 **Goal:** Host-only, one complete end-to-end event flow.
 
-**Sprint 1 (Active):**
+Verified against repo state 2026-08-07. **This table is current state and open gaps only** — per-feature build history, review findings, and test evidence live in `docs/session-reports/` and `docs/NEXT-SESSION.md`. Do not re-add narrative here; it costs tokens in every session. ClickUp subtask counts are omitted deliberately (ClickUp is dormant — see `memory/project_clickup_dormant.md`).
 
-| Feature | Priority | Status | Subtasks |
-|---------|----------|--------|----------|
-| Fix Vercel Deployment | P0 | DONE — live at evenzi.vercel.app | 0 |
-| Auth & Role Selection | P0 | DONE | 10 |
-| Event CRUD (4-Step Wizard) | P0 | **DONE** — Create flow live; Edit & Delete FE+BE live (`GeneralSettingsForm.tsx` wires `PUT`/`DELETE` on `app/api/events/[id]`, incl. delete-confirm modal). Verified against repo 2026-07-30 — docs previously said "in progress" | 45 |
-| Host Dashboard | P0 | **DONE** — revamp live; Collaborations tab wired to real `event_collaborators` + pending invites (Accept/Decline) as of 2026-08-07 (`7091482e`) | 21 |
-| Landing Section (Marketing Site) | P2 | In Progress | 13 |
-| Reusable Component Library | P0 | DONE — achieved via React composition as components are built (Dheeraj), not a standalone library artifact | 28 |
+| Feature | P | State | Open gap |
+|---|---|---|---|
+| Vercel deployment | P0 | ✅ live at `evenzi.vercel.app` | — |
+| Auth & Role Selection | P0 | ✅ | — |
+| Event CRUD (4-step wizard) | P0 | ✅ create + edit + delete, FE and BE | — |
+| Host Dashboard | P0 | ✅ incl. Collaborations tab + pending invite Accept/Decline (`7091482e`) | Smoke-test on testing deploy not yet run |
+| Event Management Hub | P0 | ✅ `app/events/[id]/page.tsx` | — |
+| Reusable components | P0 | ✅ via React composition, no standalone library artifact | — |
+| Guest Management & RSVP | P1 | ✅ 6 API routes + full FE; tested at 6 breakpoints | Send-invites deliberately inert until the WhatsApp planning session |
+| Event Settings | P1 | ✅ incl. Usage tab, tiered permissions, BusyOverlay | — |
+| User Settings | P1 | ✅ `/settings`, 4 sections, 3 API routes | — |
+| Push Notifications | P1 | ✅ in-app bell + browser push, live | Needs VAPID env + the Supabase webhook (see env block) |
+| Planning (checklist + budget) | P2 | ✅ 7 API routes, live-verified | Task edit/delete/toggle never UI-clicked (API + 2 code reviews only) |
+| Media & Memories | P2 | ✅ 9 API routes, R2 upload pipeline, real storage meter | **Live-browser QA pass (spec §8) still never run** |
+| Digital Presence (event website) | P2 | ✅ security-hardened + design-parity rebuild (`edfa845`) | Template gallery assumes 5 templates, only `cinematic-scroll` exists; guest-lookup API skips the password gate; prod deploy unconfirmed |
+| Landing / marketing site | P2 | ⚠️ in progress — `app/page.tsx` | — |
+| Digital Invitations (card designer) | P3 | ⚠️ data model live (`inv_01`–`06`), FE built (`InvitationsClient.tsx`, 7 templates) | **Nothing persists** — no fetch, no localStorage, no API route; the "Saved" indicator is cosmetic. Scope is the card designer only; WhatsApp send lives in Guest Mgmt |
+| Support Chatbot | P1 | ❌ not started (unblocked, build from design system) | — |
+| Admin Module (developer panel) | P2 | ❌ not started | — |
 
-**Backlog:**
-
-| Feature | Priority | Status | Subtasks |
-|---------|----------|--------|----------|
-| Event Management Hub | P0 | **DONE** — `app/events/[id]/page.tsx` (544 lines) live, real Supabase queries (sub-events, `event_hub_summary` view), links out to invitations/guests/planning/journey/website. Corrected 2026-07-30 — docs previously said "FE/app not started" | 16 |
-| Guest Management & RSVP | P1 | **DONE** — data model + 6 API routes + FE all live (`app/events/[id]/guests`, list/stats/toolbar/filters/sort, add/edit/remove, RSVP setter, functions + zero-assigned banner, tag combobox + manager, real CSV import with validation gate, bulk tag/assign/delete; Send-invites intentionally inert pending a WhatsApp planning session). Tested at 6 breakpoints. See `docs/superpowers/specs/2026-07-29-guest-management-design.md` §11 | 25 |
-| Event Settings | P1 | **DONE** — data model + backend + FE; cleanup pass (BusyOverlay, ToolRail LIVE/OFFLINE, tiered permissions, Usage tab, Portal overlays) on tip merged 2026-08-07 | 20 |
-| User Settings | P1 | **DONE** — `/settings` live with 4 working sections (Profile w/ avatar upload → R2, Security = connected SSO/phone methods, Notification prefs, Account sign-out), 3 API routes, all reading/writing `user_profiles` + `user_preferences`. Settings icon added to shared `FloatingNav`; logout removed from nav everywhere. Tested at 6 breakpoints. Commits `8632cbd`..`0e50a4c` | 20 |
-| Push Notifications (in-app + browser) | P1 | **DONE 2026-08-06** — Phase A S8 bell (`NotificationBell` in `FloatingNav`) + Phase B browser push (`public/sw.js`, `web-push`, Supabase `notifications` INSERT → `/api/notifications/dispatch-push`). Commit `0a25eed` merged to `Dev-Vibe`/`Dev-Vibe-Testing`; live on `evenzi.vercel.app`. VAPID env + webhook required (see env block). Founder confirmed Push ON after correcting `NEXT_PUBLIC_VAPID_PUBLIC_KEY`. | — |
-| Planning Tools (Checklist + Budget) | P2 | **DONE** — backend-wiring pass complete + live-verified 2026-07-30. 7 new API routes (`app/api/events/[id]/planning/*`), `page.tsx` real server-side fetch, `PlanningClient.tsx` fully wired. 9-task subagent-driven build, every task reviewed (2 needed a fix+re-review cycle: task-route not-found/error-handling, missing optimistic-update rollback). Antigravity live-verified task create/budget/expense/duplicate-type-rejection against the real DB, plus bulk actions + validation + receipt stub visually at mobile/desktop (`qa/planning-test-report.md`). Task edit/delete/toggle-done was not separately UI-clicked (API-only + 2 code reviews) — accepted as low-risk, not re-verified live given the logic was already reviewed twice. Typecheck + lint clean. | 15 |
-| Media & Memories (Photo Gallery) | P2 | **DONE — backend-wiring complete 2026-08-01**, merged to `Dev-Vibe`+`Dev-Vibe-Testing`. 9 new API routes (`app/api/events/[id]/media/*`): presigned R2 upload, commit (dual-key + magic-byte verification), signed-URL reads (thumb + master), delete/bulk-delete, album CRUD. `MediaClient.tsx` fully wired: upload pipeline (HEIC decode, video poster capture), optimistic delete/album mutations with rollback, real storage meter. 13-task subagent-driven build, individually reviewed + a final whole-branch review caught 2 Critical bugs (cross-event IDOR, unserved `thumbnail_key` causing broken video tiles) — both fixed + re-verified. **Live-browser QA pass (spec §8) not yet run** — see `docs/NEXT-SESSION.md` | 25 |
-| Digital Presence (Event Website) | P2 | **Security-hardened + design-parity pass DONE 2026-08-05** (commit `edfa845`, merged to `Dev-Vibe`+`Dev-Vibe-Testing`, not yet deployed to prod). Fixed 2 critical security bugs (website-settings IDOR, a guest-lookup rate limiter that was silently non-functional against brute-force guessing), built website password protection end-to-end, fixed the hardcoded live-URL bug, confirmed the offline-gate already worked correctly. Full Overview/Design/Photos/Pages-tab rebuild to match the design system (Cursor-built, Claude-reviewed live): real get-started checklist, Site URL & Status card, Palette + collapsed single Font picker, Cover/OG image upload via R2, Pages-tab tier badges. Full writeup + test steps: `docs/superpowers/plans/2026-08-05-digital-presence-audit-plan.md`. Deliberately flagged-not-fixed: template-gallery mismatch (design assumes 5 templates, React has 1 different real one), guest-lookup API doesn't check the password gate, prod not yet deployed. | Pushed + merged to testing, prod deploy pending |
-| Admin Module (Developer Panel) | P2 | Not Started | 15 |
-| Digital Invitations (WhatsApp) | P3 | Data model LIVE on dev (`inv_01-06`); **scope = invitation CARD designer** (personalizer). WhatsApp send + status tracking stays in Guest Mgmt (already done there). **FE UI built** (`app/events/[id]/invitations`, 576-line `InvitationsClient.tsx`, 7 templates, editable slots) **but not persisted anywhere** — no `fetch`, no `localStorage`; the "Saved" autosave indicator is cosmetic only. `app/wedding-invitation-temp-1` remains a separate, unrelated design-test page. Corrected 2026-07-30 — docs previously said "FE/app not started" | 0 |
-| Support Chatbot (FAQ + Admin + Escalation) | P1 | Planned (unblocked — build from design system) | 30 |
+`app/wedding-invitation-temp-1` and `app/website-theme-framer` are standalone design-test pages, unrelated to the features above.
 
 **Out of scope for MVP:** Vendor role, AI Photo Finder, real-time features, event discovery/search, analytics.
 

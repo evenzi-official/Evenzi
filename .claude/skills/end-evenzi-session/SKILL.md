@@ -38,19 +38,21 @@ Both users:
 
 ### 4a. Path: Abhijith
 
-#### 4a.1 Update ClickUp tasks
+#### 4a.1 Update ClickUp tasks — SKIPPED by default (ClickUp is dormant)
 
-If the session worked exclusively on a pre-task path with no ClickUp-tracked feature touched — the design path (5a.7), a `/spec-kit` build-kit run, or pure infra/skill work — **skip this step** — these are pre-task and have no tickets. Note in the session report that no ClickUp tasks were touched. Otherwise:
+**Default: skip entirely.** Standing founder decision since 2026-08-01 — nothing syncs to ClickUp during the launch push; one bulk sweep runs once dev is done. Record "tasks updated: none (ClickUp dormant)" in the session report and the log entry, and move on. This mirrors step 5a.2 of `/start-evenzi-session`; the two must stay symmetric. Rationale: `memory/project_clickup_dormant.md`.
 
-Invoke `/clickup-pm` with mode `session-end`. Provide:
+Also skip when the session worked exclusively on a pre-task path with no ClickUp-tracked feature touched — the design path (5a.7), a `/spec-kit` build-kit run, or pure infra/skill work — those are pre-task and have no tickets.
+
+**Only if Abhijith explicitly asks for a ClickUp update this session**, invoke `/clickup-pm` with mode `session-end`. Provide:
 - List of task IDs worked on
 - Summary per task (what done, current state, next steps)
 
 #### 4a.2 Generate session report
 Invoke `/session-report` → saves to `docs/session-reports/YYYY-MM-DD-session-report.md`.
 
-#### 4a.3 Update ClickUp docs (only if structure changed)
-If new lists/features/dependencies — invoke `/clickup-pm` to update `docs/clickup/WORKSPACE.md` and `docs/clickup/DEPENDENCIES.md`.
+#### 4a.3 Update ClickUp docs — SKIPPED by default (ClickUp is dormant)
+Only on explicit request, and only if new lists/features/dependencies appeared: invoke `/clickup-pm` to update `docs/clickup/WORKSPACE.md` and `docs/clickup/DEPENDENCIES.md`.
 
 #### 4a.4 Update project docs (only stale sections)
 - `CLAUDE.md` → MVP status table, project structure, tech stack
@@ -60,8 +62,8 @@ If new lists/features/dependencies — invoke `/clickup-pm` to update `docs/clic
 
 Touch only what's stale. No cosmetic edits.
 
-#### 4a.5 Regenerate sprint digests
-Invoke `/clickup-pm` with mode `regenerate-digests` — refreshes `docs/sprint/sprint-N/abhijith.md` and `dheeraj.md`.
+#### 4a.5 Regenerate sprint digests — SKIPPED by default (ClickUp is dormant)
+Only on explicit request: invoke `/clickup-pm` with mode `regenerate-digests` — refreshes `docs/sprint/sprint-N/abhijith.md` and `dheeraj.md`. While dormant these two files stay frozen at their 2026-08-02 state; that is expected, not a bug.
 
 #### 4a.6 Append session-end log entry
 

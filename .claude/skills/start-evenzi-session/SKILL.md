@@ -57,9 +57,20 @@ Look at `docs/sprint/README.md` — it points to the active sprint folder (e.g. 
 - `docs/PROJECT.md` (only if relevant to chosen path)
 - `docs/ONBOARDING.md` (only if onboarding-relevant)
 
-#### 5a.2 Sync Dheeraj's progress into ClickUp (approval-gated)
+#### 5a.2 Read Dheeraj's progress (ClickUp sync is DORMANT by default)
 
-Invoke `/clickup-pm` with mode `sync-dheeraj-progress`. It will:
+**Default — ClickUp is dormant.** Standing founder decision since 2026-08-01: nothing syncs to ClickUp during the launch push; one bulk sweep happens once dev is done. So by default:
+
+- **Do** read `docs/sprint/sprint-N/dheeraj-progress.md` and surface any un-synced entries to Abhijith in chat — the reading is still useful.
+- **Do not** invoke `/clickup-pm` at all. Skip 5a.2's sync, 5a.3, and 5a.4 entirely.
+- Say "ClickUp dormant, skipped" in one line. Do not ask about it every session.
+- Leave the entries un-synced. They stay un-synced until the sweep, by design.
+
+Also note: the sprint digests `abhijith.md` and `dheeraj.md` have not been regenerated since 2026-08-02 and are stale by design — read them as history, not current state.
+
+Full rationale: `memory/project_clickup_dormant.md`. `/clickup-pm` itself stays installed and unmodified; this is a pause, not a retirement.
+
+**Only if Abhijith explicitly asks for a ClickUp sync this session**, invoke `/clickup-pm` with mode `sync-dheeraj-progress`. It will:
 1. Read un-synced entries from `docs/sprint/sprint-N/dheeraj-progress.md` (anything outside the `## Synced` section).
 2. **Show full verbatim readout to Abhijith FIRST** — per task, no summarization that drops detail.
 3. `AskUserQuestion` per entry (or per batch if small): **Approve / Modify / Skip**.
@@ -68,11 +79,11 @@ Invoke `/clickup-pm` with mode `sync-dheeraj-progress`. It will:
 6. On Skip → leave un-synced (re-appears next session).
 7. Move synced entries into `## Synced` with `### Synced YYYY-MM-DD HH:MM` heading.
 
-#### 5a.3 Pull ClickUp state
-Invoke `/clickup-pm` with mode `session-start` — fetches in-progress, ready, and approval-gate tasks.
+#### 5a.3 Pull ClickUp state — SKIPPED while dormant
+Only on explicit request: invoke `/clickup-pm` with mode `session-start` — fetches in-progress, ready, and approval-gate tasks.
 
-#### 5a.4 Regenerate sprint digests
-Invoke `/clickup-pm` with mode `regenerate-digests` — overwrites `docs/sprint/sprint-N/abhijith.md` and `dheeraj.md` from current ClickUp state. Format defined in clickup-pm SKILL.
+#### 5a.4 Regenerate sprint digests — SKIPPED while dormant
+Only on explicit request: invoke `/clickup-pm` with mode `regenerate-digests` — overwrites `docs/sprint/sprint-N/abhijith.md` and `dheeraj.md` from current ClickUp state. Format defined in clickup-pm SKILL. Note the Active Sprint list ID `901614390914` hardcoded in that skill currently returns "Team not authorized" and must be fixed before the bulk sweep.
 
 #### 5a.5 Append session-start log entry
 

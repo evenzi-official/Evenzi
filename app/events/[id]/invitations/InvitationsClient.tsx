@@ -167,7 +167,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
   const [photoSrc, setPhotoSrc] = useState<string | null>(null)
   const [edited, setEdited] = useState(false)
   const [cardKey, setCardKey] = useState(0)
-  const [autosave, setAutosave] = useState('Saved')
+  const [autosave, setAutosave] = useState('Draft only — not saved')
 
   // Toolbar
   const activeSlotRef = useRef<HTMLElement | null>(null)
@@ -187,7 +187,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
   // ── helpers ─────────────────────────────────────────────────────────────────
   function markEdited() {
     setEdited(true)
-    setAutosave('Saved')
+    setAutosave('Draft only — not saved')
   }
 
   function buildCaption(data: CardData): string {
@@ -206,7 +206,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
     setCardData({ ...defaultData })
     setPhotoSrc(null)
     setEdited(false)
-    setAutosave('Saved')
+    setAutosave('Draft only — not saved')
     setCardKey((k) => k + 1)
     setView('editor')
     window.scrollTo(0, 0)
@@ -430,9 +430,15 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
             <span className="material-symbols-outlined" aria-hidden="true">visibility</span>
             <span>Preview</span>
           </button>
-          <button type="button" className="btn-pill btn-pill-secondary">
+          <button
+            type="button"
+            className="btn-pill btn-pill-secondary"
+            disabled
+            aria-disabled="true"
+            title="Card download is not available yet"
+          >
             <span className="material-symbols-outlined" aria-hidden="true">download</span>
-            <span>Download</span>
+            <span>Download soon</span>
           </button>
           <button type="button" className="btn-pill btn-pill-primary" onClick={handleShare}>
             <span className="material-symbols-outlined" aria-hidden="true">share</span>

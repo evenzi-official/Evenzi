@@ -50,15 +50,19 @@ Given a failing CI run, a flaky test report, or a request to audit the suite:
 | Unit                 | Pure functions, reducers, validators, Zod  | Vitest                              | 80% lines                        | ✓ installed       |
 | Component            | React component render + interaction       | `@testing-library/react`            | 70% UI primitives                | ✓ installed       |
 | Integration          | API routes + DB round-trips + RPC          | Vitest + Supabase test client       | 70% API routes                   | ✓ installed       |
-| E2E (happy path)     | Full user flow end-to-end                  | Playwright                          | 1 test per critical flow         | ✗ NOT installed   |
+| E2E (happy path)     | Full user flow end-to-end                  | Playwright                          | 1 test per critical flow         | ✓ installed       |
 | Regression           | Existing functionality still works         | Playwright + Vitest in CI           | All E2E + smoke unit             | partial           |
-| Accessibility        | WCAG 2.1 AA compliance                     | `axe-core` + Playwright             | Every public-facing page         | ✗ NOT installed   |
+| Accessibility        | WCAG 2.1 AA compliance                     | `axe-core` + Playwright             | Every public-facing page         | ✓ installed, unused |
 | Performance          | LCP, CLS, INP                              | Lighthouse CI                       | P75 above thresholds             | ✗ NOT installed   |
 | Security             | OWASP top 10, RLS, XSS, CSRF, IDOR         | Manual + Snyk + Supabase advisor    | All auth/data flows              | manual only       |
 | Visual regression    | UI doesn't drift                           | Chromatic / Percy (optional, paid)  | Component library + key pages    | deferred          |
 | Load / stress        | Bottlenecks at scale                       | k6 (free OSS)                       | Define RPS + DB query limits     | deferred          |
 
 When you propose installing a new tool, include the install command, the rough config delta, and a single example test in the Test Plan.
+
+**Current reality (verified against `package.json` and the repo on 2026-08-07 — this matrix previously claimed Playwright was not installed, which was wrong):** `@playwright/test` ^1.60.0, `playwright` ^1.60.0 and `@axe-core/playwright` ^4.11.3 are all installed as dev dependencies. Seven E2E specs already exist and have been run against the live app — `tests/event-settings-part-ab.spec.ts`, `notifications-full.spec.ts`, `planning.spec.ts`, `planning-api.spec.ts`, `planning-api-final.spec.ts`, `planning-visual.spec.ts`, `push-subscribe.spec.ts`.
+
+What is genuinely still missing: there is **no `playwright.config.ts`** and **no npm script** for E2E (only `test` and `test:run`, both Vitest), so the specs are run ad hoc rather than as a suite; the specs sit flat in `tests/` rather than in `tests/e2e/` as the Rules section below expects; and nothing runs in CI. `@axe-core/playwright` is installed but not used by any spec yet. Propose fixing the config and script before proposing any new tooling.
 
 ## Sad path catalogue (apply to every plan)
 
@@ -109,9 +113,9 @@ Write to `docs/test-plans/<feature-slug>.md`. Create the directory if missing.
 
 ## Tools required
 
-- **Already installed:** Vitest, @testing-library/react
-- **New for this feature:** Playwright (`npm i -D @playwright/test && npx playwright install`), axe-core (`npm i -D @axe-core/playwright`)
-- **Config deltas:** add `playwright.config.ts`, extend `vitest.config.ts` with `tests/integration/**`
+- **Already installed:** Vitest, `@testing-library/react`, `@playwright/test`, `@axe-core/playwright`
+- **New for this feature:** (list only what is genuinely absent — check `package.json` first)
+- **Config deltas:** add the still-missing `playwright.config.ts` plus an `npm run test:e2e` script, and extend `vitest.config.ts` with `tests/integration/**`
 
 ## CI integration
 
@@ -147,7 +151,7 @@ These features already shipped without a proper test plan. When invoked in Maint
 2. **Event CRUD wizard** (`86d2jwz3x`) — 65 unit tests pass, but no E2E and no integration coverage of `create_event_with_details` RPC under failure conditions.
 3. **Host Dashboard** (`86d2jwz6v`) — no tests at all (server component).
 
-For each, produce a Test Plan first, then write the initial Playwright suite once Playwright is installed.
+For each, produce a Test Plan first, then write the Playwright suite. Playwright is already installed, so there is nothing to wait for — see the "Current reality" note under the coverage matrix.
 
 ## Rules
 
