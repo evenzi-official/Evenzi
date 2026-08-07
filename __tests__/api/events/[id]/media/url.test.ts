@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const { createServerClientMock, getSignedDownloadUrlMock } = vi.hoisted(() => ({
-  createServerClientMock: vi.fn(),
+const { createClientMock, getSignedDownloadUrlMock } = vi.hoisted(() => ({
+  createClientMock: vi.fn(),
   getSignedDownloadUrlMock: vi.fn(),
 }))
 
-vi.mock('@supabase/ssr', () => ({ createServerClient: createServerClientMock }))
+vi.mock('@/lib/supabase/server', () => ({ createClient: createClientMock }))
 vi.mock('next/headers', () => ({ cookies: vi.fn().mockResolvedValue({ getAll: () => [], set: vi.fn() }) }))
 vi.mock('@/lib/storage/r2', async () => {
   const actual = await vi.importActual<typeof import('@/lib/storage/r2')>('@/lib/storage/r2')
@@ -18,11 +18,26 @@ const EVENT_ID = '550e8400-e29b-41d4-a716-446655440000'
 const MEDIA_ID = '660e8400-e29b-41d4-a716-446655440001'
 
 function makeOwnerChain() {
-  const chain: Record<string, unknown> = { select: vi.fn(), eq: vi.fn(), is: vi.fn() }
-  chain.select = vi.fn().mockReturnValue(chain)
-  chain.eq = vi.fn().mockReturnValue(chain)
-  chain.is = vi.fn().mockReturnValue(chain)
+  const chain: Record<string, unknown> = {}
+  const self = () => chain
+  for (const m of ['select', 'eq', 'is']) chain[m] = vi.fn().mockImplementation(self)
   chain.single = vi.fn().mockResolvedValue({ data: { id: EVENT_ID }, error: null })
+  return chain
+}
+
+function makeDeniedEventsChain() {
+  const chain: Record<string, unknown> = {}
+  const self = () => chain
+  for (const m of ['select', 'eq', 'is']) chain[m] = vi.fn().mockImplementation(self)
+  chain.single = vi.fn().mockResolvedValue({ data: null, error: { message: 'not found' } })
+  return chain
+}
+
+function makeDeniedCollabChain() {
+  const chain: Record<string, unknown> = {}
+  const self = () => chain
+  for (const m of ['select', 'eq']) chain[m] = vi.fn().mockImplementation(self)
+  chain.single = vi.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116', message: 'not found' } })
   return chain
 }
 
@@ -36,9 +51,13 @@ function makeMediaFindChain(row: { storage_key: string; thumbnail_key: string | 
 
 function makeSupabaseMock(row: { storage_key: string; thumbnail_key: string | null } | null) {
   const mediaChain = makeMediaFindChain(row)
+  const ownerChain = makeOwnerChain()
   const mock = {
     auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null }) },
-    from: vi.fn().mockImplementation((table: string) => (table === 'events' ? makeOwnerChain() : mediaChain)),
+    from: vi.fn().mockImplementation((table: string) => {
+      if (table === 'events') return ownerChain
+      return mediaChain
+    }),
   }
   return { mock, mediaChain }
 }
@@ -57,7 +76,7 @@ describe('GET /api/events/[id]/media/[mediaId]/url', () => {
       storage_key: `events/${EVENT_ID}/media/a.webp`,
       thumbnail_key: `events/${EVENT_ID}/media/a_thumb.webp`,
     })
-    createServerClientMock.mockReturnValue(mock)
+    createClientMock.mockResolvedValue(mock)
     const res = await GET(req, ctx)
     expect(res.status).toBe(200)
     const body = await res.json()
@@ -73,7 +92,7 @@ describe('GET /api/events/[id]/media/[mediaId]/url', () => {
 
   it('omits thumbUrl when the row has no thumbnail_key', async () => {
     const { mock } = makeSupabaseMock({ storage_key: `events/${EVENT_ID}/media/a.webp`, thumbnail_key: null })
-    createServerClientMock.mockReturnValue(mock)
+    createClientMock.mockResolvedValue(mock)
     const res = await GET(req, ctx)
     expect(res.status).toBe(200)
     const body = await res.json()
@@ -83,7 +102,7 @@ describe('GET /api/events/[id]/media/[mediaId]/url', () => {
 
   it('returns 404 when the media row does not exist', async () => {
     const { mock } = makeSupabaseMock(null)
-    createServerClientMock.mockReturnValue(mock)
+    createClientMock.mockResolvedValue(mock)
     const res = await GET(req, ctx)
     expect(res.status).toBe(404)
   })
@@ -92,18 +111,12 @@ describe('GET /api/events/[id]/media/[mediaId]/url', () => {
     const mock = {
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null }) },
       from: vi.fn().mockImplementation((table: string) => {
-        if (table === 'events') {
-          const chain: Record<string, unknown> = { select: vi.fn(), eq: vi.fn(), is: vi.fn() }
-          chain.select = vi.fn().mockReturnValue(chain)
-          chain.eq = vi.fn().mockReturnValue(chain)
-          chain.is = vi.fn().mockReturnValue(chain)
-          chain.single = vi.fn().mockResolvedValue({ data: null, error: { message: 'not found' } })
-          return chain
-        }
+        if (table === 'events') return makeDeniedEventsChain()
+        if (table === 'event_collaborators') return makeDeniedCollabChain()
         return makeMediaFindChain(null)
       }),
     }
-    createServerClientMock.mockReturnValue(mock)
+    createClientMock.mockResolvedValue(mock)
     const res = await GET(req, ctx)
     expect(res.status).toBe(404)
   })

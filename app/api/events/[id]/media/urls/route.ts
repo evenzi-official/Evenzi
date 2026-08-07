@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { requireEventWrite } from '@/lib/auth/eventAccess'
+import { requireEventRead } from '@/lib/auth/eventAccess'
 import { batchUrlsSchema, uuidSchema } from '@/lib/validations/media'
 import { getSignedDownloadUrl, R2_BUCKET_PRIVATE } from '@/lib/storage/r2'
 
@@ -20,7 +20,8 @@ export async function POST(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const access = await requireEventWrite(supabase, id, user.id, 'media')
+    // Batch URL signing is a read (viewers + photographers need thumbs/masters).
+    const access = await requireEventRead(supabase, id, user.id, 'media')
     if (!access.ok) return access.response
 
 

@@ -1,0 +1,60 @@
+{
+  "base": "http://127.0.0.1:3002",
+  "log": [
+    {
+      "step": "collab invite UI",
+      "ok": true
+    },
+    {
+      "step": "collab open bell",
+      "ok": true
+    },
+    {
+      "step": "collab Accept UI",
+      "ok": true
+    },
+    {
+      "step": "collab open hub",
+      "ok": true
+    },
+    {
+      "step": "collab visit /events/f990d6d7-6fd1-49db-82bf-b848974a85a2/guests",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "collab visit /events/f990d6d7-6fd1-49db-82bf-b848974a85a2/planning",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "collab visit /events/f990d6d7-6fd1-49db-82bf-b848974a85a2/media",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "collab visit /events/f990d6d7-6fd1-49db-82bf-b848974a85a2/website",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "collab visit /events/f990d6d7-6fd1-49db-82bf-b848974a85a2/settings",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "collab visit /events/f990d6d7-6fd1-49db-82bf-b848974a85a2/settings/billing",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "viewer guests write forbidden",
+      "ok": true,
+      "detail": "404"
+    },
+    {
+      "step": "collab Decline UI",
+      "ok": true
+    }
+  ]
+}

@@ -11,7 +11,6 @@ vi.mock('@/lib/supabase/server', () => ({
 import { GET as getEventTypes } from '@/app/api/event-types/route'
 import { GET as getSubEvents } from '@/app/api/event-types/[typeId]/sub-events/route'
 
-// RFC-compliant UUIDs required by Zod v4's stricter validation
 const TYPE_ID = '550e8400-e29b-41d4-a716-446655440000'
 const TYPE_ID_2 = '550e8400-e29b-41d4-a716-446655440001'
 const SUB_ID_1 = '6ba7b810-9dad-41d1-80b4-00c04fd430c8'
@@ -40,7 +39,7 @@ const mockEventTypeRows = [
     description: null,
     icon_name: 'cake',
     image_url: null,
-    enabled: false,
+    enabled: true,
     has_sub_events: false,
     form_schema: [],
     features: [],
@@ -73,30 +72,33 @@ const mockSubEventTypeRows = [
   },
 ]
 
+/** Match route: .schema('config').from(...).select().eq(...).order(...) */
+function mockConfigQuery(terminal: { data: unknown; error: unknown }) {
+  const order = vi.fn().mockResolvedValue(terminal)
+  const chain: { eq: ReturnType<typeof vi.fn>; order: ReturnType<typeof vi.fn> } = {
+    eq: vi.fn(),
+    order,
+  }
+  chain.eq.mockReturnValue(chain)
+  const select = vi.fn().mockReturnValue(chain)
+  const from = vi.fn().mockReturnValue({ select })
+  const schema = vi.fn().mockReturnValue({ from })
+  return { schema, from, select, eq: chain.eq, order }
+}
+
 describe('GET /api/event-types', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('returns all event types (enabled and disabled) sorted by display_order', async () => {
-    createClientMock.mockResolvedValue({
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          order: vi.fn().mockResolvedValue({
-            data: mockEventTypeRows,
-            error: null,
-          }),
-        }),
-      }),
-    })
+  it('returns enabled event types sorted by display_order', async () => {
+    createClientMock.mockResolvedValue(mockConfigQuery({ data: mockEventTypeRows, error: null }))
 
     const response = await getEventTypes()
     const body = await response.json()
 
     expect(response.status).toBe(200)
     expect(body.eventTypes).toHaveLength(2)
-
-    // Verify camelCase mapping
     expect(body.eventTypes[0]).toMatchObject({
       id: TYPE_ID,
       name: 'Wedding',
@@ -107,26 +109,15 @@ describe('GET /api/event-types', () => {
       hasSubEvents: true,
       displayOrder: 1,
     })
-
-    // Disabled types are also included
     expect(body.eventTypes[1]).toMatchObject({
       name: 'Birthday',
-      enabled: false,
+      enabled: true,
       displayOrder: 2,
     })
   })
 
   it('returns 500 when the database query fails', async () => {
-    createClientMock.mockResolvedValue({
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          order: vi.fn().mockResolvedValue({
-            data: null,
-            error: { message: 'DB error' },
-          }),
-        }),
-      }),
-    })
+    createClientMock.mockResolvedValue(mockConfigQuery({ data: null, error: { message: 'DB error' } }))
 
     const response = await getEventTypes()
     const body = await response.json()
@@ -142,18 +133,7 @@ describe('GET /api/event-types/[typeId]/sub-events', () => {
   })
 
   it('returns sub-event types for a valid UUID', async () => {
-    createClientMock.mockResolvedValue({
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            order: vi.fn().mockResolvedValue({
-              data: mockSubEventTypeRows,
-              error: null,
-            }),
-          }),
-        }),
-      }),
-    })
+    createClientMock.mockResolvedValue(mockConfigQuery({ data: mockSubEventTypeRows, error: null }))
 
     const response = await getSubEvents(new Request('http://localhost'), {
       params: Promise.resolve({ typeId: TYPE_ID }),
@@ -162,8 +142,6 @@ describe('GET /api/event-types/[typeId]/sub-events', () => {
 
     expect(response.status).toBe(200)
     expect(body.subEventTypes).toHaveLength(2)
-
-    // Verify camelCase mapping
     expect(body.subEventTypes[0]).toMatchObject({
       id: SUB_ID_1,
       name: 'Mehendi',
@@ -194,25 +172,13 @@ describe('GET /api/event-types/[typeId]/sub-events', () => {
     const response = await getSubEvents(new Request('http://localhost'), {
       params: Promise.resolve({ typeId: '' }),
     })
-    const body = await response.json()
 
     expect(response.status).toBe(400)
     expect(createClientMock).not.toHaveBeenCalled()
   })
 
   it('returns 500 when the database query fails', async () => {
-    createClientMock.mockResolvedValue({
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            order: vi.fn().mockResolvedValue({
-              data: null,
-              error: { message: 'DB error' },
-            }),
-          }),
-        }),
-      }),
-    })
+    createClientMock.mockResolvedValue(mockConfigQuery({ data: null, error: { message: 'DB error' } }))
 
     const response = await getSubEvents(new Request('http://localhost'), {
       params: Promise.resolve({ typeId: TYPE_ID }),

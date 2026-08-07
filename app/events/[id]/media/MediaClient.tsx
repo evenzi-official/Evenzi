@@ -450,6 +450,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
 
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [vlightboxOpen, setVlightboxOpen] = useState(false)
+  const [videoPlaying, setVideoPlaying] = useState(false)
   const [removePhotoModalOpen, setRemovePhotoModalOpen] = useState(false)
   const [removePhotoId, setRemovePhotoId] = useState<string | null>(null)
   const [deleteAlbumModalOpen, setDeleteAlbumModalOpen] = useState(false)
@@ -518,8 +519,9 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
       meterState: ms,
       meterPct: pct,
       meterText: fmtGB(storage.usedBytes) + ' of ' + fmtGB(STORAGE_LIMIT_BYTES) + ' used',
-      meterNote: ms === 'near' ? "You're close to your storage limit."
-        : ms === 'atcap' ? 'Storage full — remove photos or upgrade soon.' : null,
+      meterNote: ms === 'near' ? "You're close to the temporary 5 GB soft limit (plan entitlements not live yet)."
+        : ms === 'atcap' ? 'Temporary 5 GB soft limit reached — plan storage entitlements are not live yet.'
+        : 'Soft limit for now — plan-based storage entitlements are not live yet.',
       photoSortLabel: photoSort === 'oldest' ? 'Oldest' : photoSort === 'name' ? 'Name A–Z' : 'Newest',
       videoSortLabel: videoSort === 'oldest' ? 'Oldest' : videoSort === 'name' ? 'Name A–Z' : 'Newest',
       photoFilterAlbumLabel: photoFilterAlbumId ? (albums.find(a => a.id === photoFilterAlbumId)?.name ?? null) : null,
@@ -1701,32 +1703,52 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
       {/* ── Modal: Video lightbox */}
       <div className={`modal-scrim modal-scrim-deep${vlightboxOpen ? ' is-open' : ''}`} aria-hidden={!vlightboxOpen}>
         <div className="modal-card modal-image-lightbox" role="dialog" aria-modal="true" aria-labelledby="md-vlb-title">
-          <button className="modal-lightbox-close" type="button" aria-label="Close" onClick={() => setVlightboxOpen(false)}>
+          <button className="modal-lightbox-close" type="button" aria-label="Close" onClick={() => { setVideoPlaying(false); setVlightboxOpen(false) }}>
             <span aria-hidden="true" className="material-symbols-outlined">close</span>
           </button>
           {vLbVideo && (
             <>
               <div className="media-vplayer">
-                <img
-                  className="modal-lightbox-img"
-                  src={resolveThumbSrc(vLbVideo)}
-                  alt={vLbVideo.name}
-                  onError={() => { if (urlCache[vLbVideo.id]) refetchSingleUrl(vLbVideo.id) }}
-                />
-                <button type="button" className="media-vplay" aria-label="Play video">
-                  <span aria-hidden="true" className="material-symbols-outlined">play_arrow</span>
-                </button>
-                <span className="media-vduration media-vduration--lg" aria-hidden="true">{vLbVideo.duration}</span>
+                {videoPlaying && urlCache[vLbVideo.id]?.url ? (
+                  <video
+                    className="modal-lightbox-img"
+                    src={urlCache[vLbVideo.id].url}
+                    controls
+                    autoPlay
+                    playsInline
+                    poster={resolveThumbSrc(vLbVideo) || undefined}
+                    onError={() => { if (urlCache[vLbVideo.id]) refetchSingleUrl(vLbVideo.id) }}
+                  />
+                ) : (
+                  <>
+                    <img
+                      className="modal-lightbox-img"
+                      src={resolveThumbSrc(vLbVideo)}
+                      alt={vLbVideo.name}
+                      onError={() => { if (urlCache[vLbVideo.id]) refetchSingleUrl(vLbVideo.id) }}
+                    />
+                    <button
+                      type="button"
+                      className="media-vplay"
+                      aria-label="Play video"
+                      disabled={!urlCache[vLbVideo.id]?.url}
+                      onClick={() => setVideoPlaying(true)}
+                    >
+                      <span aria-hidden="true" className="material-symbols-outlined">play_arrow</span>
+                    </button>
+                    <span className="media-vduration media-vduration--lg" aria-hidden="true">{vLbVideo.duration}</span>
+                  </>
+                )}
               </div>
               <div className="modal-lightbox-nav">
                 <button type="button" className="modal-lightbox-nav-btn modal-lightbox-nav-prev"
                         aria-label="Previous video" disabled={vLbIndex <= 0}
-                        onClick={() => setVLbIndex(i => Math.max(0, i - 1))}>
+                        onClick={() => { setVideoPlaying(false); setVLbIndex(i => Math.max(0, i - 1)) }}>
                   <span aria-hidden="true" className="material-symbols-outlined">chevron_left</span>
                 </button>
                 <button type="button" className="modal-lightbox-nav-btn modal-lightbox-nav-next"
                         aria-label="Next video" disabled={vLbIndex >= vLbIds.length - 1}
-                        onClick={() => setVLbIndex(i => Math.min(vLbIds.length - 1, i + 1))}>
+                        onClick={() => { setVideoPlaying(false); setVLbIndex(i => Math.min(vLbIds.length - 1, i + 1)) }}>
                   <span aria-hidden="true" className="material-symbols-outlined">chevron_right</span>
                 </button>
               </div>

@@ -1,0 +1,194 @@
+{
+  "base": "http://127.0.0.1:3002",
+  "log": [
+    {
+      "step": "visit /home",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "home → Collaborations filter",
+      "ok": true
+    },
+    {
+      "step": "home → My events filter",
+      "ok": true
+    },
+    {
+      "step": "home → Past filter",
+      "ok": true
+    },
+    {
+      "step": "home → Active filter",
+      "ok": true
+    },
+    {
+      "step": "open hub",
+      "ok": true
+    },
+    {
+      "step": "hub QA → Send invites",
+      "ok": true
+    },
+    {
+      "step": "hub QA → Track RSVPs",
+      "ok": true
+    },
+    {
+      "step": "hub QA → Manage budget",
+      "ok": true
+    },
+    {
+      "step": "hub QA → Plan timeline",
+      "ok": true
+    },
+    {
+      "step": "visit /events/f990d6d7-6fd1-49db-82bf-b848974a85a2/guests",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "guests Add FAB open",
+      "ok": true
+    },
+    {
+      "step": "guests Add modal close",
+      "ok": true
+    },
+    {
+      "step": "visit /events/f990d6d7-6fd1-49db-82bf-b848974a85a2/planning",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "planning → Budget tab",
+      "ok": true
+    },
+    {
+      "step": "planning → Checklist tab",
+      "ok": true
+    },
+    {
+      "step": "planning → Timeline view",
+      "ok": true
+    },
+    {
+      "step": "planning → List view",
+      "ok": true
+    },
+    {
+      "step": "planning Add task FAB",
+      "ok": true
+    },
+    {
+      "step": "planning task modal close",
+      "ok": true
+    },
+    {
+      "step": "visit /events/f990d6d7-6fd1-49db-82bf-b848974a85a2/media",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "media tab /photos/i",
+      "ok": true
+    },
+    {
+      "step": "media tab /videos/i",
+      "ok": true
+    },
+    {
+      "step": "media tab /albums/i",
+      "ok": true
+    },
+    {
+      "step": "visit /events/f990d6d7-6fd1-49db-82bf-b848974a85a2/website",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "website → Design",
+      "ok": true
+    },
+    {
+      "step": "website → Photos",
+      "ok": true
+    },
+    {
+      "step": "website → Pages",
+      "ok": true
+    },
+    {
+      "step": "website → Overview",
+      "ok": true
+    },
+    {
+      "step": "visit /events/f990d6d7-6fd1-49db-82bf-b848974a85a2/journey",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "visit /events/f990d6d7-6fd1-49db-82bf-b848974a85a2/invitations",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "invitations pick template",
+      "ok": true
+    },
+    {
+      "step": "settings → General",
+      "ok": true
+    },
+    {
+      "step": "settings → Website",
+      "ok": true
+    },
+    {
+      "step": "settings → Admins",
+      "ok": true
+    },
+    {
+      "step": "settings → Guest list",
+      "ok": true
+    },
+    {
+      "step": "settings → Registry",
+      "ok": true
+    },
+    {
+      "step": "settings → Plan & billing",
+      "ok": true
+    },
+    {
+      "step": "settings → Usage",
+      "ok": true
+    },
+    {
+      "step": "open notification bell",
+      "ok": true
+    },
+    {
+      "step": "visit /settings",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "step": "user settings → /profile/i",
+      "ok": true
+    },
+    {
+      "step": "user settings → /notification/i",
+      "ok": true
+    },
+    {
+      "step": "user settings → /account/i",
+      "ok": true
+    },
+    {
+      "step": "public site",
+      "ok": true,
+      "detail": "no /e/ link on overview — skipped"
+    }
+  ]
+}

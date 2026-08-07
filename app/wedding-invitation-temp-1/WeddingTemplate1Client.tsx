@@ -279,25 +279,10 @@ export default function WeddingTemplate1Client({ event, eventId, pages, isIdenti
     setFieldErrors({});
     setModalState('submitting');
 
-    try {
-      const res = await fetch(`/api/events/${eventId}/rsvp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: guestName.trim(), phone: guestPhone.trim(), attendance }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { error?: string };
-        setErrorMsg(data.error ?? 'Something went wrong. Please try again.');
-        setModalState('error');
-        return;
-      }
-
-      setModalState('success');
-    } catch {
-      setErrorMsg('Network error. Please check your connection and try again.');
-      setModalState('error');
-    }
+    // Legacy /api/events/[id]/rsvp was retired (open service-role insert). Design-test
+    // page only — real RSVP is on /e/[slug] after guest lookup.
+    setErrorMsg('RSVP on this design-test page is disabled. Use the live guest website.')
+    setModalState('error')
   }
 
   function closeModal() {

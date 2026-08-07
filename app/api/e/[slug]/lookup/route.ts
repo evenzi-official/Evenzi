@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { COOKIE_NAME, COOKIE_MAX_AGE, mapRpcError } from '../_lib'
+import { getClientIp } from '@/lib/http/clientIp'
+import { COOKIE_NAME, COOKIE_MAX_AGE, PW_COOKIE_NAME, mapRpcError } from '../_lib'
 
 const lookupSchema = z.object({
   phone: z.string().min(5).max(20),
@@ -30,10 +32,33 @@ export async function POST(
 
     const { phone, name } = parsed.data
 
-    const forwardedFor = request.headers.get('x-forwarded-for')
-    const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : 'unknown'
+    // Trusted IP only — never leftmost client-supplied XFF (P1-14).
+    // RPC hashes request.headers x-forwarded-for first hop; we pass a single sanitized value.
+    const clientIp = getClientIp(request)
 
     const supabase = await createClient()
+
+    // Match guest page gate: password-protected sites require evz_site_pw before lookup.
+    const { data: rawPayload, error: payloadError } = await supabase.rpc(
+      'get_public_website_payload',
+      { p_slug: slug }
+    )
+    if (payloadError || rawPayload === null) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+    const payload = rawPayload as { password_enabled?: boolean }
+    if (payload.password_enabled) {
+      const cookieStore = await cookies()
+      const pwToken = cookieStore.get(PW_COOKIE_NAME)?.value ?? null
+      const { data: pwVerified } = await supabase.rpc('is_website_password_verified', {
+        p_slug: slug,
+        p_token: pwToken,
+      })
+      if (!pwVerified) {
+        return NextResponse.json({ error: 'Password required' }, { status: 401 })
+      }
+    }
+
     const { data: token, error } = await supabase
       .rpc('resolve_guest_by_lookup', { p_slug: slug, p_phone: phone, p_name: name })
       .setHeader('x-forwarded-for', clientIp)

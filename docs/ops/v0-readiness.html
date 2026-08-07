@@ -325,15 +325,17 @@
       <p class="masthead-sub">V0 Readiness — MVP feature matrix, full wiring audit (every button/CTA traced end to end), and the launch-readiness backlog.</p>
     </div>
     <div class="masthead-meta">
-      <div class="who">Dev-Vibe-Testing → evenzi.vercel.app</div>
-      <div>audited 2026-08-03 · DP fix 08-05 · push 08-06 · collab invite 2026-08-07</div>
+      <div class="who">Dev-Vibe-Testing → evenzi.vercel.app (Dev/UAT)</div>
+      <div>audited 2026-08-03 · DP 08-05 · push 08-06 · collab invite 08-07 · platform truth Stage 1+2 + prod-risk PR-1 fix 2026-08-07</div>
+      <div style="margin-top:4px; color:var(--muted-soft)">Stage 2 code on <code>feature/platform-truth-audit</code> — commit + merge + deploy still pending</div>
     </div>
   </div>
 
   <div class="launch-strip">
     <div class="launch-item"><span class="launch-lbl">Launch date</span><span class="launch-val">Aug 31, 2026</span></div>
-    <div class="launch-item"><span class="launch-lbl">Testing URL</span><a class="launch-val link" href="https://evenzi.vercel.app" target="_blank" rel="noopener">evenzi.vercel.app</a></div>
-    <div class="launch-item"><span class="launch-lbl">Main domain</span><a class="launch-val link" href="https://www.evenzii.com" target="_blank" rel="noopener">www.evenzii.com</a></div>
+    <div class="launch-item"><span class="launch-lbl">App — Dev/UAT</span><a class="launch-val link" href="https://evenzi.vercel.app" target="_blank" rel="noopener">evenzi.vercel.app</a></div>
+    <div class="launch-item"><span class="launch-lbl">Marketing</span><a class="launch-val link" href="https://www.evenzii.com" target="_blank" rel="noopener">www.evenzii.com</a></div>
+    <div class="launch-item"><span class="launch-lbl">App production (later)</span><span class="launch-val">app.evenzii.com — not connected</span></div>
   </div>
 
   <!-- ── OVERVIEW ───────────────────────────────────────── -->
@@ -368,13 +370,13 @@
 
     <div class="overview-row2">
       <div class="overview-card">
-        <div class="stack-title">Deep-audit findings by feature — 117 checks, sorted worst-first (% of checks fully wired)</div>
+        <div class="stack-title">Deep-audit findings by feature — 124 checks, sorted worst-first (% of checks fully wired) · totals recounted from the accordions 2026-08-07</div>
         <div class="fbar-list" id="fbarList"><!-- rows injected identically in markup below for no-JS fallback --></div>
         <div class="stack-legend" style="margin-top:16px;">
-          <div class="legend-item"><span class="legend-dot wired"></span>Wired <b id="totWired">75</b></div>
-          <div class="legend-item"><span class="legend-dot partial"></span>Partial <b id="totPartial">16</b></div>
-          <div class="legend-item"><span class="legend-dot stub"></span>Stub / dead <b id="totStub">18</b></div>
-          <div class="legend-item"><span class="legend-dot" style="background:var(--info)"></span>Informational <b>8</b> <span style="color:var(--muted-soft)">(correct, not a bug)</span></div>
+          <div class="legend-item"><span class="legend-dot wired"></span>Wired <b id="totWired">84</b></div>
+          <div class="legend-item"><span class="legend-dot partial"></span>Partial <b id="totPartial">15</b></div>
+          <div class="legend-item"><span class="legend-dot stub"></span>Stub / dead <b id="totStub">16</b></div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--info)"></span>Informational <b>9</b> <span style="color:var(--muted-soft)">(correct, not a bug)</span></div>
         </div>
         <div class="audit-stats">
           <span>2026-08-03 baseline: 6 parallel audit agents</span>
@@ -397,6 +399,28 @@
           <span>Pending-invite UI design-drift fixed (single filter row + <code>.pending-invite-card</code>)</span>
           <span>Resend email best-effort (keys deferred); Usage tab + Portal overlays on cleanup lineage</span>
         </div>
+        <div class="audit-stats" style="margin-top:2px;">
+          <span><b>2026-08-07 platform truth audit</b> — W0–W6 + Stage 2 Batches A–D</span>
+          <span>W3 full UI click-through <b>PASS</b> (host + 4 roles Accept + Decline + forbidden writes)</span>
+          <span>W3 headed-Chrome deep click <b>PASS</b> (45 host steps + collab Accept/Decline)</span>
+          <span>prod-risk PR-1 push webhook HMAC <b>fixed live</b></span>
+          <span>Vitest <b>201/201</b> green</span>
+          <span>Design Q&amp;A Q1–Q5 locked</span>
+          <span style="color:var(--muted-soft)">Branch <code>feature/platform-truth-audit</code> — commit/merge/deploy pending, so these fixes are <b>not yet on evenzi.vercel.app</b></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="overview-row2" style="margin-top:14px;">
+      <div class="overview-card">
+        <div class="stack-title">Design Q&amp;A — locked by founder 2026-08-07</div>
+        <ul class="findings">
+          <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q1</span><b>Website theme catalog — hybrid.</b> One live theme (<code>cinematic-scroll</code>); the other tiles stay an honest "coming soon" rather than fake selectable cards. The 5-vs-1 template mismatch is therefore <b>intentional</b>, not a launch blocker. This is only the Digital Presence → Design theme picker — <b>Media &amp; Memories is fully wired</b> and unrelated.</p></li>
+          <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q2</span><b>Sapphire / midnight-elegant guest-site HTML = design references only</b>, workshop material until templated in React. Not product.</p></li>
+          <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q3</span><b>Journey = read-only timeline for V0.</b> Listing the real sub-events with CTAs into the hub is enough; in-place editing is out of scope.</p></li>
+          <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q4</span><b>Invitations persistence = next build.</b> Planning in progress. Until then the UI is honest ("Draft only — not saved") rather than pretending to autosave. Tracked as upcoming work, not as a broken feature.</p></li>
+          <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q5</span><b>Billing "Upgrade" CTA = hide</b> until a payment gateway is actually planned. Interim state on the audit branch is a disabled "Coming soon" button. No payments exist either way.</p></li>
+        </ul>
       </div>
     </div>
   </div>
@@ -405,7 +429,7 @@
   <div class="section">
     <div class="section-head">
       <h2>Critical findings</h2>
-      <span class="hint">The severity items — fix before Aug 31</span>
+      <span class="hint">All seven now resolved or decided — nothing on the 08-03 critical list is still open</span>
     </div>
     <div class="crit-grid">
       <div class="crit-card resolved" data-jump="digital-presence">
@@ -421,31 +445,47 @@
         <div>
           <div class="kicker">Security · Rate limit bypass</div>
           <b>Fixed — and a second, worse bug found in the process</b>
-          <span>Forwarded the real client IP into the DB call (it was never attached to the server-to-server request). Live-testing that fix then surfaced a second bug: a failed guess raised a Postgres exception that rolled back its own rate-limit-counter insert, so brute-force guessing never actually accumulated — 7 wrong guesses in a row, zero rows logged, no lockout ever. Fixed via a small migration; re-tested the same sequence post-fix: 5 fails logged correctly, 6th blocked with 429.</span>
+          <span>Forwarded the real client IP into the DB call (it was never attached to the server-to-server request). Live-testing that fix then surfaced a second bug: a failed guess raised a Postgres exception that rolled back its own rate-limit-counter insert, so brute-force guessing never actually accumulated — 7 wrong guesses in a row, zero rows logged, no lockout ever. Fixed via a small migration; re-tested the same sequence post-fix: 5 fails logged correctly, 6th blocked with 429. <b>Updated 2026-08-07:</b> the guest-lookup API now also respects the website password gate (P0-2), closing the bypass that was previously flagged-not-fixed, and the IP helper no longer trusts a spoofable leftmost <code>x-forwarded-for</code> (P1-14).</span>
         </div>
       </div>
       <div class="crit-card resolved" data-jump="host-dashboard">
         <div class="stripe"></div>
         <div>
-          <div class="kicker">Dead vertical slice · mostly fixed 08-07</div>
-          <b>Fixed — in-app Accept/Decline on Collaborations + bell</b>
-          <span>Pending invites via <code>list_my_pending_invites</code>; accept/decline APIs + RPCs; notify on invite when user exists; email path still <code>/auth/accept-invite?token=</code> (Resend best-effort, keys deferred). Remaining: merge to <code>Dev-Vibe</code>/prod; co-host hub RLS edge cases if any still 404. Branch <code>feature/collab-invite-in-app</code> <code>7091482e</code>.</span>
+          <div class="kicker">Dead vertical slice · resolved</div>
+          <b>Fixed — in-app Accept/Decline on Collaborations + bell, now E2E-verified</b>
+          <span>Pending invites via <code>list_my_pending_invites</code>; accept/decline APIs + RPCs; notify on invite when the user already exists; email path still <code>/auth/accept-invite?token=</code> (Resend best-effort, keys deferred). <b>Verified 2026-08-07:</b> full UI click-through PASS (host + all four collaborator roles accepting through the real UI, plus decline and forbidden-write checks) and a headed-Chrome deep-click run PASS. Merged as <code>7091482e</code>.</span>
         </div>
       </div>
-      <div class="crit-card" data-jump="event-settings">
+      <div class="crit-card resolved" data-jump="digital-presence">
         <div class="stripe"></div>
         <div>
-          <div class="kicker">No-op CTA</div>
-          <b>"Upgrade now" does nothing — no payment system exists</b>
-          <span>Plan &amp; Billing renders a full pricing page with "Most popular" badges. The upgrade button has no <code>onClick</code>, no <code>href</code>, no form. Grepping the repo for billing/payment infra returns nothing beyond this display page.</span>
+          <div class="kicker">Security · platform truth Batch A</div>
+          <b>Fixed — four P0/P1 exposures closed in one batch</b>
+          <span>Anonymous access to <code>get_pending_invite</code> revoked (it leaked invitee PII to logged-out callers; the accept-invite page now uses a service-role preview and shows no email when signed out). Guest-lookup API now enforces the website password gate. Anonymous <code>hash_website_password</code> revoked. The open, unauthenticated <code>/api/events/[id]/rsvp</code> route retired to a <code>410</code>. Migrations <code>security_batch_a_01_revoke_anon_pii_rpcs</code> and <code>security_batch_bcd_01_sub_events_rsvp_enforce</code> are applied live; the route code sits on <code>feature/platform-truth-audit</code> pending merge.</span>
         </div>
       </div>
-      <div class="crit-card" data-jump="media">
+      <div class="crit-card resolved" data-jump="media">
         <div class="stripe"></div>
         <div>
-          <div class="kicker">Core feature broken</div>
-          <b>Video playback has no implementation</b>
-          <span>The lightbox "Play video" button has no <code>onClick</code> at all, and there is no <code>&lt;video&gt;</code> element anywhere in the component. Hosts can upload a video but nobody can ever watch it.</span>
+          <div class="kicker">Core feature · resolved on branch</div>
+          <b>Fixed — video playback now exists</b>
+          <span>The lightbox previously had a "Play video" button with no <code>onClick</code> and no <code>&lt;video&gt;</code> element anywhere in the component — hosts could upload a video nobody could watch. It now renders a real <code>&lt;video&gt;</code> with a working Play control. <b>Fixed on <code>feature/platform-truth-audit</code>; merge and deploy still pending, so this is not yet live on evenzi.vercel.app.</b></span>
+        </div>
+      </div>
+      <div class="crit-card resolved" data-jump="push">
+        <div class="stripe"></div>
+        <div>
+          <div class="kicker">Ops · prod-risk PR-1</div>
+          <b>Fixed live — push webhook was silently 401-ing every dispatch</b>
+          <span>Root cause: the database trigger was sending the raw shared secret as the signature header while the route required an HMAC of the request body, so every single push dispatch was rejected with a <code>401</code> and no browser push had ever actually been delivered. Replaced with <code>public.dispatch_notification_push()</code>, which HMAC-signs the body. Verified end to end on the live database: <code>net._http_response</code> returned <b>200</b> <code>{"ok":true}</code> with a matching <code>push_dispatch_log</code> row. The route also now accepts the shared-secret header for compatibility (that part is code on the audit branch). Outstanding: one founder-side confirmation that the OS toast actually appears on a subscribed device.</span>
+        </div>
+      </div>
+      <div class="crit-card resolved" data-jump="event-settings">
+        <div class="stripe"></div>
+        <div>
+          <div class="kicker">No-op CTA · product decision (Q5)</div>
+          <b>Decided — hide "Upgrade now" until payments are planned</b>
+          <span>Plan &amp; Billing rendered a full pricing page whose upgrade button had no <code>onClick</code>, no <code>href</code> and no form, with no payment infrastructure anywhere in the repo. This is no longer treated as a launch blocker: the founder's locked call (Q5) is to <b>hide</b> the Upgrade CTA entirely until a gateway is planned. Interim state on the audit branch is a disabled "Coming soon" button, and the perk list no longer invents guest or photo caps. <b>The hide itself is not coded yet.</b> Payment gateway remains out of V0 and is blocked on LLP registration regardless.</span>
         </div>
       </div>
     </div>
@@ -535,8 +575,8 @@
           <span class="acc-name">Host Dashboard</span>
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
           <span class="acc-minibar"><span class="seg-wired" style="width:83.3%"></span><span class="seg-partial" style="width:16.7%"></span></span>
-          <span class="acc-count">6 findings — Collaborations wired 08-07</span>
-          <span class="acc-takeaway">Events list solid. Collaborations now loads accepted collabs + pending invite cards with Accept/Decline.</span>
+          <span class="acc-count">6 findings — Collaborations wired 08-07, E2E PASS</span>
+          <span class="acc-takeaway">Events list solid. Collaborations loads accepted collabs + pending invite cards with Accept/Decline, now verified by a full UI click-through and a headed-Chrome deep-click run.</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
@@ -544,7 +584,7 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>"Manage event" click-through — real navigation.</p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>"Create event" CTA — real navigation into the wizard.</p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Header greeting/avatar — real <code>user_profiles</code> read with fallback chain.</p></li>
-            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>"Collaborations" tab</b> — accepted collabs from DB + pending invites via <code>list_my_pending_invites</code>; Accept/Decline → <code>/api/collaborators/invites/…</code>; stays on Collaborations after accept. Design: single filter row + <code>.pending-invite-card</code>. <em>Updated 2026-08-07</em> (was hardcoded empty arrays).</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>"Collaborations" tab</b> — accepted collabs from DB + pending invites via <code>list_my_pending_invites</code>; Accept/Decline → <code>/api/collaborators/invites/…</code>; stays on Collaborations after accept. Design: single filter row + <code>.pending-invite-card</code>. <em>Updated 2026-08-07</em> (was hardcoded empty arrays). Verified end to end the same day: the host invite path plus all four collaborator roles accepting through the real UI, decline, and forbidden-write checks all PASS, and again under a headed-Chrome deep-click run.</p></li>
             <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>"Live website" button links unconditionally, even for events that aren't published yet.</p></li>
           </ul>
         </div>
@@ -589,9 +629,9 @@
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Event Management Hub</span>
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
-          <span class="acc-minibar"><span class="seg-wired" style="width:55.6%"></span><span class="seg-stub" style="width:44.4%"></span></span>
-          <span class="acc-count">9 findings</span>
-          <span class="acc-takeaway">Hero/navigation is real. "Your timeline" and "Recent activity" are permanent placeholders.</span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:60%"></span><span class="seg-stub" style="width:40%"></span></span>
+          <span class="acc-count">10 findings — Journey wired 08-07</span>
+          <span class="acc-takeaway">Hero/navigation is real and Journey now lists real sub-events. "Your timeline" and "Recent activity" are still permanent placeholders.</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
@@ -600,6 +640,7 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Sub-event journey strip — real read joined with <code>config.event_sub_types</code>. <code>page.tsx:98-146,366-462</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Quick action tiles (Send invites / Track RSVPs / Manage budget / Plan timeline) — real links. <code>page.tsx:264-279</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Feature bento tiles — real links to existing pages. <code>page.tsx:475-496</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Journey page</b> — lists the event's real sub-events and its CTAs link back into the event hub, so there are no dead buttons left on it. Depth is intentionally read-only for V0 per the locked Q3 decision; in-place editing is out of scope. <em>Updated 2026-08-07</em>.</p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"RSVP rate" stat tile — data is fetched from the view, but the tile body is hardcoded to <code>—</code>, never interpolated. <code>page.tsx:83,299-306</code></p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Budget used" stat tile — same pattern, fetched then discarded. <code>page.tsx:83-84,307-314</code></p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>"Your timeline" panel</b> — always renders the static empty state; never queries <code>event_tasks</code>, even though Planning is fully wired elsewhere. <code>page.tsx:514-521</code></p></li>
@@ -614,9 +655,9 @@
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Guest Management &amp; RSVP</span>
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
-          <span class="acc-minibar"><span class="seg-wired" style="width:92.9%"></span><span class="seg-partial" style="width:7.1%"></span></span>
-          <span class="acc-count">14 findings</span>
-          <span class="acc-takeaway">Cleanest feature in the audit. "Send invites" is disabled correctly and honestly, not silently broken.</span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:93.3%"></span><span class="seg-partial" style="width:6.7%"></span></span>
+          <span class="acc-count">15 findings — RSVP rules enforced 08-07</span>
+          <span class="acc-takeaway">Cleanest feature in the audit. "Send invites" is disabled correctly and honestly, not silently broken, and the guest-settings rules are now actually enforced on submission.</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
@@ -633,6 +674,7 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>"Send invites" (toolbar + per-row) — correctly <code>disabled</code> with an honest "coming soon" tooltip. Not a silent no-op — done right. <code>:259-265,410-412</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>RSVP response-rate stat — real computed from live guest data. <code>:112-113,218-227</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Zero-assigned-function warning banner — real count-driven. <code>:89,305-313</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>RSVP submission now enforces the event's own guest settings</b> — <code>submit_rsvp</code> checks <code>rsvp_enabled</code> and <code>max_plus_ones_per_invite</code> and returns mapped errors instead of accepting anything. This closes the previously-flagged gap where the Event Settings → Guests toggles persisted but nothing downstream read them. <em>Updated 2026-08-07</em>.</p></li>
             <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Single-guest "Add guest" has no duplicate-phone guard server-side, unlike the CSV import path which re-checks. Minor inconsistency. <code>api/.../guests/route.ts:42-60</code></p></li>
           </ul>
         </div>
@@ -644,25 +686,25 @@
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Event Settings</span>
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill partial" title="Backend">~</span><span class="pill done" title="Frontend">✓</span></span>
-          <span class="acc-minibar"><span class="seg-wired" style="width:10%"></span><span class="seg-partial" style="width:30%"></span><span class="seg-stub" style="width:60%"></span></span>
-          <span class="acc-count">10 findings + Admins (below)</span>
-          <span class="acc-takeaway">Most decorative tab in the app. Registry and Plan &amp; Billing are especially hollow — see Critical findings.</span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:40%"></span><span class="seg-partial" style="width:10%"></span><span class="seg-stub" style="width:50%"></span></span>
+          <span class="acc-count">10 findings + Admins (below) — reassessed 08-07</span>
+          <span class="acc-takeaway">Much less hollow than the 08-03 audit found: Website settings are now genuinely enforced and Admins is fully live. Registry is still the one truly fake tab.</span>
         </summary>
         <div class="acc-body">
           <p class="acc-note"><b>General tab:</b> Name/date/venue/tagline saves and Delete are real — see Event CRUD card above (same files, not re-listed here to avoid double-counting).</p>
           <ul class="findings">
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span><b>Website tab —</b> password-protect toggle saves the boolean, but the actual password text typed into the field is never sent to the API at all. <code>WebsiteContent.tsx:29,56-61</code></p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span><b>Website tab —</b> "Take site offline," password-protect, search-indexing, and the announcement banner all persist correctly to <code>event_website_settings</code> — but the public site route never reads that table at all. Fully unenforced. Zero references in <code>app/e/[slug]/page.tsx</code>.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Website tab — password protection.</b> The 08-03 finding was that the typed password never reached the API. Password protection was subsequently built end to end in the 08-05 pass — hashed on save with pgcrypto, a real guest-facing gate on <code>/e/[slug]</code>, and a rate-limited verify RPC — and live-tested with wrong and right passwords plus reload persistence. <em>Updated 2026-08-05.</em></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Website tab — settings are enforced.</b> The 08-03 finding claimed the public site route never read <code>event_website_settings</code> at all. That is no longer true: the offline gate was live-verified (<code>site_offline=true</code> → 404, <code>false</code> → 200) and the password gate is enforced before any site content renders. <em>Corrected 2026-08-05.</em></p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Website tab —</b> "View live site" link — <code>href="#"</code>. <code>:107</code></p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Website tab —</b> "Modify all" and per-page "Edit" buttons — <code>href="#"</code> / no <code>onClick</code>. <code>:200-218</code></p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Registry tab —</b> "Add link" / "Create fund" are <code>setTimeout</code> calls that flash a fake success toast. No <code>fetch</code>, no API route exists for registry at all — not even localStorage. Worse than the "browser only" claim in the docs; nothing persists anywhere. <code>RegistryContent.tsx:20-28</code></p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span><b>Guests tab —</b> RSVP-enabled / plus-ones / dietary-notes toggles genuinely persist to <code>event_guest_settings</code>, but nothing downstream (RSVP route, invite flow, import) ever reads them. Copy says "these rules apply to every guest" — currently they apply to nothing.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Guests tab —</b> the RSVP-enabled and plus-ones toggles are now actually enforced: <code>submit_rsvp</code> checks <code>rsvp_enabled</code> and <code>max_plus_ones_per_invite</code> on submission. The 08-03 finding that "these rules apply to nothing" no longer holds. Dietary notes remain display-only. <em>Updated 2026-08-07</em> (P1-7).</p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Guests tab —</b> "View the guide" button — no <code>onClick</code>. <code>:170</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Plan &amp; Billing —</b> current plan display reads real <code>events.plan_id</code> joined against <code>config.plans</code>. Accurate.</p></li>
-            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Plan &amp; Billing —</b> "Upgrade now" — no <code>onClick</code>, no href, no form. No payment system exists anywhere in the repo. See Critical findings. <code>billing/page.tsx:126-129</code></p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span><b>Plan &amp; Billing —</b> "Upgrade now". Decision locked (Q5): <b>hide</b> the CTA until a payment gateway is planned. Interim state on the audit branch is a disabled "Coming soon" button, and the perk list no longer invents guest or photo caps — but the hide itself is not implemented yet. No payment system exists anywhere in the repo either way. <em>Updated 2026-08-07.</em> <code>billing/page.tsx</code></p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Plan &amp; Billing —</b> "Contact support" button — dead, same pattern as General tab. <code>:142</code></p></li>
           </ul>
-          <p class="acc-note"><b>Admins tab</b> (co-host invite): known stub — invite only inserts a DB row, no email, no accept flow, no permission enforcement anywhere. See Critical findings and the Host Dashboard card above for the full dead vertical slice.</p>
+          <p class="acc-note"><b>Admins tab</b> (co-host invite) — <b>rewritten 2026-08-07, the old "inserts a DB row and nothing else" description is obsolete.</b> Invite, accept, decline and per-role permission enforcement are all live. The invitee sees the pending invite on their own Collaborations tab and in the notification bell, and can accept or decline in-app; email delivery stays best-effort while Resend keys are deferred. Verified by a full UI click-through covering all four collaborator roles plus forbidden-write checks, and again under headed Chrome. One parked enhancement (P1-12): there is no <code>GET /api/events/[id]/admins</code> JSON list — the server-rendered Admins page plus the invite/remove APIs cover the product UI, so this only matters if a SPA refresh or mobile client later needs the list as JSON.</p>
         </div>
       </details>
 
@@ -721,9 +763,9 @@
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Media &amp; Memories (Photo Gallery)</span>
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill partial" title="Frontend">~</span></span>
-          <span class="acc-minibar"><span class="seg-wired" style="width:62.5%"></span><span class="seg-stub" style="width:37.5%"></span></span>
-          <span class="acc-count">9 findings</span>
-          <span class="acc-takeaway">Upload/delete/album pipeline is solid, both prior critical bugs confirmed fixed. Video playback doesn't exist — see Critical findings.</span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:77.8%"></span><span class="seg-stub" style="width:22.2%"></span></span>
+          <span class="acc-count">10 findings — video fixed 08-07</span>
+          <span class="acc-takeaway">Fully wired feature: upload, delete, albums, R2 and signed URLs all solid, and video playback now exists. Two small dead controls remain ("Set cover", "Notify me").</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
@@ -733,9 +775,10 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Delete / bulk-delete — scoped, per-id failure reporting, client reconciles correctly.</p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Albums — create/rename/delete/assign, ownership-checked, duplicate-name <code>409</code>.</p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Set cover" button — pure client state, never persisted anywhere. Refresh the page and the cover badge silently resets. No backend concept of a cover exists.</p></li>
-            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Video playback</b> — "Play video" button has no <code>onClick</code> at all; no <code>&lt;video&gt;</code> element exists anywhere in the component. See Critical findings.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Video playback</b> — the lightbox now renders a real <code>&lt;video&gt;</code> element with a working Play control. Previously the button had no <code>onClick</code> and no video element existed at all. <em>Fixed 2026-08-07 on <code>feature/platform-truth-audit</code> — merge and deploy still pending, so not yet live on evenzi.vercel.app.</em></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Batch signed-URL endpoint <code>POST …/media/urls</code> now authorizes with <code>requireEventRead</code> rather than a write-level check, so collaborators with view access can actually load media instead of being rejected. <em>Fixed 2026-08-07</em> (P1-6).</p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Notify me" (storage-limit) button — dead, no <code>onClick</code>.</p></li>
-            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Storage limit is hardcoded to 5GB, not entitlement-driven — flagged <code>[PLANNED]</code> in the code's own comment. Not a lie, meter just isn't wired to plan data yet.</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Storage limit is hardcoded to 5GB, not entitlement-driven — flagged <code>[PLANNED]</code> in the code's own comment. The meter copy now says explicitly that this is a temporary soft limit rather than a plan-derived quota, so the UI no longer implies entitlements exist. <em>Copy clarified 2026-08-07</em> (P1-15).</p></li>
           </ul>
         </div>
       </details>
@@ -746,9 +789,9 @@
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Digital Presence (Event Website)</span>
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
-          <span class="acc-minibar"><span class="seg-wired" style="width:80%"></span><span class="seg-partial" style="width:20%"></span></span>
-          <span class="acc-count">18 findings — 2026-08-05 fix + design-parity pass</span>
-          <span class="acc-takeaway">Both Critical security items fixed and re-verified live. Full Overview/Design/Photos/Pages rebuild to match the design system, reviewed. Three things deliberately flagged rather than fixed — see Info tags.</span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:82.4%"></span><span class="seg-partial" style="width:17.6%"></span></span>
+          <span class="acc-count">20 findings — 08-05 design-parity + 08-07 platform truth</span>
+          <span class="acc-takeaway">Both Critical security items fixed and re-verified live, and the lookup password-gate bypass is now closed too. The one-live-theme catalog is an intentional product decision (Q1), not a defect.</span>
         </summary>
         <div class="acc-body">
           <p class="acc-note">Biggest single change in this fix pass — was the worst-scoring feature in the 08-03 audit (57% wired), now among the best. Full session log: <code>docs/superpowers/plans/2026-08-05-digital-presence-audit-plan.md</code>.</p>
@@ -769,8 +812,10 @@
             <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Registry / Video sections — still localStorage-only, still honestly self-disclosed. Unchanged, not launch-ready.</p></li>
             <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Cover/OG image crop UI — upload works, real crop-and-zoom interaction from the design isn't built yet. Disclosed in-product, not silently dropped.</p></li>
             <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Accepted tradeoff: the 5-attempt/15-min rate limit counts a real guest's own typos too — a guest who mistypes their name 5x locks themselves out. Flagged, not fixed.</p></li>
-            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Known gap, not closed: the guest name+phone lookup API has no awareness of the password gate — a caller who already knows a guest's phone+name could bypass password-protection by calling the lookup API directly instead of going through the UI. Same class as the rate-limit tradeoff above — defense-in-depth against a determined, informed attacker, not the primary "randoms browsing a public link" threat model.</p></li>
-            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Template system mismatch flagged back, not force-fixed: the design assumes a 5-template gallery; React ships one different real template ("Cinematic Scroll"). Deliberately not resolved without a product decision — the real template wasn't deleted or reshaped to fit.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Closed 2026-08-07</b> (was the "known gap, not closed" item): the guest name+phone lookup API now respects the website password gate, so a caller who knows a guest's phone and name can no longer bypass password protection by calling the lookup API directly instead of going through the UI (P0-2). Anonymous execute on <code>hash_website_password</code> was revoked in the same batch (P1-9).</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Sub-event <code>show_on_website</code> PATCH is now properly authorized — session check plus <code>requireEventWrite(…, 'website')</code>, backed by an RLS policy so collaborators with website permission can toggle visibility and nobody else can. <em>Fixed 2026-08-07</em> (P1-5).</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span><b>Theme catalog — intentional, not a defect (Q1).</b> The design assumes a five-template gallery; React ships one real template ("Cinematic Scroll"). The founder's locked call is the hybrid: keep the one live theme and show the remaining tiles as an honest "coming soon" rather than fake selectable cards. The full catalog is later work, not a launch blocker. Note this is only the website <em>theme</em> picker — Media &amp; Memories is a separate, fully wired feature, and the Website → Photos tab is a separate unbuilt bridge (below).</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span><b>Sapphire / midnight-elegant guest-site HTML = design references only (Q2)</b> — workshop material, not product, until it is templated in React. Should not be read as shipped themes.</p></li>
           </ul>
         </div>
       </details>
@@ -782,9 +827,9 @@
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Push Notifications (in-app + browser)</span>
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
-          <span class="acc-minibar"><span class="seg-wired" style="width:88.9%"></span><span class="seg-partial" style="width:11.1%"></span></span>
-          <span class="acc-count">9 findings — shipped 2026-08-06</span>
-          <span class="acc-takeaway">Phase A bell + Phase B web-push live on evenzi.vercel.app. Manual OS-toast B7 + webhook HMAC header mode still need human confirm.</span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:90%"></span><span class="seg-partial" style="width:10%"></span></span>
+          <span class="acc-count">10 findings — shipped 08-06, webhook fixed live 08-07</span>
+          <span class="acc-takeaway">Phase A bell + Phase B web-push live on evenzi.vercel.app. The webhook was rejecting every dispatch until 08-07 — now fixed and verified 200. Only the founder-side OS-toast confirm is left.</span>
         </summary>
         <div class="acc-body">
           <p class="acc-note">Commit <code>0a25eed</code> → merged <code>Dev-Vibe</code> (<code>814bb3cb</code>) → <code>Dev-Vibe-Testing</code> (<code>861b1e25</code>). Deploy <code>dpl_J6pFsPak…</code> READY, aliased to prod. Spec/build-doc: <code>docs/superpowers/specs/2026-08-06-push-notifications-design.md</code>, <code>docs/superpowers/plans/2026-08-06-push-notifications-build-doc.md</code>.</p>
@@ -796,7 +841,8 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>SSRF allowlist on push endpoint + ownership-scoped subscription upsert (council criticals).</p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Vercel env present: <code>NEXT_PUBLIC_VAPID_PUBLIC_KEY</code>, <code>VAPID_PRIVATE_KEY</code>, <code>VAPID_SUBJECT</code>, <code>NOTIFICATIONS_WEBHOOK_SECRET</code>, <code>SUPABASE_SERVICE_ROLE_KEY</code>.</p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Live smoke 2026-08-06: <code>dispatch-push</code> unsigned/bad-HMAC → <b>401</b> (route live, not 404); <code>/api/notifications</code> → 401.</p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Ops: Supabase webhook created, but confirm header is <b>HMAC-SHA256 hex of raw body</b> (not static secret paste). Manual B7 — Chrome/Safari Settings → Push ON → trigger RSVP/expense → OS toast + <code>push_dispatch_log</code> row — not yet founder-confirmed.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Webhook HMAC — fixed live 2026-08-07.</b> The trigger had been sending the raw shared secret as the signature header while the route required an HMAC of the request body, so every dispatch was rejected with a <code>401</code> and no browser push had ever been delivered. Replaced with <code>public.dispatch_notification_push()</code>, which HMAC-signs the body. Verified against the live database: <code>net._http_response</code> <b>200</b> <code>{"ok":true}</code> plus a matching <code>push_dispatch_log</code> row. The route now also accepts a shared-secret header for compatibility (code on the audit branch, uncommitted).</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Manual B7 — Chrome/Safari Settings → Push ON → trigger an RSVP or expense → confirm the OS toast actually appears on the subscribed device. Apple push endpoints exist for the founder's user, but nobody has visually confirmed a toast. Nice-to-have, not blocking.</p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Bell Accept/Decline for <code>collab_invite_received</code> — wired 2026-08-07 on <code>feature/collab-invite-in-app</code> (was parked). Re-invite needed for rows created before notify wiring.</p></li>
           </ul>
         </div>
@@ -821,16 +867,16 @@
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Digital Invitations (WhatsApp)</span>
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill none" title="Backend">–</span><span class="pill partial" title="Frontend">~</span></span>
-          <span class="acc-minibar"><span class="seg-partial" style="width:66.7%"></span><span class="seg-stub" style="width:33.3%"></span></span>
-          <span class="acc-count">4 findings</span>
-          <span class="acc-takeaway">The WhatsApp share link genuinely works. Everything else on this page is decorative.</span>
+          <span class="acc-minibar"><span class="seg-partial" style="width:100%"></span></span>
+          <span class="acc-count">4 findings — honesty pass 08-07</span>
+          <span class="acc-takeaway">Still draft-only, but no longer pretending otherwise: the fake "Saved" indicator is gone and Download is honestly disabled. Persistence is the next build (Q4).</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
-            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Zero <code>fetch</code>/<code>localStorage</code> calls anywhere in the 576-line client — the "Saved" autosave indicator is purely cosmetic. Already known going into this audit.</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Nothing persists — there are still zero <code>fetch</code>/<code>localStorage</code> calls anywhere in the 576-line client. The difference as of 2026-08-07 is that the UI now says so: the cosmetic "Saved" autosave indicator was replaced with an honest <b>"Draft only — not saved"</b>. Persistence is the next build per the locked Q4 decision, tracked as upcoming scope rather than a broken feature.</p></li>
             <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>"Upload your card" — file picker works and the image renders in the editor, but it's a blob URL (<code>URL.createObjectURL</code>) — never uploaded/persisted, lost on refresh.</p></li>
-            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Download" button — no <code>onClick</code> at all. Clicking does nothing.</p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>"Share on WhatsApp" — the <code>wa.me</code> link is genuine and does open WhatsApp with a pre-filled message. But the confirm modal promises "Your card downloads, then attaches in WhatsApp" — no download/export logic exists anywhere; only text is shared, never the card image.</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>"Download" button — previously a dead control with no <code>onClick</code>. Now explicitly <code>disabled</code> and labelled as coming soon, so it no longer silently does nothing. <em>Updated 2026-08-07</em> (P1-2).</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>"Share on WhatsApp" — the <code>wa.me</code> link is genuine and does open WhatsApp with a pre-filled message, and the shared RSVP URL is now built correctly from <code>getAppBaseUrl()</code> plus the event slug rather than a hardcoded host (P1-8). Still partial: only text is shared, never the card image, because no download or export logic exists yet.</p></li>
           </ul>
         </div>
       </details>
@@ -861,9 +907,21 @@
       <div class="domain-card">
         <h3>Growth infra</h3>
         <ul>
-          <li class="done"><span class="strike">Push notifications</span> — Phase A+B live on <code>evenzi.vercel.app</code> 2026-08-06; B7 + HMAC header mode pending confirm</li>
-          <li class="done"><span class="strike">Collab invite Accept/Decline (Collaborations + bell)</span> — built 2026-08-07 on <code>feature/collab-invite-in-app</code>; merge/prod pending</li>
-          <li>Payment gateway integration <span class="tag">blocked</span></li>
+          <li class="done"><span class="strike">Push notifications</span> — Phase A+B live on <code>evenzi.vercel.app</code> 2026-08-06; webhook HMAC fixed live 08-07 (verified 200 + dispatch log). Only the founder OS-toast confirm is left</li>
+          <li class="done"><span class="strike">Collab invite Accept/Decline (Collaborations + bell)</span> — merged 08-07 and E2E-verified across all four collaborator roles</li>
+          <li>Payment gateway integration <span class="tag">blocked</span> — out of V0; blocked on LLP registration, and the Upgrade CTA is being hidden until it exists (Q5)</li>
+        </ul>
+      </div>
+      <div class="domain-card">
+        <h3>App — next up</h3>
+        <ul>
+          <li>Commit + merge <code>feature/platform-truth-audit</code> → <code>Dev-Vibe</code> → Testing deploy <span class="tag">blocking</span> — video playback, the Batch A route changes and the honesty UI are all still branch-only</li>
+          <li>Digital Invitations persistence (Q4)</li>
+          <li>Hide the Billing Upgrade CTA (Q5)</li>
+          <li class="tag-added">Favicon + Apple/Android home-screen icons <span class="tag">added</span> — so bookmarks and "Add to Home Screen" show Evenzi branding</li>
+          <li>Optional: Website → Photos ↔ Media bridge (which photos appear on the guest site)</li>
+          <li>Optional: one logged-in R2 upload smoke test on <code>evenzi.vercel.app</code> (PR-3)</li>
+          <li>Fixture cleanup — the <code>e2e-truth-audit</code> event is deliberately kept until the founder says otherwise</li>
         </ul>
       </div>
       <div class="domain-card">
@@ -907,6 +965,9 @@
           <li class="tag-added">Error monitoring — Sentry or similar <span class="tag">added</span></li>
           <li class="tag-added">Supabase backup policy <span class="tag">added</span></li>
           <li class="done"><span class="strike">Rate-limiting on public <code>/e/[slug]</code> guest routes</span> — confirmed broken 08-03, fixed + re-verified live 08-05 (see Critical findings, resolved)</li>
+          <li class="done"><span class="strike">Anon PII + open-endpoint sweep</span> — <code>get_pending_invite</code> and <code>hash_website_password</code> revoked from anon, open RSVP route retired to 410, lookup password gate enforced (08-07, live SQL)</li>
+          <li class="tag-added">Move the webhook secret out of the trigger function body into Vault or a config table <span class="tag">added</span></li>
+          <li class="tag-added">Git hygiene — GitHub <code>main</code> is 343 commits behind <code>Dev-Vibe</code> <span class="tag">added</span>. Cosmetic only: Vercel serves <code>Dev-Vibe-Testing</code>, so this is not "prod on old code"</li>
         </ul>
       </div>
       <div class="domain-card">
@@ -930,7 +991,7 @@
         <div class="stripe"></div>
         <div class="body">
           <b>WhatsApp invitation sending — mechanism undecided</b>
-          <span>Business API (paid, verified, delivery tracking) vs <code>wa.me</code> click-to-chat (free, manual). Blocks Digital Invitations backend.</span>
+          <span>Business API (paid, verified, delivery tracking) vs <code>wa.me</code> click-to-chat (free, manual). Still blocks the Guest Management send-invites path, which stays deliberately inert. Separate from Digital Invitations card persistence, which is unblocked and queued as the next build (Q4).</span>
         </div>
         <div class="kind">Open question</div>
       </div>
@@ -945,16 +1006,24 @@
       <div class="issue info">
         <div class="stripe"></div>
         <div class="body">
-          <b>Testing/prod alias is current for push — <code>evenzi.vercel.app</code> = <code>Dev-Vibe-Testing</code> @ <code>861b1e25</code></b>
-          <span>Was stale as of 08-05 DP pass; 08-06 push deploy <code>dpl_J6pFsPak…</code> READY and aliased. Main domain <code>www.evenzii.com</code> still a separate DNS question. Branch preview URLs remain Vercel-SSO gated.</span>
+          <b>Which host is what — locked 2026-08-07, do not mislabel</b>
+          <span><code>evenzi.vercel.app</code> is the <b>app Dev/UAT</b> host (Vercel project <code>evenzi</code>, production alias tracking <code>Dev-Vibe-Testing</code>). <code>evenzii.com</code> and <code>www.evenzii.com</code> are the <b>marketing</b> site on a separate <code>evenzi-coming-soon</code> project. <code>app.evenzii.com</code> is the <b>future app production</b> URL and is not connected yet. Two consequences: a missing <code>/sw.js</code> on the marketing host is expected rather than an app bug, and GitHub <code>main</code> lagging <code>Dev-Vibe</code> by 343 commits is git hygiene, not "production is running old code."</span>
         </div>
-        <div class="kind">Updated 08-06</div>
+        <div class="kind">Locked 08-07</div>
       </div>
       <div class="issue warn">
         <div class="stripe"></div>
         <div class="body">
-          <b>Push ops — confirm webhook HMAC mode + manual B7</b>
-          <span>Route rejects unsigned/wrong-sig with 401 (good). Need one real RSVP/expense → OS toast + <code>push_dispatch_log</code>, and confirm Supabase sends <code>x-evenzi-webhook-signature</code> as hex HMAC of raw body.</span>
+          <b>Audit-branch fixes are not on the deployed app yet</b>
+          <span>Video playback, the Batch A route changes, the honesty UI and the shared-secret webhook path all live on <code>feature/platform-truth-audit</code>, uncommitted. The live SQL migrations <em>are</em> applied to the real database, so the security fixes and the push webhook are genuinely live — but the code half is not. Nothing here should be read as shipped to <code>evenzi.vercel.app</code> until that branch is committed, merged and deployed.</span>
+        </div>
+        <div class="kind">Blocking</div>
+      </div>
+      <div class="issue">
+        <div class="stripe"></div>
+        <div class="body">
+          <b>Push ops — one founder-side OS-toast confirm outstanding</b>
+          <span>The webhook itself is fixed and verified (200 + <code>push_dispatch_log</code> row), so this is no longer a "does it work at all" question. What is left is one human check: Settings → Push ON, trigger an RSVP or expense, confirm the OS toast actually appears on the subscribed device.</span>
         </div>
         <div class="kind">Ops</div>
       </div>
@@ -978,7 +1047,7 @@
   </div>
 
   <footer>
-    <span>Derived from repo state, Supabase, and Vercel — not ClickUp. 08-03 baseline · 08-05 DP · 08-06 push · 08-07 collab invite. Canonical: <code>docs/ops/v0-readiness.html</code> · Claude.ai <code>9e517318…</code>.</span>
+    <span>Derived from repo state, Supabase, and Vercel — not ClickUp. 08-03 baseline · 08-05 DP · 08-06 push · 08-07 collab invite · 08-07 platform truth Stage 1+2 + prod-risk. Canonical: <code>docs/ops/v0-readiness.html</code> · Claude.ai <code>9e517318…</code>.</span>
     <span>Evenzi · Dev-Vibe-Testing</span>
   </footer>
 
@@ -994,19 +1063,19 @@
 
   // ── Per-feature bar chart data (health-sorted, worst first) ──
   var features = [
-    { id: "acc-invitations",       name: "Digital Invitations",   wired: 0,  partial: 2, stub: 1 },
-    { id: "acc-event-settings",    name: "Event Settings",        wired: 1,  partial: 3, stub: 6 },
+    { id: "acc-invitations",       name: "Digital Invitations",   wired: 0,  partial: 2, stub: 0 },
+    { id: "acc-event-settings",    name: "Event Settings",        wired: 4,  partial: 1, stub: 5 },
     { id: "acc-landing",           name: "Landing Section",       wired: 2,  partial: 0, stub: 2 },
     { id: "acc-crud",              name: "Event CRUD",            wired: 5,  partial: 3, stub: 2 },
-    { id: "acc-event-hub",         name: "Event Management Hub",  wired: 5,  partial: 0, stub: 4 },
-    { id: "acc-digital-presence",  name: "Digital Presence",      wired: 12, partial: 3, stub: 0 },
-    { id: "acc-media",             name: "Media &amp; Memories",  wired: 5,  partial: 0, stub: 3 },
+    { id: "acc-event-hub",         name: "Event Management Hub",  wired: 6,  partial: 0, stub: 4 },
+    { id: "acc-digital-presence",  name: "Digital Presence",      wired: 14, partial: 3, stub: 0 },
+    { id: "acc-media",             name: "Media &amp; Memories",  wired: 7,  partial: 0, stub: 2 },
     { id: "acc-host-dashboard",    name: "Host Dashboard",        wired: 5,  partial: 1, stub: 0 },
     { id: "acc-auth",              name: "Auth &amp; Roles",      wired: 5,  partial: 1, stub: 1 },
     { id: "acc-user-settings",     name: "User Settings",         wired: 5,  partial: 1, stub: 0 },
-    { id: "acc-push",              name: "Push Notifications",    wired: 8,  partial: 1, stub: 0 },
+    { id: "acc-push",              name: "Push Notifications",    wired: 9,  partial: 1, stub: 0 },
     { id: "acc-planning",          name: "Planning Tools",        wired: 8,  partial: 1, stub: 0 },
-    { id: "acc-guests",            name: "Guest Management",      wired: 13, partial: 1, stub: 0 }
+    { id: "acc-guests",            name: "Guest Management",      wired: 14, partial: 1, stub: 0 }
   ];
   features.forEach(function (f) { f.total = f.wired + f.partial + f.stub; f.pct = f.total ? (f.wired / f.total) : 0; });
   features.sort(function (a, b) { return a.pct - b.pct; });

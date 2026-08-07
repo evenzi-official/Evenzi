@@ -131,8 +131,8 @@ describe('createEventSchema', () => {
 
 describe('validateDynamicFields', () => {
   const weddingSchema = [
-    { field: 'partner_1_name', label: 'Partner 1 Name', required: true },
-    { field: 'partner_2_name', label: 'Partner 2 Name', required: true },
+    { key: 'partner_1_name', label: 'Partner 1 Name', required: true },
+    { key: 'partner_2_name', label: 'Partner 2 Name', required: true },
   ]
 
   it('returns no errors when all required fields are filled', () => {

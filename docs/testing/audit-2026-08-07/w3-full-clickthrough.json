@@ -1,0 +1,112 @@
+{
+  "base": "http://127.0.0.1:3002",
+  "eventId": "f990d6d7-6fd1-49db-82bf-b848974a85a2",
+  "host": {
+    "home": "http://127.0.0.1:3002/home",
+    "hub": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2",
+    "qa:Send invites": {
+      "url": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/invitations",
+      "ok": true
+    },
+    "qa:Track RSVPs": {
+      "url": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/guests",
+      "ok": true
+    },
+    "qa:Manage budget": {
+      "url": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/planning",
+      "ok": true
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/media": {
+      "status": 200,
+      "url": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/media",
+      "ok": true
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/website": {
+      "status": 200,
+      "url": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/website",
+      "ok": true
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/journey": {
+      "status": 200,
+      "url": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/journey",
+      "ok": true
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/settings": {
+      "status": 200,
+      "url": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/settings",
+      "ok": true
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/settings/admins": {
+      "status": 200,
+      "url": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/settings/admins",
+      "ok": true
+    },
+    "/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/settings/billing": {
+      "status": 200,
+      "url": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2/settings/billing",
+      "ok": true
+    },
+    "/settings": {
+      "status": 200,
+      "url": "http://127.0.0.1:3002/settings",
+      "ok": true
+    }
+  },
+  "roles": {
+    "co-host": {
+      "role": "co-host",
+      "inviteUi": "ok",
+      "acceptUi": "ok",
+      "hubAsCollab": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2",
+      "openedGuests": true,
+      "openedMedia": true,
+      "probes": {
+        "guests": 400,
+        "media": 400,
+        "admins": 500
+      }
+    },
+    "planner": {
+      "role": "planner",
+      "inviteUi": "ok",
+      "acceptUi": "ok",
+      "hubAsCollab": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2",
+      "openedGuests": true,
+      "openedMedia": true,
+      "probes": {
+        "guests": 400,
+        "media": 404,
+        "admins": 404
+      }
+    },
+    "photographer": {
+      "role": "photographer",
+      "inviteUi": "ok",
+      "acceptUi": "ok",
+      "hubAsCollab": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2",
+      "openedGuests": true,
+      "openedMedia": true,
+      "probes": {
+        "guests": 404,
+        "media": 400,
+        "admins": 404
+      }
+    },
+    "viewer": {
+      "role": "viewer",
+      "inviteUi": "ok",
+      "acceptUi": "ok",
+      "hubAsCollab": "http://127.0.0.1:3002/events/f990d6d7-6fd1-49db-82bf-b848974a85a2",
+      "openedGuests": true,
+      "openedMedia": true,
+      "probes": {
+        "guests": 404,
+        "media": 404,
+        "admins": 404
+      }
+    }
+  },
+  "decline": {
+    "ok": true
+  }
+}

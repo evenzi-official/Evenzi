@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { getClientIp } from '@/lib/http/clientIp'
 import { PW_COOKIE_NAME, PW_COOKIE_MAX_AGE, mapRpcError } from '../_lib'
 
 const verifySchema = z.object({
@@ -29,8 +30,8 @@ export async function POST(
 
     const { password } = parsed.data
 
-    const forwardedFor = request.headers.get('x-forwarded-for')
-    const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : 'unknown'
+    // Trusted IP only — never leftmost client-supplied XFF (P1-14).
+    const clientIp = getClientIp(request)
 
     const supabase = await createClient()
     const { data: token, error } = await supabase

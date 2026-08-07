@@ -5,7 +5,7 @@ describe('getUserProfile', () => {
   it('returns profile when user has one', async () => {
     const mockProfile = {
       id: 'user-123',
-      role: 'host',
+      role_slug: 'host',
       display_name: 'Test User',
       avatar_url: null,
       onboarding_completed: false,
@@ -22,7 +22,7 @@ describe('getUserProfile', () => {
     const result = await getUserProfile(mockSupabase as any, 'user-123')
     expect(result).toEqual(mockProfile)
     expect(mockSupabase.from).toHaveBeenCalledWith('user_profiles')
-    expect(mockSupabase.select).toHaveBeenCalledWith('id, role, display_name, avatar_url, onboarding_completed')
+    expect(mockSupabase.select).toHaveBeenCalledWith('id, role_slug, display_name, avatar_url, onboarding_completed')
     expect(mockSupabase.eq).toHaveBeenCalledWith('id', 'user-123')
   })
 

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 
 interface Props {
   searchParams: Promise<{ token?: string }>
@@ -23,12 +24,28 @@ export default async function AcceptInvitePage({ searchParams }: Props) {
   }
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  // Owner-only RLS on event_collaborators hides pending rows from invitees —
-  // lookup must go through get_pending_invite (SECURITY DEFINER).
-  const { data: inviteRows, error: lookupError } = await supabase.rpc('get_pending_invite', {
-    p_token: token,
-  })
+  // get_pending_invite is no longer executable by anon (P0-1). Logged-out preview
+  // uses service_role server-side and must NOT render invited_email.
+  // Logged-in path uses the session client (authenticated GRANT).
+  let inviteRows: unknown
+  let lookupError: { message: string } | null = null
+  if (user) {
+    const result = await supabase.rpc('get_pending_invite', { p_token: token })
+    inviteRows = result.data
+    lookupError = result.error
+  } else {
+    try {
+      const admin = createServiceClient()
+      const result = await admin.rpc('get_pending_invite', { p_token: token })
+      inviteRows = result.data
+      lookupError = result.error
+    } catch (err) {
+      console.error('[accept-invite] service lookup failed:', err)
+      return <InviteError message="This invite link is invalid or has already been used." />
+    }
+  }
 
   if (lookupError) {
     console.error('[accept-invite] get_pending_invite failed:', lookupError)
@@ -42,15 +59,11 @@ export default async function AcceptInvitePage({ searchParams }: Props) {
   }
 
   if (collab.status === 'active') {
-    // Event hub is still owner-only RLS — co-hosts get 404 on /events/[id].
-    // Land on home until can_access_event / collab read access ships.
     redirect('/home')
   }
 
   const eventName = collab.event_name ?? 'the event'
   const roleLabel = collab.role.charAt(0).toUpperCase() + collab.role.slice(1).replace(/-/g, ' ')
-
-  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     return (
@@ -75,9 +88,8 @@ export default async function AcceptInvitePage({ searchParams }: Props) {
             {roleLabel}
           </span>
           <p style={{ margin: '0 0 24px', fontSize: 14, color: 'var(--muted)', lineHeight: 1.6 }}>
-            Sign in or create an Evenzi account with{' '}
-            <strong style={{ color: 'var(--ink)' }}>{collab.invited_email}</strong>{' '}
-            to accept this invitation.
+            Sign in or create an Evenzi account with the email address this invite was sent to,
+            then open this link again to accept.
           </p>
           <Link
             href={`/auth?invite=${token}`}
@@ -125,7 +137,6 @@ export default async function AcceptInvitePage({ searchParams }: Props) {
     )
   }
 
-  // Accept via DEFINER RPC (bypasses owner-only RLS; also fires collaborator_added notify).
   const { data: acceptedEventId, error: acceptError } = await supabase.rpc('accept_event_invite', {
     p_token: token,
   })

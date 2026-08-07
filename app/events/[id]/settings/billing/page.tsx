@@ -15,9 +15,20 @@ interface PlanRow {
 
 function planPerks(plan: PlanRow): string[] {
   const perks: string[] = []
-  if (plan.slug === 'free')    perks.push('Up to 50 guests', 'Public event website', '200 photo uploads', 'Basic RSVP tools')
-  if (plan.slug === 'premium') perks.push('Up to 500 guests', 'Custom domain support', 'Unlimited photo uploads', 'Priority support')
-  if (plan.slug === 'elite')   perks.push('Unlimited guests', 'All Premium features', 'AI photo curation', 'Concierge-level support')
+  // Only claim features that exist as real columns / flags — numeric caps are not enforced yet.
+  if (plan.slug === 'free') {
+    perks.push('Public event website', 'Guest list & RSVP tools', 'Photo gallery', 'Planning checklist')
+  }
+  if (plan.slug === 'premium') {
+    if (plan.custom_domain) perks.push('Custom domain support')
+    if (plan.priority_support) perks.push('Priority support')
+    perks.push('Everything in Free')
+  }
+  if (plan.slug === 'elite') {
+    if (plan.ai_features) perks.push('AI photo curation')
+    if (plan.priority_support) perks.push('Concierge-level support')
+    perks.push('Everything in Premium')
+  }
   return perks
 }
 
@@ -48,6 +59,22 @@ export default async function BillingSettingsPage({ params }: { params: Promise<
 
   const plans = (plansRaw ?? []) as PlanRow[]
   const currentPlan = plans.find(p => p.id === ev.plan_id) ?? plans.find(p => p.slug === 'free') ?? plans[0]
+
+  if (!currentPlan) {
+    return (
+      <main className="page-band reveal pt-6 md:pt-8 pb-24">
+        <div className="es-content">
+          <header className="es-content-head">
+            <div>
+              <h1 className="es-content-title">Plan &amp; billing</h1>
+              <p className="es-content-lead">Plan catalog is unavailable right now. Try again in a moment.</p>
+            </div>
+          </header>
+        </div>
+        <PageFooter />
+      </main>
+    )
+  }
 
   return (
     <main className="page-band reveal pt-6 md:pt-8 pb-24">
@@ -123,9 +150,8 @@ export default async function BillingSettingsPage({ params }: { params: Promise<
                   {isCurrent ? (
                     <button type="button" className="btn-pill btn-pill-secondary" disabled aria-disabled="true">Current plan</button>
                   ) : (
-                    <button type="button" className="btn-pill btn-pill-primary">
-                      <span>Upgrade now</span>
-                      <span aria-hidden="true" className="material-symbols-outlined">arrow_forward</span>
+                    <button type="button" className="btn-pill btn-pill-secondary" disabled aria-disabled="true" title="Billing checkout is not available yet">
+                      Coming soon
                     </button>
                   )}
                 </article>

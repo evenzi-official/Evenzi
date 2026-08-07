@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { PageFooter } from '@/components/layout/PageFooter'
 import { InvitationsClient } from './InvitationsClient'
+import { getAppBaseUrl } from '@/lib/url'
 
 export default async function InvitationsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -10,7 +11,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ id
 
   const { data: event } = await supabase
     .from('events')
-    .select('id, name')
+    .select('id, name, slug, primary_date, primary_venue')
     .eq('id', id)
     .single()
 
@@ -22,13 +23,14 @@ export default async function InvitationsPage({ params }: { params: Promise<{ id
     eyebrow: 'Together with their families',
     couple: eventName,
     invite: 'request the pleasure of your company at the celebration of their wedding',
-    date: 'Add a date',
+    date: event.primary_date ?? 'Add a date',
     time: 'Add a time',
-    venue: 'Add a venue',
+    venue: event.primary_venue ?? 'Add a venue',
     message: 'Reception to follow',
   }
 
-  const rsvpUrl = `https://evenzi.com/e/${id}`
+  const sitePath = event.slug ? `/e/${event.slug}` : `/e/${id}`
+  const rsvpUrl = `${getAppBaseUrl()}${sitePath}`
 
   return (
     <div data-page="invitations">

@@ -64,3 +64,14 @@ designs/pages/website/guest-site/sapphire-mivon/assets/imgs/works/w4.mp4
 /qa/large.mp4
 /get-pages.ts
 /get-slugs.ts
+
+# Playwright run artifacts
+/test-results/
+/playwright-report/
+
+# Platform truth audit — auth cookies + fixture ids (never commit)
+/tests/.auth/
+/scripts/e2e/w0-env.json
+
+# Local git worktrees (do not commit checkouts)
+.worktrees/

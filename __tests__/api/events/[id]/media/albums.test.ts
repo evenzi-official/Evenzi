@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const { createServerClientMock } = vi.hoisted(() => ({ createServerClientMock: vi.fn() }))
-vi.mock('@supabase/ssr', () => ({ createServerClient: createServerClientMock }))
+const { createClientMock } = vi.hoisted(() => ({ createClientMock: vi.fn() }))
+vi.mock('@/lib/supabase/server', () => ({ createClient: createClientMock }))
 vi.mock('next/headers', () => ({ cookies: vi.fn().mockResolvedValue({ getAll: () => [], set: vi.fn() }) }))
 
 import { POST as createAlbum } from '@/app/api/events/[id]/media/albums/route'
@@ -13,10 +13,9 @@ const ALBUM_ID = '660e8400-e29b-41d4-a716-446655440001'
 const MEDIA_ID = '770e8400-e29b-41d4-a716-446655440002'
 
 function makeOwnerChain() {
-  const chain: Record<string, unknown> = { select: vi.fn(), eq: vi.fn(), is: vi.fn() }
-  chain.select = vi.fn().mockReturnValue(chain)
-  chain.eq = vi.fn().mockReturnValue(chain)
-  chain.is = vi.fn().mockReturnValue(chain)
+  const chain: Record<string, unknown> = {}
+  const self = () => chain
+  for (const m of ['select', 'eq', 'is']) chain[m] = vi.fn().mockImplementation(self)
   chain.single = vi.fn().mockResolvedValue({ data: { id: EVENT_ID }, error: null })
   return chain
 }
@@ -47,10 +46,11 @@ describe('POST /api/events/[id]/media/albums (create)', () => {
     insertChain.insert = vi.fn().mockReturnValue(insertChain)
     insertChain.select = vi.fn().mockReturnValue(insertChain)
     insertChain.single = vi.fn().mockResolvedValue({ data: null, error: { code: '23505', message: 'duplicate key' } })
+    const ownerChain = makeOwnerChain()
 
-    createServerClientMock.mockReturnValue({
+    createClientMock.mockResolvedValue({
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null }) },
-      from: vi.fn().mockImplementation((table: string) => (table === 'events' ? makeOwnerChain() : insertChain)),
+      from: vi.fn().mockImplementation((table: string) => (table === 'events' ? ownerChain : insertChain)),
     })
 
     const req = new Request(`http://localhost/api/events/${EVENT_ID}/media/albums`, {
@@ -76,10 +76,11 @@ describe('PATCH /api/events/[id]/media/albums/[albumId] (rename)', () => {
     updateChain.eq = vi.fn().mockReturnValue(updateChain)
     updateChain.select = vi.fn().mockReturnValue(updateChain)
     updateChain.single = vi.fn().mockResolvedValue({ data: null, error: { code: '23505', message: 'duplicate key' } })
+    const ownerChain = makeOwnerChain()
 
-    createServerClientMock.mockReturnValue({
+    createClientMock.mockResolvedValue({
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null }) },
-      from: vi.fn().mockImplementation((table: string) => (table === 'events' ? makeOwnerChain() : updateChain)),
+      from: vi.fn().mockImplementation((table: string) => (table === 'events' ? ownerChain : updateChain)),
     })
 
     const req = new Request(`http://localhost/api/events/${EVENT_ID}/media/albums/${ALBUM_ID}`, {
@@ -103,11 +104,12 @@ describe('PATCH /api/events/[id]/media/[mediaId]/albums (assign)', () => {
     const albumsChain = makeAlbumsFoundChain([ALBUM_ID])
     const insertChain: Record<string, unknown> = { insert: vi.fn() }
     insertChain.insert = vi.fn().mockResolvedValue({ error: { code: '23505', message: 'duplicate key' } })
+    const ownerChain = makeOwnerChain()
 
-    createServerClientMock.mockReturnValue({
+    createClientMock.mockResolvedValue({
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null }) },
       from: vi.fn().mockImplementation((table: string) => {
-        if (table === 'events') return makeOwnerChain()
+        if (table === 'events') return ownerChain
         if (table === 'event_media') return mediaChain
         if (table === 'event_albums') return albumsChain
         return insertChain
@@ -130,7 +132,7 @@ describe('PATCH /api/events/[id]/media/[mediaId]/albums (assign)', () => {
 
   it('returns 400 for an invalid mode', async () => {
     const ownerChain = makeOwnerChain()
-    createServerClientMock.mockReturnValue({
+    createClientMock.mockResolvedValue({
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null }) },
       from: vi.fn().mockReturnValue(ownerChain),
     })
@@ -148,11 +150,12 @@ describe('PATCH /api/events/[id]/media/[mediaId]/albums (assign)', () => {
 
   it('returns 404 when mediaId does not resolve under this event', async () => {
     const mediaChain = makeMediaExistsChain(false)
+    const ownerChain = makeOwnerChain()
 
-    createServerClientMock.mockReturnValue({
+    createClientMock.mockResolvedValue({
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null }) },
       from: vi.fn().mockImplementation((table: string) => {
-        if (table === 'events') return makeOwnerChain()
+        if (table === 'events') return ownerChain
         if (table === 'event_media') return mediaChain
         throw new Error(`unexpected table access: ${table}`)
       }),
@@ -174,11 +177,12 @@ describe('PATCH /api/events/[id]/media/[mediaId]/albums (assign)', () => {
   it('returns 404 when an albumId does not resolve under this event (add mode)', async () => {
     const mediaChain = makeMediaExistsChain(true)
     const albumsChain = makeAlbumsFoundChain([]) // ALBUM_ID not found under this event
+    const ownerChain = makeOwnerChain()
 
-    createServerClientMock.mockReturnValue({
+    createClientMock.mockResolvedValue({
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null }) },
       from: vi.fn().mockImplementation((table: string) => {
-        if (table === 'events') return makeOwnerChain()
+        if (table === 'events') return ownerChain
         if (table === 'event_media') return mediaChain
         if (table === 'event_albums') return albumsChain
         throw new Error(`unexpected table access: ${table}`)
