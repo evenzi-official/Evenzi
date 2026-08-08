@@ -18,8 +18,6 @@
 - Optional: Website Photos ↔ Media bridge UX  
 - Optional: PR-3 logged-in R2 smoke on `evenzi.vercel.app`  
 - Support Chatbot — continues on `feature/support-chatbot-plan` (main folder); do not mix into cleanup worktree  
-- Replace interim **E** app icon when final logo mark ships (`public/brand/mark.svg` + `app/icon.png` / `public/icons/*`)
-
 **Authoritative docs from last session:**
 
 - Findings: [`docs/testing/2026-08-07-platform-truth-audit-findings.md`](testing/2026-08-07-platform-truth-audit-findings.md)  

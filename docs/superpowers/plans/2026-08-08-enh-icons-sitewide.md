@@ -12,12 +12,11 @@
 
 Every Next.js app page shows Evenzi branding in browser tabs, bookmarks, iOS/Android “Add to Home Screen”, and default link previews — not the Next.js default favicon / empty meta.
 
-## Asset decision (interim mark)
+## Asset decision
 
-Brand guidelines: **no final icon mark yet** (`docs/BRAND-GUIDELINES.md`).  
-**Interim mark for this pass:** rounded square `#BB0020` + white **E** (Poppins 800 weight intent) — same pattern as `PageFooter` avatar, FloatingNav wordmark color, and `docs/ops/v0-readiness.html` `.brand-mark`.
-
-When a final logo ships, replace the files under `app/` + `public/icons/` only; metadata wiring stays.
+**Evenzi mark:** stylized **E** + play triangle, brand red on black (app icon) / on white (light).  
+Masters: `public/brand/mark-dark.png`, `public/brand/mark-light.png`, `public/brand/mark.svg`.  
+Derived: `app/favicon.ico`, `app/icon.png`, `app/apple-icon.png`, `public/icons/*`.
 
 ## In scope
 
