@@ -3,7 +3,6 @@ import { createClient } from '@/lib/supabase/server'
 import { FloatingNav } from '@/components/layout/FloatingNav'
 import { ToolRail } from '@/components/layout/ToolRail'
 import { ScrollProgress } from '@/components/layout/ScrollProgress'
-import { HelpFab } from '@/components/layout/HelpFab'
 import { avatarInitial } from '@/lib/utils'
 import { getAppBaseUrl } from '@/lib/url'
 
@@ -54,7 +53,6 @@ export default async function EventLayout({
       <FloatingNav eventId={id} userInitial={initial} avatarUrl={profile?.avatar_url ?? null} />
       <ToolRail eventId={id} isLive={liveUrl !== null} liveUrl={liveUrl} />
       {children}
-      <HelpFab />
     </div>
   )
 }

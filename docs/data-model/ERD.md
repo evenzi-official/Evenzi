@@ -1,8 +1,10 @@
 # Evenzi — Full Data Model ERD, Functions & Flows
 
-> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-08-06.1** — CORE + Planning + Guests + Media + Invitations + Event Hub + Event Settings + Event Website / Digital Presence + **In-app notifications (D55)**. Renders on GitHub / VS Code (Mermaid).
+> Visual companion to [`DATA-MODEL.md`](DATA-MODEL.md) (the canonical reference). Covers the whole live schema as of **v2026-08-08.1** — CORE + Planning + Guests + Media + Invitations + Event Hub + Event Settings + Event Website / Digital Presence + In-app notifications (D55) + **Help Centre (D60)**. Renders on GitHub / VS Code (Mermaid).
 >
 > **Known drift:** the `EVENT_WEBSITE_SETTINGS` entity block below (fields `website_enabled`/`website_slug`/`show_gallery`/etc.) predates the actual shipped shape — live columns are `website_password_enabled`/`website_password_hash`/`search_indexing_enabled`/`announcement_banner_enabled`/`announcement_banner_text`/`site_offline` (see `DATA-MODEL.md` D43/D47). Pre-existing drift, not introduced this session — flagged for a future cleanup pass, not fixed here to keep this change scoped to the new Digital Presence entities.
+>
+> **`evenzi-erd.drawio` update deferred** for Help Centre entities — Mermaid in this file is the source for the new module until the drawio pass.
 >
 > **Schemas:** `config.*` = reference/catalog (admin-seeded, public-read) · `public.*` = live app data (owner-only RLS) · `auth.*` = Supabase-managed identity.
 
@@ -10,7 +12,7 @@
 
 ## 1. Domain Module Map
 
-Nine modules, each owning its tables. Config seeds all child modules at event creation; Events Core is the FK anchor for every `public.*` table.
+Ten modules (Help Centre is platform-scoped, not event-child). Config seeds all child modules at event creation; Events Core is the FK anchor for every event-scoped `public.*` table.
 
 ```mermaid
 flowchart TB
@@ -98,6 +100,14 @@ flowchart TB
     EST[event_stays]
   end
 
+  subgraph HELP["❓ Help Centre  (config + public — not event-scoped)"]
+    CFC[config_faq_categories]
+    CFA[config_faq_articles]
+    ST[support_tickets]
+    HQ[help_queries]
+    FAF[faq_article_feedback]
+  end
+
   CFG -. "seeds / defines" .-> CORE
   CFG -. "seeds" .-> PLN
   CFG -. "seeds" .-> GST
@@ -105,7 +115,9 @@ flowchart TB
   CFG -. "seeds" .-> INV
   CFG -. "configures" .-> SETT
   CFG -. "seeds" .-> SITE
+  CFG -. "seeds" .-> HELP
   USR -- "owns" --> CORE
+  USR -. "tickets / feedback" .-> HELP
   CORE -- "parent FK" --> PLN
   CORE -- "parent FK" --> GST
   CORE -- "parent FK" --> MED
@@ -126,6 +138,7 @@ flowchart TB
   classDef inv fill:#fff3e0,stroke:#e65100,color:#000;
   classDef hub fill:#e8fffe,stroke:#00897b,color:#004d40;
   classDef sett fill:#f0fdfa,stroke:#0d9488,color:#134e4a;
+  classDef help fill:#fef9c3,stroke:#ca8a04,color:#713f12;
 
   class CUT,CET,CEST,CEC,CTP,CTS,CEXT,CRS,CGT,CAP,CP cfg;
   class UP,UPR usr;
@@ -136,6 +149,7 @@ flowchart TB
   class CIS,CIT,EIC inv;
   class EHS hub;
   class EGS,EWS,EGST sett;
+  class CFC,CFA,ST,HQ,FAF help;
 ```
 
 **Arrow key:** `-->` live FK dependency · `-.->` dashed = catalog→per-event **copy** at creation (not a live FK).
@@ -769,6 +783,50 @@ erDiagram
   EVENTS ||--|| EVENT_GUEST_SETTINGS : "has guest settings"
 
   EVENTS ||--|| EVENT_HUB_SUMMARY : "aggregated by"
+
+  %% ---------- HELP CENTRE (platform — not event-scoped) ----------
+  CONFIG_FAQ_CATEGORIES {
+    uuid id PK
+    text audience "public|app"
+    text slug
+    text name
+    bool enabled
+  }
+  CONFIG_FAQ_ARTICLES {
+    uuid id PK
+    uuid category_id FK
+    text slug UK
+    text question
+    text status "draft|published|archived"
+    bool is_frequent
+    tsvector search_tsv
+  }
+  SUPPORT_TICKETS {
+    uuid id PK
+    text reference UK
+    uuid user_id FK
+    text message
+    text status
+  }
+  HELP_QUERIES {
+    bigint id PK
+    uuid ref UK
+    uuid user_id FK "nullable"
+    text audience
+    text query
+  }
+  FAQ_ARTICLE_FEEDBACK {
+    uuid id PK
+    uuid article_id FK
+    uuid user_id FK "nullable"
+    bool helpful
+  }
+
+  CONFIG_FAQ_CATEGORIES ||--o{ CONFIG_FAQ_ARTICLES : "category_id"
+  CONFIG_FAQ_ARTICLES ||--o{ FAQ_ARTICLE_FEEDBACK : "article_id"
+  AUTH_USERS ||--o{ SUPPORT_TICKETS : "user_id cascade"
+  AUTH_USERS |o--o{ HELP_QUERIES : "user_id set null"
+  AUTH_USERS |o--o{ FAQ_ARTICLE_FEEDBACK : "user_id set null"
 ```
 
 **Legend:** `||--o{` one-to-many · `||--||` one-to-one · `|o--o{` optional (nullable FK) · `..>` dashed = catalog→per-event **copy** at event creation (not a live FK). All columns shown per entity. **Modularity rule:** every module FK points only to core (`events`, `event_sub_events`, `auth.users`) or `config.*` — never another module's tables.
@@ -906,8 +964,9 @@ flowchart TD
   D2 --> C2["CASCADE: events owned by user →<br/>sub_events, tasks+assignees, budget,<br/>expense_types+expenses, guests+links,<br/>media+albums+links, media_tags+links, collaborators"]
   D2 --> C3["CASCADE: event_collaborators / task_assignees<br/>where user_id = them (others' events stay)"]
   D2 --> C4["SET NULL: *.created_by / created/modified/updated_by<br/>(events they made for clients survive)"]
+  D2 --> C5["Help Centre: CASCADE support_tickets;<br/>SET NULL + redact help_queries.query;<br/>SET NULL faq_article_feedback.user_id"]
   classDef planned fill:#f5f5f5,stroke:#bbb,stroke-dasharray:4 3,color:#666;
-  class D0,D1,D2,C1,C2,C3,C4 planned;
+  class D0,D1,D2,C1,C2,C3,C4,C5 planned;
 ```
 
 ---

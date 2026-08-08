@@ -65,7 +65,7 @@ export default function HeroSection() {
             marginBottom: '1.25rem',
           }}
         >
-          India's event planning platform
+          India&apos;s event planning platform
         </motion.p>
 
         {/* Headline */}

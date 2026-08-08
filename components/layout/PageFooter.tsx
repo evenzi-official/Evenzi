@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SUPPORT_MAILTO } from "@/lib/constants/support";
 
 type FooterLink = { label: string; href: string };
 
@@ -12,15 +13,15 @@ const PRODUCT_LINKS: FooterLink[] = [
 ];
 
 const SUPPORT_LINKS: FooterLink[] = [
-  { label: "Help & Support", href: "mailto:evenzi.official@gmail.com" },
+  { label: "Help & Support", href: "/help" },
   { label: "Privacy Policy", href: "/legal/privacy" },
   { label: "Terms of Service", href: "/legal/terms" },
-  { label: "Contact Us", href: "mailto:evenzi.official@gmail.com" },
+  { label: "Contact Us", href: SUPPORT_MAILTO() },
 ];
 
 const COMPANY_LINKS: FooterLink[] = [
   { label: "About Evenzi", href: "#about" },
-  { label: "Contact Us", href: "mailto:evenzi.official@gmail.com" },
+  { label: "Contact Us", href: SUPPORT_MAILTO() },
 ];
 
 function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
@@ -102,7 +103,7 @@ export function PageFooter() {
             <Link href="/legal/terms" className="hover:text-[#BB0020] transition-colors">
               Terms
             </Link>
-            <a href="mailto:evenzi.official@gmail.com" className="hover:text-[#BB0020] transition-colors">
+            <a href={SUPPORT_MAILTO()} className="hover:text-[#BB0020] transition-colors">
               Help
             </a>
           </div>

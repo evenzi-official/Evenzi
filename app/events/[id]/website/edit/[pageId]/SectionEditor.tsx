@@ -240,6 +240,8 @@ export default function SectionEditor({
   useEffect(() => {
     try {
       const raw = localStorage.getItem(storageKey)
+      // Hydrate from local draft once per storage key — intentional sync-on-mount.
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage bootstrap
       if (raw) { setSections(JSON.parse(raw) as Section[]); return }
     } catch { /* ignore */ }
     if (seeds.length) setSections(fromSeed(seeds))

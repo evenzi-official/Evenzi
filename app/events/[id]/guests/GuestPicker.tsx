@@ -73,10 +73,8 @@ export function GuestPicker(props: GuestPickerProps): React.ReactElement {
     setPendingMulti((cur) => (cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value]))
   }
 
-  let lastGroup: string | undefined
-  const items = options.map((o) => {
-    const showGroup = Boolean(o.group) && o.group !== lastGroup
-    lastGroup = o.group
+  const items = options.map((o, i) => {
+    const showGroup = Boolean(o.group) && o.group !== options[i - 1]?.group
     const on = props.multi ? pendingMulti.includes(o.value) : o.value === props.current
     return (
       <div key={o.value}>

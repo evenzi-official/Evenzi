@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { PageFooter } from '@/components/layout/PageFooter'
+import { SUPPORT_MAILTO } from '@/lib/constants/support'
 
 interface PlanRow {
   id: string
@@ -165,7 +166,7 @@ export default async function BillingSettingsPage({ params }: { params: Promise<
             <span className="es-help-title">Questions about your plan?</span>
             <span className="es-help-desc">Our support team can help you compare features and find the right plan for your celebration.</span>
           </div>
-          <a href="mailto:evenzi.official@gmail.com" className="btn-pill btn-pill-secondary">
+          <a href={SUPPORT_MAILTO()} className="btn-pill btn-pill-secondary">
             <span aria-hidden="true" className="material-symbols-outlined">support_agent</span>
             Contact support
           </a>

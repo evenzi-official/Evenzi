@@ -715,20 +715,21 @@ html{scroll-behavior:smooth}
 
 /* ════════════════════════════════════════════════════════════════════
    HELP FAB — fixed bottom-right floating button.
-   Composition: <button class="help-fab" aria-label="Open help center">
-                  <span class="material-symbols-outlined">support_agent</span>
+   Composition: <button class="help-fab" aria-label="Open Help Centre">
+                  <span class="material-symbols-outlined">help</span>
                 </button>
-   Auto-hides on mobile (≤768px). Lifts above bottom tool rail at ≤1399px.
+   Visible at ALL widths. Pages that render a primary .add-fab must pass
+   the --stacked modifier, which lifts help one slot above it.
    ════════════════════════════════════════════════════════════════════ */
 .help-fab{
   position:fixed;
-  bottom:max(1.5rem, calc(1.5rem + env(safe-area-inset-bottom,0px)));
-  right:max(1.5rem, calc(1.5rem + env(safe-area-inset-right,0px)));
+  bottom:calc(1.5rem + env(safe-area-inset-bottom,0px));
+  right:max(1.25rem, calc(1.25rem + env(safe-area-inset-right,0px)));
   width:56px;height:56px;border-radius:9999px;
   display:inline-flex;align-items:center;justify-content:center;
   background:var(--brand);color:#fff;border:0;cursor:pointer;
   box-shadow:var(--shadow-clay-pill);
-  z-index:30;
+  z-index:59;
   transition:background-color .2s,transform .2s;
 }
 .help-fab .material-symbols-outlined{font-size:24px;font-variation-settings:'FILL' 1}
@@ -736,11 +737,17 @@ html{scroll-behavior:smooth}
   .help-fab:hover{background:var(--brand-hover);transform:translateY(-2px)}
 }
 .help-fab:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.help-fab{transition:none}}
+
+/* lift clear of the bottom tool rail */
 @media (max-width:1399px){
   .help-fab{bottom:calc(env(safe-area-inset-bottom,0px) + 5.25rem)}
 }
-@media (max-width:768px){
-  .help-fab{display:none}
+
+/* stacked above a page's primary .add-fab — 56px button + 12px gap */
+.help-fab--stacked{bottom:calc(5.75rem + 68px + env(safe-area-inset-bottom,0px))}
+@media (max-width:1399px){
+  .help-fab--stacked{bottom:calc(env(safe-area-inset-bottom,0px) + 5.75rem + 68px)}
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -984,11 +991,14 @@ html{scroll-behavior:smooth}
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   NOTIFICATION DROPDOWN PANEL
+   NOTIFICATION / DOCKED DROPDOWN PANEL
    Auto-injected by shell.js on every page that has a bell button
    (.fn-icon-btn[aria-label^="Notifications"]). Positioned via JS
    relative to the bell's bounding rect — works on any nav layout.
+   .dock-panel is the canonical name; .fn-notif-panel is a one-release
+   alias. Migrate bell markup then drop the alias.
    ════════════════════════════════════════════════════════════════════ */
+.dock-panel,
 .fn-notif-panel{
   position:fixed;z-index:60;
   width:360px;max-width:calc(100vw - 1.5rem);
@@ -1006,11 +1016,15 @@ html{scroll-behavior:smooth}
   transition:opacity .22s cubic-bezier(.2,.7,.2,1),transform .22s cubic-bezier(.2,.7,.2,1);
   overflow:hidden;
 }
+.dock-panel.is-open,
 .fn-notif-panel.is-open{
   opacity:1;
   transform:translateY(0) scale(1);
   pointer-events:auto;
 }
+/* Docked panel anchored to a chrome button. .fn-notif-panel is retained
+   as a one-release alias; migrate the bell's markup then drop it. */
+.dock-panel--origin-br{transform-origin:bottom right}
 .fn-notif-header{
   display:flex;align-items:center;justify-content:space-between;
   padding:1rem 1.1rem .85rem;
@@ -1086,6 +1100,7 @@ html{scroll-behavior:smooth}
 @media (hover:hover) and (pointer:fine){.fn-notif-view-all:hover{gap:.6rem}}
 .fn-notif-view-all .material-symbols-outlined{font-size:14px}
 @media (max-width:480px){
+  .dock-panel,
   .fn-notif-panel{width:calc(100vw - 1.5rem)}
 }
 
@@ -4308,3 +4323,88 @@ body.no-scroll{overflow:hidden}
   .skeleton{animation:skel-pulse 1.4s ease-in-out infinite}
 }
 @keyframes skel-pulse{0%,100%{opacity:1}50%{opacity:.55}}
+
+/* ════════════════════════════════════════════════════════════════════
+   PROSE — rich text rendered from staff-authored Markdown.
+   Tailwind's preflight zeroes list markers and margins; this restores
+   them within an explicit scope. Consumers: Help Centre answers, and
+   later the event-website Story/Q&A blocks and policy pages.
+   ════════════════════════════════════════════════════════════════════ */
+.prose{color:var(--ink-soft);font-size:14px;line-height:1.65;max-width:65ch}
+.prose > *:last-child{margin-bottom:0}
+.prose p{margin:0 0 .75rem}
+.prose ol,.prose ul{margin:0 0 .75rem;padding-inline-start:1.25rem}
+.prose ol{list-style:decimal}
+.prose ul{list-style:disc}
+.prose li{margin-bottom:.4rem}
+.prose li::marker{color:var(--muted)}
+.prose strong{font-weight:700;color:var(--ink)}
+.prose em{font-style:italic}
+.prose h3{font-size:15px;font-weight:700;color:var(--ink);margin:1.25rem 0 .5rem}
+.prose h4{font-size:14px;font-weight:600;color:var(--ink);margin:1rem 0 .4rem}
+.prose a{color:var(--brand);text-decoration:underline;text-underline-offset:2px;padding-block:.35rem}
+.prose code{background:var(--line-soft);border-radius:4px;padding:1px 5px;font-size:13px}
+.prose blockquote{border-left:3px solid var(--line);padding-left:.75rem;margin:0 0 .75rem;color:var(--muted)}
+.prose hr{border:0;border-top:1px solid var(--line);margin:1.25rem 0}
+
+/* ════════════════════════════════════════════════════════════════════
+   LIST NAV ROW — full-width tappable row that navigates one level
+   deeper. Generalised from .fn-notif-item. Consumers: Help Centre
+   category rows, question rows, search results.
+   ════════════════════════════════════════════════════════════════════ */
+.list-nav-row{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;
+  width:100%;min-height:56px;padding:9px 4px;
+  background:transparent;border:0;border-radius:10px;
+  text-align:left;cursor:pointer;color:inherit;
+  transition:background-color .15s;
+}
+.list-nav-row--no-icon{grid-template-columns:1fr auto}
+@media (hover:hover) and (pointer:fine){
+  .list-nav-row:hover{background:var(--brand-tint)}
+}
+.list-nav-row:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.list-nav-row-icon{
+  width:30px;height:30px;border-radius:8px;background:var(--brand-tint);
+  display:flex;align-items:center;justify-content:center;color:var(--brand);
+}
+.list-nav-row-icon .material-symbols-outlined{font-size:16px}
+.list-nav-row-label{
+  font-size:13px;font-weight:600;color:var(--ink);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;overflow-wrap:anywhere;
+}
+.list-nav-row--no-icon .list-nav-row-label{font-weight:500}
+.list-nav-row-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.list-nav-row-chevron{color:var(--muted-soft)}
+.list-nav-row-chevron .material-symbols-outlined{font-size:16px}
+
+/* ════════════════════════════════════════════════════════════════════
+   ALERT BANNER — dismissible inline alert. Promoted from
+   .media-error-banner (retained as a one-release alias).
+   ════════════════════════════════════════════════════════════════════ */
+.alert-banner,
+.media-error-banner{
+  display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+  margin:0 0 1.25rem;padding:.7rem 1rem;
+  border:1px solid var(--danger-rim);background:var(--danger-tint);
+  border-radius:14px;
+  font-size:.85rem;font-weight:600;color:var(--danger-ink);
+}
+.alert-banner button,
+.media-error-banner button{
+  flex-shrink:0;background:none;border:0;cursor:pointer;
+  font-size:1.1rem;line-height:1;color:inherit;
+  padding:.1rem .4rem;
+}
+.alert-banner button:focus-visible,
+.media-error-banner button:focus-visible{
+  outline:2px solid var(--danger);outline-offset:2px;border-radius:6px;
+}
+.alert-banner--danger{border-color:var(--danger);color:var(--danger)}
+.alert-banner--warning{
+  border-color:var(--warning-rim);background:var(--warning-tint);color:var(--warning-ink);
+}
+.alert-banner--info{
+  border-color:var(--line);background:var(--line-soft);color:var(--muted);
+}

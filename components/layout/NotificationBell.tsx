@@ -1,10 +1,11 @@
 'use client'
 
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { formatRelativeTime } from '@/lib/notifications/relativeTime'
 import type { AppNotification } from '@/lib/types/notifications'
+import { OverlaySurface } from '@/components/ui/OverlaySurface'
 
 const POLL_MS = 60_000
 
@@ -22,7 +23,6 @@ function notificationIcon(type: string): string {
 
 export function NotificationBell(): React.ReactElement {
   const router = useRouter()
-  const titleId = useId()
   const bellRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const [mounted, setMounted] = useState(false)
@@ -109,25 +109,13 @@ export function NotificationBell(): React.ReactElement {
   useEffect(() => {
     if (!open) return
 
-    const onClick = (e: MouseEvent): void => {
-      const target = e.target as Node
-      if (panelRef.current?.contains(target) || bellRef.current?.contains(target)) return
-      close()
-    }
-    const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') close()
-    }
     const onScroll = (): void => {
       close()
     }
 
-    document.addEventListener('click', onClick)
-    document.addEventListener('keydown', onKey)
     window.addEventListener('scroll', onScroll, { passive: true })
 
     return () => {
-      document.removeEventListener('click', onClick)
-      document.removeEventListener('keydown', onKey)
       window.removeEventListener('scroll', onScroll)
     }
   }, [open, close])
@@ -178,15 +166,21 @@ export function NotificationBell(): React.ReactElement {
   }
 
   const panel = (
+    <OverlaySurface
+      open={open}
+      onClose={close}
+      modal={false}
+      labelledBy="fn-notif-title"
+      id="fn-notif-panel"
+      triggerRef={bellRef}
+    >
     <div
       ref={panelRef}
-      className={`fn-notif-panel${open ? ' is-open' : ''}`}
-      role="dialog"
-      aria-labelledby={titleId}
+      className="fn-notif-panel is-open"
       style={panelStyle}
     >
       <header className="fn-notif-header">
-        <p className="fn-notif-title" id={titleId}>
+        <p className="fn-notif-title" id="fn-notif-title">
           Notifications
         </p>
         <button
@@ -330,6 +324,7 @@ export function NotificationBell(): React.ReactElement {
         </button>
       </footer>
     </div>
+    </OverlaySurface>
   )
 
   return (
