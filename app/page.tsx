@@ -4,6 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { HeroGeometric } from "@/components/ui/hero-geometric";
+import FeatureShowcaseGrid from "@/components/landing/FeatureShowcaseGrid";
 
 const FlyCanvas = dynamic(
   () => import("@/app/website-theme-framer/components/FlyCanvas"),
@@ -297,6 +298,7 @@ export default function Home() {
           </a>
         </motion.div>
       </div>
+      <FeatureShowcaseGrid />
       <TextScrollAnimation />
       <IntroAnimation />
       <PageFooter />
