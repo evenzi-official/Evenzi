@@ -33,15 +33,15 @@ test('Planning Tools E2E', async ({ page }) => {
   // Try to submit empty task to trigger validation
   await page.evaluate(() => {
     const form = document.querySelector('form');
-    if (form) form.querySelector('button[type="submit"]')?.click();
+    if (form) (form.querySelector('button[type="submit"]') as HTMLButtonElement | null)?.click();
   });
   await page.waitForTimeout(1000);
   await page.screenshot({ path: 'qa/04_task_validation.png' });
 
   // Fill task form
   await page.evaluate(() => {
-    const inputs = Array.from(document.querySelectorAll('input'));
-    const titleInput = inputs.find(i => i.placeholder?.toLowerCase().includes('title') || i.name === 'title' || i.id === 'task-title') || document.querySelector('input[type="text"]');
+    const inputs = Array.from(document.querySelectorAll('input')) as HTMLInputElement[];
+    const titleInput = inputs.find(i => i.placeholder?.toLowerCase().includes('title') || i.name === 'title' || i.id === 'task-title') || document.querySelector('input[type="text"]') as HTMLInputElement | null;
     if (titleInput) {
       titleInput.value = 'Book mehendi artist';
       titleInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -50,7 +50,7 @@ test('Planning Tools E2E', async ({ page }) => {
   
   await page.evaluate(() => {
     const form = document.querySelector('form');
-    if (form) form.querySelector('button[type="submit"]')?.click();
+    if (form) (form.querySelector('button[type="submit"]') as HTMLButtonElement | null)?.click();
   });
   await page.waitForTimeout(2000);
   
@@ -70,13 +70,13 @@ test('Planning Tools E2E', async ({ page }) => {
   
   // Fill budget
   await page.evaluate(() => {
-    const bInput = document.querySelector('input[type="number"]') || document.querySelector('input[type="text"]');
+    const bInput = (document.querySelector('input[type="number"]') || document.querySelector('input[type="text"]')) as HTMLInputElement | null;
     if (bInput) {
       bInput.value = '850000';
       bInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
     const form = document.querySelector('form');
-    if (form) form.querySelector('button[type="submit"]')?.click();
+    if (form) (form.querySelector('button[type="submit"]') as HTMLButtonElement | null)?.click();
   });
   await page.waitForTimeout(2000);
   
@@ -91,14 +91,14 @@ test('Planning Tools E2E', async ({ page }) => {
   await page.waitForTimeout(1000);
   
   await page.evaluate(() => {
-    const inputs = Array.from(document.querySelectorAll('input'));
-    const amtInput = document.querySelector('input[type="number"]') || inputs.find(i => i.placeholder?.includes('Amount') || i.type === 'text');
+    const inputs = Array.from(document.querySelectorAll('input')) as HTMLInputElement[];
+    const amtInput = (document.querySelector('input[type="number"]') || inputs.find(i => i.placeholder?.includes('Amount') || i.type === 'text')) as HTMLInputElement | undefined;
     if (amtInput) {
       amtInput.value = '45000';
       amtInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
     const form = document.querySelector('form');
-    if (form) form.querySelector('button[type="submit"]')?.click();
+    if (form) (form.querySelector('button[type="submit"]') as HTMLButtonElement | null)?.click();
   });
   await page.waitForTimeout(2000);
   

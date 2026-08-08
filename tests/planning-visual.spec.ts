@@ -44,9 +44,11 @@ test('Planning Tools Visual E2E', async ({ page }) => {
   // Select tasks - click the first two task checkboxes
   // We'll evaluate to safely click them
   await page.evaluate(() => {
-    const checkboxes = Array.from(document.querySelectorAll('.task-row .gm-checkbox input'));
-    if (checkboxes[0]) checkboxes[0].click();
-    if (checkboxes[1]) checkboxes[1].click();
+    const checkboxes = Array.from(
+      document.querySelectorAll('.task-row .gm-checkbox input')
+    ) as HTMLInputElement[]
+    if (checkboxes[0]) checkboxes[0].click()
+    if (checkboxes[1]) checkboxes[1].click()
   });
   await page.waitForTimeout(1000);
   await page.screenshot({ path: 'qa/31_mobile_bulk_actions.png' });
