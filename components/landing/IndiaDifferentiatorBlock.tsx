@@ -23,7 +23,7 @@ const BADGES = [
 
 export default function IndiaDifferentiatorBlock() {
   return (
-    <section className="w-full bg-[#BB0020] py-24 md:py-36">
+    <section className="w-full bg-[#F4EFE8] py-24 md:py-36">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left — text */}
@@ -40,13 +40,13 @@ export default function IndiaDifferentiatorBlock() {
               BUILT FOR INDIA
             </p>
             <h2
-              className="font-serif font-light text-white leading-[1.2] tracking-tight mt-4"
+              className="font-serif font-light text-[#080808] leading-[1.2] tracking-tight mt-4"
               style={{ fontSize: "clamp(28px, 3.5vw, 52px)" }}
             >
               The way India celebrates — we've built for all of it.
             </h2>
             <p
-              className="text-[rgba(255,255,255,0.5)] leading-[1.85] mt-6 max-w-sm"
+              className="text-[rgba(8,8,8,0.55)] leading-[1.85] mt-6 max-w-sm"
               style={{ fontSize: "14px" }}
             >
               Planning a wedding in India means multiple ceremonies, hundreds of
@@ -66,7 +66,7 @@ export default function IndiaDifferentiatorBlock() {
             {SUB_EVENTS.map((ev) => (
               <span
                 key={ev}
-                className="border border-[rgba(255,255,255,0.4)] text-white rounded-full px-4 py-2 font-semibold tracking-wide cursor-default transition-all duration-200 hover:border-white hover:bg-[rgba(255,255,255,0.12)]"
+                className="border border-[rgba(187,0,32,0.35)] text-[#BB0020] rounded-full px-4 py-2 font-semibold tracking-wide cursor-default transition-all duration-200 hover:border-[#BB0020] hover:bg-[rgba(187,0,32,0.06)]"
                 style={{ fontSize: "12px" }}
               >
                 {ev}
@@ -76,16 +76,16 @@ export default function IndiaDifferentiatorBlock() {
         </div>
 
         {/* Bottom badges bar */}
-        <div className="mt-16 pt-8 border-t border-[rgba(255,255,255,0.08)] flex flex-wrap items-center justify-center md:justify-start gap-x-2 gap-y-2">
+        <div className="mt-16 pt-8 border-t border-[rgba(8,8,8,0.10)] flex flex-wrap items-center justify-center md:justify-start gap-x-2 gap-y-2">
           {BADGES.map((b, i) => (
             <React.Fragment key={b}>
               {i > 0 && (
-                <span className="text-[rgba(255,255,255,0.2)]" style={{ fontSize: "11px" }}>
+                <span className="text-[rgba(8,8,8,0.2)]" style={{ fontSize: "11px" }}>
                   ·
                 </span>
               )}
               <span
-                className="text-[rgba(255,255,255,0.35)] tracking-wide"
+                className="text-[rgba(8,8,8,0.4)] tracking-wide"
                 style={{ fontSize: "11px" }}
               >
                 {b}
