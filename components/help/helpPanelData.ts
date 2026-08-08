@@ -117,6 +117,53 @@ export async function fetchCategoryArticles(
   }
 }
 
+/** Published Frequent articles for the app corpus (panel). null = fetch failed. */
+export async function fetchFrequentArticles(
+  limit: number
+): Promise<Array<{ id: string; slug: string; question: string }> | null> {
+  try {
+    const supabase = createClient()
+    const { data: cats, error: catErr } = await supabase
+      .schema('config')
+      .from('faq_categories')
+      .select('id')
+      .eq('audience', 'app')
+      .eq('enabled', true)
+
+    if (catErr || !cats) {
+      console.error('help panel frequent categories failed:', catErr?.message)
+      return null
+    }
+
+    const ids = (cats as CategoryRow[]).map((c) => c.id)
+    if (ids.length === 0) return []
+
+    const { data, error } = await supabase
+      .schema('config')
+      .from('faq_articles')
+      .select('id, slug, question, sort_order')
+      .eq('status', 'published')
+      .eq('is_frequent', true)
+      .in('category_id', ids)
+      .order('sort_order', { ascending: true })
+      .limit(limit)
+
+    if (error) {
+      console.error('help panel frequent articles failed:', error.message)
+      return null
+    }
+
+    return ((data ?? []) as ArticleListRow[]).map((a) => ({
+      id: a.id,
+      slug: a.slug,
+      question: a.question,
+    }))
+  } catch (err) {
+    console.error('help panel frequent articles error:', err)
+    return null
+  }
+}
+
 export async function fetchPublishedArticle(slug: string): Promise<HelpArticle | null> {
   try {
     const supabase = createClient()

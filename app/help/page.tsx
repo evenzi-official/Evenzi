@@ -5,12 +5,13 @@ import {
   HELP_QUERY_MIN_LENGTH,
 } from '@/lib/help/search'
 import {
+  listFrequentArticles,
   listHelpCategories,
   resolveHelpAudience,
   searchHelpArticles,
 } from '@/lib/help/queries'
 import { HelpChrome, getHelpViewerEmail } from '@/components/help/HelpChrome'
-import { HelpCategoryGrid } from '@/components/help/HelpCategoryGrid'
+import { HelpBrowseSection } from '@/components/help/HelpBrowseSection'
 import { HelpContactBand } from '@/components/help/HelpContactBand'
 
 export const metadata: Metadata = {
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/help' },
 }
 
-type SearchParams = { q?: string | string[] }
+type SearchParams = { q?: string | string[]; tab?: string | string[] }
 
 function firstParam(value: string | string[] | undefined): string {
   if (Array.isArray(value)) return value[0] ?? ''
@@ -45,10 +46,13 @@ export default async function HelpRootPage({
       ? rawQ.slice(0, HELP_QUERY_MAX_LENGTH)
       : rawQ
   const searching = q.length >= HELP_QUERY_MIN_LENGTH
+  const initialTab =
+    firstParam(searchParams.tab).toLowerCase() === 'frequent' ? 'frequent' : 'topics'
 
-  const [categories, search] = await Promise.all([
+  const [categories, search, frequent] = await Promise.all([
     listHelpCategories(audience),
     searching ? searchHelpArticles(audience, q) : Promise.resolve(null),
+    listFrequentArticles(audience, 10),
   ])
 
   return (
@@ -140,24 +144,26 @@ export default async function HelpRootPage({
           )}
 
           {search.resultCount === 0 ? (
-            <div className="mt-10">
-              <h2 className="section-rule mb-4">
-                <span className="section-rule-bar" />
-                Browse topics
-              </h2>
-              <HelpCategoryGrid categories={categories} />
-            </div>
+            <HelpBrowseSection
+              categories={categories}
+              frequent={frequent}
+              initialTab="topics"
+            />
           ) : null}
         </section>
       ) : (
-        <section className="mt-10">
+        <>
           {q.length > 0 && q.length < HELP_QUERY_MIN_LENGTH ? (
-            <p className="m-0 mb-4 text-sm text-[var(--muted)]" role="status">
+            <p className="m-0 mt-8 mb-0 text-sm text-[var(--muted)]" role="status">
               Type at least {HELP_QUERY_MIN_LENGTH} characters to search.
             </p>
           ) : null}
-          <HelpCategoryGrid categories={categories} />
-        </section>
+          <HelpBrowseSection
+            categories={categories}
+            frequent={frequent}
+            initialTab={initialTab}
+          />
+        </>
       )}
 
       <HelpContactBand

@@ -23,6 +23,7 @@ import { TicketForm } from '@/components/help/TicketForm'
 import {
   fetchCategoryArticles,
   fetchCategoryCounts,
+  fetchFrequentArticles,
   fetchPublishedArticle,
   formatHelpDate,
   patchQueryOutcome,
@@ -106,6 +107,11 @@ export function HelpPanel({ open, onClose, triggerRef }: HelpPanelProps): React.
   const [panelStyle, setPanelStyle] = useState<CSSProperties>({})
   const [counts, setCounts] = useState<Record<string, number> | null | undefined>(undefined)
   const [countsError, setCountsError] = useState(false)
+  const [browseTab, setBrowseTab] = useState<'topics' | 'frequent'>('topics')
+  const [frequentArticles, setFrequentArticles] = useState<
+    Array<{ id: string; slug: string; question: string }> | null | undefined
+  >(undefined)
+  const [frequentError, setFrequentError] = useState(false)
   const [categoryDesc, setCategoryDesc] = useState('')
   const [categoryArticles, setCategoryArticles] = useState<
     Array<{ id: string; slug: string; question: string }>
@@ -256,6 +262,24 @@ export function HelpPanel({ open, onClose, triggerRef }: HelpPanelProps): React.
     if (!open) return
     if (node === 'root' || node === 'search') void loadCounts()
   }, [open, node, loadCounts])
+
+  const loadFrequent = useCallback(async (): Promise<void> => {
+    setFrequentError(false)
+    setFrequentArticles(undefined)
+    const result = await fetchFrequentArticles(5)
+    if (result === null) {
+      setFrequentError(true)
+      setFrequentArticles(null)
+    } else {
+      setFrequentArticles(result)
+      if (result.length === 0) setBrowseTab('topics')
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!open) return
+    if (node === 'root') void loadFrequent()
+  }, [open, node, loadFrequent])
 
   // A3 category articles.
   useEffect(() => {
@@ -632,48 +656,124 @@ export function HelpPanel({ open, onClose, triggerRef }: HelpPanelProps): React.
 
       {node === 'root' ? (
         <>
-          <h3 className="section-rule m-0 mb-2">
-            <span className="section-rule-bar" aria-hidden="true" />
-            Browse topics
-          </h3>
-          <ul role="list" className="m-0 flex list-none flex-col gap-0.5 p-0">
-            {APP_HELP_CATEGORIES.map((cat) => {
-              const count = counts?.[cat.slug]
-              const showCount =
-                counts !== undefined && counts !== null && typeof count === 'number' && count > 0
-              const showSkeleton = counts === undefined
-              return (
-                <li key={cat.slug}>
-                  <button
-                    type="button"
-                    className="list-nav-row"
-                    onClick={() => goCategory(cat.slug)}
-                  >
-                    <span className="list-nav-row-icon" aria-hidden="true">
-                      <span className="material-symbols-outlined">{cat.iconName}</span>
-                    </span>
-                    <span>
-                      <span className="list-nav-row-label">{cat.name}</span>
-                      {showSkeleton ? (
-                        <span
-                          className="skeleton skeleton-line mt-1 block"
-                          style={{ width: 28, height: 10 }}
-                          aria-hidden="true"
-                        />
-                      ) : showCount ? (
-                        <span className="list-nav-row-sub">
-                          {count} {count === 1 ? 'article' : 'articles'}
-                        </span>
-                      ) : null}
-                    </span>
-                    <span className="list-nav-row-chevron" aria-hidden="true">
-                      <span className="material-symbols-outlined">chevron_right</span>
-                    </span>
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
+          {frequentArticles && frequentArticles.length > 0 ? (
+            <div
+              className="seg seg--fill seg--sm mb-3 w-full"
+              role="radiogroup"
+              aria-label="Help browse mode"
+            >
+              <button
+                type="button"
+                role="radio"
+                aria-checked={browseTab === 'topics'}
+                className={`seg-item${browseTab === 'topics' ? ' is-active' : ''}`}
+                onClick={() => setBrowseTab('topics')}
+              >
+                Browse topics
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={browseTab === 'frequent'}
+                className={`seg-item${browseTab === 'frequent' ? ' is-active' : ''}`}
+                onClick={() => setBrowseTab('frequent')}
+              >
+                Frequent
+              </button>
+            </div>
+          ) : (
+            <h3 className="section-rule m-0 mb-2">
+              <span className="section-rule-bar" aria-hidden="true" />
+              Browse topics
+            </h3>
+          )}
+
+          {browseTab === 'frequent' && frequentArticles && frequentArticles.length > 0 ? (
+            <>
+              <ul role="list" className="m-0 flex list-none flex-col gap-0.5 p-0">
+                {frequentArticles.map((a) => (
+                  <li key={a.id}>
+                    <button
+                      type="button"
+                      className="list-nav-row list-nav-row--no-icon"
+                      onClick={() => openArticleFromRow(a.slug, a.question, false)}
+                    >
+                      <span>
+                        <span className="list-nav-row-label">{a.question}</span>
+                      </span>
+                      <span className="list-nav-row-chevron" aria-hidden="true">
+                        <span className="material-symbols-outlined">chevron_right</span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                className="btn-pill btn-pill-ghost mt-3 w-full"
+                onClick={() => {
+                  onClose()
+                  router.push('/help?tab=frequent')
+                }}
+              >
+                View more in Help Centre
+              </button>
+            </>
+          ) : null}
+
+          {browseTab === 'frequent' && frequentError ? (
+            <div className="alert-banner alert-banner--danger mb-2" role="alert">
+              <p className="m-0">Couldn&apos;t load frequent questions.</p>
+              <button
+                type="button"
+                className="btn-pill btn-pill-ghost btn-pill-sm"
+                onClick={() => void loadFrequent()}
+              >
+                Try again
+              </button>
+            </div>
+          ) : null}
+
+          {browseTab === 'topics' ? (
+            <ul role="list" className="m-0 flex list-none flex-col gap-0.5 p-0">
+              {APP_HELP_CATEGORIES.map((cat) => {
+                const count = counts?.[cat.slug]
+                const showCount =
+                  counts !== undefined && counts !== null && typeof count === 'number' && count > 0
+                const showSkeleton = counts === undefined
+                return (
+                  <li key={cat.slug}>
+                    <button
+                      type="button"
+                      className="list-nav-row"
+                      onClick={() => goCategory(cat.slug)}
+                    >
+                      <span className="list-nav-row-icon" aria-hidden="true">
+                        <span className="material-symbols-outlined">{cat.iconName}</span>
+                      </span>
+                      <span>
+                        <span className="list-nav-row-label">{cat.name}</span>
+                        {showSkeleton ? (
+                          <span
+                            className="skeleton skeleton-line mt-1 block"
+                            style={{ width: 28, height: 10 }}
+                            aria-hidden="true"
+                          />
+                        ) : showCount ? (
+                          <span className="list-nav-row-sub">
+                            {count} {count === 1 ? 'article' : 'articles'}
+                          </span>
+                        ) : null}
+                      </span>
+                      <span className="list-nav-row-chevron" aria-hidden="true">
+                        <span className="material-symbols-outlined">chevron_right</span>
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          ) : null}
         </>
       ) : null}
 

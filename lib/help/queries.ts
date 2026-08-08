@@ -201,6 +201,55 @@ export async function searchHelpArticles(
   return shapeSearchResults((data ?? []) as HelpSearchRow[])
 }
 
+export async function listFrequentArticles(
+  audience: HelpAudience,
+  limit: number
+): Promise<Array<{ id: string; slug: string; question: string; categoryName: string }>> {
+  const supabase = await createClient()
+  const { data: cats, error: catErr } = await supabase
+    .schema('config')
+    .from('faq_categories')
+    .select('id, name')
+    .eq('audience', audience)
+    .eq('enabled', true)
+
+  if (catErr || !cats?.length) {
+    if (catErr) console.error('listFrequentArticles categories failed:', catErr.message)
+    return []
+  }
+
+  const catRows = cats as Array<{ id: string; name: string }>
+  const nameById = new Map(catRows.map((c) => [c.id, c.name]))
+  const ids = catRows.map((c) => c.id)
+
+  const { data, error } = await supabase
+    .schema('config')
+    .from('faq_articles')
+    .select('id, slug, question, category_id, sort_order')
+    .eq('status', 'published')
+    .eq('is_frequent', true)
+    .in('category_id', ids)
+    .order('sort_order', { ascending: true })
+    .limit(limit)
+
+  if (error) {
+    console.error('listFrequentArticles failed:', error.message)
+    return []
+  }
+
+  return ((data ?? []) as Array<{
+    id: string
+    slug: string
+    question: string
+    category_id: string
+  }>).map((a) => ({
+    id: a.id,
+    slug: a.slug,
+    question: a.question,
+    categoryName: nameById.get(a.category_id) ?? '',
+  }))
+}
+
 export function formatHelpDate(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
