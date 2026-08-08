@@ -86,21 +86,15 @@ Verified live, not assumed. All eight checks passed: generated column populates;
 
 ## 5. Branches
 
-**`feature/help-centre` is the integration branch.** All Help Centre work lands there. It merges to `Dev-Vibe` and `Dev-Vibe-Testing` only when the whole feature is dev-complete.
+**`feature/help-centre` is the only Help Centre branch.** Stage branches were merged in and deleted (local + remote) on 2026-08-08. It merges to `Dev-Vibe` and `Dev-Vibe-Testing` only when the whole feature is dev-complete.
 
 | Branch | State |
 |---|---|
-| **`feature/help-centre`** | Integration. Contains stages 1, 2, 3, 4, 6. 244 tests pass, 32/32 files. Typecheck matches baseline exactly |
-| `feature/help-centre-api` | Stage 5, in progress, **not yet merged** |
-| `feature/help-centre-foundations-a` | Stage 1 — merged in |
-| `feature/help-centre-foundations-b` | Stage 2 — merged in |
-| `feature/help-centre-search-lib` | Stage 4 — merged in. Note it also went directly into `Dev-Vibe`, bypassing the review gate |
-| `feature/help-centre-markdown` | Stage 6 — merged in |
-| `feature/support-chatbot-plan` | Planning docs. Merged in; now historical |
+| **`feature/help-centre`** | Only active branch. Stages 1–6 merged (API Stage 5 included). Stages 7–9 still open |
 
-Worktrees in use: `.worktrees/help-centre-integration` (integration), `.worktrees/help-centre-foundations-a`, `.worktrees/help-centre-markdown`. The main checkout is on `feature/help-centre-api`.
+Worktrees: none for Help Centre. Main checkout is on `feature/help-centre`. Unrelated: `.worktrees/fix-types` (`Dev-Vibe`).
 
-**Do not check out a branch that another worktree already has.** This has caused two near-misses in one day: a commit was orphaned and had to be recovered from the reflog, and a Cursor session briefly lost its branch. `git worktree list` before switching.
+**Do not check out a branch that another worktree already has.** `git worktree list` before switching.
 
 ---
 
@@ -112,13 +106,13 @@ Worktrees in use: `.worktrees/help-centre-integration` (integration), `.worktree
 | 2 — Foundations B: OverlaySurface, primitives | 3, 4 | Cursor | ✅ merged |
 | 3 — Database | 5, 6, SQL of 7 | Claude | ✅ live |
 | 4 — Search library | TS of 7, 8 | Cursor | ✅ merged |
-| 5 — API routes | 9, 10 | Cursor | 🔄 in progress |
+| 5 — API routes | 9, 10 | Cursor | ✅ merged |
 | 6 — Markdown and CSP | 11 | Cursor | ✅ merged |
-| 7 — `/help` pages | 12 | Cursor | ⬜ needs 5 |
-| 8 — Help panel | 13 | Cursor | ⬜ needs 5 |
-| 9 — Data-model docs | 14 | Claude | ⬜ unblocked |
+| 7 — `/help` pages | 12 | Cursor | ⬜ next (unblocked) |
+| 8 — Help panel | 13 | Cursor | ⬜ next (unblocked) |
+| 9 — Data-model docs | 14 | Claude/Cursor | ⬜ unblocked |
 
-**No stage has been through the review gate yet.** Stages 1, 2, 4 and 6 are integrated but unreviewed.
+Claude review gates skipped for this finish push (founder decision 2026-08-08 — usage limit). Stages 7 and 8 can run in parallel; both depend on 2, 5, and 6 (all landed).
 
 ---
 
