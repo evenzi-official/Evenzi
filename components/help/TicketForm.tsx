@@ -8,7 +8,7 @@ export type TicketFormProps = {
   topicSlug?: string
   articleSlug?: string
   pageUrl?: string
-  onSuccess?: (reference: string) => void
+  onSuccess?: (reference: string, email: string) => void
   onCancel?: () => void
 }
 
@@ -67,7 +67,7 @@ export function TicketForm({
       }
 
       setState('idle')
-      onSuccess?.(data.reference)
+      onSuccess?.(data.reference, email)
     } catch {
       const nextFails = failCount + 1
       setFailCount(nextFails)
