@@ -9,6 +9,7 @@ import IndiaDifferentiatorBlock from "@/components/landing/IndiaDifferentiatorBl
 import WhatsAppSpotlight from "@/components/landing/WhatsAppSpotlight";
 import SocialProofStrip from "@/components/landing/SocialProofStrip";
 import AboutUs from "@/components/landing/AboutUs";
+import FinalCTA from "@/components/landing/FinalCTA";
 
 const FlyCanvas = dynamic(
   () => import("@/app/website-theme-framer/components/FlyCanvas"),
@@ -309,6 +310,7 @@ export default function Home() {
       <TextScrollAnimation />
       <IntroAnimation />
       <AboutUs />
+      <FinalCTA />
       <PageFooter />
     </div>
   );
