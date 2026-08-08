@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { BusyOverlay } from '@/components/ui/BusyOverlay'
+import { SUPPORT_MAILTO } from '@/lib/constants/support'
 
 interface InitialGuestSettings {
   rsvpEnabled:          boolean
@@ -171,7 +172,7 @@ export function GuestListContent({ eventId, initial }: Props) {
             <span className="es-help-title">Need help with your guest list?</span>
             <span className="es-help-desc">Our complete guide covers everything from CSV imports to managing multiple events RSVPs.</span>
           </div>
-          <a href="mailto:evenzi.official@gmail.com" className="btn-pill btn-pill-secondary">
+          <a href={SUPPORT_MAILTO()} className="btn-pill btn-pill-secondary">
             <span aria-hidden="true" className="material-symbols-outlined">menu_book</span>
             View the guide
           </a>

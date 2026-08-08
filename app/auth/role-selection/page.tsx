@@ -55,7 +55,7 @@ export default function RoleSelectionPage() {
         <a href="/" className="page-logo" aria-label="Evenzi home">Evenzi</a>
         <div className="page-shell-actions">
           <ThemeToggle className="page-theme-toggle" />
-          <a href="mailto:evenzi.official@gmail.com" className="page-help">Need help?</a>
+          <a href="/help" className="page-help">Need help?</a>
         </div>
       </header>
 

@@ -7,6 +7,7 @@ import { FormInput } from '@/components/ui/FormInput'
 import { BusyOverlay } from '@/components/ui/BusyOverlay'
 import { Portal } from '@/components/ui/Portal'
 import { updateEventSchema } from '@/lib/validations/events'
+import { SUPPORT_MAILTO } from '@/lib/constants/support'
 
 // Variable fields (partner names) live in events.event_details (jsonb), keyed by the
 // config.event_types.field_schema keys. The create wizard wrote partner_1_name /
@@ -290,7 +291,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
             <span className="es-help-title">Need help with these settings?</span>
             <span className="es-help-desc">Our support team can walk you through anything that&apos;s not making sense.</span>
           </div>
-          <a href="mailto:evenzi.official@gmail.com" className="btn-pill btn-pill-secondary">
+          <a href={SUPPORT_MAILTO()} className="btn-pill btn-pill-secondary">
             <span aria-hidden="true" className="material-symbols-outlined">support_agent</span>
             Contact support
           </a>

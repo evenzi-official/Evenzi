@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SUPPORT_MAILTO } from '@/lib/constants/support'
 
 export function PageFooter() {
   return (
@@ -16,7 +17,7 @@ export function PageFooter() {
         <div className="flex items-center gap-6 text-xs font-bold tracking-widest text-gray-400 uppercase">
           <Link href="/legal/privacy" className="hover:text-[#BB0020] transition-colors">Privacy</Link>
           <Link href="/legal/terms" className="hover:text-[#BB0020] transition-colors">Terms</Link>
-          <a href="mailto:evenzi.official@gmail.com" className="hover:text-[#BB0020] transition-colors">Help</a>
+          <a href={SUPPORT_MAILTO()} className="hover:text-[#BB0020] transition-colors">Help</a>
         </div>
       </div>
     </footer>
