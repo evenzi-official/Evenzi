@@ -6,16 +6,13 @@
  * operations documents published a different address on a domain the company
  * does not own. See spec section 10.1.
  *
- * INTERIM ADDRESS. support@evenzii.com does not exist yet and will be created
- * at launch. Until then this is the founder's own mailbox, which is real and
- * monitored — unlike the address the operations documents currently publish.
- *
- * The launch flip is one environment variable, not a code change: set
- * NEXT_PUBLIC_SUPPORT_EMAIL=support@evenzii.com in Vercel. Nothing needs
- * redeploying beyond that, and no file needs editing.
+ * INTERIM: evenzi.official@gmail.com (monitored). At launch, set
+ * NEXT_PUBLIC_SUPPORT_EMAIL=support@evenzii.com in Vercel — no code change.
+ * Local: same var in `.env.local`. Fallback below matches the interim inbox
+ * so a missing env does not silently revert to a stale address.
  */
 export const SUPPORT_EMAIL =
-  process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || 'abhijith@evenzii.com'
+  process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || 'evenzi.official@gmail.com'
 
 /** Support hours as published in platform-policies.md section 7.2. */
 export const SUPPORT_HOURS = 'Mon–Sat, 9 AM–7 PM IST'

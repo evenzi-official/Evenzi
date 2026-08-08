@@ -1,34 +1,30 @@
 import { describe, it, expect } from 'vitest'
 import { SUPPORT_EMAIL, SUPPORT_MAILTO } from '@/lib/constants/support'
 
+const INTERIM = 'evenzi.official@gmail.com'
+
 describe('SUPPORT_EMAIL', () => {
-  it('defaults to the interim address while the support mailbox does not exist', () => {
-    expect(SUPPORT_EMAIL).toBe('abhijith@evenzii.com')
-  })
-
-  it('is on the owned evenzii.com domain', () => {
-    expect(SUPPORT_EMAIL).toMatch(/@evenzii\.com$/)
-  })
-
-  it('is never a consumer mail provider', () => {
-    expect(SUPPORT_EMAIL).not.toMatch(/gmail|yahoo|outlook|hotmail/i)
+  it('resolves to the interim address (env or code fallback) until support@evenzii.com exists', () => {
+    // Prefer NEXT_PUBLIC_SUPPORT_EMAIL when set; otherwise the code fallback.
+    // Both should be the interim Gmail until launch.
+    expect(SUPPORT_EMAIL).toBe(INTERIM)
   })
 })
 
 describe('SUPPORT_MAILTO', () => {
   it('builds a bare mailto with no arguments', () => {
-    expect(SUPPORT_MAILTO()).toBe('mailto:abhijith@evenzii.com')
+    expect(SUPPORT_MAILTO()).toBe(`mailto:${INTERIM}`)
   })
 
   it('url-encodes subject and body', () => {
     expect(SUPPORT_MAILTO('Help & support', 'line one\nline two')).toBe(
-      'mailto:abhijith@evenzii.com?subject=Help%20%26%20support&body=line%20one%0Aline%20two'
+      `mailto:${INTERIM}?subject=Help%20%26%20support&body=line%20one%0Aline%20two`
     )
   })
 
   it('omits body when not supplied', () => {
     expect(SUPPORT_MAILTO('Subject only')).toBe(
-      'mailto:abhijith@evenzii.com?subject=Subject%20only'
+      `mailto:${INTERIM}?subject=Subject%20only`
     )
   })
 })

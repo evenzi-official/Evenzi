@@ -55,7 +55,7 @@ All founder-approved. Do not re-litigate without saying why.
 | **`audience` is curation, not security** | No help content is confidential. The real boundary is `status = 'published'`, and that *is* an RLS predicate. Endorsed independently by the security and data-model reviewers |
 | **Content lives in `config.*`** | Seeded by migration, like every other catalog here. This is what removes any dependency on an admin panel |
 | **Escalation** | Ticket row is the source of truth. Email is best-effort and no-ops while `RESEND_API_KEY` is unset |
-| **Support address** | `abhijith@evenzii.com` until launch, then `support@evenzii.com`. Env-driven via `NEXT_PUBLIC_SUPPORT_EMAIL` — the flip is one Vercel variable, no code change |
+| **Support address** | Interim `evenzi.official@gmail.com` via `NEXT_PUBLIC_SUPPORT_EMAIL` (code fallback matches). At launch set `support@evenzii.com` in Vercel — no code change |
 | **Feedback captured** | Deflection rate and the monthly content review are already published process; neither is measurable without it |
 | **`OverlaySurface` first** | Built before the panel, because twelve modals hand-roll overlay behaviour and none returns focus |
 | **Sequencing** | App corpus before public corpus |
