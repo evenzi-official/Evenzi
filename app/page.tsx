@@ -303,13 +303,13 @@ export default function Home() {
           </a>
         </motion.div>
       </div>
+      <AboutUs />
       <FeatureShowcaseGrid />
       <IndiaDifferentiatorBlock />
       <WhatsAppSpotlight />
       <SocialProofStrip />
       <TextScrollAnimation />
       <IntroAnimation />
-      <AboutUs />
       <FinalCTA />
       <PageFooter />
     </div>
