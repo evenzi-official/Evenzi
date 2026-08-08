@@ -17,7 +17,7 @@ const FlyCanvas = dynamic(
 );
 import { TextScrollAnimation } from "@/components/ui/text-scroll-animation";
 import IntroAnimation from "@/components/ui/scroll-morph-hero";
-import { PageFooter } from "@/components/layout/PageFooter";
+import LandingFooter from "@/components/landing/LandingFooter";
 
 function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -311,7 +311,7 @@ export default function Home() {
       <TextScrollAnimation />
       <IntroAnimation />
       <FinalCTA />
-      <PageFooter />
+      <LandingFooter />
     </div>
   );
 }
