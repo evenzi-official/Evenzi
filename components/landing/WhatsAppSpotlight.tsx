@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AnimatedList } from "@/components/ui/animated-list";
 
@@ -121,15 +122,32 @@ export default function WhatsAppSpotlight() {
           </Link>
         </motion.div>
 
-        {/* Right — phone mockup */}
+        {/* Right — phone mockup with bee behind */}
         <motion.div
           initial={{ opacity: 0, x: 24 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7, delay: 0.15, ease: [0.25, 0.4, 0.25, 1] }}
-          className="flex justify-center"
+          className="flex justify-center relative"
         >
-          <WhatsAppMockup />
+          {/* Bee mascot — sits behind the mockup card */}
+          <div
+            className="absolute pointer-events-none z-10"
+            style={{ top: "38%", left: "55%", transform: "translate(-50%, -50%)" }}
+          >
+            <Image
+              src="/flw-1.gif"
+              alt="Evenzi bee"
+              width={200}
+              height={200}
+              unoptimized
+            />
+          </div>
+
+          {/* Mockup — on top of the bee */}
+          <div className="relative z-20 w-full">
+            <WhatsAppMockup />
+          </div>
         </motion.div>
       </div>
     </section>
