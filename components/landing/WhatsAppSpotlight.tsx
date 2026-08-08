@@ -2,33 +2,80 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { AnimatedList } from "@/components/ui/animated-list";
+
+interface WaItem {
+  guest: string;
+  event: string;
+  status: string;
+  icon: string;
+  color: string;
+  time: string;
+}
+
+const WA_ITEMS: WaItem[] = [
+  { guest: "Rahul & Family", event: "Wedding · Dec 14", status: "Invitation sent", icon: "💌", color: "#075E54", time: "10:42 AM" },
+  { guest: "Priya Mehta", event: "Wedding · Dec 14", status: "RSVP: Attending ✓", icon: "✅", color: "#00C9A7", time: "10:43 AM" },
+  { guest: "Anjali Sharma", event: "Sangeet · Dec 13", status: "Invitation sent", icon: "💌", color: "#075E54", time: "10:44 AM" },
+  { guest: "Vikram Nair", event: "Wedding · Dec 14", status: "RSVP: Attending ✓", icon: "✅", color: "#00C9A7", time: "10:45 AM" },
+  { guest: "Deepa Iyer", event: "Haldi · Dec 12", status: "Invitation sent", icon: "💌", color: "#075E54", time: "10:46 AM" },
+  { guest: "Sunita Rao", event: "Wedding · Dec 14", status: "RSVP: Not attending", icon: "❌", color: "#FF3D71", time: "10:47 AM" },
+];
+
+const FEED = Array.from({ length: 4 }, () => WA_ITEMS).flat();
+
+function WaCard({ guest, event, status, icon, color, time }: WaItem) {
+  return (
+    <figure
+      className={cn(
+        "relative mx-auto w-full max-w-[340px] cursor-default overflow-hidden rounded-2xl px-4 py-3",
+        "bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.04),0_2px_6px_rgba(0,0,0,.06),0_8px_24px_rgba(0,0,0,.06)]",
+        "transition-all duration-200 ease-in-out hover:scale-[102%]"
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl"
+          style={{ backgroundColor: color + "20" }}
+        >
+          <span style={{ fontSize: "18px" }}>{icon}</span>
+        </div>
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center gap-1.5 whitespace-pre">
+            <span className="text-[13px] font-semibold text-[#080808] truncate">{guest}</span>
+            <span className="text-[#9ca3af] text-[11px]">·</span>
+            <span className="text-[11px] text-[#9ca3af]">{time}</span>
+          </div>
+          <p className="text-[12px] text-[#6b7280] truncate">{event}</p>
+          <p className="text-[12px] font-medium mt-0.5" style={{ color }}>{status}</p>
+        </div>
+      </div>
+    </figure>
+  );
+}
 
 function WhatsAppMockup() {
   return (
-    <div className="w-[280px] mx-auto select-none rounded-[18px] overflow-hidden shadow-[0_20px_60px_rgba(8,8,8,0.14)]">
-      {/* Header bar */}
+    <div className="w-full max-w-[360px] mx-auto select-none rounded-[20px] overflow-hidden shadow-[0_20px_60px_rgba(8,8,8,0.14)]">
+      {/* WhatsApp header */}
       <div className="bg-[#075E54] px-4 py-3 flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-[#128C7E] flex items-center justify-center shrink-0">
           <span className="text-white font-bold" style={{ fontSize: "13px" }}>E</span>
         </div>
-        <span className="text-white font-semibold" style={{ fontSize: "14px" }}>Evenzi</span>
+        <div>
+          <p className="text-white font-semibold leading-none" style={{ fontSize: "14px" }}>Evenzi</p>
+          <p className="text-white/60 mt-0.5" style={{ fontSize: "11px" }}>142 guests · 3 RSVPs today</p>
+        </div>
       </div>
 
-      {/* Message bubble */}
-      <div className="bg-white px-4 py-4">
-        <p className="font-semibold text-[#080808] leading-[1.5]" style={{ fontSize: "13px" }}>
-          🎊 You're invited to Priya &amp; Arjun's Wedding!
-        </p>
-        <p className="text-[#4b5563] mt-2 leading-[1.65]" style={{ fontSize: "13px" }}>
-          Ceremony: Dec 14, 2026<br />
-          7:00 PM · Grand Hyatt, Mumbai
-        </p>
-        <p className="text-[#075E54] mt-3 font-medium" style={{ fontSize: "13px" }}>
-          RSVP here → evenzi.app/e/priya-arjun
-        </p>
-        <div className="flex justify-end mt-3">
-          <span className="text-[#9ca3af]" style={{ fontSize: "11px" }}>10:42 AM ✓✓</span>
-        </div>
+      {/* Animated feed */}
+      <div className="bg-[#ECE5DD] px-3 py-3 h-[280px] overflow-hidden">
+        <AnimatedList delay={1800}>
+          {FEED.map((item, i) => (
+            <WaCard key={i} {...item} />
+          ))}
+        </AnimatedList>
       </div>
     </div>
   );
