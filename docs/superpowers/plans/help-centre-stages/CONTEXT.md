@@ -1,0 +1,172 @@
+# Help Centre — full context
+
+**Last updated:** 2026-08-08
+**Purpose:** everything a fresh session needs to pick up this feature. Paste a pointer to this file at the start of any Help Centre session, in any tool.
+
+---
+
+## 1. What this is
+
+A Help Centre for the Evenzi host app. **It contains no AI.** A user taps the help button, picks a topic, picks a question, and reads an answer a human on the team wrote. If browsing does not find it, they search. If search does not find it, they file a ticket a human answers. Logged-out visitors get a separate, simpler set of articles on the landing page and at `/help`.
+
+The feature was historically called the "Support Chatbot" and both prior specs use that name. **That name is retired.** Nothing in the product may say "chat", "assistant", "ask me", "bot", or "AI".
+
+An LLM answer tier is designed and deferred to Phase 2, behind an evidence gate: it is built only if the search logs show a sustained volume of questions the first two tiers cannot answer.
+
+---
+
+## 2. Source documents
+
+**The design spec is the source of truth.** Everything else derives from it.
+
+| Document | Role |
+|---|---|
+| [`docs/superpowers/specs/2026-08-07-help-centre-v0-design.md`](../../specs/2026-08-07-help-centre-v0-design.md) | **Source of truth.** Architecture, five tables and their RLS, the search SQL, security, content plan, build sequence, Phase 2 |
+| [`docs/superpowers/specs/2026-08-07-help-centre-v0-ui-design.md`](../../specs/2026-08-07-help-centre-v0-ui-design.md) | Every screen state described in words, so a builder needs no image |
+| [`docs/superpowers/plans/2026-08-08-help-centre-v0.md`](../2026-08-08-help-centre-v0.md) | Implementation plan, 14 tasks with real code and real tests |
+| [`README.md`](README.md) | Stage routing — who builds what, in what order |
+| This file | Current state |
+
+**Superseded. Do not build from these.**
+
+| Document | Status |
+|---|---|
+| `docs/superpowers/specs/2026-04-14-chatbot-design.md` | The original LLM-first RAG design. Replaced — §1 of the new spec explains why |
+| `docs/superpowers/specs/2026-06-22-chatbot-model-hosting-analysis.md` | Model and hosting analysis. Survives only as §11, Phase 2 |
+| `docs/features/chatbot-overview.md` | **Actively wrong.** Still describes a Gemini and Groq bot escalating through Resend. Rewritten by plan task 14 |
+
+**Content sources, for whoever writes the articles.**
+
+| Document | Usable? |
+|---|---|
+| `docs/ops/platform-policies.md` | Yes. Already user-facing policy prose — adapt sections 2 to 8 directly |
+| `docs/ops/support-best-practices.md` | **Partially.** Mine section 3 for the *questions* users ask. Never publish its *answers* — sections 3, 4 and 6 are internal and contain ClickUp references and "escalate to Ops Lead and Founder" |
+
+---
+
+## 3. Locked decisions
+
+All founder-approved. Do not re-litigate without saying why.
+
+| Decision | Detail |
+|---|---|
+| **Four tiers, three ship** | 0 guided picker · 1 search · ~~2 generated answer~~ deferred · 3 ticket |
+| **Two corpora** | `public` for logged-out visitors, `app` for signed-in hosts. An article never appears in both — they are genuinely different articles, not one article with two visibilities |
+| **`audience` is curation, not security** | No help content is confidential. The real boundary is `status = 'published'`, and that *is* an RLS predicate. Endorsed independently by the security and data-model reviewers |
+| **Content lives in `config.*`** | Seeded by migration, like every other catalog here. This is what removes any dependency on an admin panel |
+| **Escalation** | Ticket row is the source of truth. Email is best-effort and no-ops while `RESEND_API_KEY` is unset |
+| **Support address** | `abhijith@evenzii.com` until launch, then `support@evenzii.com`. Env-driven via `NEXT_PUBLIC_SUPPORT_EMAIL` — the flip is one Vercel variable, no code change |
+| **Feedback captured** | Deflection rate and the monthly content review are already published process; neither is measurable without it |
+| **`OverlaySurface` first** | Built before the panel, because twelve modals hand-roll overlay behaviour and none returns focus |
+| **Sequencing** | App corpus before public corpus |
+| **Phase 2 model, if the gate is met** | `qwen3-30b-a3b-fp8` on Cloudflare Workers AI, grounded on Tier 1's own ranked results rather than a vector store |
+
+---
+
+## 4. Database — live
+
+Applied 2026-08-08 to project `smjkbmkxweevqpvygabe`. Seven migrations, `help_01` through `help_07`. Purely additive; nothing existing was altered.
+
+| Object | Notes |
+|---|---|
+| `config.faq_categories` | 10 rows seeded — 6 app, 4 public |
+| `config.faq_articles` | Empty. `search_tsv` is a stored generated column, weights A/B/C |
+| `config.faq_tags_text(text[])` | Immutable wrapper. Required — see traps below |
+| `config.search_faq(query, audience, limit)` | `SECURITY INVOKER`, granted to `anon` and `authenticated` |
+| `public.support_tickets` | `reference` generated by a `BEFORE INSERT` definer trigger, format `EVZ-XXXXX` |
+| `public.help_queries` | 90-day retention via `pg_cron` job `help_queries_retention` |
+| `public.faq_article_feedback` | — |
+| Extensions | `pg_trgm` in `extensions` (moved there deliberately), `pg_cron` new |
+
+Verified live, not assumed. All eight checks passed: generated column populates; plain search works; **negation does not widen the result set**; the typo "invatation" is caught; a stopwords-only query degrades cleanly; the public corpus cannot see app articles; **draft articles do not leak**; the reference generator produces unique, correctly formatted codes.
+
+`get_advisors` returned one new warning, since fixed. Two informational notices about RLS-enabled-no-policy on `help_queries` and `faq_article_feedback` are **intentional** — with RLS on and no policy, every client role is denied and only `service_role` reaches them. Four existing tables carry the same notice for the same reason.
+
+---
+
+## 5. Branches
+
+**`feature/help-centre` is the integration branch.** All Help Centre work lands there. It merges to `Dev-Vibe` and `Dev-Vibe-Testing` only when the whole feature is dev-complete.
+
+| Branch | State |
+|---|---|
+| **`feature/help-centre`** | Integration. Contains stages 1, 2, 3, 4, 6. 244 tests pass, 32/32 files. Typecheck matches baseline exactly |
+| `feature/help-centre-api` | Stage 5, in progress, **not yet merged** |
+| `feature/help-centre-foundations-a` | Stage 1 — merged in |
+| `feature/help-centre-foundations-b` | Stage 2 — merged in |
+| `feature/help-centre-search-lib` | Stage 4 — merged in. Note it also went directly into `Dev-Vibe`, bypassing the review gate |
+| `feature/help-centre-markdown` | Stage 6 — merged in |
+| `feature/support-chatbot-plan` | Planning docs. Merged in; now historical |
+
+Worktrees in use: `.worktrees/help-centre-integration` (integration), `.worktrees/help-centre-foundations-a`, `.worktrees/help-centre-markdown`. The main checkout is on `feature/help-centre-api`.
+
+**Do not check out a branch that another worktree already has.** This has caused two near-misses in one day: a commit was orphaned and had to be recovered from the reflog, and a Cursor session briefly lost its branch. `git worktree list` before switching.
+
+---
+
+## 6. Stage progress
+
+| Stage | Tasks | Owner | State |
+|---|---|---|---|
+| 1 — Foundations A: support address, FAB fix | 1, 2 | Cursor | ✅ merged |
+| 2 — Foundations B: OverlaySurface, primitives | 3, 4 | Cursor | ✅ merged |
+| 3 — Database | 5, 6, SQL of 7 | Claude | ✅ live |
+| 4 — Search library | TS of 7, 8 | Cursor | ✅ merged |
+| 5 — API routes | 9, 10 | Cursor | 🔄 in progress |
+| 6 — Markdown and CSP | 11 | Cursor | ✅ merged |
+| 7 — `/help` pages | 12 | Cursor | ⬜ needs 5 |
+| 8 — Help panel | 13 | Cursor | ⬜ needs 5 |
+| 9 — Data-model docs | 14 | Claude | ⬜ unblocked |
+
+**No stage has been through the review gate yet.** Stages 1, 2, 4 and 6 are integrated but unreviewed.
+
+---
+
+## 7. Traps — every one of these has already bitten
+
+**`array_to_string` cannot go in a generated column.** It is `STABLE`; Postgres requires `IMMUTABLE` and rejects it with `42P17`. Use `config.faq_tags_text`. Do **not** substitute `array_to_tsvector` — it neither stems nor lowercases, so a tag of `link broken` would never match a search for "broken link", silently destroying the tag-synonym mechanism while appearing to work.
+
+**Never build a tsquery by string-editing parsed text.** `replace(websearch_to_tsquery(...)::text, ' & ', ' | ')` inverts the negation operator: `invite -whatsapp` becomes `'invit' | !'whatsapp'`, which matches every document lacking the term — the entire corpus. Build from `to_tsvector` lexemes instead; it parses no operators, so there is nothing to invert.
+
+**`similarity()` does not catch typos here; `word_similarity()` does.** `similarity(question, 'invatation')` scores 0.190 against a 0.3 threshold and never enters the candidate set. `word_similarity` scores 0.571. The threshold must be **0.5** — at the 0.6 default the fix still fails.
+
+**`config.search_faq` is `SECURITY INVOKER`, deliberately.** As `DEFINER` the `status = 'published'` policy would stop applying to the caller and unpublished articles would be readable through a public endpoint.
+
+**`config` schema is not in the generated types.** `supabase.rpc('search_faq', …)` will not typecheck. Use `supabase.schema('config').rpc(…)`. This is the "config-schema gotcha" named in `FE-INTEGRATION.md`.
+
+**Every write bypasses RLS.** `service_role` is the only writer on the `public.*` tables, so the route *is* the security control. `user_id` and `audience` are always derived from `supabase.auth.getUser()`, never from a request body. `context` is built from a named allow-list. `page_url` is stripped of query string and fragment.
+
+**`revoke ... from public` is a no-op in Supabase** for `anon` and `authenticated`. Name all three roles. Run `get_advisors` after every migration — it is the only check that sees actually-granted privileges.
+
+**Sanitisation must be server-side.** `/help/a/{slug}` has to render with JavaScript disabled, so a browser-side pass would ship unsanitised HTML to exactly the forwarded, indexable route the requirement exists for.
+
+---
+
+## 8. Launch gates — none of these is code
+
+| Gate | Owner |
+|---|---|
+| `support@evenzii.com` created, then set `NEXT_PUBLIC_SUPPORT_EMAIL` | Founder |
+| Ticket-watching: configure Resend, or build the minimal admin ticket list. **Not** informal Supabase dashboard access — that grants unrestricted read of every table, including guest phone numbers and email addresses | Founder |
+| Content delivery date, with a per-category order | Brindo and Sree |
+| Launch minimum: three published articles per enabled category, zero enabled-but-empty categories. Under-served categories ship `enabled = false` rather than empty | Founder |
+| `/help/a/{slug}` opened in WhatsApp's Android in-app browser | Anyone |
+| Confidence threshold calibrated against real `help_queries` rows | Founder |
+
+**Content is the critical path.** With no generated answers, the content *is* the product. Roughly fifty articles are needed. Plan task 6 produces the authoring brief, the question list and exemplar articles for Brindo and Sree — it has not been built yet.
+
+---
+
+## 9. Standing rules for any session
+
+- Read `CLAUDE.md` first — Coding Conventions and the Component Reuse rule.
+- Branch from `feature/help-centre`, not `Dev-Vibe`. Merge back into `feature/help-centre`.
+- Run `git worktree list` before switching branches.
+- No copy may say "chat", "assistant", "ask me", "bot", or "AI".
+- Spelling is **"Help Centre"** (en-IN).
+- TypeScript strict, no `any`, explicit return types on exports.
+- Tests in `__tests__/` mirroring the source path. `npm run test:run`.
+- Reuse before create. Cite the `shell.css` primitive. Any new shared primitive goes into `designs/components.html` in the same change.
+- Never log ticket message bodies or search query text.
+- Finish with `npx tsc --noEmit && npm run lint && npm run test:run` clean. **Fix errors; do not widen ignore lists to make a gate pass.**
+- Every stage returns to Claude for review before it is considered done.
