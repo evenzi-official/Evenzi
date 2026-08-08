@@ -22,7 +22,7 @@ describe('middleware routing logic', () => {
   })
 
   it('/home is NOT a public path', () => {
-    const path = '/home'
+    const path: string = '/home'
     const isPublic = path === '/' ||
       path === '/auth' ||
       path.startsWith('/auth/callback') ||
@@ -41,37 +41,38 @@ describe('middleware routing logic', () => {
 describe('redirect logic', () => {
   it('user with no role on protected route should go to /auth/role-selection', () => {
     const profile: UserProfile = {
-      id: 'u1', role: null, display_name: 'Test', avatar_url: null, onboarding_completed: false,
+      id: 'u1', role_slug: null, display_name: 'Test', avatar_url: null, onboarding_completed: false,
     }
-    const pathname = '/home'
-    const needsRoleSelection = profile.role === null && pathname !== '/auth/role-selection'
+    const pathname: string = '/home'
+    const needsRoleSelection = profile.role_slug === null && pathname !== '/auth/role-selection'
     expect(needsRoleSelection).toBe(true)
   })
 
   it('user with role on /auth/role-selection should go to /home', () => {
     const profile: UserProfile = {
-      id: 'u1', role: 'host', display_name: 'Test', avatar_url: null, onboarding_completed: false,
+      id: 'u1', role_slug: 'host', display_name: 'Test', avatar_url: null, onboarding_completed: false,
     }
-    const pathname = '/auth/role-selection'
-    const hasRoleOnRoleSelection = profile.role !== null && pathname === '/auth/role-selection'
+    const pathname: string = '/auth/role-selection'
+    const hasRoleOnRoleSelection = profile.role_slug !== null && pathname === '/auth/role-selection'
     expect(hasRoleOnRoleSelection).toBe(true)
   })
 
   it('user with role on /auth should go to /home', () => {
     const profile: UserProfile = {
-      id: 'u1', role: 'host', display_name: 'Test', avatar_url: null, onboarding_completed: false,
+      id: 'u1', role_slug: 'host', display_name: 'Test', avatar_url: null, onboarding_completed: false,
     }
-    const pathname = '/auth'
-    const hasRoleOnAuth = profile.role !== null && pathname === '/auth'
+    const pathname: string = '/auth'
+    const hasRoleOnAuth = profile.role_slug !== null && pathname === '/auth'
     expect(hasRoleOnAuth).toBe(true)
   })
 
   it('user with role on /home should pass through', () => {
     const profile: UserProfile = {
-      id: 'u1', role: 'host', display_name: 'Test', avatar_url: null, onboarding_completed: false,
+      id: 'u1', role_slug: 'host', display_name: 'Test', avatar_url: null, onboarding_completed: false,
     }
-    const pathname = '/home'
-    const shouldPassThrough = profile.role !== null && pathname !== '/auth/role-selection' && pathname !== '/auth'
+    const pathname: string = '/home'
+    const shouldPassThrough =
+      profile.role_slug !== null && pathname !== '/auth/role-selection' && pathname !== '/auth'
     expect(shouldPassThrough).toBe(true)
   })
 })

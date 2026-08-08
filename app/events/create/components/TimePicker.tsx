@@ -105,7 +105,7 @@ function partsTo24(hour12: number, minute: number, ampm: 'AM' | 'PM'): string {
 // First valid (> minTime) time, or null if minTime is the last minute of the day.
 function firstAfter(minTime: string): string | null {
   const [hStr, mStr] = minTime.split(':')
-  let total = parseInt(hStr, 10) * 60 + parseInt(mStr, 10) + 1
+  const total = parseInt(hStr, 10) * 60 + parseInt(mStr, 10) + 1
   if (total > 23 * 60 + 59) return null
   const h = Math.floor(total / 60)
   const m = total % 60

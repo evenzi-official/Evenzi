@@ -2079,7 +2079,8 @@ export type Database = {
           id?: string
           message: string
           page_url?: string | null
-          reference: string
+          /** Filled by trg_support_tickets_reference when omitted. */
+          reference?: string
           replied_at?: string | null
           status?: string
           topic_slug?: string | null

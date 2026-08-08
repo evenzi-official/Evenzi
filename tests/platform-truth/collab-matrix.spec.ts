@@ -20,11 +20,17 @@ const w0 = JSON.parse(readFileSync(resolve(ROOT, 'scripts/e2e/w0-env.json'), 'ut
 const ROLES = ['co-host', 'planner', 'photographer', 'viewer'] as const
 type Role = (typeof ROLES)[number]
 
-const results: Record<string, unknown> = {
+const results: {
+  eventId: string
+  accountBEmail: string
+  roles: Record<string, Record<string, unknown>>
+  hostSmoke: Record<string, { status: number; onAuth: boolean; finalUrl: string }>
+  decline?: { status: number; body: unknown }
+} = {
   eventId: w0.eventId,
   accountBEmail: w0.accountBEmail,
-  roles: {} as Record<string, Record<string, unknown>>,
-  hostSmoke: {} as Record<string, unknown>,
+  roles: {},
+  hostSmoke: {},
 }
 
 async function ctxA(browser: Browser): Promise<BrowserContext> {
