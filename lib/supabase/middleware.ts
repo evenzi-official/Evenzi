@@ -15,6 +15,7 @@ export async function updateSession(request: NextRequest) {
       pathname.startsWith('/_next') ||
       pathname.startsWith('/api') ||
       pathname === '/sw.js' ||
+      pathname === '/manifest.webmanifest' ||
       pathname.startsWith('/e/') ||
       pathname.startsWith('/wedding-invitation-temp-')
     ) {
@@ -63,6 +64,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname === '/sw.js' ||            // service worker must load without auth cookies
+    pathname === '/manifest.webmanifest' || // PWA / Add to Home Screen — no auth
     pathname.startsWith('/invite') ||   // guest invitation share URLs — no auth required
     pathname.startsWith('/e/') ||       // public guest wedding websites — anonymous
     pathname.startsWith('/wedding-invitation-temp-') || // invitation template previews — public

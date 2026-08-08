@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Evenzi">
+  <!-- Stylized E + play; fill brand red; no background (use mark-dark/light PNGs for app icons) -->
+  <path fill="#BB0020" d="M128 96h224c26.5 0 48 21.5 48 48v40c0 13.3-10.7 24-24 24H224v16l160 88-160 88v16h152c13.3 0 24 10.7 24 24v40c0 26.5-21.5 48-48 48H128c-26.5 0-48-21.5-48-48V144c0-26.5 21.5-48 48-48z"/>
+  <path fill="#BB0020" d="M248 224v128l112-64-112-64z"/>
+</svg>
