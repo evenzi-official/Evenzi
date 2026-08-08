@@ -14,8 +14,8 @@ export const config = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    // sw.js must stay public (Push SW) — exclude from session middleware
-    '/((?!_next/static|_next/image|favicon.ico|sw\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|webm|glb|gltf|obj|ico|txt|xml)$).*)',
+    // sw.js + web manifest must stay public (Push SW / Add to Home Screen)
+    '/((?!_next/static|_next/image|favicon.ico|sw\\.js|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|webm|glb|gltf|obj|ico|txt|xml|webmanifest)$).*)',
   ],
 }
 
