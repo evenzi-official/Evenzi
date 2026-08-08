@@ -23,7 +23,7 @@ const BADGES = [
 
 export default function IndiaDifferentiatorBlock() {
   return (
-    <section className="w-full bg-[#080808] py-24 md:py-36">
+    <section className="w-full bg-[#BB0020] py-24 md:py-36">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left — text */}
@@ -66,7 +66,7 @@ export default function IndiaDifferentiatorBlock() {
             {SUB_EVENTS.map((ev) => (
               <span
                 key={ev}
-                className="border border-[rgba(200,169,110,0.4)] text-[#c8a96e] rounded-full px-4 py-2 font-semibold tracking-wide cursor-default transition-all duration-200 hover:border-[#c8a96e] hover:bg-[rgba(200,169,110,0.08)]"
+                className="border border-[rgba(255,255,255,0.4)] text-white rounded-full px-4 py-2 font-semibold tracking-wide cursor-default transition-all duration-200 hover:border-white hover:bg-[rgba(255,255,255,0.12)]"
                 style={{ fontSize: "12px" }}
               >
                 {ev}

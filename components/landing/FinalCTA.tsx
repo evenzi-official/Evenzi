@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function FinalCTA() {
   return (
-    <section className="w-full bg-[#080808] py-28 md:py-40">
+    <section className="w-full bg-[#1C0A08] py-28 md:py-40">
       <div className="max-w-2xl mx-auto px-6 flex flex-col items-center text-center">
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
