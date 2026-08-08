@@ -12,6 +12,13 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Parallel git worktrees (and their nested .next builds) must not be linted.
+    ".worktrees/**",
+    // Not part of the Next app lint surface.
+    "designs/**",
+    "landing-page/**",
+    "scripts/**",
+    "qa/**",
   ]),
 ]);
 

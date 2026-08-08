@@ -451,7 +451,7 @@ flowchart TD
     B --> C{Service available?}
     C -->|Yes| D[Normal chatbot flow]
     C -->|No — API error or timeout| E[Widget shows: Support chat is temporarily unavailable.]
-    E --> F[Fallback CTA: Email us at support@evenzi.in]
+    E --> F[Fallback CTA: Email us at support@evenzii.com]
     F --> G[User contacts support directly]
 ```
 

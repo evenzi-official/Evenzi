@@ -4,6 +4,7 @@ import "./globals.css";
 import { RevealObserver } from "@/components/layout/RevealObserver";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { Preloader } from "@/components/ui/Preloader";
+import { HelpFabMount } from "@/components/layout/HelpFabMount";
 import { getAppBaseUrl } from "@/lib/url";
 
 const inter = Inter({
@@ -140,6 +141,7 @@ export default function RootLayout({
         <RevealObserver />
         <ServiceWorkerRegister />
         {children}
+        <HelpFabMount />
       </body>
     </html>
   );

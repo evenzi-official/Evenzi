@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getUserProfile } from '@/lib/supabase/profile'
+import { isEnvMissingPublicPath, isPublicPath } from '@/lib/supabase/is-public-path'
 
 export async function updateSession(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -9,16 +10,7 @@ export async function updateSession(request: NextRequest) {
   // If env vars are missing, allow access to public routes only
   if (!supabaseUrl || !supabaseKey) {
     const pathname = request.nextUrl.pathname
-    if (
-      pathname === '/' ||
-      pathname.startsWith('/auth') ||
-      pathname.startsWith('/_next') ||
-      pathname.startsWith('/api') ||
-      pathname === '/sw.js' ||
-      pathname === '/manifest.webmanifest' ||
-      pathname.startsWith('/e/') ||
-      pathname.startsWith('/wedding-invitation-temp-')
-    ) {
+    if (isEnvMissingPublicPath(pathname)) {
       return NextResponse.next()
     }
     const url = request.nextUrl.clone()
@@ -56,22 +48,11 @@ export async function updateSession(request: NextRequest) {
   const isDevPlayground =
     process.env.NODE_ENV !== 'production' && pathname.startsWith('/dev')
 
-  // Public paths — no auth required
-  const isPublicPath =
-    pathname === '/' ||
-    pathname === '/auth' ||
-    pathname.startsWith('/auth/callback') ||
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname === '/sw.js' ||            // service worker must load without auth cookies
-    pathname === '/manifest.webmanifest' || // PWA / Add to Home Screen — no auth
-    pathname.startsWith('/invite') ||   // guest invitation share URLs — no auth required
-    pathname.startsWith('/e/') ||       // public guest wedding websites — anonymous
-    pathname.startsWith('/wedding-invitation-temp-') || // invitation template previews — public
-    isDevPlayground
+  // Public paths — no auth required (/help exact-plus-prefix; /helpdesk stays protected)
+  const pathIsPublic = isPublicPath(pathname) || isDevPlayground
 
   // No user on non-public path → redirect to auth
-  if (!user && !isPublicPath) {
+  if (!user && !pathIsPublic) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth'
     return NextResponse.redirect(url)
@@ -83,7 +64,7 @@ export async function updateSession(request: NextRequest) {
     const hasRole = profile?.role_slug != null
 
     // User with no role trying to access protected routes → role selection
-    if (!hasRole && pathname !== '/auth/role-selection' && !isPublicPath) {
+    if (!hasRole && pathname !== '/auth/role-selection' && !pathIsPublic) {
       const url = request.nextUrl.clone()
       url.pathname = '/auth/role-selection'
       return NextResponse.redirect(url)

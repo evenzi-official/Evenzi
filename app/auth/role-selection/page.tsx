@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { RoleSelectCard } from '@/components/auth/RoleSelectCard'
 
@@ -52,10 +53,10 @@ export default function RoleSelectionPage() {
   return (
     <div className="page-bg page-shell">
       <header className="page-shell-header">
-        <a href="/" className="page-logo" aria-label="Evenzi home">Evenzi</a>
+        <Link href="/" className="page-logo" aria-label="Evenzi home">Evenzi</Link>
         <div className="page-shell-actions">
           <ThemeToggle className="page-theme-toggle" />
-          <a href="mailto:evenzi.official@gmail.com" className="page-help">Need help?</a>
+          <Link href="/help" className="page-help">Need help?</Link>
         </div>
       </header>
 

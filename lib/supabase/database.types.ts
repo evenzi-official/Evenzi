@@ -1806,6 +1806,30 @@ export type Database = {
         }
         Relationships: []
       }
+      faq_article_feedback: {
+        Row: {
+          article_id: string
+          created_at: string
+          helpful: boolean
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          helpful: boolean
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          helpful?: boolean
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       guest_lookup_attempts: {
         Row: {
           attempted_at: string
@@ -1883,6 +1907,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      help_queries: {
+        Row: {
+          audience: string
+          created_at: string
+          escalated: boolean
+          id: number
+          query: string
+          ref: string
+          resolved: boolean
+          result_count: number
+          top_score: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          audience: string
+          created_at?: string
+          escalated?: boolean
+          id?: never
+          query: string
+          ref?: string
+          resolved?: boolean
+          result_count: number
+          top_score?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          audience?: string
+          created_at?: string
+          escalated?: boolean
+          id?: never
+          query?: string
+          ref?: string
+          resolved?: boolean
+          result_count?: number
+          top_score?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -1986,6 +2052,52 @@ export type Database = {
           endpoint?: string
           id?: string
           p256dh?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          context: Json
+          created_at: string
+          email: string
+          id: string
+          message: string
+          page_url: string | null
+          reference: string
+          replied_at: string | null
+          status: string
+          topic_slug: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          context?: Json
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          page_url?: string | null
+          /** Filled by trg_support_tickets_reference when omitted. */
+          reference?: string
+          replied_at?: string | null
+          status?: string
+          topic_slug?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          context?: Json
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          page_url?: string | null
+          reference?: string
+          replied_at?: string | null
+          status?: string
+          topic_slug?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -2534,6 +2646,14 @@ export type Database = {
         Args: { p_status_slug: string; p_task_ids: string[] }
         Returns: number
       }
+      can_read_event: {
+        Args: { p_capability?: string; p_event_id: string }
+        Returns: boolean
+      }
+      can_write_event: {
+        Args: { p_capability: string; p_event_id: string }
+        Returns: boolean
+      }
       create_event_with_details: {
         Args: {
           p_event_type_id: string
@@ -2556,6 +2676,7 @@ export type Database = {
         }
         Returns: string
       }
+      decline_event_invite: { Args: { p_token: string }; Returns: string }
       event_task_counts: {
         Args: { p_event_id: string }
         Returns: {
@@ -2601,7 +2722,7 @@ export type Database = {
         Returns: boolean
       }
       list_my_pending_invites: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           event_id: string
           event_name: string
@@ -2610,6 +2731,10 @@ export type Database = {
           owner_display_name: string
           role: string
         }[]
+      }
+      mark_collab_invite_notifications_read: {
+        Args: { p_event_id: string; p_user_id: string }
+        Returns: undefined
       }
       notify_recipients: {
         Args: {
