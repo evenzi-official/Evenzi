@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { HeroGeometric } from "@/components/ui/hero-geometric";
 import FeatureShowcaseGrid from "@/components/landing/FeatureShowcaseGrid";
 import IndiaDifferentiatorBlock from "@/components/landing/IndiaDifferentiatorBlock";
+import WhatsAppSpotlight from "@/components/landing/WhatsAppSpotlight";
 
 const FlyCanvas = dynamic(
   () => import("@/app/website-theme-framer/components/FlyCanvas"),
@@ -301,6 +302,7 @@ export default function Home() {
       </div>
       <FeatureShowcaseGrid />
       <IndiaDifferentiatorBlock />
+      <WhatsAppSpotlight />
       <TextScrollAnimation />
       <IntroAnimation />
       <PageFooter />
