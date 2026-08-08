@@ -313,24 +313,59 @@ Per the standing maintenance rule, the same change that migrates these tables mu
 
 ## 6. Search behaviour (Tier 1)
 
-Ranking combines full-text relevance with trigram similarity, so that both "the words match" and "the words nearly match" contribute:
+Ranking combines full-text relevance with trigram similarity, so that both "different word, same meaning" and "same word, typed badly" contribute.
+
+### 6.1 The query must use OR, not AND
+
+`websearch_to_tsquery` and `plainto_tsquery` both join terms with **AND**. For support search that is far too strict: a single unmatched word returns nothing at all.
+
+Verified against the live database on 2026-08-07. Article "Why didn't my guest get their invitation?" produces the lexemes `'didn':2 'get':6 'guest':5 'invit':8`. A user typing "my guest didnt get the invite" produces the query `'guest' & 'didnt' & 'get' & 'invit'` — the apostrophe-less `didnt` stems differently from `didn't`, so the AND match evaluates to **false** and the user sees nothing. Rewriting the same query with OR matches at rank 0.0456.
+
+The tsquery is therefore built by OR-joining the lexemes. `ts_rank` then does the discrimination that AND was doing badly: articles matching more terms naturally float to the top, instead of near-misses being discarded outright.
+
+### 6.2 The query
 
 ```sql
-select a.*,
-       ts_rank(a.search_tsv, websearch_to_tsquery('english', :q)) as fts_score,
-       similarity(a.question, :q)                                  as trgm_score
+with q as (
+  select replace(
+           websearch_to_tsquery('english', :query)::text,
+           ' & ', ' | '
+         )::tsquery as tsq
+)
+select a.id, a.slug, a.question,
+       ts_rank(a.search_tsv, q.tsq)                          as fts_score,
+       similarity(a.question, :query)                        as trgm_score,
+       ts_rank(a.search_tsv, q.tsq) * 2.0
+         + similarity(a.question, :query)                    as combined
 from   config.faq_articles a
 join   config.faq_categories c on c.id = a.category_id
+cross  join q
 where  a.status = 'published'
-  and  c.enabled = true
+  and  c.enabled  = true
   and  c.audience = :audience
-  and  (a.search_tsv @@ websearch_to_tsquery('english', :q)
-        or a.question % :q)
-order  by (ts_rank(...) * 2.0 + similarity(...)) desc
+  and  (a.search_tsv @@ q.tsq or a.question % :query)
+order  by combined desc
 limit  8;
 ```
 
-`websearch_to_tsquery` is used rather than `plainto_tsquery` because it tolerates the punctuation and quoting real users type without raising a syntax error.
+`websearch_to_tsquery` is still the parser, because it tolerates the punctuation and quoting real users type without raising a syntax error — only its AND joins are rewritten. The `%` operator is `pg_trgm`'s similarity threshold test, which keeps typo-only matches in the candidate set even when full-text finds nothing.
+
+Full-text is weighted at twice trigram because a stemmed word match is a stronger signal of meaning than character overlap. Character overlap is the safety net, not the primary signal.
+
+### 6.3 Verified ranking behaviour
+
+The same query run against four candidate articles on the live database:
+
+| Article | FTS | Trigram | Combined |
+|---|---|---|---|
+| Why didn't my guest get their invitation? | 0.4931 | 0.5455 | **1.5316** |
+| How do I import guests from a spreadsheet? | 0.1520 | 0.1290 | 0.4330 |
+| How do I change my event date? | 0.0000 | 0.1373 | 0.1373 |
+| What does Evenzi cost? | 0.0000 | 0.0408 | 0.0408 |
+
+The correct answer scores roughly three and a half times the next candidate. That separation is where the confidence threshold sits.
+
+### 6.4 The confidence threshold
 
 **The confidence threshold is a product decision, not a technical one.** Below the threshold the user sees an honest "no match" state rather than three bad results. Showing weak results is worse than showing none: it teaches the user that search does not work here, and it suppresses the escalation path they actually need. The initial threshold is a tunable constant, calibrated against real queries during the dogfood week rather than guessed now.
 
