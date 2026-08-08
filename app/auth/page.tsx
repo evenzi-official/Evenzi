@@ -141,7 +141,7 @@ export default function AuthPage() {
         <Link href="/" className="page-logo" aria-label="Evenzi home">Evenzi</Link>
         <div className="page-shell-actions">
           <ThemeToggle className="page-theme-toggle" />
-          <a href="/help" className="page-help">Need help?</a>
+          <Link href="/help" className="page-help">Need help?</Link>
         </div>
       </header>
 
