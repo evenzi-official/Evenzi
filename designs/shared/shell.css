@@ -715,20 +715,21 @@ html{scroll-behavior:smooth}
 
 /* ════════════════════════════════════════════════════════════════════
    HELP FAB — fixed bottom-right floating button.
-   Composition: <button class="help-fab" aria-label="Open help center">
-                  <span class="material-symbols-outlined">support_agent</span>
+   Composition: <button class="help-fab" aria-label="Open Help Centre">
+                  <span class="material-symbols-outlined">help</span>
                 </button>
-   Auto-hides on mobile (≤768px). Lifts above bottom tool rail at ≤1399px.
+   Visible at ALL widths. Pages that render a primary .add-fab must pass
+   the --stacked modifier, which lifts help one slot above it.
    ════════════════════════════════════════════════════════════════════ */
 .help-fab{
   position:fixed;
-  bottom:max(1.5rem, calc(1.5rem + env(safe-area-inset-bottom,0px)));
-  right:max(1.5rem, calc(1.5rem + env(safe-area-inset-right,0px)));
+  bottom:calc(1.5rem + env(safe-area-inset-bottom,0px));
+  right:max(1.25rem, calc(1.25rem + env(safe-area-inset-right,0px)));
   width:56px;height:56px;border-radius:9999px;
   display:inline-flex;align-items:center;justify-content:center;
   background:var(--brand);color:#fff;border:0;cursor:pointer;
   box-shadow:var(--shadow-clay-pill);
-  z-index:30;
+  z-index:59;
   transition:background-color .2s,transform .2s;
 }
 .help-fab .material-symbols-outlined{font-size:24px;font-variation-settings:'FILL' 1}
@@ -736,11 +737,17 @@ html{scroll-behavior:smooth}
   .help-fab:hover{background:var(--brand-hover);transform:translateY(-2px)}
 }
 .help-fab:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.help-fab{transition:none}}
+
+/* lift clear of the bottom tool rail */
 @media (max-width:1399px){
   .help-fab{bottom:calc(env(safe-area-inset-bottom,0px) + 5.25rem)}
 }
-@media (max-width:768px){
-  .help-fab{display:none}
+
+/* stacked above a page's primary .add-fab — 56px button + 12px gap */
+.help-fab--stacked{bottom:calc(5.75rem + 68px + env(safe-area-inset-bottom,0px))}
+@media (max-width:1399px){
+  .help-fab--stacked{bottom:calc(env(safe-area-inset-bottom,0px) + 5.75rem + 68px)}
 }
 
 /* ════════════════════════════════════════════════════════════════════
