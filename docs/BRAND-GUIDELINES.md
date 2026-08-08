@@ -8,7 +8,8 @@
 
 - **Full name:** Evenzi
 - **Tagline:** TBD (not yet committed in any design)
-- **Logo:** Wordmark "Evenzi" set in Poppins 800, letter-spacing `-0.05em`, in brand red. No icon mark yet.
+- **Logo:** Wordmark "Evenzi" set in Poppins 800, letter-spacing `-0.05em`, in brand red.
+- **App icon (interim):** Full-bleed `#BB0020` square with white **E** — used for favicon / Apple touch / PWA until a final mark is designed (`app/icon.png`, `public/icons/*`, `public/brand/mark.svg`).
 - **Visual signature:** Liquid Glass (Apple-style frosted glass with rim, inset highlights, and a directional specular streak) layered over a warm light background or near-black dark background.
 
 ---

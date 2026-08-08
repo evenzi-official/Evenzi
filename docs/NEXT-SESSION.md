@@ -4,17 +4,12 @@
 
 ---
 
-## ▶ START HERE NEXT — ENH-icons + repo cleanup A/B/C (2026-08-08)
+## ▶ START HERE NEXT — Repo cleanup A/B/C (2026-08-08)
 
-**Parked — pick up next (local or dedicated session; do not mix with unrelated WIP):**
+**Parked — pick up next:**
 
-1. **ENH-icons (site-wide)** — Icons + head meta on **all** Next.js app pages via root `app/layout.tsx` `metadata` (and route overrides only where needed):
-   - Favicon (`.ico` / SVG) + Apple touch icon + Android / PWA home-screen icons
-   - `theme-color`, `manifest` (if used), basic title / description / Open Graph defaults so tabs, bookmarks, and Add to Home Screen show Evenzi branding
-   - Confirm coverage on auth, home, event hub, public `/e/[slug]`, and marketing surfaces that share the app shell
-   - Asset source: brand guidelines / existing mark — no generic placeholder icons
-2. **Repo cleanup A/B/C** — separate cleanup pass (as deferred earlier)  
-3. **Fixture cleanup** (with cleanup pass) — delete `e2e-truth-audit` (`f990d6d7-…`) + Account B `e2e.collab.b@evenzi.test` only when ready  
+1. **Repo cleanup A/B/C** — separate cleanup pass (as deferred earlier)  
+2. **Fixture cleanup** (with cleanup pass) — delete `e2e-truth-audit` (`f990d6d7-…`) + Account B `e2e.collab.b@evenzi.test` only when ready  
 
 **Also queued (not blocking cleanup):**
 
@@ -23,6 +18,7 @@
 - Optional: Website Photos ↔ Media bridge UX  
 - Optional: PR-3 logged-in R2 smoke on `evenzi.vercel.app`  
 - Support Chatbot — continues on `feature/support-chatbot-plan` (main folder); do not mix into cleanup worktree  
+- Replace interim **E** app icon when final logo mark ships (`public/brand/mark.svg` + `app/icon.png` / `public/icons/*`)
 
 **Authoritative docs from last session:**
 
@@ -30,6 +26,7 @@
 - Prod-risk: [`docs/testing/audit-2026-08-07/prod-risk.md`](testing/audit-2026-08-07/prod-risk.md)  
 - V0 readiness brief (for Claude artifact): [`docs/ops/2026-08-07-v0-readiness-update-brief.md`](ops/2026-08-07-v0-readiness-update-brief.md)  
 - Local readiness HTML: [`docs/ops/v0-readiness.html`](ops/v0-readiness.html)  
+- ENH-icons plan: [`docs/superpowers/plans/2026-08-08-enh-icons-sitewide.md`](superpowers/plans/2026-08-08-enh-icons-sitewide.md)
 
 **Domains (locked):** UAT = `evenzi.vercel.app` → later `app.evenzii.com`; marketing stays `evenzii.com`.
 
@@ -37,12 +34,18 @@
 
 ```
 Next session parked items:
-(1) ENH-icons — site-wide favicon + Apple/Android icons + default meta (all app pages)
-(2) Repo cleanup A/B/C
-(3) Fixture cleanup e2e-truth-audit + Account B when we say go
+(1) Repo cleanup A/B/C
+(2) Fixture cleanup e2e-truth-audit + Account B when we say go
+ENH-icons shipped (interim E mark) — see plan 2026-08-08-enh-icons-sitewide.md
 Keep chatbot work on feature/support-chatbot-plan isolated.
 Ledger: docs/testing/2026-08-07-platform-truth-audit-findings.md
 ```
+
+---
+
+## ▶ PAST — ENH-icons site-wide (2026-08-08)
+
+Shipped on `cursor/enh-icons-next-session-note-581f`: interim brand **E** favicon / Apple touch / PWA icons, root `metadata` + `viewport` theme-color, `app/manifest.ts`, public `/icons/*`, middleware allowlist for `manifest.webmanifest`, designs assets synced. Plan: `docs/superpowers/plans/2026-08-08-enh-icons-sitewide.md`.
 
 ---
 
