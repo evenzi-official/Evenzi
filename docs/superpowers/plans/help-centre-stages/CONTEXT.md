@@ -90,7 +90,7 @@ Verified live, not assumed. All eight checks passed: generated column populates;
 
 | Branch | State |
 |---|---|
-| **`feature/help-centre`** | Only active branch. Stages 1–6 merged (API Stage 5 included). Stages 7–9 still open |
+| **`feature/help-centre`** | Only active branch. Stages 1–8 merged. Stage 9 (docs) still open |
 
 Worktrees: none for Help Centre. Main checkout is on `feature/help-centre`. Unrelated: `.worktrees/fix-types` (`Dev-Vibe`).
 
@@ -108,11 +108,11 @@ Worktrees: none for Help Centre. Main checkout is on `feature/help-centre`. Unre
 | 4 — Search library | TS of 7, 8 | Cursor | ✅ merged |
 | 5 — API routes | 9, 10 | Cursor | ✅ merged |
 | 6 — Markdown and CSP | 11 | Cursor | ✅ merged |
-| 7 — `/help` pages | 12 | Cursor | ⬜ next (unblocked) |
-| 8 — Help panel | 13 | Cursor | ⬜ next (unblocked) |
-| 9 — Data-model docs | 14 | Claude/Cursor | ⬜ unblocked |
+| 7 — `/help` pages | 12 | Cursor | ✅ merged |
+| 8 — Help panel | 13 | Cursor | ✅ merged |
+| 9 — Data-model docs | 14 | Claude/Cursor | ⬜ next |
 
-Claude review gates skipped for this finish push (founder decision 2026-08-08 — usage limit). Stages 7 and 8 can run in parallel; both depend on 2, 5, and 6 (all landed).
+Claude review gates skipped for this finish push (founder decision 2026-08-08 — usage limit). Code stages 1–8 are on `feature/help-centre`. Content (articles) and Stage 9 docs remain.
 
 ---
 
