@@ -1806,6 +1806,30 @@ export type Database = {
         }
         Relationships: []
       }
+      faq_article_feedback: {
+        Row: {
+          article_id: string
+          created_at: string
+          helpful: boolean
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          helpful: boolean
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          helpful?: boolean
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       guest_lookup_attempts: {
         Row: {
           attempted_at: string
@@ -1883,6 +1907,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      help_queries: {
+        Row: {
+          audience: string
+          created_at: string
+          escalated: boolean
+          id: number
+          query: string
+          ref: string
+          resolved: boolean
+          result_count: number
+          top_score: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          audience: string
+          created_at?: string
+          escalated?: boolean
+          id?: never
+          query: string
+          ref?: string
+          resolved?: boolean
+          result_count: number
+          top_score?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          audience?: string
+          created_at?: string
+          escalated?: boolean
+          id?: never
+          query?: string
+          ref?: string
+          resolved?: boolean
+          result_count?: number
+          top_score?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -1986,6 +2052,52 @@ export type Database = {
           endpoint?: string
           id?: string
           p256dh?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          context: Json
+          created_at: string
+          email: string
+          id: string
+          message: string
+          page_url: string | null
+          reference: string
+          replied_at: string | null
+          status: string
+          topic_slug: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          context?: Json
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          page_url?: string | null
+          /** Filled by trg_support_tickets_reference when omitted. */
+          reference?: string
+          replied_at?: string | null
+          status?: string
+          topic_slug?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          context?: Json
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          page_url?: string | null
+          reference?: string
+          replied_at?: string | null
+          status?: string
+          topic_slug?: string | null
           updated_at?: string
           user_id?: string
         }
