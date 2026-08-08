@@ -2415,9 +2415,9 @@
       </article>
 
       <article class="cs-component">
-        <p class="cs-label"><span class="cs-label-name">RW3</span> · <code class="cs-code">&lt;StatusBadge&gt;</code> · <code class="cs-code">components/ui/StatusBadge.tsx</code></p>
+        <p class="cs-label"><span class="cs-label-name">RW4</span> · <code class="cs-code">&lt;OverlaySurface&gt;</code> · <code class="cs-code">components/ui/OverlaySurface.tsx</code></p>
         <div class="cs-stage cs-stage--col" style="padding:1.25rem;gap:.5rem;align-items:flex-start">
-          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Emits <code class="cs-code">.status-badge</code> + a real status class (see P5). <code class="cs-code">variant</code> → <code class="cs-code">success</code>=<code class="cs-code">.status-confirmed</code>, <code class="cs-code">warning</code>=<code class="cs-code">.status-maybe</code>, <code class="cs-code">danger</code>/<code class="cs-code">overrun</code>=<code class="cs-code">.status-declined</code>, <code class="cs-code">info</code>/<code class="cs-code">live</code>=<code class="cs-code">.status-published</code>, <code class="cs-code">draft</code>=<code class="cs-code">.status-draft</code>. <code class="cs-code">dot</code> → adds <code class="cs-code">.status-dot</code>.</p>
+          <p class="cs-type-meta" style="text-transform:none;letter-spacing:0">Owns <code class="cs-code">role="dialog"</code>, <code class="cs-code">aria-modal</code>, Escape, outside-click, focus return, and (when <code class="cs-code">modal</code>) focus trap + <code class="cs-code">body.no-scroll</code>. Returns <code class="cs-code">null</code> when closed. Caller passes <code class="cs-code">modal</code> — never breakpoint-check inside. Emits whatever shell class the caller puts on <code class="cs-code">className</code> (e.g. <code class="cs-code">.dock-panel</code> / <code class="cs-code">.modal-scrim</code>). Proving consumer: <code class="cs-code">NotificationBell</code> with <code class="cs-code">modal={false}</code>.</p>
         </div>
       </article>
     </div>
@@ -2466,10 +2466,114 @@
       </article>
 
       <article class="cs-component">
-        <p class="cs-label"><span class="cs-label-name">MU2</span> · Error banner · <code class="cs-code">.media-error-banner</code></p>
+        <p class="cs-label"><span class="cs-label-name">MU2</span> · Error banner · <code class="cs-code">.alert-banner</code> <span class="cs-type-meta">(alias <code class="cs-code">.media-error-banner</code>)</span></p>
         <div class="cs-stage cs-stage--col" style="padding:1.25rem;align-items:stretch">
           <div class="media-error-banner" role="alert">
             Failed to update album assignment
+            <button type="button" aria-label="Dismiss">×</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- 17. HELP PRIMITIVES                                -->
+  <!-- ════════════════════════════════════════════════ -->
+  <section class="cs-section reveal" id="help-primitives">
+    <header class="cs-section-head">
+      <p class="cs-eyebrow">17 · Help primitives</p>
+      <h2 class="cs-h2">Prose, list-nav-row, dock-panel, alert-banner</h2>
+      <p class="cs-h2-sub">Shared surfaces for the Help Centre panel and pages. <code class="cs-code">.prose</code> restores list markers that Tailwind preflight zeroes. <code class="cs-code">.dock-panel</code> promotes <code class="cs-code">.fn-notif-panel</code> (alias retained). Do not invent a parallel panel class.</p>
+    </header>
+
+    <div class="cs-grid cs-grid--wide">
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">HP1</span> · Rich text · <code class="cs-code">.prose</code></p>
+        <div class="cs-stage cs-stage--col" style="padding:1.25rem;align-items:stretch">
+          <div class="prose">
+            <h3>How to send invitations</h3>
+            <p>Follow these steps to invite guests from your list. Use <strong>bold</strong> for emphasis and <code>RSVP</code> for inline code.</p>
+            <ol>
+              <li>Open Guests and select the people to invite.</li>
+              <li>Choose a template and personalise the message.</li>
+              <li>Review the preview, then send.</li>
+            </ol>
+            <ul>
+              <li>WhatsApp send is planned separately.</li>
+              <li>Drafts stay on the event until you send.</li>
+            </ul>
+            <blockquote>Tip: keep the guest list tagged before you send in bulk.</blockquote>
+            <p>Need more help? <a href="#">Contact support</a>.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">HP2</span> · List nav rows · <code class="cs-code">.list-nav-row</code></p>
+        <div class="cs-stage cs-stage--col" style="padding:1.25rem;align-items:stretch;gap:.25rem">
+          <button type="button" class="list-nav-row">
+            <span class="list-nav-row-icon" aria-hidden="true"><span class="material-symbols-outlined">groups</span></span>
+            <span>
+              <span class="list-nav-row-label">Guests &amp; RSVPs</span>
+              <span class="list-nav-row-sub">Adding, editing, importing</span>
+            </span>
+            <span class="list-nav-row-chevron" aria-hidden="true"><span class="material-symbols-outlined">chevron_right</span></span>
+          </button>
+          <button type="button" class="list-nav-row list-nav-row--no-icon">
+            <span>
+              <span class="list-nav-row-label">How do I change my event date?</span>
+            </span>
+            <span class="list-nav-row-chevron" aria-hidden="true"><span class="material-symbols-outlined">chevron_right</span></span>
+          </button>
+          <button type="button" class="list-nav-row">
+            <span class="list-nav-row-icon" aria-hidden="true"><span class="material-symbols-outlined">photo_library</span></span>
+            <span>
+              <span class="list-nav-row-label">Why are my uploaded wedding photos and videos not showing in the gallery after I refresh the page?</span>
+              <span class="list-nav-row-sub">Media &amp; memories</span>
+            </span>
+            <span class="list-nav-row-chevron" aria-hidden="true"><span class="material-symbols-outlined">chevron_right</span></span>
+          </button>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">HP3</span> · Docked panel · <code class="cs-code">.dock-panel</code></p>
+        <div class="cs-stage" style="padding:1.5rem;align-items:flex-start">
+          <div class="dock-panel is-open" style="position:relative;top:auto;right:auto;width:340px;max-width:100%">
+            <div class="fn-notif-header">
+              <span class="fn-notif-title" id="cs-dock-demo-title">Help Centre</span>
+            </div>
+            <div style="padding:.5rem .85rem 1rem">
+              <button type="button" class="list-nav-row">
+                <span class="list-nav-row-icon" aria-hidden="true"><span class="material-symbols-outlined">event</span></span>
+                <span>
+                  <span class="list-nav-row-label">Events &amp; settings</span>
+                  <span class="list-nav-row-sub">Create, edit, collaborators</span>
+                </span>
+                <span class="list-nav-row-chevron" aria-hidden="true"><span class="material-symbols-outlined">chevron_right</span></span>
+              </button>
+            </div>
+            <div class="fn-notif-footer">
+              <a href="#" class="fn-notif-view-all">Open full Help Centre<span class="material-symbols-outlined">arrow_forward</span></a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="cs-component">
+        <p class="cs-label"><span class="cs-label-name">HP4</span> · Alert banner roles · <code class="cs-code">.alert-banner--*</code></p>
+        <div class="cs-stage cs-stage--col" style="padding:1.25rem;align-items:stretch;gap:.75rem">
+          <div class="alert-banner alert-banner--danger" role="alert">
+            Something went wrong saving your ticket.
+            <button type="button" aria-label="Dismiss">×</button>
+          </div>
+          <div class="alert-banner alert-banner--warning" role="status">
+            Your session will expire soon — save your draft.
+            <button type="button" aria-label="Dismiss">×</button>
+          </div>
+          <div class="alert-banner alert-banner--info" role="status">
+            We usually reply within one business day.
             <button type="button" aria-label="Dismiss">×</button>
           </div>
         </div>
