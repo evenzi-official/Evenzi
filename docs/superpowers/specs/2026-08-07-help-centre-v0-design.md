@@ -120,6 +120,8 @@ One extension only. Postgres full-text search (`to_tsvector`, `ts_rank`, `websea
 
 `unaccent` is available and not installed; it is not required for English-only V0 content but should be revisited when multilingual content lands.
 
+`pg_cron` (version 1.6.4) is also available and not yet installed. It is required for the ninety-day `help_queries` cleanup in §8.3, and ships in the same migration as the tables rather than as a later addition — a retention policy with no job to enforce it is a policy in name only.
+
 `vector` (pgvector) is available and deliberately **not** installed. It belongs to Phase 2.
 
 ### 5.2 `config.faq_categories`
@@ -415,7 +417,7 @@ Article bodies are Markdown authored by staff and rendered as HTML. Even trusted
 
 - Restrict read access to `service_role`.
 - The DPDP obligations in `platform-policies.md` §5 apply to this table like any other store of user data. It must be covered by the account-deletion path: `user_id` nulls on delete, and the query text is retained only in aggregate-useful form.
-- Set an explicit retention window rather than keeping queries forever. Ninety days is sufficient for the Phase 2 evidence gate and for the monthly content review.
+- **Retention is ninety days**, founder-approved 2026-08-07. That is long enough for the Phase 2 evidence gate and for three cycles of the monthly content review, and short enough that the table never becomes a growing store of user-typed text. Because the window is fixed rather than indefinite, the migration must ship the cleanup with the table — a `pg_cron` job deleting rows older than ninety days. `pg_cron` is available on this project and not yet installed.
 
 ### 8.4 Ticket abuse
 
@@ -557,7 +559,7 @@ This is the whole strategic reason for building V0 first: shipping RAG immediate
 | 0 | FAB collision and mobile-visibility fix (§10.3) | Nothing — repairs a live defect, ship immediately |
 | 1 | `components/ui/OverlaySurface.tsx` plus two migrated modals (§10.4) | Nothing |
 | 2 | `.prose`, `.list-nav-row`, `.dock-panel` primitives plus the `.alert-banner` promotion, all catalogued (§10.5); shell-level 16px input floor below 768px | Nothing |
-| 3 | Migrations: extension, five tables, RLS, seeds; DATA-MODEL, ERD and drawio updated | Founder sign-off on this spec |
+| 3 | Migrations: `pg_trgm` and `pg_cron` extensions, five tables, RLS, seeds, the ninety-day `help_queries` cleanup job; DATA-MODEL, ERD and drawio updated | Founder sign-off on this spec |
 | 4 | Search and content read APIs; ticket, feedback and query-log write APIs | Step 3 |
 | 5 | `/help` and `/help/a/{slug}` pages, server-rendered | Steps 2 and 4 |
 | 6 | Help panel, wiring the existing `.help-fab` | Steps 1, 2, 4 |
@@ -587,9 +589,12 @@ The WhatsApp in-app browser check cannot be automated and cannot be verified at 
 
 ## 14. Open questions
 
-1. **Who on the operations team owns content authoring, and by when?** The founder has identified two people; names to be recorded here. Content readiness gates launch (§9.1).
-2. **What is the retention window for `help_queries`?** §8.3 proposes ninety days. Needs a ruling before the migration, since it determines whether a scheduled cleanup job is part of step 3.
-3. **Does the landing-page FAQ section need coordination with whoever is currently working on `app/page.tsx`?** That file is marked in progress in `CLAUDE.md`.
+1. **Who on the operations team owns content authoring, and by when?** The founder has identified two people; their names are to be recorded here once confirmed. Content readiness gates launch (§9.1).
+
+**Resolved 2026-08-07:**
+
+- **`help_queries` retention is ninety days**, with a `pg_cron` cleanup job shipping alongside the table. Recorded in §8.3.
+- **The landing-page FAQ section is a handoff to Dheeraj, not a Cursor task.** `app/page.tsx` is his — every commit since 2026-06-08 is his work, including the landing template integration, the mobile fixes and the Three.js mascot. This carries a design constraint the plan-phase UI pass did not know about: the page has a **scroll-driven animated mascot**, so an accordion cannot simply be inserted into it. Expanding rows change page height mid-scroll, which interacts with a scroll-choreographed timeline. He should design the section's placement and expansion behaviour against that timeline rather than receiving a specification for it.
 
 ---
 
