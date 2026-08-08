@@ -77,8 +77,12 @@ import { describe, it, expect } from 'vitest'
 import { SUPPORT_EMAIL, SUPPORT_MAILTO } from '@/lib/constants/support'
 
 describe('SUPPORT_EMAIL', () => {
+  it('defaults to the interim address while the support mailbox does not exist', () => {
+    expect(SUPPORT_EMAIL).toBe('abhijith@evenzii.com')
+  })
+
   it('is on the owned evenzii.com domain', () => {
-    expect(SUPPORT_EMAIL).toBe('support@evenzii.com')
+    expect(SUPPORT_EMAIL).toMatch(/@evenzii\.com$/)
   })
 
   it('is never a consumer mail provider', () => {
@@ -88,18 +92,18 @@ describe('SUPPORT_EMAIL', () => {
 
 describe('SUPPORT_MAILTO', () => {
   it('builds a bare mailto with no arguments', () => {
-    expect(SUPPORT_MAILTO()).toBe('mailto:support@evenzii.com')
+    expect(SUPPORT_MAILTO()).toBe('mailto:abhijith@evenzii.com')
   })
 
   it('url-encodes subject and body', () => {
     expect(SUPPORT_MAILTO('Help & support', 'line one\nline two')).toBe(
-      'mailto:support@evenzii.com?subject=Help%20%26%20support&body=line%20one%0Aline%20two'
+      'mailto:abhijith@evenzii.com?subject=Help%20%26%20support&body=line%20one%0Aline%20two'
     )
   })
 
   it('omits body when not supplied', () => {
     expect(SUPPORT_MAILTO('Subject only')).toBe(
-      'mailto:support@evenzii.com?subject=Subject%20only'
+      'mailto:abhijith@evenzii.com?subject=Subject%20only'
     )
   })
 })
@@ -122,8 +126,17 @@ Expected: FAIL — `Cannot find module '@/lib/constants/support'`
  * appeared in seven application files as a personal Gmail account, while two
  * operations documents published a different address on a domain the company
  * does not own. See spec section 10.1.
+ *
+ * INTERIM ADDRESS. support@evenzii.com does not exist yet and will be created
+ * at launch. Until then this is the founder's own mailbox, which is real and
+ * monitored — unlike the address the operations documents currently publish.
+ *
+ * The launch flip is one environment variable, not a code change: set
+ * NEXT_PUBLIC_SUPPORT_EMAIL=support@evenzii.com in Vercel. Nothing needs
+ * redeploying beyond that, and no file needs editing.
  */
-export const SUPPORT_EMAIL = 'support@evenzii.com'
+export const SUPPORT_EMAIL =
+  process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || 'abhijith@evenzii.com'
 
 /** Support hours as published in platform-policies.md section 7.2. */
 export const SUPPORT_HOURS = 'Mon–Sat, 9 AM–7 PM IST'
@@ -1966,7 +1979,7 @@ These block launch, not the build. Track them separately.
 
 | Gate | Owner | Spec |
 |---|---|---|
-| `support@evenzii.com` mailbox created | Founder | §10.1 |
+| `support@evenzii.com` mailbox created, then set `NEXT_PUBLIC_SUPPORT_EMAIL` in Vercel. Until then the interim address is `abhijith@evenzii.com`, which is real and monitored | Founder | §10.1 |
 | Ticket-watching arrangement — configure Resend, or build the admin ticket list. **Not** informal Supabase dashboard access, which grants unrestricted read of every table including guest phone numbers and emails | Founder | §10.2 |
 | Content delivery date agreed, with a per-category order | Brindo and Sree | §14 |
 | Launch minimum: at least three published articles per enabled category, and zero enabled-but-empty categories. Under-served categories ship `enabled = false` rather than empty | Founder | §9.1 |

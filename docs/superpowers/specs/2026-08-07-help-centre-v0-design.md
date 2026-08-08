@@ -692,7 +692,11 @@ The seven application files carrying the personal Gmail account:
 
 The domain the company actually owns is **evenzii.com**, with Google Workspace already wired.
 
-**Resolution, founder-approved 2026-08-07:** create `support@evenzii.com` and sweep all four variants.
+**Resolution, founder-approved 2026-08-07, refined 2026-08-08.** Sweep all four variants onto a single environment-driven constant.
+
+The address is **`abhijith@evenzii.com` until launch.** `support@evenzii.com` will be created when the product launches; until then the founder's own mailbox is the real, monitored destination. This is deliberately not a placeholder — it is a working address, which is more than the operations documents currently publish.
+
+The flip is one environment variable: `NEXT_PUBLIC_SUPPORT_EMAIL`, read by `lib/constants/support.ts` with the interim address as its default. At launch, set it in Vercel. No file is edited and nothing is rebuilt beyond the redeploy.
 
 **This is a build-time input, not only a launch-time one.** The address is consumed by the ticket-send-failure fallback and the logged-out contact card — the last working paths when everything else has failed. A builder starting before the mailbox exists will hardcode something. Introduce a single `NEXT_PUBLIC_SUPPORT_EMAIL` constant in build step 0 or 2 so the address is one line to change and nothing hardcodes it again.
 
