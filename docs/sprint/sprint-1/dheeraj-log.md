@@ -11,3 +11,6 @@
 ## 2026-08-03
 - **Start** — picking up: live-testing corrections / UI polish pass across multiple pages
 - **End** — 11 fixes shipped: venue autocomplete (Nominatim), roadmap ordering, setup progress bar, cover photo placeholder, co-host invite email (Resend), default invitation message, event name breadcrumb, breadcrumb copy button, story textarea, website photos file picker, font picker custom dropdown; entries written to dheeraj-progress.md; notes: RESEND_FROM_EMAIL + NEXT_PUBLIC_APP_URL need setting in Vercel; co-host RLS pass still needed
+
+## 2026-08-08
+- **Start** 10:06 — picking up: TBD (see brief below); last session: 2026-08-03 UI polish pass

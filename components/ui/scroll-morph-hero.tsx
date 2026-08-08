@@ -13,26 +13,29 @@ const TOTAL_SLIDE_ITEMS = 8;
 const ITEM_RANGE = (1.0 - PHASE_FEATURES_START) / TOTAL_SLIDE_ITEMS;
 
 const IMAGES = [
-  "https://images.unsplash.com/photo-1519741497674-611481863552?w=300&q=80",
-  "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=300&q=80",
-  "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=300&q=80",
-  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80",
-  "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=300&q=80",
-  "https://images.unsplash.com/photo-1525328437458-0c4d4db7cab4?w=300&q=80",
-  "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=300&q=80",
-  "https://images.unsplash.com/photo-1511795409834-432f7b1728b2?w=300&q=80",
-  "https://images.unsplash.com/photo-1478146896981-b80fe463b330?w=300&q=80",
-  "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&q=80",
-  "https://images.unsplash.com/photo-1490750967868-88df5691cc5a?w=300&q=80",
-  "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=300&q=80",
-  "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=300&q=80",
-  "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80",
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&q=80",
-  "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=300&q=80",
-  "https://images.unsplash.com/photo-1516575334481-f85287c2c82d?w=300&q=80",
-  "https://images.unsplash.com/photo-1567165438555-47e4e8f9c8f4?w=300&q=80",
-  "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=300&q=80",
+  // Indian wedding ceremony
+  "https://images.unsplash.com/photo-1587271636175-90d58cdad458?w=300&q=80",
+  "https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2?w=300&q=80",
+  "https://images.unsplash.com/photo-1587271315307-eaebc181c749?w=300&q=80",
+  "https://images.unsplash.com/photo-1587271339318-2e78fdf79586?w=300&q=80",
+  "https://images.unsplash.com/photo-1601121868898-4581104b29de?w=300&q=80",
+  "https://images.unsplash.com/photo-1633104502699-b2ecf0fee294?w=300&q=80",
+  "https://images.unsplash.com/photo-1680491024206-7321f775d538?w=300&q=80",
+  // Indian wedding decor
+  "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=300&q=80",
+  "https://images.unsplash.com/photo-1510076857177-7470076d4098?w=300&q=80",
+  "https://images.unsplash.com/photo-1591203281954-23fa2ff8ef18?w=300&q=80",
+  "https://images.unsplash.com/photo-1744805624954-a6686543c3ff?w=300&q=80",
+  "https://images.unsplash.com/photo-1729237261107-6fc4279f6d1c?w=300&q=80",
+  "https://images.unsplash.com/photo-1680491026542-a99730a0e235?w=300&q=80",
+  // Haldi ceremony
+  "https://images.unsplash.com/photo-1670774837214-21b88943a6bb?w=300&q=80",
+  "https://images.unsplash.com/photo-1670774544351-96d2464fd873?w=300&q=80",
+  "https://images.unsplash.com/photo-1681717166573-f71589207785?w=300&q=80",
+  "https://images.unsplash.com/photo-1697347816275-83728d258959?w=300&q=80",
+  "https://images.unsplash.com/photo-1634693343333-9b6013c30d57?w=300&q=80",
+  "https://images.unsplash.com/photo-1671339911465-7e8c3944a762?w=300&q=80",
+  "https://images.unsplash.com/photo-1671339911501-622930e159ee?w=300&q=80",
 ];
 
 const FEATURES = [
