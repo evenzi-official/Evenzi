@@ -180,7 +180,7 @@ flowchart TD
 **Tools (planned):**
 - Evenzi Admin Console (`/admin/*`)
 - ClickUp (Admin & Ops space)
-- Email (support@evenzi.in)
+- Email (support@evenzii.com)
 - Resend (for outbound support emails)
 
 **Works most closely with:** Abhijith (direction), Dheeraj (platform issue escalation), future support team members

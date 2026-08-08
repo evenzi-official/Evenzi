@@ -33,7 +33,7 @@ An LLM answer tier is designed and deferred to Phase 2, behind an evidence gate:
 |---|---|
 | `docs/superpowers/specs/2026-04-14-chatbot-design.md` | The original LLM-first RAG design. Replaced — §1 of the new spec explains why |
 | `docs/superpowers/specs/2026-06-22-chatbot-model-hosting-analysis.md` | Model and hosting analysis. Survives only as §11, Phase 2 |
-| `docs/features/chatbot-overview.md` | **Actively wrong.** Still describes a Gemini and Groq bot escalating through Resend. Rewritten by plan task 14 |
+| `docs/features/chatbot-overview.md` | **Rewritten 2026-08-08** as Help Centre overview (filename kept for links). Old Gemini/Groq bot copy retired |
 
 **Content sources, for whoever writes the articles.**
 
@@ -90,7 +90,7 @@ Verified live, not assumed. All eight checks passed: generated column populates;
 
 | Branch | State |
 |---|---|
-| **`feature/help-centre`** | Only active branch. Stages 1–8 merged. Stage 9 (docs) still open |
+| **`feature/help-centre`** | Only active branch. Stages 1–9 merged |
 
 Worktrees: none for Help Centre. Main checkout is on `feature/help-centre`. Unrelated: `.worktrees/fix-types` (`Dev-Vibe`).
 
@@ -110,9 +110,9 @@ Worktrees: none for Help Centre. Main checkout is on `feature/help-centre`. Unre
 | 6 — Markdown and CSP | 11 | Cursor | ✅ merged |
 | 7 — `/help` pages | 12 | Cursor | ✅ merged |
 | 8 — Help panel | 13 | Cursor | ✅ merged |
-| 9 — Data-model docs | 14 | Claude/Cursor | ⬜ next |
+| 9 — Data-model docs | 14 | Claude/Cursor | ✅ merged |
 
-Claude review gates skipped for this finish push (founder decision 2026-08-08 — usage limit). Code stages 1–8 are on `feature/help-centre`. Content (articles) and Stage 9 docs remain.
+Claude review gates skipped for this finish push (founder decision 2026-08-08 — usage limit). Code stages 1–8 and Stage 9 docs are on `feature/help-centre`. Content (articles) remains the critical path for launch.
 
 ---
 

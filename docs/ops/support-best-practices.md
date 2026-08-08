@@ -16,7 +16,7 @@ This guide is the operating manual for everyone who handles support at Evenzi. W
 Support runs on a two-layer model:
 
 1. **Chatbot (first line):** The Evenzi FAQ bot handles the most common questions automatically — no human required. Users get an instant answer and move on. This is the preferred outcome.
-2. **Email (second line):** When a user has a problem the chatbot can't resolve, they reach a human at support@evenzi.com. This is where your work begins.
+2. **Email (second line):** When a user has a problem the chatbot can't resolve, they reach a human at support@evenzii.com. This is where your work begins.
 
 The goal of the support function is not just to close tickets — it is to make users feel genuinely helped. A user who contacts support and gets a fast, clear, human response becomes a loyal user. A user who gets a slow, generic reply churns.
 
@@ -51,11 +51,11 @@ The Evenzi chatbot is an FAQ bot embedded on the platform (support chatbot featu
 - Bug reports requiring engineering action
 - Sensitive or emotional situations
 
-When the chatbot cannot resolve an issue, it presents the user with an option to submit an email ticket to support@evenzi.com. All tickets created this way arrive with the user's question pre-populated.
+When the chatbot cannot resolve an issue, it presents the user with an option to submit an email ticket to support@evenzii.com. All tickets created this way arrive with the user's question pre-populated.
 
 ### 2.2 Email (Second Line)
 
-**Address:** support@evenzi.com
+**Address:** support@evenzii.com
 
 All tickets that require human judgment land here. Tickets are handled in order of receipt, with urgent issues (security, data loss, active billing errors) prioritized.
 
@@ -425,7 +425,7 @@ Copy and adapt these templates. Always personalize: use the user's name, referen
 >
 > Warm regards,
 > The Evenzi Support Team
-> support@evenzi.com
+> support@evenzii.com
 
 ---
 
@@ -461,7 +461,7 @@ Copy and adapt these templates. Always personalize: use the user's name, referen
 >
 > You should be able to [describe expected outcome] now. Please give it a try and let me know if everything looks good.
 >
-> If you have any other questions, we're always here at support@evenzi.com.
+> If you have any other questions, we're always here at support@evenzii.com.
 >
 > Warm regards,
 > [Your Name]

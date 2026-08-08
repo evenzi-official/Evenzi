@@ -77,7 +77,7 @@ Violations are handled on a severity basis:
 1. Ops team reviews the flagged activity or incoming report
 2. A determination is made based on the severity criteria above
 3. The user is notified via email of the action taken and the reason
-4. For suspensions, the user may appeal by replying to support@evenzi.com within 14 days
+4. For suspensions, the user may appeal by replying to support@evenzii.com within 14 days
 5. For terminations, the decision is final unless fraud on Evenzi's part is demonstrated
 
 ---
@@ -103,7 +103,7 @@ Violations are handled on a severity basis:
 
 - During onboarding, users select their role: **Host** or **Guest**
 - Role selection is permanent and cannot be changed after onboarding is complete
-- If a user needs a different role (e.g., a guest who wants to become a host), they must contact support@evenzi.com — this will be handled on a case-by-case basis during MVP
+- If a user needs a different role (e.g., a guest who wants to become a host), they must contact support@evenzii.com — this will be handled on a case-by-case basis during MVP
 - Note: Vendor role is not available in MVP Phase 1
 
 ### 3.4 Account Suspension
@@ -123,7 +123,7 @@ Violations are handled on a severity basis:
 
 ### 3.5 Account Deletion
 
-Users may request deletion of their account at any time via account settings or by emailing support@evenzi.com.
+Users may request deletion of their account at any time via account settings or by emailing support@evenzii.com.
 
 **What happens when an account is deleted:**
 - The user's profile, phone number, and email are removed from active records
@@ -160,6 +160,10 @@ Proposed: Accounts with no activity (no logins, no event activity) for 18 consec
 | RSVP responses | Guest interaction | Host dashboard data |
 | Device/browser info | Platform logs | Security, debugging |
 | Usage patterns | Platform analytics | Product improvement |
+| Help search queries | Help Centre search | Improve articles; measure misses |
+| Support ticket messages | Help Centre escalation | Human support follow-up |
+
+Help Centre disclosure: search query text may incidentally include personal details the user typed; ticket message bodies are free text the user submits when escalating.
 
 ### 4.2 How Data Is Used
 
@@ -206,6 +210,10 @@ Evenzi processes guest contact data solely to send invitations and RSVP links on
 | Event data (deleted events) | 30 days post-deletion, then permanent removal |
 | Authentication logs | 12 months (security requirement) |
 | Anonymized usage analytics | Indefinite |
+| Help Centre search queries (`help_queries`) | 90 days, then purged (`pg_cron`) |
+| Support ticket message bodies | Retained with the account; deleted when the account is deleted (cascade) |
+
+On account deletion: help search rows null `user_id` and redact query text (aggregate miss signal may remain until the 90-day purge); article helpful/unhelpful votes null `user_id` but keep the row.
 
 ---
 
@@ -224,7 +232,7 @@ Any person whose personal data is stored on Evenzi (including guests who have no
 - Request correction of inaccurate data
 - Request erasure of their personal data
 
-Guests may exercise these rights by contacting support@evenzi.com. The Ops team must escalate all such requests to Engineering for data lookup and action within 30 days.
+Guests may exercise these rights by contacting support@evenzii.com. The Ops team must escalate all such requests to Engineering for data lookup and action within 30 days.
 
 **3. Consent mechanism**
 Hosts must confirm they have the right to upload guest contact data before importing. A consent checkbox must appear at the point of guest import (CSV upload or manual add):
@@ -298,7 +306,7 @@ The Evenzi Admin team reserves the right to:
 - Temporarily disable an event pending review if a complaint is received
 - Notify the host of the specific policy violation and the content removed
 
-Hosts may appeal content removal decisions by contacting support@evenzi.com within 7 days.
+Hosts may appeal content removal decisions by contacting support@evenzii.com within 7 days.
 
 ---
 
@@ -311,7 +319,7 @@ Evenzi provides support through two channels:
 | Channel | Scope | Response Time |
 |---------|-------|---------------|
 | In-app chatbot (FAQ bot) | Common questions, self-service | Instant (automated) |
-| Email: support@evenzi.com | Escalated issues, account actions, billing | Within 24 hours |
+| Email: support@evenzii.com | Escalated issues, account actions, billing | Within 24 hours |
 
 ### 7.2 Response Time Commitment
 
@@ -368,7 +376,7 @@ When paid tiers are live:
 
 - Users may request a full refund within 7 days of any billing event
 - After 7 days, no refunds are issued for the current billing period
-- Refund requests must be submitted to support@evenzi.com with the registered email and billing date
+- Refund requests must be submitted to support@evenzii.com with the registered email and billing date
 
 ### 8.5 Upgrade and Downgrade
 

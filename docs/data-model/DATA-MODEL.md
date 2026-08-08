@@ -6,11 +6,11 @@
 
 | | |
 |---|---|
-| **Version** | `2026-08-06.1` |
-| **Last updated** | 2026-08-06 (In-app notifications Phase A — migrations `notifications_01`–`notifications_02`; D55) |
-| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + **Planning** (Checklist/Tasks + Budget) + **Guest Management** (guest list, RSVP, function assignments, tags) + **Media & Memories** (photo/video gallery + albums, R2-backed) + **Invitations** (invitation card personalizer — card styles catalog, locked templates catalog, per-event invitation cards, hosted share URL) + **Event Management Hub** (`show_on_website` toggle on sub-events, icon catalog fix, `event_hub_summary` aggregation view) + **Event Settings (D40–D48, complete)** (`config.plans` seeded (free/premium/elite) + `config.plans_public` anon-safe view; `public.events.plan_id` NOT NULL FK + `config.free_plan_id()` default + `trg_enforce_plan_event_limit` limit trigger; three 1:1 sidecar tables (`event_general_settings`, `event_website_settings`, `event_guest_settings`) each owner-only RLS hardened to `to authenticated` + `(select auth.uid())`; `_seed_event_settings()` SECURITY DEFINER helper (D36-trigger extracted, REVOKE from public/anon/authenticated, GRANT to service_role); three `security_invoker` views — hash excluded from website view, `effective_max_plus_ones` computed in guest view, `anon` revoked from all three) + **Event Website / Digital Presence — all 3 sub-phases complete (D49–D51):** Wave 1 (host editor, owner-only RLS — 5 `config.website_*` catalogs, `event_website_design`/`pages`/`sections`, dedicated `event_story_blocks`/`event_wedding_party_members`/`event_qa_items`, `event_travel_points`/`event_stays`, `events.slug`, per-sub-event RSVP columns), Wave 2a (public payload, no guest identity — `is_website_gate_open`, `get_public_website_payload`, internal `_website_page_content` helper, catalog RLS tightened), Wave 2b (guest lookup/session/RSVP, the codebase's first `anon`-identity surface — `guest_tokens` with no cross-module FK, `guest_lookup_attempts` rate-limit ledger, `create_guest_token`/`resolve_guest_by_lookup`/`resolve_guest_session`/`get_guest_website_payload`/`submit_rsvp`). Remaining entitlements (modules, features, plan_features, overrides) + account deletion shapes recorded as **[PLANNED]**. **App-layer route family (`app/api/e/[slug]/*`) is the only remaining Digital Presence work** — DB side is done. |
+| **Version** | `2026-08-08.1` |
+| **Last updated** | 2026-08-08 (Help Centre — migrations `help_01`–`help_08`; D60) |
+| **Scope covered so far** | Auth → "Your Events" dashboard slice (CORE) + **Planning** (Checklist/Tasks + Budget) + **Guest Management** (guest list, RSVP, function assignments, tags) + **Media & Memories** (photo/video gallery + albums, R2-backed) + **Invitations** (invitation card personalizer — card styles catalog, locked templates catalog, per-event invitation cards, hosted share URL) + **Event Management Hub** (`show_on_website` toggle on sub-events, icon catalog fix, `event_hub_summary` aggregation view) + **Event Settings (D40–D48, complete)** (`config.plans` seeded (free/premium/elite) + `config.plans_public` anon-safe view; `public.events.plan_id` NOT NULL FK + `config.free_plan_id()` default + `trg_enforce_plan_event_limit` limit trigger; three 1:1 sidecar tables (`event_general_settings`, `event_website_settings`, `event_guest_settings`) each owner-only RLS hardened to `to authenticated` + `(select auth.uid())`; `_seed_event_settings()` SECURITY DEFINER helper (D36-trigger extracted, REVOKE from public/anon/authenticated, GRANT to service_role); three `security_invoker` views — hash excluded from website view, `effective_max_plus_ones` computed in guest view, `anon` revoked from all three) + **Event Website / Digital Presence — all 3 sub-phases complete (D49–D51):** Wave 1 (host editor, owner-only RLS — 5 `config.website_*` catalogs, `event_website_design`/`pages`/`sections`, dedicated `event_story_blocks`/`event_wedding_party_members`/`event_qa_items`, `event_travel_points`/`event_stays`, `events.slug`, per-sub-event RSVP columns), Wave 2a (public payload, no guest identity — `is_website_gate_open`, `get_public_website_payload`, internal `_website_page_content` helper, catalog RLS tightened), Wave 2b (guest lookup/session/RSVP, the codebase's first `anon`-identity surface — `guest_tokens` with no cross-module FK, `guest_lookup_attempts` rate-limit ledger, `create_guest_token`/`resolve_guest_by_lookup`/`resolve_guest_session`/`get_guest_website_payload`/`submit_rsvp`) + **Help Centre (D60):** `config.faq_categories` / `config.faq_articles` (+ `is_frequent`), `public.support_tickets` / `help_queries` / `faq_article_feedback`, `config.search_faq` + 90-day `pg_cron` retention — no AI. Remaining entitlements (modules, features, plan_features, overrides) + account deletion shapes recorded as **[PLANNED]**. **App-layer route family (`app/api/e/[slug]/*`) is the only remaining Digital Presence work** — DB side is done. |
 | **Database** | Supabase Postgres — project `smjkbmkxweevqpvygabe` (ap-northeast-1) |
-| **Live DB status** | ✅ Built 2026-06-13 on the dev project (migrations `core_01`–`core_07`): catalogs seeded, 4 logins backfilled, baseline RLS on. ✅ Planning module applied 2026-06-14 (migrations `planning_01`–`planning_07`): new catalogs seeded, `event_tasks`/`event_checklists` extended, 4 new live tables + 3 `security_invoker` views + helper RPCs, owner-only RLS on, `get_advisors` (security + performance) reviewed clean. ⚠️ Manual step pending: expose the `config` schema in *Dashboard → Project Settings → API → Exposed schemas*. The deployed app still queries the old shapes — its code must be updated. ✅ Invitations module applied 2026-06-17 (migrations `inv_01`–`inv_06`): 2 config catalogs seeded, `event_invitation_cards` table + 2 views + `create_event_with_details` extended to seed main event card. ✅ Event Hub applied 2026-06-17 (migrations `hub_01`–`hub_03`): `show_on_website` column + 2 indexes on `event_sub_events`; `config.event_sub_types` icon names updated to Material Symbols + 2 new types; `event_hub_summary` aggregation view created. ✅ Event Settings (plan tier) applied 2026-06-17 (migrations `event_settings_01`–`event_settings_02`): `config.plans` table + 3 tier rows seeded (free/premium/elite); `public.events.plan_id` NOT NULL FK with `config.free_plan_id()` default function + `idx_events_plan_id` index + `trg_enforce_plan_event_limit` BEFORE INSERT trigger (SECURITY DEFINER; no-op while limits are NULL); 5 CHECK constraints on `config.plans`. ✅ Event Settings (sidecar tables + views) applied 2026-06-17 (migrations `event_settings_03`–`event_settings_07` incl. `06a`/`06b` split): `event_general_settings`, `event_website_settings`, `event_guest_settings` tables + hardened owner-only RLS (`to authenticated`, `(select auth.uid())`); three `security_invoker` views (hash excluded from website view, `effective_max_plus_ones` computed in guest view, `anon` revoked from all three); `_seed_event_settings()` SECURITY DEFINER helper (REVOKE from public/anon/authenticated, GRANT to service_role); `config.plans_public` anon-safe view; `create_event_with_details` extended to call `_seed_event_settings()` as step 8; TypeScript types regenerated (1936 lines). ✅ Event Website Wave 1 applied 2026-07-30 (migrations `website_01`–`website_10`): 5 `config.website_*` catalogs (2 seeded — pages, section types; 3 empty — fonts, palettes, templates), `event_website_design` (1:1 sidecar, nullable `template_id`), `event_website_pages`/`event_website_sections` (+ guard trigger, matching the 5 existing denormalized-`event_id` precedents), `event_story_blocks`/`event_wedding_party_members`/`event_qa_items` (dedicated tables, not generic jsonb), `event_travel_points`/`event_stays`, `map_link` on `events`/`event_sub_events`, `events.slug`, `event_guest_sub_events` RSVP columns + unique constraint, `create_event_with_details` extended (step 9), `event_website_summary` host-preview view. `get_advisors` (security) caught the guard-trigger anon-exec gap post-migration — fixed same session (`website_10`), re-verified clean. `get_advisors` (performance) — standard unindexed-FK/unused-index notices at empty-table cold start, accepted per the same precedent as every prior module. TypeScript types regenerated (2457 lines). ✅ Event Website Wave 2a applied 2026-07-31 (migrations `website_12`–`website_16`, after 4 council rounds — see spec §12–§15): `is_website_gate_open()`, `ALTER POLICY` tightening Wave 1's 5 catalog policies to `enabled = true` (the original draft's new policy was a no-op), internal `_website_page_content()` helper (explicit `jsonb_build_object` allow-lists, not `to_jsonb(row)`), `get_public_website_payload(p_slug)` — no session-token parameter, zero `guest_tokens` dependency by construction. `get_advisors` (security) caught `_website_page_content` accidentally `anon`/`authenticated`-executable post-migration (Supabase grants EXECUTE to those roles directly via default privileges, not through `PUBLIC` — `revoke ... from public` alone doesn't touch it) — fixed same session (`website_16`), re-verified clean; same category as `website_10`'s gap, now recorded as D50. `get_advisors` (performance) — no new tables in this wave, only pre-existing Wave 1 notices. TypeScript types regenerated (2463 lines). ✅ Event Website Wave 2b applied 2026-07-31 (migrations `website_17`–`website_20`): `guest_tokens` (no FK to `event_guests`, no guard trigger — zero client-writable path exists to guard), `guest_lookup_attempts` rate-limit ledger (zero RLS policies, default-deny for every role including authenticated), `create_guest_token` (internal-only, correctly `revoke`d from `public, anon, authenticated` from the start — the `website_16` fix applied pre-emptively this time), `resolve_guest_by_lookup` (phone+name lookup, rate-limited via `pg_try_advisory_xact_lock` per event), `resolve_guest_session`/`get_guest_website_payload`/`submit_rsvp`. A second live-only-discoverable gap caught **before** migrating this time (pre-flight tested, not post-migration `get_advisors`): `resolve_guest_by_lookup`'s `digest()` call wouldn't have resolved under `search_path = public`, since `pgcrypto` lives in the `extensions` schema — fixed by schema-qualifying (`extensions.digest(...)`) rather than adding a third wrapper function; now recorded as D51. `get_advisors` (security) clean; (performance) only cold-start unused-index noise on the 2 new empty tables. TypeScript types regenerated (2569 lines). **Digital Presence DB layer complete** — remaining work is the `app/api/e/[slug]/*` route family (app-layer, not schema). |
+| **Live DB status** | ✅ Built 2026-06-13 on the dev project (migrations `core_01`–`core_07`): catalogs seeded, 4 logins backfilled, baseline RLS on. ✅ Planning module applied 2026-06-14 (migrations `planning_01`–`planning_07`): new catalogs seeded, `event_tasks`/`event_checklists` extended, 4 new live tables + 3 `security_invoker` views + helper RPCs, owner-only RLS on, `get_advisors` (security + performance) reviewed clean. ⚠️ Manual step pending: expose the `config` schema in *Dashboard → Project Settings → API → Exposed schemas*. The deployed app still queries the old shapes — its code must be updated. ✅ Invitations module applied 2026-06-17 (migrations `inv_01`–`inv_06`): 2 config catalogs seeded, `event_invitation_cards` table + 2 views + `create_event_with_details` extended to seed main event card. ✅ Event Hub applied 2026-06-17 (migrations `hub_01`–`hub_03`): `show_on_website` column + 2 indexes on `event_sub_events`; `config.event_sub_types` icon names updated to Material Symbols + 2 new types; `event_hub_summary` aggregation view created. ✅ Event Settings (plan tier) applied 2026-06-17 (migrations `event_settings_01`–`event_settings_02`): `config.plans` table + 3 tier rows seeded (free/premium/elite); `public.events.plan_id` NOT NULL FK with `config.free_plan_id()` default function + `idx_events_plan_id` index + `trg_enforce_plan_event_limit` BEFORE INSERT trigger (SECURITY DEFINER; no-op while limits are NULL); 5 CHECK constraints on `config.plans`. ✅ Event Settings (sidecar tables + views) applied 2026-06-17 (migrations `event_settings_03`–`event_settings_07` incl. `06a`/`06b` split): `event_general_settings`, `event_website_settings`, `event_guest_settings` tables + hardened owner-only RLS (`to authenticated`, `(select auth.uid())`); three `security_invoker` views (hash excluded from website view, `effective_max_plus_ones` computed in guest view, `anon` revoked from all three); `_seed_event_settings()` SECURITY DEFINER helper (REVOKE from public/anon/authenticated, GRANT to service_role); `config.plans_public` anon-safe view; `create_event_with_details` extended to call `_seed_event_settings()` as step 8; TypeScript types regenerated (1936 lines). ✅ Event Website Wave 1 applied 2026-07-30 (migrations `website_01`–`website_10`): 5 `config.website_*` catalogs (2 seeded — pages, section types; 3 empty — fonts, palettes, templates), `event_website_design` (1:1 sidecar, nullable `template_id`), `event_website_pages`/`event_website_sections` (+ guard trigger, matching the 5 existing denormalized-`event_id` precedents), `event_story_blocks`/`event_wedding_party_members`/`event_qa_items` (dedicated tables, not generic jsonb), `event_travel_points`/`event_stays`, `map_link` on `events`/`event_sub_events`, `events.slug`, `event_guest_sub_events` RSVP columns + unique constraint, `create_event_with_details` extended (step 9), `event_website_summary` host-preview view. `get_advisors` (security) caught the guard-trigger anon-exec gap post-migration — fixed same session (`website_10`), re-verified clean. `get_advisors` (performance) — standard unindexed-FK/unused-index notices at empty-table cold start, accepted per the same precedent as every prior module. TypeScript types regenerated (2457 lines). ✅ Event Website Wave 2a applied 2026-07-31 (migrations `website_12`–`website_16`, after 4 council rounds — see spec §12–§15): `is_website_gate_open()`, `ALTER POLICY` tightening Wave 1's 5 catalog policies to `enabled = true` (the original draft's new policy was a no-op), internal `_website_page_content()` helper (explicit `jsonb_build_object` allow-lists, not `to_jsonb(row)`), `get_public_website_payload(p_slug)` — no session-token parameter, zero `guest_tokens` dependency by construction. `get_advisors` (security) caught `_website_page_content` accidentally `anon`/`authenticated`-executable post-migration (Supabase grants EXECUTE to those roles directly via default privileges, not through `PUBLIC` — `revoke ... from public` alone doesn't touch it) — fixed same session (`website_16`), re-verified clean; same category as `website_10`'s gap, now recorded as D50. `get_advisors` (performance) — no new tables in this wave, only pre-existing Wave 1 notices. TypeScript types regenerated (2463 lines). ✅ Event Website Wave 2b applied 2026-07-31 (migrations `website_17`–`website_20`): `guest_tokens` (no FK to `event_guests`, no guard trigger — zero client-writable path exists to guard), `guest_lookup_attempts` rate-limit ledger (zero RLS policies, default-deny for every role including authenticated), `create_guest_token` (internal-only, correctly `revoke`d from `public, anon, authenticated` from the start — the `website_16` fix applied pre-emptively this time), `resolve_guest_by_lookup` (phone+name lookup, rate-limited via `pg_try_advisory_xact_lock` per event), `resolve_guest_session`/`get_guest_website_payload`/`submit_rsvp`. A second live-only-discoverable gap caught **before** migrating this time (pre-flight tested, not post-migration `get_advisors`): `resolve_guest_by_lookup`'s `digest()` call wouldn't have resolved under `search_path = public`, since `pgcrypto` lives in the `extensions` schema — fixed by schema-qualifying (`extensions.digest(...)`) rather than adding a third wrapper function; now recorded as D51. `get_advisors` (security) clean; (performance) only cold-start unused-index noise on the 2 new empty tables. TypeScript types regenerated (2569 lines). **Digital Presence DB layer complete** — remaining work is the `app/api/e/[slug]/*` route family (app-layer, not schema). ✅ **Help Centre** applied 2026-08-08 (migrations `help_01`–`help_08`): `config.faq_categories` (10 seeded — 6 app / 4 public) + `config.faq_articles` (empty content; `search_tsv` generated; `is_frequent` + partial index from `help_08`); `config.faq_tags_text` + `config.search_faq` (SECURITY INVOKER); `public.support_tickets` (EVZ-XXXXX reference trigger) + `help_queries` (90-day `pg_cron`) + `faq_article_feedback`; RLS as D60. |
 | **Tags** | **[NOW]** = part of the core slice we build first · **[PLANNED]** = shape locked, built when we reach that page (Admin / Billing / Settings) |
 
 ---
@@ -204,6 +204,7 @@ Newest first. Per-table rationale lives in each table's section.
 
 | # | Decision | Why |
 |---|---|---|
+| D60 | **Help Centre (`help_01`–`help_08`), live 2026-08-08.** Content in `config.faq_categories` / `config.faq_articles` (migration-seeded catalogs — **no admin panel for V0**). `audience` (`public`\|`app`) is **curation, not an RLS predicate**; the real boundary is `status = 'published'` on articles (+ `enabled` on categories). `config.faq_tags_text(text[])` is an **IMMUTABLE** wrapper around `array_to_string` for the generated `search_tsv` — do **not** use `array_to_tsvector` (no stemming/lowercasing; multi-word tags become single lexemes). `config.search_faq` builds an **OR lexeme tsquery** from `to_tsvector` lexemes — never `replace(websearch_to_tsquery(...)::text, ' & ', ' | ')`, which inverts negation. Typo path uses **`word_similarity` at threshold 0.5**, not `similarity`. `help_queries.ref` is a client-facing **uuid** (bigint `id` stays storage-only). `is_frequent` (`help_08`) curates the Frequent browse tab. Interim support inbox: `NEXT_PUBLIC_SUPPORT_EMAIL` → `evenzi.official@gmail.com` (launch: `support@evenzii.com`). No AI / chat product surface. | Spec `2026-08-07-help-centre-v0-design.md`; verified live (negation, typo, draft leak, corpus isolation). |
 | D59 | **In-app collaborator invite accept (`collab_invite_01`–`03`), live 2026-08-07.** Adds notification type `collab_invite_received` (table CHECK only — fan-out `_notify_event_recipients` allowlist unchanged). `notify_user_by_email` (DEFINER): requires pending invite row + `can_write_event(...,'admins')` + actor match; hard-coded type; `link_path` null; supersedes stale unread invite notifs. `list_my_pending_invites` / `decline_event_invite`; `accept_event_invite` extended with `email_confirmed_at`, soft-delete reject, mark-read cleanup. Owner DELETE of pending collab marks invitee invite notifs read via trigger. App: Collaborations pending cards + bell Accept/Decline (`by-event` + `[collaboratorId]` routes). | Founder 1C/2B/3 dual-channel; council ADDRESS-THEN-PROCEED (injection guard, no fan-out type, mark-read not delete). |
 | D58 | **In-app notifications Phase A + browser push Phase B (`notifications_01`–`notifications_04`), live 2026-08-06.** `public.notifications` (1 row per recipient; types CHECK-locked to `rsvp_received` / `collaborator_added` / `expense_recorded` / `invites_sent`); recipient-only RLS (SELECT + UPDATE own rows — no client INSERT). Internal `_notify_event_recipients` (DEFINER, `search_path = ''`, revoked from `public`/`anon`/`authenticated`) fans out to owner + active collaborators excluding actor; public `notify_recipients` requires `auth.uid() = p_actor_id` + owner/active-collab on the event, then delegates. Guest RSVP path cannot call authenticated RPC (`auth.uid()` null) — `submit_rsvp` calls `_notify_event_recipients` with `p_actor_id = null` after a successful update (notify failures never fail the RSVP). App wires: host RSVP PATCH, expense POST, accept-invite. `invites_sent` schema-only until WhatsApp send ships. Phase B: `push_subscriptions` + VAPID subscribe/dispatch with SSRF guards + `public/sw.js`. | Spec + amended build-doc + council ADDRESS-THEN-PROCEED (2026-08-06). Extension rule: new type = one CHECK migration + one notify call — no bell rebuild. Cherry-picked onto `feature/event-settings-cleanup` 2026-08-07. |
 | D57 | **Collaborator RLS extended to Planning/Guests/Media/Website-content (`collab_access_06`–`09`), 2026-08-07.** Converts remaining event-child tables from D56's deferred list: Planning (`event_tasks`/`event_budgets`/`event_expenses`/`event_task_assignees`/`event_expense_types`), Guests (`event_guests`/`event_guest_sub_events`/`event_guest_tag_links`/`event_guest_tags`), Media (`event_media`/`event_albums`/`event_media_albums`), Website-content (8 tables), plus `event_sub_events` **SELECT-only** for collabs. Preserved `is_custom = true` INSERT guards on `event_guest_tags` and `event_albums` for both owner and collab insert policies. App layer: `requireEventWrite` on ~37 mutating routes; `requireEventRead` on GET handlers so viewers aren't write-gated. Explicit deferrals documented under Security (invitations cards, media tags, guest ledgers, views). | Closes D26's remaining owner-only gap so co-host/planner/photographer capabilities actually work end-to-end; council round-2 required Website-content in this pass for co-host parity. |
@@ -857,6 +858,118 @@ create unique index invitation_cards_default_main_event_idx
 
 ---
 
+### Help Centre module  `[NOW]` (built `help_01`–`help_08`)
+
+Platform Help Centre — **no AI**. Guided browse + lexical search over human-authored FAQ articles; unanswered questions escalate to a support ticket. Two corpora (`audience`: `public` for logged-out, `app` for signed-in hosts) live in `config.*` so V0 needs no admin panel. Spec: [`docs/superpowers/specs/2026-08-07-help-centre-v0-design.md`](../superpowers/specs/2026-08-07-help-centre-v0-design.md). **Rationale:** D60.
+
+```sql
+-- curated categories (seeded: 6 app + 4 public)
+create table config.faq_categories (
+  id            uuid primary key default gen_random_uuid(),
+  audience      text not null check (audience in ('public','app')),
+  slug          text not null,
+  name          text not null,
+  description   text not null,
+  icon_name     text not null,              -- Material Symbols glyph name
+  display_order int  not null default 0,
+  enabled       boolean not null default true,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now(),
+  unique (audience, slug)
+);
+
+-- IMMUTABLE wrapper — array_to_string is STABLE and cannot sit in a generated column
+create function config.faq_tags_text(t text[]) returns text
+  language sql immutable parallel safe as
+  $$ select array_to_string(coalesce(t, '{}'::text[]), ' ') $$;
+
+create table config.faq_articles (
+  id           uuid primary key default gen_random_uuid(),
+  category_id  uuid not null references config.faq_categories(id) on delete restrict,
+  slug         text not null unique,        -- flat /help/a/{slug}
+  question     text not null,
+  answer       text not null,               -- Markdown
+  tags         text[] not null default '{}',
+  status       text not null default 'draft'
+                 check (status in ('draft','published','archived')),
+  sort_order   int  not null default 0,
+  is_frequent  boolean not null default false,  -- help_08: Frequent browse tab
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now(),
+  search_tsv   tsvector generated always as (
+                 setweight(to_tsvector('english', coalesce(question,'')), 'A') ||
+                 setweight(to_tsvector('english', config.faq_tags_text(tags)), 'B') ||
+                 setweight(to_tsvector('english', coalesce(answer,'')), 'C')
+               ) stored
+);
+create index idx_faq_articles_category_status on config.faq_articles(category_id, status, sort_order);
+create index idx_faq_articles_tsv            on config.faq_articles using gin (search_tsv);
+create index idx_faq_articles_question_trgm  on config.faq_articles using gin (question extensions.gin_trgm_ops);
+create index idx_faq_articles_frequent       on config.faq_articles(status, is_frequent, sort_order)
+  where is_frequent = true;
+
+-- authenticated ticket filing (reference = EVZ-XXXXX via BEFORE INSERT trigger)
+create table public.support_tickets (
+  id           uuid primary key default gen_random_uuid(),
+  reference    text not null unique,
+  user_id      uuid not null references auth.users(id) on delete cascade,
+  email        text not null,
+  topic_slug   text check (topic_slug is null or topic_slug = lower(trim(topic_slug))),
+  message      text not null check (char_length(message) between 20 and 2000),
+  context      jsonb not null default '{}',
+  page_url     text,
+  status       text not null default 'open'
+                 check (status in ('open','replied','closed')),
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now(),
+  replied_at   timestamptz
+);
+create index idx_support_tickets_status on public.support_tickets(status, created_at desc);
+create index idx_support_tickets_user   on public.support_tickets(user_id, created_at desc);
+
+-- search log (90-day pg_cron purge); ref uuid is the only client-facing handle
+create table public.help_queries (
+  id             bigint generated always as identity primary key,
+  ref            uuid not null unique default gen_random_uuid(),
+  user_id        uuid references auth.users(id) on delete set null,
+  audience       text not null check (audience in ('public','app')),
+  query          text not null check (char_length(query) between 1 and 300),
+  result_count   int  not null,
+  top_score      real,
+  resolved       boolean not null default false,
+  escalated      boolean not null default false,
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now()
+);
+create index idx_help_queries_created on public.help_queries(created_at desc);
+create index idx_help_queries_misses  on public.help_queries(created_at desc) where result_count = 0;
+create index idx_help_queries_user    on public.help_queries(user_id) where user_id is not null;
+
+create table public.faq_article_feedback (
+  id          uuid primary key default gen_random_uuid(),
+  article_id  uuid not null references config.faq_articles(id) on delete cascade,
+  user_id     uuid references auth.users(id) on delete set null,
+  helpful     boolean not null,
+  created_at  timestamptz not null default now(),
+  unique (article_id, user_id)
+);
+create index idx_faq_feedback_article on public.faq_article_feedback(article_id, helpful);
+create index idx_faq_feedback_user    on public.faq_article_feedback(user_id) where user_id is not null;
+```
+
+**Notes:**
+- `audience` lives on categories only (D7 — not duplicated onto articles). Unique `(audience, slug)` lets both corpora own the same slug independently.
+- `search_tsv` is a stored generated column (weights A/B/C). Do not swap `faq_tags_text` for `array_to_tsvector`.
+- `config.search_faq(query, audience, limit)` is **SECURITY INVOKER** (so `status = 'published'` RLS still applies), granted to `anon` + `authenticated`. Builds OR-lexeme tsquery; `word_similarity` threshold **0.5**.
+- `topic_slug` on tickets is plain text (not an FK) so retiring a category cannot cascade away support history.
+- Writes to `support_tickets` / `help_queries` / `faq_article_feedback` go through Next.js API routes with `service_role`; `user_id` / `audience` / `context` are server-derived.
+- Interim support email: `NEXT_PUBLIC_SUPPORT_EMAIL` → `evenzi.official@gmail.com`; launch target `support@evenzii.com`.
+- Content rows start empty — launch gate is ≥3 published articles per enabled category.
+
+**Account deletion (spec §5.9):** `support_tickets` CASCADE with user; `help_queries` SET NULL `user_id` **and redact `query` text**; `faq_article_feedback` SET NULL `user_id`, retain row.
+
+---
+
 ### Event Management Hub  `[NOW]` — `hub_01`–`hub_03`
 
 Aggregates existing feature data for the Event Control dashboard. **No new tables; no new RLS.** Changes are modifications to existing tables + one aggregation view.
@@ -1390,7 +1503,10 @@ alter view public.event_album_counts set (security_invoker = on);
 | `public.create_event_with_details(...)` | **[NOW]** (built `planning_07`) | Creates an event + sub-events + seeded tasks + seeded expense types + an empty budget row in **one transaction**. Takes the owner from the login (`auth.uid()`) — **ignores the passed-in `p_user_id`**. `SECURITY DEFINER`, pinned `search_path`, `EXECUTE` revoked from `anon`. See below. |
 | `public.event_task_counts(p_event_id uuid)` | **[NOW]** (built `planning_06`) | One grouped scan → `(total, todo, done, overdue)` for the toolbar chips (Overdue is derived, not a status). `security invoker`, `revoke from anon`, `grant authenticated`. |
 | `public.bulk_set_task_status(p_task_ids uuid[], p_status_slug text)` | **[NOW]** (built `planning_06`) | Bulk-complete/reopen from the bulk bar: resolves the slug, **raises on an unknown slug**, updates all given tasks in the caller's events (RLS still applies). `plpgsql`, `security invoker`, `revoke from anon`, `grant authenticated`. |
-| `public.delete_user_account(p_user_id uuid)` | [PLANNED] | Account deletion — see [Account deletion](#account-deletion). Storage purge must include the expense-receipt key prefix. |
+| `public.delete_user_account(p_user_id uuid)` | [PLANNED] | Account deletion — see [Account deletion](#account-deletion). Storage purge must include the expense-receipt key prefix. Help Centre: cascade tickets; null+redact `help_queries`; null feedback `user_id`. |
+| `config.faq_tags_text(t text[])` | **[NOW]** (`help_01`) | IMMUTABLE wrapper for `array_to_string` — required by the generated `search_tsv` column. |
+| `config.search_faq(p_query, p_audience, p_limit)` | **[NOW]** (`help_01`) | Lexical FAQ search (OR-lexeme tsquery + `word_similarity` @ 0.5). **SECURITY INVOKER**; `GRANT EXECUTE` to `anon` + `authenticated`. |
+| `public.generate_ticket_reference()` | **[NOW]** (`help_01`) | BEFORE INSERT trigger fn on `support_tickets` — stamps unique `EVZ-XXXXX` `reference`. |
 
 ```sql
 -- [NOW] the shared updated_at stamper (live version pins search_path)
@@ -1441,6 +1557,7 @@ grant  execute on function public.event_task_counts(uuid) to authenticated;
 | Trigger | On | When | Does (plain) | Status |
 |---|---|---|---|---|
 | `trg_<table>_updated` (one per table) | every table | before update | stamps `updated_at` via `set_updated_at()` | **[NOW]** |
+| `trg_support_tickets_reference` | `public.support_tickets` | before insert | stamps unique `reference` (`EVZ-XXXXX`) via `generate_ticket_reference()` | **[NOW]** |
 | signup hook | `auth.users` | on insert (signup) | creates profile + preferences (`handle_new_user`) | [PLANNED] |
 | `prevent_role_change` | `public.user_profiles` | before update | blocks `role_slug` changing once set | [PLANNED] |
 | `prevent_owner_as_collaborator` | `public.event_collaborators` | before insert/update | rejects a collaborator whose `user_id` = the event's owner (no double-count) | [PLANNED] |
@@ -1551,6 +1668,18 @@ Catalogs (`config.invitation_card_styles`, `config.invitation_templates`) follow
 
 **Public share URL** `/invite/{share_token}`: the Next.js API route uses `service_role` client to query `invitation_card_guest_view` (bypasses RLS) — guest-safe columns only, `WHERE share_enabled = true` handles revocation. `/invite/*` added to `lib/supabase/middleware.ts` public paths.
 
+### Help Centre module RLS  `[NOW]`
+
+| Table | Read | Write |
+|---|---|---|
+| `config.faq_categories` | `anon` + `authenticated`, `enabled = true` | `service_role` only |
+| `config.faq_articles` | `anon` + `authenticated`, `status = 'published'` | `service_role` only |
+| `public.support_tickets` | owner SELECT (`user_id = auth.uid()`) | `service_role` only (API insert) |
+| `public.help_queries` | none (RLS on, **no policies** — service_role only) | `service_role` only |
+| `public.faq_article_feedback` | none (RLS on, **no policies** — service_role only) | `service_role` only |
+
+`audience` is **not** an RLS predicate — it is curation. Draft/archived articles never leak through `search_faq` because the function is SECURITY INVOKER and the article policy requires `published`. The intentional no-policy tables match the `guest_lookup_attempts` precedent (D51).
+
 ---
 
 ## Auth & login setup
@@ -1592,13 +1721,18 @@ delete auth.users(id)
  │                                             event_media_albums, event_media_tags, event_media_tag_links,
  │                                             event_collaborators, event_feature_overrides
  ├─ event_task_assignees where user_id = them (cascade — unassigns them from others' tasks; those tasks stay)
- └─ event_collaborators where user_id = them  (cascade — removes them from others' events; those events stay)
+ ├─ event_collaborators where user_id = them  (cascade — removes them from others' events; those events stay)
+ ├─ support_tickets where user_id = them      (cascade — correspondence deleted with the account)
+ ├─ help_queries where user_id = them         (SET NULL user_id + redact query text — keep aggregate miss signal)
+ └─ faq_article_feedback where user_id = them (SET NULL user_id — retain anonymous helpful/unhelpful vote)
 events.created_by / event_expenses.created_by / event_budgets.modified_by / event_task_assignees.assigned_by
   / event_guests.created_by / event_guest_tags.created_by / event_media.created_by / event_albums.created_by
   / *.updated_by (event_media/event_albums/event_media_tags) / event_media_tags.created_by = them → SET NULL
   (event_albums.cover_media_id → SET NULL on media delete, not user delete — moot here since the whole event cascades)
 ```
 > **Storage:** the DB cascade does **not** delete R2 objects. The purge step must also remove each event's prefix — `events/{eventId}/…` — which covers media, invitations, **and expense receipts** (`event_expenses.receipt_key`). See `docs/R2-STORAGE-GUIDE.md`.
+>
+> **Help Centre:** `help_queries` retention is also time-bounded (90-day `pg_cron` job `help_queries_retention`) independent of account deletion. Nulling `user_id` alone is not enough on delete — the `query` text may contain PII and must be redacted (spec §5.9).
 
 **Why `created_by` is `SET NULL`** (D18): with `RESTRICT` the database would refuse to delete any user who ever created an event — the delete button could never work. `SET NULL` lets deletion proceed; a deleted vendor's client events keep going with `created_by = NULL` (snapshot the name elsewhere if billing needs it).
 
