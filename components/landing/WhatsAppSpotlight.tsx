@@ -5,33 +5,29 @@ import Link from "next/link";
 
 function WhatsAppMockup() {
   return (
-    <div className="w-[240px] mx-auto select-none">
-      <div
-        className="border-2 border-[rgba(8,8,8,0.12)] rounded-[32px] p-3 bg-[#f0f2f5] shadow-[0_24px_64px_rgba(8,8,8,0.12)] overflow-hidden"
-      >
-        {/* Header bar */}
-        <div className="bg-[#075E54] rounded-t-[20px] px-3 py-2.5 flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-            <span className="text-white font-bold" style={{ fontSize: "11px" }}>E</span>
-          </div>
-          <span className="text-white font-semibold" style={{ fontSize: "12px" }}>Evenzi</span>
+    <div className="w-[280px] mx-auto select-none rounded-[18px] overflow-hidden shadow-[0_20px_60px_rgba(8,8,8,0.14)]">
+      {/* Header bar */}
+      <div className="bg-[#075E54] px-4 py-3 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-[#128C7E] flex items-center justify-center shrink-0">
+          <span className="text-white font-bold" style={{ fontSize: "13px" }}>E</span>
         </div>
+        <span className="text-white font-semibold" style={{ fontSize: "14px" }}>Evenzi</span>
+      </div>
 
-        {/* Message bubble */}
-        <div className="bg-white rounded-b-[20px] rounded-tr-[20px] p-3 mt-1 shadow-sm">
-          <p className="font-semibold text-[#080808] leading-[1.5]" style={{ fontSize: "11px" }}>
-            🎊 You're invited to Priya & Arjun's Wedding!
-          </p>
-          <p className="text-[#4b5563] mt-1.5 leading-[1.6]" style={{ fontSize: "11px" }}>
-            Ceremony: Dec 14, 2026<br />
-            7:00 PM · Grand Hyatt, Mumbai
-          </p>
-          <p className="text-[#075E54] mt-2 font-medium" style={{ fontSize: "11px" }}>
-            RSVP here → evenzi.app/e/priya-arjun
-          </p>
-          <div className="flex justify-end mt-2">
-            <span className="text-[#9ca3af]" style={{ fontSize: "10px" }}>10:42 AM ✓✓</span>
-          </div>
+      {/* Message bubble */}
+      <div className="bg-white px-4 py-4">
+        <p className="font-semibold text-[#080808] leading-[1.5]" style={{ fontSize: "13px" }}>
+          🎊 You're invited to Priya &amp; Arjun's Wedding!
+        </p>
+        <p className="text-[#4b5563] mt-2 leading-[1.65]" style={{ fontSize: "13px" }}>
+          Ceremony: Dec 14, 2026<br />
+          7:00 PM · Grand Hyatt, Mumbai
+        </p>
+        <p className="text-[#075E54] mt-3 font-medium" style={{ fontSize: "13px" }}>
+          RSVP here → evenzi.app/e/priya-arjun
+        </p>
+        <div className="flex justify-end mt-3">
+          <span className="text-[#9ca3af]" style={{ fontSize: "11px" }}>10:42 AM ✓✓</span>
         </div>
       </div>
     </div>
