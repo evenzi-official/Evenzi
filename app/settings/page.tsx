@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { FloatingNav } from '@/components/layout/FloatingNav'
 import { ScrollProgress } from '@/components/layout/ScrollProgress'
-import { HelpFab } from '@/components/layout/HelpFab'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { PageFooter } from '@/components/layout/PageFooter'
 import { avatarInitial, formatPhone } from '@/lib/utils'
@@ -86,7 +85,6 @@ export default async function UserSettingsPage() {
         <AccountSection />
       </main>
 
-      <HelpFab />
       <PageFooter />
     </div>
   )
