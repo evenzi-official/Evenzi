@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { motion } from "framer-motion";
 import { HeroGeometric } from "@/components/ui/hero-geometric";
 
 const FlyCanvas = dynamic(
@@ -61,7 +62,7 @@ function Nav() {
         </div>
 
         {/* Desktop nav links */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-5">
           <a
             href="#features"
             style={{ fontSize: "14px", color: "#6b7280", textDecoration: "none", fontWeight: 500 }}
@@ -77,19 +78,37 @@ function Nav() {
           <button
             onClick={handleSignup}
             style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              fontSize: "14px",
+              color: "#6b7280",
+              fontWeight: 500,
+              fontFamily: "var(--font-manrope), sans-serif",
+              padding: "0",
+            }}
+          >
+            Sign In
+          </button>
+          <button
+            onClick={handleSignup}
+            style={{
               padding: "9px 20px",
               fontSize: "13px",
               fontWeight: 700,
-              color: "#BB0020",
-              background: "transparent",
-              border: "1.5px solid #BB0020",
+              color: "#ffffff",
+              background: "#BB0020",
+              border: "none",
               borderRadius: "9999px",
               cursor: "pointer",
               letterSpacing: "0.04em",
               fontFamily: "var(--font-manrope), sans-serif",
+              transition: "background 0.2s ease",
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#9b001a")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#BB0020")}
           >
-            Sign In
+            Get Started
           </button>
         </div>
 
@@ -196,19 +215,35 @@ function Nav() {
                 style={{
                   alignSelf: "flex-start",
                   marginTop: "4px",
-                  padding: "9px 24px",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  color: "#6b7280",
+                  fontWeight: 500,
+                  fontFamily: "var(--font-manrope), sans-serif",
+                  padding: "0",
+                }}
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => { setMenuOpen(false); handleSignup(); }}
+                style={{
+                  alignSelf: "flex-start",
+                  padding: "10px 24px",
                   fontSize: "13px",
                   fontWeight: 700,
-                  color: "#BB0020",
-                  background: "transparent",
-                  border: "1.5px solid #BB0020",
+                  color: "#ffffff",
+                  background: "#BB0020",
+                  border: "none",
                   borderRadius: "9999px",
                   cursor: "pointer",
                   letterSpacing: "0.04em",
                   fontFamily: "var(--font-manrope), sans-serif",
                 }}
               >
-                Sign In
+                Get Started
               </button>
             </div>
           </div>
@@ -240,6 +275,28 @@ export default function Home() {
         }
         description="From the first guest to the last photo — Evenzi brings every detail of your celebration together in one beautiful workspace."
       />
+      {/* Hero CTA — sits directly below the hero, first content below the fold */}
+      <div className="w-full bg-[#FAFAFA] flex flex-col items-center py-12 px-4 -mt-8 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.6, ease: [0.25, 0.4, 0.25, 1] }}
+          className="flex flex-col items-center gap-4"
+        >
+          <button
+            onClick={() => (window.location.href = "/auth")}
+            className="inline-flex items-center px-8 py-4 rounded-full bg-[#080808] text-[#f0ebe0] text-[14px] font-semibold tracking-[0.06em] shadow-[0_4px_24px_rgba(8,8,8,0.18)] hover:bg-[#BB0020] transition-all duration-250"
+          >
+            Start Planning Free
+          </button>
+          <a
+            href="#features"
+            className="text-[13px] font-medium text-[rgba(8,8,8,0.4)] hover:text-[rgba(8,8,8,0.7)] tracking-[0.04em] transition-colors"
+          >
+            See how it works ↓
+          </a>
+        </motion.div>
+      </div>
       <TextScrollAnimation />
       <IntroAnimation />
       <PageFooter />
