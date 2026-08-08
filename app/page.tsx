@@ -8,6 +8,7 @@ import FeatureShowcaseGrid from "@/components/landing/FeatureShowcaseGrid";
 import IndiaDifferentiatorBlock from "@/components/landing/IndiaDifferentiatorBlock";
 import WhatsAppSpotlight from "@/components/landing/WhatsAppSpotlight";
 import SocialProofStrip from "@/components/landing/SocialProofStrip";
+import AboutUs from "@/components/landing/AboutUs";
 
 const FlyCanvas = dynamic(
   () => import("@/app/website-theme-framer/components/FlyCanvas"),
@@ -307,6 +308,7 @@ export default function Home() {
       <SocialProofStrip />
       <TextScrollAnimation />
       <IntroAnimation />
+      <AboutUs />
       <PageFooter />
     </div>
   );
