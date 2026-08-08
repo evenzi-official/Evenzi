@@ -99,3 +99,6 @@
 - **Note** 10:25 — Stage 2 Batch A security shipped (no commit): P0-1 revoke get_pending_invite anon; P0-2 lookup password gate; P1-9 revoke hash_website_password anon; P1-4 retire open /events/[id]/rsvp (410). Migration security_batch_a_01 live.
 - **Note** 10:35 — Stage 2 Batches B–D done (no commit): video play, media/urls read authz, invitations honesty + share URL, billing Coming soon, journey wired, sub-events PATCH+RLS, submit_rsvp rsvp_enabled/plus-one cap, DATA-MODEL security refresh. Remaining: Vitest harness, x-forwarded-for, Design Q&A, prod-risk.
 - **End** 15:45 — Platform truth audit closed: Stage 2 A–D + W3 E2E + Vitest green + prod-risk PR-1 HMAC live; Design Q&A locked; V0 readiness brief + HTML update; merge Dev-Vibe→Testing; worktree removed. Next: ENH-icons + repo cleanup A/B/C (+ fixtures). Chatbot branch undisturbed. Report: docs/session-reports/2026-08-07-platform-truth-audit-session-report.md
+
+## 2026-08-08
+- **Start** 10:06 — `/start-evenzi-session`; Abhijith (cloud — local session already running). ClickUp dormant, skipped. Picked up: confirm/park **ENH-icons** (site-wide favicon + Apple/Android + default meta on all pages) as next task in `docs/NEXT-SESSION.md`; not building this cloud session to avoid colliding with local WIP. Dheeraj sync: nothing to sync (2026-08-03 entry still un-synced by design).

@@ -4,11 +4,15 @@
 
 ---
 
-## ▶ START HERE NEXT — ENH-icons + repo cleanup A/B/C (2026-08-07)
+## ▶ START HERE NEXT — ENH-icons + repo cleanup A/B/C (2026-08-08)
 
-**Parked from platform-truth session (do these next):**
+**Parked — pick up next (local or dedicated session; do not mix with unrelated WIP):**
 
-1. **ENH-icons** — Favicon + Apple touch / Android home-screen meta so Add to Home Screen shows Evenzi branding  
+1. **ENH-icons (site-wide)** — Icons + head meta on **all** Next.js app pages via root `app/layout.tsx` `metadata` (and route overrides only where needed):
+   - Favicon (`.ico` / SVG) + Apple touch icon + Android / PWA home-screen icons
+   - `theme-color`, `manifest` (if used), basic title / description / Open Graph defaults so tabs, bookmarks, and Add to Home Screen show Evenzi branding
+   - Confirm coverage on auth, home, event hub, public `/e/[slug]`, and marketing surfaces that share the app shell
+   - Asset source: brand guidelines / existing mark — no generic placeholder icons
 2. **Repo cleanup A/B/C** — separate cleanup pass (as deferred earlier)  
 3. **Fixture cleanup** (with cleanup pass) — delete `e2e-truth-audit` (`f990d6d7-…`) + Account B `e2e.collab.b@evenzi.test` only when ready  
 
@@ -33,7 +37,7 @@
 
 ```
 Next session parked items:
-(1) ENH-icons — favicon + Apple/Android home-screen icons
+(1) ENH-icons — site-wide favicon + Apple/Android icons + default meta (all app pages)
 (2) Repo cleanup A/B/C
 (3) Fixture cleanup e2e-truth-audit + Account B when we say go
 Keep chatbot work on feature/support-chatbot-plan isolated.
