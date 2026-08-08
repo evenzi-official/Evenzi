@@ -439,7 +439,9 @@ The launch target is roughly five published articles per category. Six app categ
 
 ### 9.2 Division of labour
 
-| Produced by Claude, before handoff | Defined by the operations team |
+Content authoring is owned by **Brindo and Sree** on the operations team, confirmed by the founder on 2026-08-07. The two-person review rule in `support-best-practices.md` §5.4 means each article is written by one of them and reviewed by the other before its status moves to `published`.
+
+| Produced by Claude, before handoff | Defined by Brindo and Sree |
 |---|---|
 | Category structure for both corpora | The answers themselves |
 | The full question list per category, mined from `support-best-practices.md` §3 and `platform-policies.md` | Corrections and additions to the question list |
@@ -587,14 +589,17 @@ The WhatsApp in-app browser check cannot be automated and cannot be verified at 
 
 ---
 
-## 14. Open questions
+## 14. Open questions and resolved decisions
 
-1. **Who on the operations team owns content authoring, and by when?** The founder has identified two people; their names are to be recorded here once confirmed. Content readiness gates launch (§9.1).
+### Still open
 
-**Resolved 2026-08-07:**
+**When will the content be ready?** Brindo and Sree own authoring, but no delivery date has been agreed with them. Because content readiness gates launch more tightly than code does (§9.1), this is the single largest schedule risk in the feature. The build can proceed to completion without it; the launch cannot. Agreeing a date, and a per-category order so the most-needed categories land first, should happen before step 3 of the build sequence rather than after.
 
+### Resolved by the founder on 2026-08-07
+
+- **Content owners are Brindo and Sree** on the operations team. Recorded in §9.2.
 - **`help_queries` retention is ninety days**, with a `pg_cron` cleanup job shipping alongside the table. Recorded in §8.3.
-- **The landing-page FAQ section is a handoff to Dheeraj, not a Cursor task.** `app/page.tsx` is his — every commit since 2026-06-08 is his work, including the landing template integration, the mobile fixes and the Three.js mascot. This carries a design constraint the plan-phase UI pass did not know about: the page has a **scroll-driven animated mascot**, so an accordion cannot simply be inserted into it. Expanding rows change page height mid-scroll, which interacts with a scroll-choreographed timeline. He should design the section's placement and expansion behaviour against that timeline rather than receiving a specification for it.
+- **The landing-page FAQ section is a handoff to Dheeraj**, not a Cursor task, and the founder has confirmed building on his page is fine. `app/page.tsx` is his — every commit since 2026-06-08 is his work, including the landing template integration, the mobile fixes and the Three.js mascot. This carries a design constraint the plan-phase UI pass did not know about: the page has a **scroll-driven animated mascot**, so an accordion cannot simply be inserted into it. Expanding rows change page height mid-scroll, which interacts with a scroll-choreographed timeline. Dheeraj should design the section's placement and expansion behaviour against that timeline rather than receiving a specification for it.
 
 ---
 
