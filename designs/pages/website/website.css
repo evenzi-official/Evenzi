@@ -849,9 +849,7 @@
   font-family:'Poppins',sans-serif;
   border-radius:12px;   /* square-ish — reads as a text block, not a pill (was the clay input radius) */
 }
-@media (max-width:767px){
-  .wb-wa-textarea{font-size:16px}
-}
+/* iOS 16px floor for .wb-wa-textarea lives in shell.css (@media max-width:767px). */
 /* Share modal is roomier on laptop/desktop (the default .modal-card caps at
    520px; the WhatsApp message + QR want more breathing room). Mobile stays a
    full-width bottom-sheet, so this only affects the centred desktop modal. */

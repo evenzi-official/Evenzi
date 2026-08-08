@@ -16,22 +16,7 @@
 .media-empty-copy{font-size:.85rem;color:var(--muted);margin:.25rem 0 0}
 .media-empty-copy[hidden]{display:none}
 
-/* ── Error banner — mediaMutation.error, dismissible ────────────────── */
-.media-error-banner{
-  display:flex;align-items:center;justify-content:space-between;gap:.75rem;
-  margin:0 0 1.25rem;padding:.7rem 1rem;
-  border:1px solid var(--danger-rim);background:var(--danger-tint);
-  border-radius:14px;
-  font-size:.85rem;font-weight:600;color:var(--danger-ink);
-}
-.media-error-banner button{
-  flex-shrink:0;background:none;border:0;cursor:pointer;
-  font-size:1.1rem;line-height:1;color:var(--danger-ink);
-  padding:.1rem .4rem;
-}
-.media-error-banner button:focus-visible{
-  outline:2px solid var(--danger);outline-offset:2px;border-radius:6px;
-}
+/* Error banner lives in shell.css as .alert-banner (+ .media-error-banner alias). */
 
 /* Spec: NO blurred chrome on this page's tile chips (master grid drops
    backdrop-filter entirely; budget ≤2 blurred surfaces page-wide). */
