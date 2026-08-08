@@ -38,7 +38,7 @@ export function EscalateFooter({
       style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
     >
       <p className="m-0 mb-2 text-xs text-[var(--muted)]">{lead}</p>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-nowrap items-center justify-between gap-2">
         {actions.map((action) => {
           const variantClass =
             action.variant === 'primary'
@@ -50,7 +50,7 @@ export function EscalateFooter({
             <button
               key={action.id}
               type="button"
-              className={`btn-pill btn-pill-sm ${variantClass}${action.desktopOnly ? ' hidden md:inline-flex' : ''}${action.fullWidth ? ' w-full justify-center' : ''}`}
+              className={`btn-pill btn-pill-sm shrink-0 ${variantClass}${action.desktopOnly ? ' max-md:!hidden' : ''}${action.fullWidth ? ' w-full justify-center' : ''}`}
               onClick={action.onClick}
               disabled={action.disabled}
             >
