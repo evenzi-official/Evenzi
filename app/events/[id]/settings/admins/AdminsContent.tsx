@@ -29,6 +29,7 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
   const [role, setRole]         = useState('co-host')
   const [sending, setSending]   = useState(false)
   const [removingId, setRemovingId] = useState<string | null>(null)
+  const [pendingRemove, setPendingRemove] = useState<Collaborator | null>(null)
   const [toast, setToast]       = useState<string | null>(null)
 
   function flashToast(msg: string) {
@@ -43,7 +44,14 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
     setRole('co-host')
   }
 
-  async function handleRemove(collabId: string) {
+  function closeRemoveConfirm() {
+    if (removingId !== null) return
+    setPendingRemove(null)
+  }
+
+  async function handleRemoveConfirmed() {
+    if (!pendingRemove) return
+    const collabId = pendingRemove.id
     setRemovingId(collabId)
     try {
       const res = await fetch(`/api/events/${eventId}/admins/${collabId}`, { method: 'DELETE' })
@@ -52,6 +60,7 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
         flashToast(json.error ?? 'Failed to remove — please try again')
       } else {
         setCollabs(prev => prev.filter(c => c.id !== collabId))
+        setPendingRemove(null)
         flashToast('Collaborator removed')
       }
     } catch {
@@ -93,10 +102,11 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
   }
 
   const activeCount = collabs.filter(c => c.status === 'active').length
+  const removing = removingId !== null
 
   return (
     <>
-      <BusyOverlay active={sending || removingId !== null} label={sending ? 'Sending invite…' : 'Removing…'} />
+      <BusyOverlay active={sending || removing} label={sending ? 'Sending invite…' : 'Removing…'} />
       <div className="es-content">
         <header className="es-content-head">
           <div>
@@ -127,8 +137,10 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
               <span className="es-admin-name">{ownerName}</span>
               <span className="es-admin-email">{ownerEmail}</span>
             </div>
-            <span className="es-admin-role is-owner">Owner</span>
-            <span className="es-admin-status">Active</span>
+            <div className="es-admin-meta">
+              <span className="es-admin-role is-owner">Owner</span>
+              <span className="es-admin-status">Active</span>
+            </div>
           </div>
 
           {/* Collaborator rows */}
@@ -139,20 +151,23 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
                 <span className="es-admin-name">{collab.displayName}</span>
                 <span className="es-admin-email">{collab.email}</span>
               </div>
-              <span className="es-admin-role">{collab.role}</span>
-              <span className={`es-admin-status${collab.status === 'pending' ? ' is-pending' : ''}`}>
-                {collab.status === 'pending' ? 'Pending invite' : 'Active'}
-              </span>
-              <button
-                type="button"
-                className="fn-icon-btn"
-                onClick={() => handleRemove(collab.id)}
-                disabled={removingId === collab.id}
-                aria-busy={removingId === collab.id}
-                aria-label={`Remove ${collab.displayName.split(' ')[0]}`}
-              >
-                <span aria-hidden="true" className="material-symbols-outlined">person_remove</span>
-              </button>
+              <div className="es-admin-meta">
+                <span className="es-admin-role">{collab.role}</span>
+                <span className={`es-admin-status${collab.status === 'pending' ? ' is-pending' : ''}`}>
+                  {collab.status === 'pending' ? 'Pending invite' : 'Active'}
+                </span>
+              </div>
+              <div className="es-admin-actions">
+                <button
+                  type="button"
+                  className="fn-icon-btn"
+                  onClick={() => setPendingRemove(collab)}
+                  disabled={removing}
+                  aria-label={`Remove ${collab.displayName.split(' ')[0]}`}
+                >
+                  <span aria-hidden="true" className="material-symbols-outlined">person_remove</span>
+                </button>
+              </div>
             </div>
           ))}
 
@@ -231,6 +246,68 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
               </button>
             </div>
           </div>
+        </div>
+      </Portal>
+
+      {/* Remove co-host confirm — cautionary, not type-DELETE */}
+      <Portal>
+        <div
+          className={`modal-scrim${pendingRemove ? ' is-open' : ''}`}
+          aria-hidden={!pendingRemove}
+          onClick={(e) => { if (e.target === e.currentTarget) closeRemoveConfirm() }}
+        >
+          {pendingRemove ? (
+            <div
+              className="modal-card lg-glass-card modal-confirm-cautionary"
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="es-remove-admin-title"
+            >
+              <button
+                className="modal-close modal-close--corner"
+                type="button"
+                aria-label="Close"
+                onClick={closeRemoveConfirm}
+                disabled={removing}
+              >
+                <span aria-hidden="true" className="material-symbols-outlined">close</span>
+              </button>
+              <span className="modal-confirm-icon is-cautionary" aria-hidden="true">
+                <span className="material-symbols-outlined">person_remove</span>
+              </span>
+              <h2 className="modal-confirm-title" id="es-remove-admin-title">Remove co-host?</h2>
+              <p className="modal-confirm-text">
+                Remove <strong>{pendingRemove.displayName}</strong>
+                {pendingRemove.email ? (
+                  <>
+                    {' '}
+                    (<span className="break-all">{pendingRemove.email}</span>)
+                  </>
+                ) : null}
+                {' '}
+                from this event. They will lose access immediately. You can invite them again later.
+              </p>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn-pill btn-pill-secondary"
+                  onClick={closeRemoveConfirm}
+                  disabled={removing}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn-pill btn-pill-primary"
+                  disabled={removing}
+                  aria-busy={removing}
+                  onClick={() => { void handleRemoveConfirmed() }}
+                >
+                  {removing ? 'Removing…' : 'Remove'}
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </Portal>
 
