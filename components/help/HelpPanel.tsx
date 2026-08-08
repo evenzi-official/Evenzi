@@ -1141,7 +1141,6 @@ export function HelpPanel({ open, onClose, triggerRef }: HelpPanelProps): React.
             id: 'contact',
             label: 'Contact support',
             variant: noMatch ? 'primary' : 'secondary',
-            fullWidth: noMatch,
             disabled: !online,
             onClick: goTicket,
           },
@@ -1149,7 +1148,6 @@ export function HelpPanel({ open, onClose, triggerRef }: HelpPanelProps): React.
             id: 'open-page',
             label: 'Open Help Centre',
             variant: 'ghost',
-            desktopOnly: true,
             icon: 'open_in_new',
             onClick: () => navigateAway('/help'),
           },
@@ -1169,7 +1167,7 @@ export function HelpPanel({ open, onClose, triggerRef }: HelpPanelProps): React.
       triggerRef={triggerRef}
     >
       <div
-        className="modal-card"
+        className="modal-card lg-glass-card"
         style={{
           display: 'flex',
           flexDirection: 'column',

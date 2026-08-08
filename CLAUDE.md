@@ -371,7 +371,7 @@ Verified against repo state 2026-08-07. **This table is current state and open g
 | Digital Presence (event website) | P2 | ✅ security-hardened + design-parity rebuild (`edfa845`) | Template gallery assumes 5 templates, only `cinematic-scroll` exists; guest-lookup API skips the password gate; prod deploy unconfirmed |
 | Landing / marketing site | P2 | ⚠️ in progress — `app/page.tsx` | — |
 | Digital Invitations (card designer) | P3 | ⚠️ data model live (`inv_01`–`06`), FE built (`InvitationsClient.tsx`, 7 templates) | **Nothing persists** — no fetch, no localStorage, no API route; the "Saved" indicator is cosmetic. Scope is the card designer only; WhatsApp send lives in Guest Mgmt |
-| Help Centre | P1 | ✅ on `feature/help-centre` (stages 1–8) | Content empty; Stage 9 docs this session; launch gates (support@evenzii.com, Resend/admin tickets, articles) |
+| Help Centre | P1 | ✅ on `Dev-Vibe` / Testing (stages 1–9 + UI polish) | Content empty (`faq_articles`); launch gates (support@evenzii.com, ticket watching, articles min) |
 | Admin Module (developer panel) | P2 | ❌ not started | — |
 
 `app/wedding-invitation-temp-1` and `app/website-theme-framer` are standalone design-test pages, unrelated to the features above.

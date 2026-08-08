@@ -60,35 +60,38 @@ export function HelpSearchInput({
   }
 
   return (
-    <div className="form-input-search w-full">
-      <span className="material-symbols-outlined form-input-search-icon" aria-hidden="true">
-        search
-      </span>
-      <input
-        id={id}
-        type="search"
-        className="form-input"
-        value={local}
-        onChange={handleChange}
-        disabled={disabled}
-        placeholder={placeholder}
-        autoComplete="off"
-        enterKeyHint="search"
-        aria-describedby={helperText ? `${id}-help` : undefined}
-      />
-      {local ? (
-        <button
-          type="button"
-          className="form-input-search-clear"
-          aria-label="Clear search"
-          onClick={clear}
+    <div className="w-full">
+      {/* Hint must stay outside .form-input-search — icon uses top:50% of that box. */}
+      <div className="form-input-search w-full">
+        <span className="material-symbols-outlined form-input-search-icon" aria-hidden="true">
+          search
+        </span>
+        <input
+          id={id}
+          type="search"
+          className="form-input"
+          value={local}
+          onChange={handleChange}
           disabled={disabled}
-        >
-          <span className="material-symbols-outlined" aria-hidden="true">
-            close
-          </span>
-        </button>
-      ) : null}
+          placeholder={placeholder}
+          autoComplete="off"
+          enterKeyHint="search"
+          aria-describedby={helperText ? `${id}-help` : undefined}
+        />
+        {local ? (
+          <button
+            type="button"
+            className="form-input-search-clear"
+            aria-label="Clear search"
+            onClick={clear}
+            disabled={disabled}
+          >
+            <span className="material-symbols-outlined" aria-hidden="true">
+              close
+            </span>
+          </button>
+        ) : null}
+      </div>
       {helperText ? (
         <p id={`${id}-help`} className="form-hint m-0 mt-1">
           {helperText}
