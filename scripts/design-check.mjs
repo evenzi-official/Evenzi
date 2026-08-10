@@ -37,11 +37,23 @@ const FORBIDDEN_PERSONAS = [
 ];
 
 /** Real-PII patterns that must never appear in mock content (use @example.com).
- *  NOTE: evenzi.official@gmail.com is the intentional product support address — not flagged. */
+ *  Matches any consumer free-mail address generically, rather than listing the
+ *  specific addresses that have leaked before — naming them here would keep the
+ *  very address we are trying to remove greppable in the repo, and a generic
+ *  rule also catches the next one. */
 const PII_PATTERNS = [
-  /mail2anish/i,
-  /elena\.k@plannersco\.in/i,
+  /\b[a-z0-9._%+-]+@(?:gmail|googlemail|yahoo|ymail|hotmail|outlook|live|msn|aol|icloud|me|proton|protonmail|pm|zoho|rediffmail)\.[a-z.]{2,}\b/i,
 ];
+
+/** Addresses that are intentional product identities, not leaked personal PII. */
+const PII_ALLOWLIST = [
+  /evenzi\.official@gmail\.com/i,
+];
+
+/** Vendored third-party trees. We do not own the code in these, so persona,
+ *  PII and style conventions do not apply — an upstream library's author
+ *  attribution in a header comment is not a leak of our users' data. */
+const VENDOR_DIRS = new Set(['assets', 'vendor', 'node_modules']);
 
 const issues = [];
 
@@ -49,8 +61,10 @@ function walk(dir, exts, out = []) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     const st = statSync(p);
-    if (st.isDirectory()) walk(p, exts, out);
-    else if (exts.some((e) => name.endsWith(e))) out.push(p);
+    if (st.isDirectory()) {
+      if (VENDOR_DIRS.has(name)) continue;
+      walk(p, exts, out);
+    } else if (exts.some((e) => name.endsWith(e))) out.push(p);
   }
   return out;
 }
@@ -67,8 +81,10 @@ for (const f of textFiles) {
     for (const re of FORBIDDEN_PERSONAS) {
       if (re.test(line)) issues.push(`[persona-drift] ${rel}:${ln} — matches ${re} (canonical is "${CANONICAL.display}" / ${CANONICAL.slug})`);
     }
-    for (const re of PII_PATTERNS) {
-      if (re.test(line)) issues.push(`[pii] ${rel}:${ln} — real-looking PII; use @example.com demo identities`);
+    if (!PII_ALLOWLIST.some((re) => re.test(line))) {
+      for (const re of PII_PATTERNS) {
+        if (re.test(line)) issues.push(`[pii] ${rel}:${ln} — real-looking PII; use @example.com demo identities`);
+      }
     }
     if (/style="background:#[0-9A-Fa-f]/.test(line)) {
       issues.push(`[inline-hex] ${rel}:${ln} — literal inline background hex; use the --sw binding or a token`);
