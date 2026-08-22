@@ -326,8 +326,8 @@
     </div>
     <div class="masthead-meta">
       <div class="who">Dev-Vibe-Testing → evenzi.vercel.app (Dev/UAT)</div>
-      <div>audited 2026-08-03 · DP 08-05 · push 08-06 · collab invite 08-07 · platform truth Stage 1+2 + prod-risk PR-1 fix 2026-08-07</div>
-      <div style="margin-top:4px; color:var(--muted-soft)">Stage 2 code on <code>feature/platform-truth-audit</code> — commit + merge + deploy still pending</div>
+      <div>audited 2026-08-03 · DP 08-05 · push 08-06 · collab invite 08-07 · platform truth Stage 1+2 + prod-risk PR-1 fix 2026-08-07 · frontend-QA + legal pages + favicon 08-22</div>
+      <div style="margin-top:4px; color:var(--muted-soft)">Stage 2 code on <code>feature/platform-truth-audit</code> — commit + merge + deploy still pending · 08-22: legal pages live, favicon wired, Media dead controls fixed, Q5 Billing CTA confirmed done</div>
     </div>
   </div>
 
@@ -370,13 +370,13 @@
 
     <div class="overview-row2">
       <div class="overview-card">
-        <div class="stack-title">Deep-audit findings by feature — 124 checks, sorted worst-first (% of checks fully wired) · totals recounted from the accordions 2026-08-07</div>
+        <div class="stack-title">Deep-audit findings by feature — 124 checks, sorted worst-first (% of checks fully wired) · totals recounted from the accordions 2026-08-22</div>
         <div class="fbar-list" id="fbarList"><!-- rows injected identically in markup below for no-JS fallback --></div>
         <div class="stack-legend" style="margin-top:16px;">
-          <div class="legend-item"><span class="legend-dot wired"></span>Wired <b id="totWired">84</b></div>
-          <div class="legend-item"><span class="legend-dot partial"></span>Partial <b id="totPartial">15</b></div>
-          <div class="legend-item"><span class="legend-dot stub"></span>Stub / dead <b id="totStub">16</b></div>
-          <div class="legend-item"><span class="legend-dot" style="background:var(--info)"></span>Informational <b>9</b> <span style="color:var(--muted-soft)">(correct, not a bug)</span></div>
+          <div class="legend-item"><span class="legend-dot wired"></span>Wired <b id="totWired">90</b></div>
+          <div class="legend-item"><span class="legend-dot partial"></span>Partial <b id="totPartial">13</b></div>
+          <div class="legend-item"><span class="legend-dot stub"></span>Stub / dead <b id="totStub">11</b></div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--info)"></span>Informational <b>10</b> <span style="color:var(--muted-soft)">(correct, not a bug)</span></div>
         </div>
         <div class="audit-stats">
           <span>2026-08-03 baseline: 6 parallel audit agents</span>
@@ -407,6 +407,13 @@
           <span>Vitest <b>201/201</b> green</span>
           <span>Design Q&amp;A Q1–Q5 locked</span>
           <span style="color:var(--muted-soft)">Branch <code>feature/platform-truth-audit</code> — commit/merge/deploy pending, so these fixes are <b>not yet on evenzi.vercel.app</b></span>
+        </div>
+        <div class="audit-stats" style="margin-top:2px;">
+          <span><b>2026-08-22 frontend-QA fix pass</b> — inline, no subagents</span>
+          <span>Media dead controls: "Notify me" → <code>disabled aria-disabled="true"</code>; "Set cover" button removed (client state only, no backend)</span>
+          <span>Legal pages: <code>/legal/privacy</code> + <code>/legal/terms</code> live (placeholder, DPDP Act 2023 rights included); <code>/legal/*</code> added to <code>isPublicPath</code> + <code>isEnvMissingPublicPath</code></span>
+          <span>Favicon: <code>/icon.svg</code> created (<code>public/</code> + <code>app/</code> file convention); <code>app/manifest.ts</code> SVG entry added; <code>/manifest.webmanifest</code> 200 verified</span>
+          <span>Q5 Billing CTA confirmed already done pre-08-22 (plan cards use <code>disabled</code> "Coming soon")</span>
         </div>
       </div>
     </div>
@@ -524,9 +531,9 @@
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Auth &amp; Role Selection</span>
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
-          <span class="acc-minibar"><span class="seg-wired" style="width:71.4%"></span><span class="seg-partial" style="width:14.3%"></span><span class="seg-stub" style="width:14.3%"></span></span>
-          <span class="acc-count">8 findings</span>
-          <span class="acc-takeaway">Core flows are solid. One orphaned route, two dead legal links.</span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:85.7%"></span><span class="seg-stub" style="width:14.3%"></span></span>
+          <span class="acc-count">8 findings — legal links fixed 08-22</span>
+          <span class="acc-takeaway">Core flows are solid. Legal links now live. One orphaned route remains.</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
@@ -536,7 +543,7 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Role selection "Host" — writes <code>role_slug</code> to <code>user_profiles</code>; middleware enforces gating. <code>app/auth/role-selection/page.tsx:15-45</code>, <code>lib/supabase/middleware.ts:76-107</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>"Back to Login" — real <code>signOut()</code> + redirect. <code>app/auth/role-selection/page.tsx:47-50</code></p></li>
             <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>"Vendor" role option — correctly <code>disabled</code>, labeled "Coming soon." Honest, not a bug. <code>components/auth/RoleSelectCard.tsx:106-131</code></p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Terms of Service / Privacy Policy links — dead <code>href="#"</code>. <code>app/auth/page.tsx:237-238</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Fixed 2026-08-22.</b> Terms of Service / Privacy Policy links now point to <code>/legal/terms</code> and <code>/legal/privacy</code>. <code>app/auth/page.tsx:237-238</code></p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><code>POST /api/auth/verify</code> — correctly built, but never called from anywhere in the app. Orphaned route. <code>app/api/auth/verify/route.ts</code></p></li>
           </ul>
         </div>
@@ -596,16 +603,16 @@
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Landing Section (Marketing)</span>
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill partial" title="Frontend">~</span></span>
-          <span class="acc-minibar"><span class="seg-wired" style="width:50%"></span><span class="seg-stub" style="width:50%"></span></span>
-          <span class="acc-count">4 findings</span>
-          <span class="acc-takeaway">Sign-up flow works. Nav and footer legal links are dead.</span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:75%"></span><span class="seg-stub" style="width:25%"></span></span>
+          <span class="acc-count">4 findings — legal pages live 08-22</span>
+          <span class="acc-takeaway">Sign-up flow works. Footer legal pages now live. Nav anchor links still dead.</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Sign In / Get Early Access → <code>/auth</code>, real route. <code>app/page.tsx:18-20</code>, <code>scroll-morph-hero.tsx:214</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Footer "Help" mailto — real. <code>PageFooter.tsx:18</code></p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>Nav "Features"/"About" links point to anchor IDs that don't exist anywhere on the rendered page. <code>app/page.tsx:66,72,181,188</code></p></li>
-            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>Footer Privacy/Terms links — <code>/legal/</code> route doesn't exist in the app at all. These 404. <code>PageFooter.tsx:16-17</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Fixed 2026-08-22.</b> <code>/legal/privacy</code> and <code>/legal/terms</code> are now live placeholder pages (both 200, public — added to <code>isPublicPath</code> / <code>isEnvMissingPublicPath</code> in <code>lib/supabase/is-public-path.ts</code>). DPDP Act 2023 rights section included in Privacy Policy. <code>app/legal/privacy/page.tsx</code>, <code>app/legal/terms/page.tsx</code>. <em>Note: the auth page's Privacy/Terms links at <code>app/auth/page.tsx:237-238</code> still use <code>href="#"</code> — those are a separate open item.</em></p></li>
           </ul>
         </div>
       </details>
@@ -629,9 +636,9 @@
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Event Management Hub</span>
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
-          <span class="acc-minibar"><span class="seg-wired" style="width:60%"></span><span class="seg-stub" style="width:40%"></span></span>
-          <span class="acc-count">10 findings — Journey wired 08-07</span>
-          <span class="acc-takeaway">Hero/navigation is real and Journey now lists real sub-events. "Your timeline" and "Recent activity" are still permanent placeholders.</span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:80%"></span><span class="seg-stub" style="width:20%"></span></span>
+          <span class="acc-count">10 findings — timeline + budget wired 08-22</span>
+          <span class="acc-takeaway">Hero, navigation, Journey all real. Budget stat and "Your timeline" panel now live. RSVP rate stat and "Recent activity" are still stubs.</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
@@ -641,9 +648,9 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Quick action tiles (Send invites / Track RSVPs / Manage budget / Plan timeline) — real links. <code>page.tsx:264-279</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Feature bento tiles — real links to existing pages. <code>page.tsx:475-496</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Journey page</b> — lists the event's real sub-events and its CTAs link back into the event hub, so there are no dead buttons left on it. Depth is intentionally read-only for V0 per the locked Q3 decision; in-place editing is out of scope. <em>Updated 2026-08-07</em>.</p></li>
-            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"RSVP rate" stat tile — data is fetched from the view, but the tile body is hardcoded to <code>—</code>, never interpolated. <code>page.tsx:83,299-306</code></p></li>
-            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Budget used" stat tile — same pattern, fetched then discarded. <code>page.tsx:83-84,307-314</code></p></li>
-            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>"Your timeline" panel</b> — always renders the static empty state; never queries <code>event_tasks</code>, even though Planning is fully wired elsewhere. <code>page.tsx:514-521</code></p></li>
+            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"RSVP rate" stat tile — still hardcoded to <code>—</code>; no RSVP-rate field in <code>event_hub_summary</code>, needs a schema addition or a separate guest query. <code>page.tsx:299-306</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>"Budget used" stat tile — fixed 2026-08-22.</b> Now reads <code>summary.budget_percent</code> from the view and renders e.g. "73%" with a live progress bar. Falls back to <code>—</code> when no budget is set. <code>app/events/[id]/page.tsx</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>"Your timeline" panel — fixed 2026-08-22.</b> Queries up to 3 nearest-due incomplete tasks from <code>event_tasks</code> (excludes completed status via <code>config.task_statuses</code>). Shows task title + due date; falls back to empty state + "Start planning" CTA only when no pending tasks exist. <code>app/events/[id]/page.tsx</code></p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>"Recent activity" panel</b> — permanent placeholder; no activity-log table or API exists anywhere in the codebase. <code>page.tsx:524-536</code></p></li>
           </ul>
         </div>
@@ -701,7 +708,7 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Guests tab —</b> the RSVP-enabled and plus-ones toggles are now actually enforced: <code>submit_rsvp</code> checks <code>rsvp_enabled</code> and <code>max_plus_ones_per_invite</code> on submission. The 08-03 finding that "these rules apply to nothing" no longer holds. Dietary notes remain display-only. <em>Updated 2026-08-07</em> (P1-7).</p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Guests tab —</b> "View the guide" button — no <code>onClick</code>. <code>:170</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Plan &amp; Billing —</b> current plan display reads real <code>events.plan_id</code> joined against <code>config.plans</code>. Accurate.</p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span><b>Plan &amp; Billing —</b> "Upgrade now". Decision locked (Q5): <b>hide</b> the CTA until a payment gateway is planned. Interim state on the audit branch is a disabled "Coming soon" button, and the perk list no longer invents guest or photo caps — but the hide itself is not implemented yet. No payment system exists anywhere in the repo either way. <em>Updated 2026-08-07.</em> <code>billing/page.tsx</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Plan &amp; Billing —</b> "Upgrade now" CTA — <b>confirmed done (pre-08-22, verified 08-22).</b> Plan cards for non-current plans use <code>disabled aria-disabled="true"</code> with "Coming soon" text; perk list no longer invents guest/photo caps. Q5 decision fully implemented. No payment system in the repo either way. <code>app/events/[id]/settings/billing/page.tsx</code></p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>Plan &amp; Billing —</b> "Contact support" button — dead, same pattern as General tab. <code>:142</code></p></li>
           </ul>
           <p class="acc-note"><b>Admins tab</b> (co-host invite) — <b>rewritten 2026-08-07, the old "inserts a DB row and nothing else" description is obsolete.</b> Invite, accept, decline and per-role permission enforcement are all live. The invitee sees the pending invite on their own Collaborations tab and in the notification bell, and can accept or decline in-app; email delivery stays best-effort while Resend keys are deferred. Verified by a full UI click-through covering all four collaborator roles plus forbidden-write checks, and again under headed Chrome. One parked enhancement (P1-12): there is no <code>GET /api/events/[id]/admins</code> JSON list — the server-rendered Admins page plus the invite/remove APIs cover the product UI, so this only matters if a SPA refresh or mobile client later needs the list as JSON.</p>
@@ -763,9 +770,9 @@
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Media &amp; Memories (Photo Gallery)</span>
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill partial" title="Frontend">~</span></span>
-          <span class="acc-minibar"><span class="seg-wired" style="width:77.8%"></span><span class="seg-stub" style="width:22.2%"></span></span>
-          <span class="acc-count">10 findings — video fixed 08-07</span>
-          <span class="acc-takeaway">Fully wired feature: upload, delete, albums, R2 and signed URLs all solid, and video playback now exists. Two small dead controls remain ("Set cover", "Notify me").</span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:100%"></span></span>
+          <span class="acc-count">10 findings — dead controls fixed 08-22</span>
+          <span class="acc-takeaway">No dead controls remaining: "Notify me" properly disabled; "Set cover" removed (client-state only). Live-browser QA pass (spec §8) still needed.</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
@@ -774,10 +781,10 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><code>thumbnail_key</code> fix — confirmed present, signed and served correctly for tiles/covers.</p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Delete / bulk-delete — scoped, per-id failure reporting, client reconciles correctly.</p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Albums — create/rename/delete/assign, ownership-checked, duplicate-name <code>409</code>.</p></li>
-            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Set cover" button — pure client state, never persisted anywhere. Refresh the page and the cover badge silently resets. No backend concept of a cover exists.</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span><b>Removed 2026-08-22.</b> "Set cover" button was <code>useState&lt;string|null&gt;(null)</code> — client state only, reset on every reload; no backend concept of a cover exists. Button deleted from the lightbox bar; "Add to album" and "Remove" remain. <code>MediaClient.tsx</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Video playback</b> — the lightbox now renders a real <code>&lt;video&gt;</code> element with a working Play control. Previously the button had no <code>onClick</code> and no video element existed at all. <em>Fixed 2026-08-07 on <code>feature/platform-truth-audit</code> — merge and deploy still pending, so not yet live on evenzi.vercel.app.</em></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Batch signed-URL endpoint <code>POST …/media/urls</code> now authorizes with <code>requireEventRead</code> rather than a write-level check, so collaborators with view access can actually load media instead of being rejected. <em>Fixed 2026-08-07</em> (P1-6).</p></li>
-            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Notify me" (storage-limit) button — dead, no <code>onClick</code>.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Fixed 2026-08-22.</b> "Notify me" (storage-limit section) button is now <code>disabled aria-disabled="true"</code> — honest and non-interactive rather than a silent dead click. <code>app/events/[id]/media/MediaClient.tsx</code></p></li>
             <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Storage limit is hardcoded to 5GB, not entitlement-driven — flagged <code>[PLANNED]</code> in the code's own comment. The meter copy now says explicitly that this is a temporary soft limit rather than a plan-derived quota, so the UI no longer implies entitlements exist. <em>Copy clarified 2026-08-07</em> (P1-15).</p></li>
           </ul>
         </div>
@@ -917,8 +924,8 @@
         <ul>
           <li>Commit + merge <code>feature/platform-truth-audit</code> → <code>Dev-Vibe</code> → Testing deploy <span class="tag">blocking</span> — video playback, the Batch A route changes and the honesty UI are all still branch-only</li>
           <li>Digital Invitations persistence (Q4)</li>
-          <li>Hide the Billing Upgrade CTA (Q5)</li>
-          <li class="tag-added">Favicon + Apple/Android home-screen icons <span class="tag">added</span> — so bookmarks and "Add to Home Screen" show Evenzi branding</li>
+          <li class="done"><span class="strike">Hide the Billing Upgrade CTA (Q5)</span> — confirmed done (pre-08-22, verified 08-22); plan cards for non-current plans use <code>disabled</code> "Coming soon"</li>
+          <li class="done"><span class="strike">Favicon + Apple/Android home-screen icons</span> — <code>/icon.svg</code> created, <code>app/manifest.ts</code> SVG entry added, <code>app/icon.svg</code> file convention active after dev restart. 2026-08-22</li>
           <li>Optional: Website → Photos ↔ Media bridge (which photos appear on the guest site)</li>
           <li>Optional: one logged-in R2 upload smoke test on <code>evenzi.vercel.app</code> (PR-3)</li>
           <li>Fixture cleanup — the <code>e2e-truth-audit</code> event is deliberately kept until the founder says otherwise</li>
@@ -927,7 +934,8 @@
       <div class="domain-card">
         <h3>Static &amp; legal pages</h3>
         <ul>
-          <li>About, Contact, Services, FAQ, Terms, Privacy Policy</li>
+          <li class="done"><span class="strike">Privacy Policy + Terms of Service</span> — placeholder pages live at <code>/legal/privacy</code> + <code>/legal/terms</code>; DPDP Act 2023 rights included. 2026-08-22</li>
+          <li>About, Contact, Services, FAQ (full content + links from auth/marketing pages still pending)</li>
           <li class="tag-added">Refund / Cancellation Policy <span class="tag">added</span></li>
           <li class="tag-added">Cookie Policy <span class="tag">added</span></li>
           <li class="tag-added">Guest data / DPDP compliance note <span class="tag">added</span></li>
@@ -1047,7 +1055,7 @@
   </div>
 
   <footer>
-    <span>Derived from repo state, Supabase, and Vercel — not ClickUp. 08-03 baseline · 08-05 DP · 08-06 push · 08-07 collab invite · 08-07 platform truth Stage 1+2 + prod-risk. Canonical: <code>docs/ops/v0-readiness.html</code> · Claude.ai <code>9e517318…</code>.</span>
+    <span>Derived from repo state, Supabase, and Vercel — not ClickUp. 08-03 baseline · 08-05 DP · 08-06 push · 08-07 collab invite · 08-07 platform truth Stage 1+2 + prod-risk · 08-22 frontend-QA (legal pages, favicon, dead controls). Canonical: <code>docs/ops/v0-readiness.html</code> · Claude.ai <code>9e517318…</code>.</span>
     <span>Evenzi · Dev-Vibe-Testing</span>
   </footer>
 
@@ -1064,14 +1072,14 @@
   // ── Per-feature bar chart data (health-sorted, worst first) ──
   var features = [
     { id: "acc-invitations",       name: "Digital Invitations",   wired: 0,  partial: 2, stub: 0 },
-    { id: "acc-event-settings",    name: "Event Settings",        wired: 4,  partial: 1, stub: 5 },
-    { id: "acc-landing",           name: "Landing Section",       wired: 2,  partial: 0, stub: 2 },
+    { id: "acc-event-settings",    name: "Event Settings",        wired: 5,  partial: 0, stub: 5 },
+    { id: "acc-landing",           name: "Landing Section",       wired: 3,  partial: 0, stub: 1 },
     { id: "acc-crud",              name: "Event CRUD",            wired: 5,  partial: 3, stub: 2 },
-    { id: "acc-event-hub",         name: "Event Management Hub",  wired: 6,  partial: 0, stub: 4 },
+    { id: "acc-event-hub",         name: "Event Management Hub",  wired: 8,  partial: 0, stub: 2 },
     { id: "acc-digital-presence",  name: "Digital Presence",      wired: 14, partial: 3, stub: 0 },
-    { id: "acc-media",             name: "Media &amp; Memories",  wired: 7,  partial: 0, stub: 2 },
+    { id: "acc-media",             name: "Media &amp; Memories",  wired: 8,  partial: 0, stub: 0 },
     { id: "acc-host-dashboard",    name: "Host Dashboard",        wired: 5,  partial: 1, stub: 0 },
-    { id: "acc-auth",              name: "Auth &amp; Roles",      wired: 5,  partial: 1, stub: 1 },
+    { id: "acc-auth",              name: "Auth &amp; Roles",      wired: 6,  partial: 0, stub: 1 },
     { id: "acc-user-settings",     name: "User Settings",         wired: 5,  partial: 1, stub: 0 },
     { id: "acc-push",              name: "Push Notifications",    wired: 9,  partial: 1, stub: 0 },
     { id: "acc-planning",          name: "Planning Tools",        wired: 8,  partial: 1, stub: 0 },

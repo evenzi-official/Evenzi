@@ -17,7 +17,8 @@ export function isPublicPath(pathname: string): boolean {
     pathname.startsWith('/e/') ||
     pathname.startsWith('/wedding-invitation-temp-') ||
     pathname === '/help' ||
-    pathname.startsWith('/help/')
+    pathname.startsWith('/help/') ||
+    pathname.startsWith('/legal/')
   )
 }
 
@@ -33,6 +34,7 @@ export function isEnvMissingPublicPath(pathname: string): boolean {
     pathname.startsWith('/e/') ||
     pathname.startsWith('/wedding-invitation-temp-') ||
     pathname === '/help' ||
-    pathname.startsWith('/help/')
+    pathname.startsWith('/help/') ||
+    pathname.startsWith('/legal/')
   )
 }
