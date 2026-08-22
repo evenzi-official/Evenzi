@@ -1,6 +1,7 @@
 "use client"
 import { useState, useRef, useMemo, useCallback } from 'react'
 import type { PlanningInitialData, TaskRow, ExpenseRow } from '@/lib/types/planning'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 type StatusFilter = 'all' | 'todo' | 'done' | 'overdue'
 type SortKey = 'due' | 'priority' | 'label'
@@ -101,6 +102,7 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
 
   const [pickerOpen, setPickerOpen] = useState<'sort' | 'filter' | 'bulkDate' | 'bulkAssign' | null>(null)
   const [toast, setToast] = useState<string | null>(null)
+  const { runBusy } = useBusy()
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   function flashToast(message: string) {
     setToast(message)
@@ -199,6 +201,7 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
       priorityId,
     }
     try {
+      await runBusy(async () => {
       if (editingTaskId) {
         const res = await fetch(`/api/events/${eventId}/planning/tasks/${editingTaskId}`, {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
@@ -215,6 +218,7 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
         setTasks(p => [...p, data.task!])
       }
       setTaskModalOpen(false); setEditingTaskId(null)
+      }, editingTaskId ? 'Saving…' : 'Adding task…')
     } catch {
       flashToast('Could not save changes.')
     } finally {
@@ -299,12 +303,14 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
     if (amt == null) { setBudgetErr(true); return }
     setBudgetErr(false); setBudgetSaving(true)
     try {
-      const res = await fetch(`/api/events/${eventId}/planning/budget`, {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ totalAmount: amt }),
-      })
-      const data: { budget?: { totalAmount: number; spent: number; remaining: number }; error?: string } = await res.json()
-      if (!res.ok || !data.budget) { flashToast('Could not save budget.'); return }
-      setBudget(data.budget); setBudgetModalOpen(false)
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/planning/budget`, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ totalAmount: amt }),
+        })
+        const data: { budget?: { totalAmount: number; spent: number; remaining: number }; error?: string } = await res.json()
+        if (!res.ok || !data.budget) { flashToast('Could not save budget.'); return }
+        setBudget(data.budget); setBudgetModalOpen(false)
+      }, 'Saving budget…')
     } catch {
       flashToast('Could not save budget.')
     } finally {
@@ -341,6 +347,7 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
       description: expForm.notes || null,
     }
     try {
+      await runBusy(async () => {
       if (editingExpenseId) {
         const res = await fetch(`/api/events/${eventId}/planning/expenses/${editingExpenseId}`, {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
@@ -357,6 +364,7 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
         setExpenses(p => [...p, data.expense!])
       }
       setExpenseModalOpen(false); setEditingExpenseId(null)
+      }, editingExpenseId ? 'Saving expense…' : 'Adding expense…')
     } catch {
       flashToast('Could not save expense.')
     } finally {
@@ -378,14 +386,16 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
     if (!name) return
     setAddTypeSaving(true)
     try {
-      const res = await fetch(`/api/events/${eventId}/planning/expense-types`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
-      })
-      const data: { expenseType?: { id: string; name: string; iconName: string | null; isCustom: boolean }; error?: string } = await res.json()
-      if (!res.ok || !data.expenseType) { flashToast(data.error ?? 'Could not add type.'); return }
-      setExpenseTypes(p => [...p, data.expenseType!])
-      setExpForm(f => ({ ...f, type: data.expenseType!.id }))
-      setAddTypeOpen(false); setAddTypeName('')
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/planning/expense-types`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
+        })
+        const data: { expenseType?: { id: string; name: string; iconName: string | null; isCustom: boolean }; error?: string } = await res.json()
+        if (!res.ok || !data.expenseType) { flashToast(data.error ?? 'Could not add type.'); return }
+        setExpenseTypes(p => [...p, data.expenseType!])
+        setExpForm(f => ({ ...f, type: data.expenseType!.id }))
+        setAddTypeOpen(false); setAddTypeName('')
+      }, 'Adding type…')
     } catch {
       flashToast('Could not add type.')
     } finally {
@@ -399,6 +409,7 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
   }
   async function handleDeleteConfirm() {
     if (!pendingDelete) return
+    await runBusy(async () => {
     if (pendingDelete.type === 'task' && pendingDelete.id) {
       const taskId = pendingDelete.id
       const prevTask = tasks.find(t => t.id === taskId)
@@ -439,6 +450,7 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
         flashToast('Could not delete expense.')
       }
     }
+    }, 'Deleting…')
     setPendingDelete(null); setDeleteModalOpen(false)
   }
 

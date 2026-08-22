@@ -7,6 +7,8 @@ import type { EventListItem } from "@/lib/types/events"
 import { ScrollProgress } from "@/components/layout/ScrollProgress"
 import { FloatingNav } from "@/components/layout/FloatingNav"
 import { avatarInitial } from "@/lib/utils"
+import { useBusy } from "@/components/ui/BusyProvider"
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 
 type Ownership = "my" | "collab"
 type TimeFilter = "active" | "past"
@@ -400,9 +402,12 @@ export default function EventsGrid({
   hasError = false,
 }: Props) {
   const router = useRouter()
+  const { runBusy } = useBusy()
   const [ownership, setOwnership] = useState<Ownership>("my")
   const [time, setTime] = useState<TimeFilter>("active")
   const [actingId, setActingId] = useState<string | null>(null)
+  const [confirmDeclineId, setConfirmDeclineId] = useState<string | null>(null)
+  const [declining, setDeclining] = useState(false)
 
   const myActive = events.filter(isActive)
   const myPast = events.filter((e) => !isActive(e))
@@ -426,14 +431,16 @@ export default function EventsGrid({
   async function acceptInvite(id: string): Promise<void> {
     setActingId(id)
     try {
-      const res = await fetch(`/api/collaborators/invites/${id}/accept`, {
-        method: "POST",
-      })
-      if (!res.ok) {
-        console.error("[home] accept invite failed:", res.status)
-        return
-      }
-      router.refresh()
+      await runBusy(async () => {
+        const res = await fetch(`/api/collaborators/invites/${id}/accept`, {
+          method: "POST",
+        })
+        if (!res.ok) {
+          console.error("[home] accept invite failed:", res.status)
+          return
+        }
+        router.refresh()
+      }, "Accepting…")
     } catch (err) {
       console.error("[home] accept invite error:", err)
     } finally {
@@ -442,21 +449,25 @@ export default function EventsGrid({
   }
 
   async function declineInvite(id: string): Promise<void> {
-    if (!window.confirm("Decline this collaboration invite?")) return
     setActingId(id)
+    setDeclining(true)
     try {
-      const res = await fetch(`/api/collaborators/invites/${id}/decline`, {
-        method: "POST",
-      })
-      if (!res.ok) {
-        console.error("[home] decline invite failed:", res.status)
-        return
-      }
-      router.refresh()
+      await runBusy(async () => {
+        const res = await fetch(`/api/collaborators/invites/${id}/decline`, {
+          method: "POST",
+        })
+        if (!res.ok) {
+          console.error("[home] decline invite failed:", res.status)
+          return
+        }
+        router.refresh()
+      }, "Declining…")
     } catch (err) {
       console.error("[home] decline invite error:", err)
     } finally {
       setActingId(null)
+      setDeclining(false)
+      setConfirmDeclineId(null)
     }
   }
 
@@ -559,7 +570,7 @@ export default function EventsGrid({
                 invite={invite}
                 busy={actingId === invite.id}
                 onAccept={() => void acceptInvite(invite.id)}
-                onDecline={() => void declineInvite(invite.id)}
+                onDecline={() => setConfirmDeclineId(invite.id)}
               />
             ))}
           </section>
@@ -572,6 +583,17 @@ export default function EventsGrid({
           {eventsBody}
         </section>
       </main>
+
+      <ConfirmDialog
+        open={confirmDeclineId !== null}
+        tone="danger"
+        title="Decline this invite?"
+        message="You'll lose access to this collaboration. The host can invite you again later."
+        confirmLabel="Decline"
+        busy={declining}
+        onCancel={() => setConfirmDeclineId(null)}
+        onConfirm={() => { if (confirmDeclineId) void declineInvite(confirmDeclineId) }}
+      />
     </div>
   )
 }

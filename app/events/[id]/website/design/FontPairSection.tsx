@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { FontPicker } from './FontPicker'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 type FontOption = { id: string; name: string }
 
@@ -14,17 +15,18 @@ export default function FontPairSection({ eventId, headingOptions, initialHeadin
   const findName = (options: FontOption[], id: string | null) =>
     options.find((o) => o.id === id)?.name ?? options[0]?.name ?? ''
 
+  const { runBusy } = useBusy()
   const [headingFontId, setHeadingFontId] = useState(initialHeadingFontId ?? headingOptions[0]?.id ?? null)
   const [saving, setSaving] = useState(false)
 
   async function save(value: string | null) {
     setSaving(true)
     try {
-      await fetch(`/api/events/${eventId}/website-design`, {
+      await runBusy(() => fetch(`/api/events/${eventId}/website-design`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ heading_font_id: value }),
-      })
+      }), 'Saving font…')
     } finally {
       setSaving(false)
     }

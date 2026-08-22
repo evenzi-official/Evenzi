@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { GuestRow } from '@/lib/types/guests'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 interface Props {
   eventId: string
@@ -82,6 +83,7 @@ function downloadTemplate(): void {
 }
 
 export function ImportCsvModal({ eventId, existingPhones, onClose, onImported, flashToast }: Props): React.ReactElement {
+  const { runBusy } = useBusy()
   const [fileName, setFileName] = useState<string | null>(null)
   const [rows, setRows] = useState<ParsedRow[]>([])
   const [parseError, setParseError] = useState<string | null>(null)
@@ -124,15 +126,17 @@ export function ImportCsvModal({ eventId, existingPhones, onClose, onImported, f
         onClose()
         return
       }
-      const res = await fetch(`/api/events/${eventId}/guests/import`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guests: validRows }),
-      })
-      const data: { inserted?: GuestRow[]; skippedDuplicates?: number; error?: string } = await res.json()
-      if (!res.ok || !data.inserted) { flashToast('Import failed. Try again.'); return }
-      onImported(data.inserted, (data.skippedDuplicates ?? 0) + duplicateCount)
-      onClose()
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/guests/import`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guests: validRows }),
+        })
+        const data: { inserted?: GuestRow[]; skippedDuplicates?: number; error?: string } = await res.json()
+        if (!res.ok || !data.inserted) { flashToast('Import failed. Try again.'); return }
+        onImported(data.inserted, (data.skippedDuplicates ?? 0) + duplicateCount)
+        onClose()
+      }, 'Importing guests…')
     } finally {
       setImporting(false)
     }

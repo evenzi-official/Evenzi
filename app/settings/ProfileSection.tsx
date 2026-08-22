@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatPhone } from '@/lib/utils'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 type ToastTone = 'success' | 'error'
 interface ToastState { message: string; tone: ToastTone }
@@ -17,6 +18,7 @@ interface Props {
 
 export function ProfileSection({ displayName, email, phone, avatarUrl }: Props): React.ReactElement {
   const router = useRouter()
+  const { runBusy } = useBusy()
   const [name, setName] = useState(displayName ?? '')
   const [avatar, setAvatar] = useState(avatarUrl)
   const [saving, setSaving] = useState(false)
@@ -33,17 +35,19 @@ export function ProfileSection({ displayName, email, phone, avatarUrl }: Props):
     if (saving) return
     setSaving(true)
     try {
-      const res = await fetch('/api/settings/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ display_name: name.trim() }),
-      })
-      if (!res.ok) {
-        flashToast('Could not save changes.', 'error')
-        return
-      }
-      flashToast('Changes saved', 'success')
-      router.refresh()
+      await runBusy(async () => {
+        const res = await fetch('/api/settings/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ display_name: name.trim() }),
+        })
+        if (!res.ok) {
+          flashToast('Could not save changes.', 'error')
+          return
+        }
+        flashToast('Changes saved', 'success')
+        router.refresh()
+      }, 'Saving…')
     } catch {
       flashToast('Could not save changes.', 'error')
     } finally {

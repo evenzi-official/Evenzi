@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 export type PaletteOption = {
   id: string
@@ -17,6 +18,7 @@ export default function PaletteSection({
   palettes: PaletteOption[]
   initialPaletteId: string | null
 }) {
+  const { runBusy } = useBusy()
   const [selected, setSelected] = useState<string | null>(initialPaletteId)
   const [saving, setSaving] = useState(false)
 
@@ -26,12 +28,14 @@ export default function PaletteSection({
     setSelected(id)
     setSaving(true)
     try {
-      const res = await fetch(`/api/events/${eventId}/website-design`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ palette_id: id }),
-      })
-      if (!res.ok) setSelected(prev)
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/website-design`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ palette_id: id }),
+        })
+        if (!res.ok) setSelected(prev)
+      }, 'Saving palette…')
     } catch {
       setSelected(prev)
     } finally {

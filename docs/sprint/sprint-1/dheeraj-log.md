@@ -14,3 +14,6 @@
 
 ## 2026-08-08
 - **Start** 10:06 — picking up: TBD (see brief below); last session: 2026-08-03 UI polish pass
+
+## 2026-08-22
+- **Start** 17:57 — picking up: TBD; last session: 2026-08-08; open items: Digital Invitations persist, Media QA pass, Landing responsive/a11y pass, Hide Billing Upgrade CTA

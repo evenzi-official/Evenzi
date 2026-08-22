@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { GuestRow, GuestTagOption } from '@/lib/types/guests'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 interface Props {
   eventId: string
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function TagManagerModal({ eventId, tags, guests, onClose, onCreated, onDeleted, flashToast }: Props): React.ReactElement {
+  const { runBusy } = useBusy()
   const [input, setInput] = useState('')
   const [adding, setAdding] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null)
@@ -28,16 +30,18 @@ export function TagManagerModal({ eventId, tags, guests, onClose, onCreated, onD
     if (!trimmed || adding) return
     setAdding(true)
     try {
-      const res = await fetch(`/api/events/${eventId}/guest-tags`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: trimmed }),
-      })
-      const data: { tag?: GuestTagOption; error?: string } = await res.json()
-      if (!res.ok || !data.tag) { flashToast("Couldn't create tag."); return }
-      onCreated(data.tag)
-      setInput('')
-      flashToast('Tag created')
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/guest-tags`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: trimmed }),
+        })
+        const data: { tag?: GuestTagOption; error?: string } = await res.json()
+        if (!res.ok || !data.tag) { flashToast("Couldn't create tag."); return }
+        onCreated(data.tag)
+        setInput('')
+        flashToast('Tag created')
+      }, 'Creating tag…')
     } finally {
       setAdding(false)
     }
@@ -46,10 +50,12 @@ export function TagManagerModal({ eventId, tags, guests, onClose, onCreated, onD
   async function handleDelete(tagId: string): Promise<void> {
     setDeleting(true)
     try {
-      const res = await fetch(`/api/events/${eventId}/guest-tags/${tagId}`, { method: 'DELETE' })
-      if (!res.ok) { flashToast("Couldn't remove tag."); return }
-      onDeleted(tagId)
-      flashToast('Tag removed')
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/guest-tags/${tagId}`, { method: 'DELETE' })
+        if (!res.ok) { flashToast("Couldn't remove tag."); return }
+        onDeleted(tagId)
+        flashToast('Tag removed')
+      }, 'Removing tag…')
     } finally {
       setDeleting(false)
       setConfirmingDelete(null)

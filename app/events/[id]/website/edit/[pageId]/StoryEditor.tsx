@@ -1,5 +1,7 @@
 'use client'
 import React, { useState } from 'react'
+import { useBusy } from '@/components/ui/BusyProvider'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 type Block = {
   id: string
@@ -19,26 +21,31 @@ const BLOCK_TYPES: { type: Block['block_type']; label: string; icon: string }[] 
 ]
 
 export default function StoryEditor({ eventId, initialBlocks }: { eventId: string; initialBlocks: Block[] }) {
+  const { runBusy } = useBusy()
   const [blocks, setBlocks] = useState(initialBlocks)
   const [pending, setPending] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [draft, setDraft] = useState<Partial<Block>>({})
+  const [confirmDelete, setConfirmDelete] = useState<Block | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   async function addBlock(block_type: Block['block_type']) {
     setAdding(true)
     try {
-      const res = await fetch(`/api/events/${eventId}/story-blocks`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ block_type, display_order: blocks.length }),
-      })
-      if (res.ok) {
-        const { block } = await res.json() as { block: Block }
-        setBlocks((prev) => [...prev, block])
-        setEditingId(block.id)
-        setDraft({ heading: block.heading, body: block.body })
-      }
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/story-blocks`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ block_type, display_order: blocks.length }),
+        })
+        if (res.ok) {
+          const { block } = await res.json() as { block: Block }
+          setBlocks((prev) => [...prev, block])
+          setEditingId(block.id)
+          setDraft({ heading: block.heading, body: block.body })
+        }
+      }, 'Adding block…')
     } finally { setAdding(false) }
   }
 
@@ -46,26 +53,35 @@ export default function StoryEditor({ eventId, initialBlocks }: { eventId: strin
     if (pending) return
     setPending(id)
     try {
-      const res = await fetch(`/api/events/${eventId}/story-blocks/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ heading: draft.heading ?? null, body: draft.body ?? null }),
-      })
-      if (res.ok) {
-        const { block } = await res.json() as { block: Block }
-        setBlocks((prev) => prev.map((b) => b.id === id ? block : b))
-        setEditingId(null)
-      }
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/story-blocks/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ heading: draft.heading ?? null, body: draft.body ?? null }),
+        })
+        if (res.ok) {
+          const { block } = await res.json() as { block: Block }
+          setBlocks((prev) => prev.map((b) => b.id === id ? block : b))
+          setEditingId(null)
+        }
+      }, 'Saving…')
     } finally { setPending(null) }
   }
 
   async function deleteBlock(block: Block) {
-    if (pending) return
-    setPending(block.id)
+    setDeleting(true)
     setBlocks((prev) => prev.filter((b) => b.id !== block.id))
-    await fetch(`/api/events/${eventId}/story-blocks/${block.id}`, { method: 'DELETE' })
-      .catch(() => setBlocks((prev) => [...prev, block].sort((a, b) => a.display_order - b.display_order)))
-    setPending(null)
+    try {
+      await runBusy(
+        () => fetch(`/api/events/${eventId}/story-blocks/${block.id}`, { method: 'DELETE' })
+          .then((res) => { if (!res.ok) throw new Error('delete failed') })
+          .catch(() => setBlocks((prev) => [...prev, block].sort((a, b) => a.display_order - b.display_order))),
+        'Deleting block…',
+      )
+    } finally {
+      setDeleting(false)
+      setConfirmDelete(null)
+    }
   }
 
   async function toggleVisibility(block: Block) {
@@ -109,7 +125,7 @@ export default function StoryEditor({ eventId, initialBlocks }: { eventId: strin
               className="dp-icon-btn" aria-label="Edit block">
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>edit</span>
             </button>
-            <button type="button" onClick={() => deleteBlock(block)} disabled={!!pending}
+            <button type="button" onClick={() => setConfirmDelete(block)} disabled={!!pending || deleting}
               className="dp-icon-btn" aria-label="Delete block">
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>delete</span>
             </button>
@@ -161,6 +177,17 @@ export default function StoryEditor({ eventId, initialBlocks }: { eventId: strin
           </button>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete !== null}
+        tone="danger"
+        title="Delete this block?"
+        message="This removes the block from your story. This can't be undone."
+        confirmLabel="Delete block"
+        busy={deleting}
+        onCancel={() => setConfirmDelete(null)}
+        onConfirm={() => { if (confirmDelete) void deleteBlock(confirmDelete) }}
+      />
     </div>
   )
 }

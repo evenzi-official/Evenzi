@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useWizard } from '@/lib/contexts/WizardContext'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 const ICON_MAP: Record<string, string> = {
   sparkles: 'auto_awesome',
@@ -20,6 +21,7 @@ export function Step4ReviewConfirm(): React.JSX.Element {
   const { state, dispatch } = useWizard()
   const { eventType, basicDetails, selectedSubEvents, totalSteps } = state
 
+  const { setBusy } = useBusy()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -72,6 +74,7 @@ export function Step4ReviewConfirm(): React.JSX.Element {
     if (submitting) return
     setSubmitting(true)
     setError(null)
+    setBusy(true, 'Creating your event…')
     try {
       const payload = {
         eventTypeId: eventType!.id,
@@ -106,8 +109,10 @@ export function Step4ReviewConfirm(): React.JSX.Element {
         if (errData.error) message = errData.error
       } catch { /* use status message */ }
       setError(message)
+      setBusy(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error. Please try again.')
+      setBusy(false)
     } finally {
       setSubmitting(false)
     }

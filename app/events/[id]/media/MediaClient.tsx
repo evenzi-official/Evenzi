@@ -992,7 +992,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
         </div>
         <div className="media-meter-cta">
           <span className="media-meter-cta-copy">More storage coming soon</span>
-          <button type="button" className="btn-pill btn-pill-secondary">
+          <button type="button" className="btn-pill btn-pill-secondary" disabled aria-disabled="true">
             <span className="material-symbols-outlined" aria-hidden="true">notifications</span>
             Notify me
           </button>
@@ -1682,9 +1682,6 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
                   <p className="modal-lightbox-sub">Uploaded {fmtDate(lbPhoto.uploadedAt)}</p>
                 </div>
                 <div className="modal-lightbox-actions">
-                  <button type="button" className="btn-pill btn-pill-secondary" onClick={() => setCoverId(lbPhoto.id)}>
-                    <span aria-hidden="true" className="material-symbols-outlined">star</span>Set cover
-                  </button>
                   <button type="button" className="btn-pill btn-pill-secondary"
                           onClick={() => { setLightboxOpen(false); openAssign('add', [lbPhoto.id], 'photo') }}>
                     <span aria-hidden="true" className="material-symbols-outlined">library_add</span>Add to album

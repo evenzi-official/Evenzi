@@ -236,7 +236,7 @@ export default function AuthPage() {
 
               <p className="auth-policy">
                 By continuing, you agree to our{' '}
-                <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                <a href="/legal/terms">Terms of Service</a> and <a href="/legal/privacy">Privacy Policy</a>
               </p>
             </>
           ) : (

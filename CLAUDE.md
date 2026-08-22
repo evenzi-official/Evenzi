@@ -287,8 +287,9 @@ The full multi-LLM automated runner (executor, LLM router, budget monitor, Click
 
 ## Branching Strategy
 
-- **`main`** — Production branch, connected to Vercel. Only receives merges from `Dev-Vibe` when ready to deploy.
-- **`Dev-Vibe`** — Working main branch. All feature branches are created from and merged back to `Dev-Vibe`.
+- **`Dev-Vibe-Testing`** — **The branch Vercel actually deploys to production.** Every `target: production` deployment on the `evenzi` project builds from this ref, and `evenzi.vercel.app` serves it. Receives merges from `Dev-Vibe`.
+- **`main`** — Effectively dormant, **not** the deployed branch despite what this file said until 2026-08-10. It sits 413 commits behind `Dev-Vibe` and does not even contain `app/help`, while production serves the Help Centre — which is how the discrepancy was caught. Treat it as an old release marker, not as production.
+- **`Dev-Vibe`** — Working main branch. All feature branches are created from and merged back to `Dev-Vibe`. Pushing here produces a Vercel **preview** deployment only, never production.
 - **`Dev-Runner`** — Parked branch preserving the full automated multi-LLM pipeline runner (executor, LLM router, budget monitor, ClickUp webhook, email notifications). Will be revived when external API keys are available.
 - **`Dev-AMC`** — Parked branch preserving the full AMC dashboard code (Phase 1). Will be revived later for the general-purpose pipeline monitoring UI.
 - **Feature branches** — Created from `Dev-Vibe`, named descriptively (e.g., `feature/agent-runner`).
@@ -368,10 +369,10 @@ Verified against repo state 2026-08-07. **This table is current state and open g
 | Push Notifications | P1 | ✅ in-app bell + browser push, live | Needs VAPID env + the Supabase webhook (see env block) |
 | Planning (checklist + budget) | P2 | ✅ 7 API routes, live-verified | Task edit/delete/toggle never UI-clicked (API + 2 code reviews only) |
 | Media & Memories | P2 | ✅ 9 API routes, R2 upload pipeline, real storage meter | **Live-browser QA pass (spec §8) still never run** |
-| Digital Presence (event website) | P2 | ✅ security-hardened + design-parity rebuild (`edfa845`) | Template gallery assumes 5 templates, only `cinematic-scroll` exists; guest-lookup API skips the password gate; prod deploy unconfirmed |
-| Landing / marketing site | P2 | ⚠️ in progress — `app/page.tsx` | — |
+| Digital Presence (event website) | P2 | ✅ security-hardened + design-parity rebuild (`edfa845`) | Template gallery assumes 5 templates, only `cinematic-scroll` exists (`config.website_templates` = 1 row) |
+| Landing / marketing site | P2 | ✅ built — `app/page.tsx` | Composes 8 `components/landing/*` sections plus `LandingFooter`; last touched 2026-08-08. No dedicated responsive or accessibility pass has been logged for it |
 | Digital Invitations (card designer) | P3 | ⚠️ data model live (`inv_01`–`06`), FE built (`InvitationsClient.tsx`, 7 templates) | **Nothing persists** — no fetch, no localStorage, no API route; the "Saved" indicator is cosmetic. Scope is the card designer only; WhatsApp send lives in Guest Mgmt |
-| Help Centre | P1 | ✅ on `Dev-Vibe` / Testing (stages 1–9 + UI polish) | Content empty (`faq_articles`); launch gates (support@evenzii.com, ticket watching, articles min) |
+| Help Centre | P1 | ✅ on `Dev-Vibe` / Testing (stages 1–9 + UI polish) | Content empty — `config.faq_articles` has 0 rows against 10 enabled `config.faq_categories`. Both tables live in the `config` schema, not `public`; launch gates (support@evenzii.com, ticket watching, articles min) |
 | Admin Module (developer panel) | P2 | ❌ not started | — |
 
 `app/wedding-invitation-temp-1` and `app/website-theme-framer` are standalone design-test pages, unrelated to the features above.

@@ -32,6 +32,8 @@ interface SubEventRow {
   event_sub_types: { name: string; icon_name: string | null } | null
 }
 
+interface UpNextTask { id: string; title: string; due_date: string | null; status_id: string | null }
+
 // Hero/overview aggregate stats from public.event_hub_summary (security_invoker view).
 interface HubSummaryRow {
   event_id: string
@@ -168,6 +170,18 @@ export default async function EventControlPage({
       (se.custom_name ?? se.event_sub_types?.name ?? '').toLowerCase()
     return (WEDDING_ROADMAP_ORDER[nameOf(a)] ?? 99) - (WEDDING_ROADMAP_ORDER[nameOf(b)] ?? 99)
   })
+
+  // 4) Up-next checklist tasks — 3 nearest-due incomplete tasks for the hub panel.
+  const [{ data: doneStatusRow }, { data: taskRows }] = await Promise.all([
+    supabase.schema('config').from('task_statuses').select('id').eq('slug', 'completed').maybeSingle(),
+    supabase.from('event_tasks')
+      .select('id, title, due_date, status_id')
+      .eq('event_id', id)
+      .order('due_date', { ascending: true, nullsFirst: false })
+      .limit(10),
+  ])
+  const doneStatusId = doneStatusRow?.id ?? null
+  const upNext: UpNextTask[] = (taskRows ?? []).filter(t => t.status_id !== doneStatusId).slice(0, 3)
 
   // Hero/overview fields — prefer the view; fall back to the events row.
   const event = {
@@ -332,8 +346,15 @@ export default async function EventControlPage({
                 <span aria-hidden="true" className="stat-icon"><span className="material-symbols-outlined icon-fill">payments</span></span>
                 <div className="min-w-0 w-full">
                   <p className="text-[10px] font-display font-bold tracking-[0.25em] text-muted uppercase">Budget used</p>
-                  <p className="font-display font-bold text-2xl text-ink leading-none mt-0.5">—</p>
-                  <div className="ec-progress-track"><div className="ec-progress-fill pf-bar" /></div>
+                  <p className="font-display font-bold text-2xl text-ink leading-none mt-0.5">
+                    {summary?.budget_percent != null ? `${Math.round(summary.budget_percent)}%` : '—'}
+                  </p>
+                  <div className="ec-progress-track">
+                    <div
+                      className="ec-progress-fill pf-bar"
+                      style={summary?.budget_percent != null ? { width: `${Math.min(100, Math.round(summary.budget_percent))}%` } : undefined}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -535,14 +556,30 @@ export default async function EventControlPage({
                 Full checklist →
               </Link>
             </div>
-            <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
-              <span aria-hidden="true" className="material-symbols-outlined text-4xl" style={{ color: 'var(--muted)' }}>checklist_rtl</span>
-              <p className="text-sm text-muted">No checklist items yet.</p>
-              <Link href={`/events/${id}/planning`} className="btn-pill btn-pill-secondary">
-                <span>Start planning</span>
-                <span aria-hidden="true" className="material-symbols-outlined">arrow_forward</span>
-              </Link>
-            </div>
+            {upNext.length > 0 ? (
+              <ul className="flex flex-col gap-3">
+                {upNext.map((task) => (
+                  <li key={task.id} className="flex items-start gap-3">
+                    <span aria-hidden="true" className="material-symbols-outlined text-base mt-0.5 shrink-0" style={{ color: 'var(--brand)' }}>radio_button_unchecked</span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-ink truncate">{task.title}</p>
+                      {task.due_date && (
+                        <p className="text-xs text-muted mt-0.5">Due {new Date(task.due_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</p>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
+                <span aria-hidden="true" className="material-symbols-outlined text-4xl" style={{ color: 'var(--muted)' }}>checklist_rtl</span>
+                <p className="text-sm text-muted">No checklist items yet.</p>
+                <Link href={`/events/${id}/planning`} className="btn-pill btn-pill-secondary">
+                  <span>Start planning</span>
+                  <span aria-hidden="true" className="material-symbols-outlined">arrow_forward</span>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Recent activity */}
