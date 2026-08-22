@@ -1,5 +1,7 @@
 'use client'
 import React, { useState } from 'react'
+import { useBusy } from '@/components/ui/BusyProvider'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 type QAItem = {
   id: string
@@ -10,28 +12,33 @@ type QAItem = {
 }
 
 export default function QAEditor({ eventId, initialItems }: { eventId: string; initialItems: QAItem[] }) {
+  const { runBusy } = useBusy()
   const [items, setItems] = useState(initialItems)
   const [pending, setPending] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ question: '', answer: '' })
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState({ question: '', answer: '' })
+  const [confirmDelete, setConfirmDelete] = useState<QAItem | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   async function addItem() {
     if (!form.question.trim() || !form.answer.trim()) return
     setPending('new')
     try {
-      const res = await fetch(`/api/events/${eventId}/qa-items`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: form.question.trim(), answer: form.answer.trim(), display_order: items.length }),
-      })
-      if (res.ok) {
-        const { item } = await res.json() as { item: QAItem }
-        setItems((prev) => [...prev, item])
-        setForm({ question: '', answer: '' })
-        setShowForm(false)
-      }
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/qa-items`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: form.question.trim(), answer: form.answer.trim(), display_order: items.length }),
+        })
+        if (res.ok) {
+          const { item } = await res.json() as { item: QAItem }
+          setItems((prev) => [...prev, item])
+          setForm({ question: '', answer: '' })
+          setShowForm(false)
+        }
+      }, 'Adding…')
     } finally { setPending(null) }
   }
 
@@ -39,26 +46,35 @@ export default function QAEditor({ eventId, initialItems }: { eventId: string; i
     if (pending) return
     setPending(id)
     try {
-      const res = await fetch(`/api/events/${eventId}/qa-items/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: editDraft.question, answer: editDraft.answer }),
-      })
-      if (res.ok) {
-        const { item } = await res.json() as { item: QAItem }
-        setItems((prev) => prev.map((i) => i.id === id ? item : i))
-        setEditingId(null)
-      }
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/qa-items/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: editDraft.question, answer: editDraft.answer }),
+        })
+        if (res.ok) {
+          const { item } = await res.json() as { item: QAItem }
+          setItems((prev) => prev.map((i) => i.id === id ? item : i))
+          setEditingId(null)
+        }
+      }, 'Saving…')
     } finally { setPending(null) }
   }
 
   async function deleteItem(item: QAItem) {
-    if (pending) return
-    setPending(item.id)
+    setDeleting(true)
     setItems((prev) => prev.filter((i) => i.id !== item.id))
-    await fetch(`/api/events/${eventId}/qa-items/${item.id}`, { method: 'DELETE' })
-      .catch(() => setItems((prev) => [...prev, item].sort((a, b) => a.display_order - b.display_order)))
-    setPending(null)
+    try {
+      await runBusy(
+        () => fetch(`/api/events/${eventId}/qa-items/${item.id}`, { method: 'DELETE' })
+          .then((res) => { if (!res.ok) throw new Error('delete failed') })
+          .catch(() => setItems((prev) => [...prev, item].sort((a, b) => a.display_order - b.display_order))),
+        'Deleting…',
+      )
+    } finally {
+      setDeleting(false)
+      setConfirmDelete(null)
+    }
   }
 
   async function toggleVisibility(item: QAItem) {
@@ -117,7 +133,7 @@ export default function QAEditor({ eventId, initialItems }: { eventId: string; i
               <button type="button" onClick={() => toggleVisibility(item)} disabled={!!pending} className="dp-icon-btn shrink-0" aria-label={item.is_visible ? 'Hide' : 'Show'}>
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{item.is_visible ? 'visibility' : 'visibility_off'}</span>
               </button>
-              <button type="button" onClick={() => deleteItem(item)} disabled={!!pending} className="dp-icon-btn shrink-0" aria-label="Delete">
+              <button type="button" onClick={() => setConfirmDelete(item)} disabled={!!pending || deleting} className="dp-icon-btn shrink-0" aria-label="Delete">
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>delete</span>
               </button>
             </div>
@@ -149,6 +165,17 @@ export default function QAEditor({ eventId, initialItems }: { eventId: string; i
           Add Q&amp;A item
         </button>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete !== null}
+        tone="danger"
+        title="Delete this Q&A item?"
+        message="This removes the question and answer from your website. This can't be undone."
+        confirmLabel="Delete"
+        busy={deleting}
+        onCancel={() => setConfirmDelete(null)}
+        onConfirm={() => { if (confirmDelete) void deleteItem(confirmDelete) }}
+      />
     </div>
   )
 }

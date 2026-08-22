@@ -1,5 +1,7 @@
 'use client'
 import React, { useState } from 'react'
+import { useBusy } from '@/components/ui/BusyProvider'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 type Member = {
   id: string
@@ -18,40 +20,52 @@ const SIDES = [
 ] as const
 
 export default function WeddingPartyEditor({ eventId, initialMembers }: { eventId: string; initialMembers: Member[] }) {
+  const { runBusy } = useBusy()
   const [members, setMembers] = useState(initialMembers)
   const [pending, setPending] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<{ name: string; side: Member['side']; relation: string }>({ name: '', side: 'bride', relation: '' })
+  const [confirmDelete, setConfirmDelete] = useState<Member | null>(null)
+  const [deleting, setDeleting] = useState(false)
   async function addMember() {
     if (!form.name.trim()) return
     setPending('new')
     try {
-      const res = await fetch(`/api/events/${eventId}/wedding-party`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          side: form.side,
-          relation: form.relation.trim() || null,
-          display_order: members.length,
-        }),
-      })
-      if (res.ok) {
-        const { member } = await res.json() as { member: Member }
-        setMembers((prev) => [...prev, member])
-        setForm({ name: '', side: 'bride', relation: '' })
-        setShowForm(false)
-      }
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/wedding-party`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: form.name.trim(),
+            side: form.side,
+            relation: form.relation.trim() || null,
+            display_order: members.length,
+          }),
+        })
+        if (res.ok) {
+          const { member } = await res.json() as { member: Member }
+          setMembers((prev) => [...prev, member])
+          setForm({ name: '', side: 'bride', relation: '' })
+          setShowForm(false)
+        }
+      }, 'Adding…')
     } finally { setPending(null) }
   }
 
   async function deleteMember(member: Member) {
-    if (pending) return
-    setPending(member.id)
+    setDeleting(true)
     setMembers((prev) => prev.filter((m) => m.id !== member.id))
-    await fetch(`/api/events/${eventId}/wedding-party/${member.id}`, { method: 'DELETE' })
-      .catch(() => setMembers((prev) => [...prev, member].sort((a, b) => a.display_order - b.display_order)))
-    setPending(null)
+    try {
+      await runBusy(
+        () => fetch(`/api/events/${eventId}/wedding-party/${member.id}`, { method: 'DELETE' })
+          .then((res) => { if (!res.ok) throw new Error('delete failed') })
+          .catch(() => setMembers((prev) => [...prev, member].sort((a, b) => a.display_order - b.display_order))),
+        'Removing…',
+      )
+    } finally {
+      setDeleting(false)
+      setConfirmDelete(null)
+    }
   }
 
   async function toggleVisibility(member: Member) {
@@ -93,7 +107,7 @@ export default function WeddingPartyEditor({ eventId, initialMembers }: { eventI
                   <button type="button" onClick={() => toggleVisibility(member)} disabled={!!pending} className="dp-icon-btn" aria-label={member.is_visible ? 'Hide' : 'Show'}>
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{member.is_visible ? 'visibility' : 'visibility_off'}</span>
                   </button>
-                  <button type="button" onClick={() => deleteMember(member)} disabled={!!pending} className="dp-icon-btn" aria-label="Remove member">
+                  <button type="button" onClick={() => setConfirmDelete(member)} disabled={!!pending || deleting} className="dp-icon-btn" aria-label="Remove member">
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>delete</span>
                   </button>
                 </div>
@@ -141,6 +155,17 @@ export default function WeddingPartyEditor({ eventId, initialMembers }: { eventI
           Add member
         </button>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete !== null}
+        tone="danger"
+        title="Remove this member?"
+        message={confirmDelete ? <>Remove <strong>{confirmDelete.name}</strong> from the wedding party. This can&apos;t be undone.</> : ''}
+        confirmLabel="Remove"
+        busy={deleting}
+        onCancel={() => setConfirmDelete(null)}
+        onConfirm={() => { if (confirmDelete) void deleteMember(confirmDelete) }}
+      />
     </div>
   )
 }

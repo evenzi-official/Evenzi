@@ -4,6 +4,7 @@ import { useState, type ReactElement } from 'react'
 import Link from 'next/link'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { ShareSiteDialog } from './ShareSiteDialog'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 export function SiteStatusCard({
   eventId,
@@ -31,6 +32,7 @@ export function SiteStatusCard({
   const [slugError, setSlugError] = useState<string | null>(null)
   const [savingSlug, setSavingSlug] = useState(false)
   const [busy, setBusy] = useState<'vis' | 'rsvp' | 'publish' | null>(null)
+  const { runBusy } = useBusy()
 
   const liveUrl = slug && initialLiveUrl
     ? initialLiveUrl.replace(/\/e\/[^/]+$/, `/e/${slug}`)
@@ -60,7 +62,7 @@ export function SiteStatusCard({
     if (busy || !offline) return
     setBusy('publish')
     setOffline(false)
-    const ok = await patchSettings(false).catch(() => false)
+    const ok = await runBusy(() => patchSettings(false).catch(() => false), 'Publishing…')
     if (!ok) setOffline(true)
     setBusy(null)
   }
@@ -100,11 +102,11 @@ export function SiteStatusCard({
     setSavingSlug(true)
     setSlugError(null)
     try {
-      const res = await fetch(`/api/events/${eventId}`, {
+      const res = await runBusy(() => fetch(`/api/events/${eventId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ slug: next }),
-      })
+      }), 'Saving URL…')
       if (res.status === 409) {
         setSlugError('That URL is taken.')
         return

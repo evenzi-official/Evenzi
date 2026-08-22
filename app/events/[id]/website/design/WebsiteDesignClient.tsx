@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 type FakeTheme = { id: string; label: string; preview: string }
 
@@ -17,6 +18,7 @@ export default function WebsiteDesignClient({ eventId, initialDesign, cinematicT
     ? 'cinematic-scroll'
     : null
 
+  const { runBusy } = useBusy()
   const [selected, setSelected] = useState<string | null>(initialSlug)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -30,12 +32,14 @@ export default function WebsiteDesignClient({ eventId, initialDesign, cinematicT
     setSaving(true)
     setSaved(false)
     try {
-      const res = await fetch(`/api/events/${eventId}/website-design`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ template_id: resolveUuid(selected) }),
-      })
-      if (res.ok) setSaved(true)
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/website-design`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ template_id: resolveUuid(selected) }),
+        })
+        if (res.ok) setSaved(true)
+      }, 'Applying…')
     } finally {
       setSaving(false)
     }

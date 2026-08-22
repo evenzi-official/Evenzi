@@ -326,8 +326,8 @@
     </div>
     <div class="masthead-meta">
       <div class="who">Dev-Vibe-Testing → evenzi.vercel.app (Dev/UAT)</div>
-      <div>audited 2026-08-03 · DP 08-05 · push 08-06 · collab invite 08-07 · platform truth Stage 1+2 + prod-risk PR-1 fix 2026-08-07 · frontend-QA + legal pages + favicon 08-22</div>
-      <div style="margin-top:4px; color:var(--muted-soft)">Stage 2 code on <code>feature/platform-truth-audit</code> — commit + merge + deploy still pending · 08-22: legal pages live, favicon wired, Media dead controls fixed, Q5 Billing CTA confirmed done</div>
+      <div>audited 2026-08-03 · DP 08-05 · push 08-06 · collab invite 08-07 · platform truth Stage 1+2 + prod-risk PR-1 fix 2026-08-07 · frontend-QA + legal pages + favicon 08-22 · live sweep + busy-overlay rollout 08-23</div>
+      <div style="margin-top:4px; color:var(--muted-soft)">Stage 2 code on <code>feature/platform-truth-audit</code> — commit + merge + deploy still pending · 08-22: legal pages live, favicon wired, Media dead controls fixed, Q5 Billing CTA confirmed done · 08-23: full authenticated click-through sweep + platform-wide screen-freeze &amp; destructive-confirm on <code>Dev-Vibe</code></div>
     </div>
   </div>
 
@@ -414,6 +414,13 @@
           <span>Legal pages: <code>/legal/privacy</code> + <code>/legal/terms</code> live (placeholder, DPDP Act 2023 rights included); <code>/legal/*</code> added to <code>isPublicPath</code> + <code>isEnvMissingPublicPath</code></span>
           <span>Favicon: <code>/icon.svg</code> created (<code>public/</code> + <code>app/</code> file convention); <code>app/manifest.ts</code> SVG entry added; <code>/manifest.webmanifest</code> 200 verified</span>
           <span>Q5 Billing CTA confirmed already done pre-08-22 (plan cards use <code>disabled</code> "Coming soon")</span>
+        </div>
+        <div class="audit-stats" style="margin-top:2px;">
+          <span><b>2026-08-23 live click-through sweep + busy-overlay rollout</b> — inline, no subagents, on <code>Dev-Vibe</code></span>
+          <span>Authenticated sweep of all 17 matrix features (test host): 14 work live, 2 nonexistent-by-design (Admin, Chatbot); Dheeraj's 08-22 push confirmed live (budget% stat, legal pages, Media dead-control fixes)</span>
+          <span><b>New bugs found (not yet fixed):</b> dashboard event card shows "10 expected" guests vs actual 1 (hub correct); guest phone renders double prefix "+91 +91987 6543210"; setup bar hint "Upload a cover photo" while a cover is shown; User-Settings 2FA copy references a "password" (app is OTP/Google only); <code>/help</code> shows 6 curated topics vs 10 enabled <code>config.faq_categories</code></span>
+          <span><b>Screen-freeze + destructive-confirm shipped platform-wide:</b> new <code>BusyProvider</code>/<code>useBusy</code> (one global overlay in <code>app/layout.tsx</code>) + shared <code>ConfirmDialog</code>; wired into 21 mutation sites — create wizard, guests, planning, website design/edit, user settings, public lookup/password, dashboard invites; two old <code>window.confirm</code> calls (bulk-guest-delete, decline-invite) upgraded to themed dialogs</span>
+          <span style="color:var(--muted-soft)">Rules: commits/creates/deletes freeze; optimistic toggles/reorders and long uploads stay inline; destructive actions gate behind a confirm popup then freeze. tsc + eslint clean; overlay verified mounting and toggling live</span>
         </div>
       </div>
     </div>
@@ -897,7 +904,8 @@
           <span class="acc-count">confirmed nonexistent</span>
         </summary>
         <div class="acc-body">
-          <p class="acc-note">Confirmed via exhaustive grep across <code>app</code>, <code>components</code>, <code>lib</code> — zero chat-related code, no vendor SDK reference, no route. Genuinely not started.</p>
+          <p class="acc-note">Confirmed 2026-08-23 via exhaustive grep across <code>app</code>, <code>components</code>, <code>lib</code> plus all remote branches — zero chat/AI code, no vendor SDK, no <code>/api/chat</code> route, no surviving chatbot branch. The planned Cloudflare Workers AI + pgvector RAG chatbot is still pending sign-off, not built.</p>
+          <p class="acc-note" style="margin-top:8px;"><b>Not to be confused with the Help FAB sheet, which IS built and live.</b> <code>components/layout/HelpFabMount</code> (mounted globally in <code>app/layout.tsx</code>) renders the floating Help Centre bottom-sheet: search, the six topic cards, an "Open Help Centre" link, and a "Contact Support" button. "Contact Support" opens the async ticket form (<code>components/help/TicketForm.tsx</code> → <code>POST /api/help/tickets</code>, email reply within 24h) — it is not a live/AI chat. Its search and topic cards are wired but currently return nothing because <code>config.faq_articles</code> has 0 rows.</p>
         </div>
       </details>
 

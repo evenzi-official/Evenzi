@@ -1,5 +1,7 @@
 'use client'
 import React, { useState } from 'react'
+import { useBusy } from '@/components/ui/BusyProvider'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 type TravelPoint = {
   id: string
@@ -41,10 +43,13 @@ export default function TravelEditor({
   initialStays: Stay[]
 }) {
   const [points, setPoints] = useState(initialPoints)
+  const { runBusy } = useBusy()
   const [stays, setStays] = useState(initialStays)
   const [tab, setTab] = useState<'points' | 'stays'>('points')
   const [pending, setPending] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<{ type: 'point'; item: TravelPoint } | { type: 'stay'; item: Stay } | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const [ptForm, setPtForm] = useState({ kind: 'airport' as TravelPoint['kind'], name: '', distance_text: '', travel_time_text: '', map_link: '', note: '' })
   const [stayForm, setStayForm] = useState({ name: '', address: '', phone: '', price_band: '' as Stay['price_band'] | '', distance_text: '', map_link: '', booking_url: '', note: '' })
@@ -53,72 +58,90 @@ export default function TravelEditor({
     if (!ptForm.name.trim()) return
     setPending('new')
     try {
-      const res = await fetch(`/api/events/${eventId}/travel-points`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          kind: ptForm.kind,
-          name: ptForm.name.trim(),
-          distance_text: ptForm.distance_text.trim() || null,
-          travel_time_text: ptForm.travel_time_text.trim() || null,
-          map_link: ptForm.map_link.trim() || null,
-          note: ptForm.note.trim() || null,
-          display_order: points.length,
-        }),
-      })
-      if (res.ok) {
-        const { point } = await res.json() as { point: TravelPoint }
-        setPoints((prev) => [...prev, point])
-        setPtForm({ kind: 'airport', name: '', distance_text: '', travel_time_text: '', map_link: '', note: '' })
-        setShowForm(false)
-      }
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/travel-points`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            kind: ptForm.kind,
+            name: ptForm.name.trim(),
+            distance_text: ptForm.distance_text.trim() || null,
+            travel_time_text: ptForm.travel_time_text.trim() || null,
+            map_link: ptForm.map_link.trim() || null,
+            note: ptForm.note.trim() || null,
+            display_order: points.length,
+          }),
+        })
+        if (res.ok) {
+          const { point } = await res.json() as { point: TravelPoint }
+          setPoints((prev) => [...prev, point])
+          setPtForm({ kind: 'airport', name: '', distance_text: '', travel_time_text: '', map_link: '', note: '' })
+          setShowForm(false)
+        }
+      }, 'Adding…')
     } finally { setPending(null) }
   }
 
   async function deletePoint(point: TravelPoint) {
-    if (pending) return
-    setPending(point.id)
+    setDeleting(true)
     setPoints((prev) => prev.filter((p) => p.id !== point.id))
-    await fetch(`/api/events/${eventId}/travel-points/${point.id}`, { method: 'DELETE' })
-      .catch(() => setPoints((prev) => [...prev, point].sort((a, b) => a.display_order - b.display_order)))
-    setPending(null)
+    try {
+      await runBusy(
+        () => fetch(`/api/events/${eventId}/travel-points/${point.id}`, { method: 'DELETE' })
+          .then((res) => { if (!res.ok) throw new Error('delete failed') })
+          .catch(() => setPoints((prev) => [...prev, point].sort((a, b) => a.display_order - b.display_order))),
+        'Deleting…',
+      )
+    } finally {
+      setDeleting(false)
+      setConfirmDelete(null)
+    }
   }
 
   async function addStay() {
     if (!stayForm.name.trim()) return
     setPending('new-stay')
     try {
-      const res = await fetch(`/api/events/${eventId}/stays`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: stayForm.name.trim(),
-          address: stayForm.address.trim() || null,
-          phone: stayForm.phone.trim() || null,
-          price_band: stayForm.price_band || null,
-          distance_text: stayForm.distance_text.trim() || null,
-          map_link: stayForm.map_link.trim() || null,
-          booking_url: stayForm.booking_url.trim() || null,
-          note: stayForm.note.trim() || null,
-          display_order: stays.length,
-        }),
-      })
-      if (res.ok) {
-        const { stay } = await res.json() as { stay: Stay }
-        setStays((prev) => [...prev, stay])
-        setStayForm({ name: '', address: '', phone: '', price_band: '', distance_text: '', map_link: '', booking_url: '', note: '' })
-        setShowForm(false)
-      }
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/stays`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: stayForm.name.trim(),
+            address: stayForm.address.trim() || null,
+            phone: stayForm.phone.trim() || null,
+            price_band: stayForm.price_band || null,
+            distance_text: stayForm.distance_text.trim() || null,
+            map_link: stayForm.map_link.trim() || null,
+            booking_url: stayForm.booking_url.trim() || null,
+            note: stayForm.note.trim() || null,
+            display_order: stays.length,
+          }),
+        })
+        if (res.ok) {
+          const { stay } = await res.json() as { stay: Stay }
+          setStays((prev) => [...prev, stay])
+          setStayForm({ name: '', address: '', phone: '', price_band: '', distance_text: '', map_link: '', booking_url: '', note: '' })
+          setShowForm(false)
+        }
+      }, 'Adding…')
     } finally { setPending(null) }
   }
 
   async function deleteStay(stay: Stay) {
-    if (pending) return
-    setPending(stay.id)
+    setDeleting(true)
     setStays((prev) => prev.filter((s) => s.id !== stay.id))
-    await fetch(`/api/events/${eventId}/stays/${stay.id}`, { method: 'DELETE' })
-      .catch(() => setStays((prev) => [...prev, stay].sort((a, b) => a.display_order - b.display_order)))
-    setPending(null)
+    try {
+      await runBusy(
+        () => fetch(`/api/events/${eventId}/stays/${stay.id}`, { method: 'DELETE' })
+          .then((res) => { if (!res.ok) throw new Error('delete failed') })
+          .catch(() => setStays((prev) => [...prev, stay].sort((a, b) => a.display_order - b.display_order))),
+        'Deleting…',
+      )
+    } finally {
+      setDeleting(false)
+      setConfirmDelete(null)
+    }
   }
 
   return (
@@ -158,7 +181,7 @@ export default function TravelEditor({
                 <p className="text-xs text-muted">{[pt.distance_text, pt.travel_time_text].filter(Boolean).join(' · ')}</p>
                 {pt.note && <p className="text-xs text-muted mt-0.5">{pt.note}</p>}
               </div>
-              <button type="button" onClick={() => deletePoint(pt)} disabled={!!pending} className="dp-icon-btn shrink-0" aria-label="Delete">
+              <button type="button" onClick={() => setConfirmDelete({ type: 'point', item: pt })} disabled={!!pending || deleting} className="dp-icon-btn shrink-0" aria-label="Delete">
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>delete</span>
               </button>
             </div>
@@ -233,7 +256,7 @@ export default function TravelEditor({
                 <p className="text-xs text-muted">{[stay.price_band ? PRICE_LABELS[stay.price_band] : null, stay.distance_text].filter(Boolean).join(' · ')}</p>
                 {stay.address && <p className="text-xs text-muted">{stay.address}</p>}
               </div>
-              <button type="button" onClick={() => deleteStay(stay)} disabled={!!pending} className="dp-icon-btn shrink-0" aria-label="Delete">
+              <button type="button" onClick={() => setConfirmDelete({ type: 'stay', item: stay })} disabled={!!pending || deleting} className="dp-icon-btn shrink-0" aria-label="Delete">
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>delete</span>
               </button>
             </div>
@@ -295,6 +318,21 @@ export default function TravelEditor({
           )}
         </>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete !== null}
+        tone="danger"
+        title={confirmDelete?.type === 'stay' ? 'Delete this stay?' : 'Delete this travel point?'}
+        message={confirmDelete ? <>Remove <strong>{confirmDelete.item.name}</strong> from your travel page. This can&apos;t be undone.</> : ''}
+        confirmLabel="Delete"
+        busy={deleting}
+        onCancel={() => setConfirmDelete(null)}
+        onConfirm={() => {
+          if (!confirmDelete) return
+          if (confirmDelete.type === 'point') void deletePoint(confirmDelete.item)
+          else void deleteStay(confirmDelete.item)
+        }}
+      />
     </div>
   )
 }

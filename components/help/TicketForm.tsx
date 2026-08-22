@@ -2,6 +2,7 @@
 
 import { useId, useState, type FormEvent } from 'react'
 import { SUPPORT_EMAIL, SUPPORT_MAILTO, SUPPORT_HOURS, SUPPORT_RESPONSE_HOURS } from '@/lib/constants/support'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 export type TicketFormProps = {
   defaultEmail?: string
@@ -64,6 +65,7 @@ export function TicketForm({
   onCancel,
 }: TicketFormProps): React.ReactElement {
   const formId = useId()
+  const { runBusy } = useBusy()
   const [email, setEmail] = useState(defaultEmail)
   const [message, setMessage] = useState('')
   const [state, setState] = useState<SubmitState>('idle')
@@ -103,7 +105,7 @@ export function TicketForm({
     setState('submitting')
 
     try {
-      const res = await fetch('/api/help/tickets', {
+      const res = await runBusy(() => fetch('/api/help/tickets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -113,7 +115,7 @@ export function TicketForm({
           articleSlug,
           pageUrl: pageUrl ?? (typeof window !== 'undefined' ? window.location.href : undefined),
         }),
-      })
+      }), 'Sending…')
 
       const data = (await res.json().catch(() => ({}))) as TicketErrorBody
 

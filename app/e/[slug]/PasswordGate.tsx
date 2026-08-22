@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 export default function PasswordGate({ slug }: { slug: string }) {
   const router = useRouter()
+  const { runBusy } = useBusy()
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -14,18 +16,20 @@ export default function PasswordGate({ slug }: { slug: string }) {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/e/${slug}/verify-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      })
-      if (res.ok) {
-        router.refresh()
-      } else {
-        const data = await res.json().catch(() => ({}))
-        if (res.status === 429) setError('Too many attempts — please try again later.')
-        else setError(data.error ?? 'Incorrect password. Please try again.')
-      }
+      await runBusy(async () => {
+        const res = await fetch(`/api/e/${slug}/verify-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password }),
+        })
+        if (res.ok) {
+          router.refresh()
+        } else {
+          const data = await res.json().catch(() => ({}))
+          if (res.status === 429) setError('Too many attempts — please try again later.')
+          else setError(data.error ?? 'Incorrect password. Please try again.')
+        }
+      }, 'Unlocking…')
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {

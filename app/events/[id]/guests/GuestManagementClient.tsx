@@ -6,6 +6,8 @@ import { GuestPicker, type PickerOption } from './GuestPicker'
 import { GuestFormModal } from './GuestFormModal'
 import { ImportCsvModal } from './ImportCsvModal'
 import { TagManagerModal } from './TagManagerModal'
+import { useBusy } from '@/components/ui/BusyProvider'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 type StatusFilter = 'all' | 'confirmed' | 'declined' | 'pending' | 'maybe'
 type SortKey = 'name' | 'recent' | 'status'
@@ -57,6 +59,9 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
   const [selecting, setSelecting] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [toast, setToast] = useState<string | null>(null)
+  const { runBusy } = useBusy()
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
+  const [bulkDeleting, setBulkDeleting] = useState(false)
   const toastTimeoutRef = useRef<number | null>(null)
 
   const statusById = useMemo(() => new Map(rsvpStatuses.map((s) => [s.id, s])), [rsvpStatuses])
@@ -174,11 +179,12 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
   async function bulkAction(action: 'tag' | 'assign' | 'delete', payload?: { tagIds?: string[]; subEventIds?: string[] }): Promise<void> {
     const ids = Array.from(selectedIds)
     if (ids.length === 0) return
-    const res = await fetch(`/api/events/${eventId}/guests/bulk`, {
+    const label = action === 'delete' ? 'Removing guests…' : action === 'tag' ? 'Tagging guests…' : 'Updating guests…'
+    const res = await runBusy(() => fetch(`/api/events/${eventId}/guests/bulk`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action, guestIds: ids, ...payload }),
-    })
+    }), label)
     if (!res.ok) { flashToast('Bulk update failed'); return }
     const n = ids.length
     const plural = n === 1 ? '' : 's'
@@ -197,10 +203,19 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
     }
   }
 
-  async function handleBulkDelete(): Promise<void> {
-    const n = selectedIds.size
-    if (!window.confirm(`Remove ${n} guest${n === 1 ? '' : 's'}? This can't be undone.`)) return
-    await bulkAction('delete')
+  function handleBulkDelete(): void {
+    if (selectedIds.size === 0) return
+    setConfirmBulkDelete(true)
+  }
+
+  async function confirmBulkDeleteAction(): Promise<void> {
+    setBulkDeleting(true)
+    try {
+      await bulkAction('delete')
+    } finally {
+      setBulkDeleting(false)
+      setConfirmBulkDelete(false)
+    }
   }
 
   const zero = guests.length === 0
@@ -565,6 +580,17 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
         <span className="bc-live" aria-hidden="true" />
         <span>{toast ?? ''}</span>
       </div>
+
+      <ConfirmDialog
+        open={confirmBulkDelete}
+        tone="danger"
+        title={`Remove ${selectedIds.size} guest${selectedIds.size === 1 ? '' : 's'}?`}
+        message="The selected guests and their RSVPs will be removed from this event. This can't be undone."
+        confirmLabel="Remove"
+        busy={bulkDeleting}
+        onCancel={() => setConfirmBulkDelete(false)}
+        onConfirm={() => { void confirmBulkDeleteAction() }}
+      />
     </main>
   )
 }

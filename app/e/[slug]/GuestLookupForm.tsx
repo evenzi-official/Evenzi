@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 export default function GuestLookupForm({ slug }: { slug: string }) {
   const router = useRouter()
+  const { runBusy } = useBusy()
   const [phone, setPhone] = useState('')
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
@@ -16,19 +18,21 @@ export default function GuestLookupForm({ slug }: { slug: string }) {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/e/${slug}/lookup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone.trim(), name: name.trim() }),
-      })
-      if (res.ok) {
-        setSuccess(true)
-        router.refresh()
-      } else {
-        const data = await res.json().catch(() => ({}))
-        if (res.status === 429) setError('Too many attempts — please try again later.')
-        else setError(data.error ?? 'We couldn\'t find you on the guest list. Check your details and try again.')
-      }
+      await runBusy(async () => {
+        const res = await fetch(`/api/e/${slug}/lookup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: phone.trim(), name: name.trim() }),
+        })
+        if (res.ok) {
+          setSuccess(true)
+          router.refresh()
+        } else {
+          const data = await res.json().catch(() => ({}))
+          if (res.status === 429) setError('Too many attempts — please try again later.')
+          else setError(data.error ?? 'We couldn\'t find you on the guest list. Check your details and try again.')
+        }
+      }, 'Checking…')
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {

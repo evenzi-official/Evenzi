@@ -6,16 +6,19 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { RoleSelectCard } from '@/components/auth/RoleSelectCard'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 export default function RoleSelectionPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
   const supabase = createClient()
+  const { setBusy } = useBusy()
 
   const handleContinue = async (role: 'host') => {
     setError('')
     setLoading(true)
+    setBusy(true, 'Setting up your account…')
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -24,6 +27,7 @@ export default function RoleSelectionPage() {
         router.push('/auth')
         return
       }
+
 
       const { error: updateError } = await supabase
         .from('user_profiles')
@@ -34,6 +38,7 @@ export default function RoleSelectionPage() {
         console.error('Role update error:', updateError)
         setError('Failed to set your role. Please try again.')
         setLoading(false)
+        setBusy(false)
         return
       }
 
@@ -42,10 +47,12 @@ export default function RoleSelectionPage() {
       console.error('Role selection error:', err)
       setError('Something went wrong. Please try again.')
       setLoading(false)
+      setBusy(false)
     }
   }
 
   const handleBackToLogin = async () => {
+    setBusy(true, 'Signing out…')
     await supabase.auth.signOut()
     router.push('/auth')
   }

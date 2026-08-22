@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { GuestRow, GuestTagOption, RsvpStatusOption, SubEventOption } from '@/lib/types/guests'
+import { useBusy } from '@/components/ui/BusyProvider'
 
 interface Props {
   eventId: string
@@ -20,6 +21,7 @@ interface Props {
 
 export function GuestFormModal(props: Props): React.ReactElement {
   const { eventId, mode, guest, rsvpStatuses, subEvents, tags, onClose, onSaved, onRemoved, onCreateTag, onManageTags, flashToast } = props
+  const { runBusy } = useBusy()
   const editing = mode === 'edit' && guest !== null
 
   const [name, setName] = useState(guest?.name ?? '')
@@ -85,6 +87,7 @@ export function GuestFormModal(props: Props): React.ReactElement {
 
     setSaving(true)
     try {
+      await runBusy(async () => {
       if (editing && guest) {
         const res = await fetch(`/api/events/${eventId}/guests/${guest.id}`, {
           method: 'PATCH',
@@ -121,6 +124,7 @@ export function GuestFormModal(props: Props): React.ReactElement {
         flashToast('Guest added')
       }
       onClose()
+      }, editing ? 'Saving…' : 'Adding guest…')
     } finally {
       setSaving(false)
     }
@@ -130,11 +134,13 @@ export function GuestFormModal(props: Props): React.ReactElement {
     if (!guest) return
     setRemoving(true)
     try {
-      const res = await fetch(`/api/events/${eventId}/guests/${guest.id}`, { method: 'DELETE' })
-      if (!res.ok) { flashToast("Couldn't remove guest."); return }
-      onRemoved(guest.id)
-      flashToast('Guest removed')
-      onClose()
+      await runBusy(async () => {
+        const res = await fetch(`/api/events/${eventId}/guests/${guest.id}`, { method: 'DELETE' })
+        if (!res.ok) { flashToast("Couldn't remove guest."); return }
+        onRemoved(guest.id)
+        flashToast('Guest removed')
+        onClose()
+      }, 'Removing guest…')
     } finally {
       setRemoving(false)
     }
