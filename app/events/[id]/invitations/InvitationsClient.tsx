@@ -151,10 +151,29 @@ function InvCard({ tpl, data, editable = false, photoSrc, onPhotoClick, onSlotFo
 }
 
 // ── InvitationsClient ─────────────────────────────────────────────────────────
+export interface SavedCardProp {
+  isCustom: boolean
+  templateSlug: string | null
+  cardUploadKey: string | null
+  photoBgKey: string | null
+  slots: {
+    eyebrow: string
+    couple: string
+    invite: string
+    date: string
+    time: string
+    venue: string
+    message: string
+  }
+  slotSizes: Record<string, SlotSize>
+}
+
 interface InvitationsClientProps {
   eventName: string
   defaultData: CardData
   rsvpUrl: string
+  savedCard?: SavedCardProp | null
+  templateSlugToId?: Record<string, string>
 }
 
 export function InvitationsClient({ eventName, defaultData, rsvpUrl }: InvitationsClientProps) {
