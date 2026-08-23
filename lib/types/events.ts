@@ -63,6 +63,7 @@ export interface EventListItem {
   primaryDate: string | null
   primaryVenue: string | null
   guestCapacity: number | null
+  guestCount: number
   coverImageUrl: string | null
   status: string
   subEventCount: number

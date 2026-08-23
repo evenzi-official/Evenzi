@@ -38,7 +38,12 @@ function initials(name: string): string {
   return (a + b).toUpperCase()
 }
 function fmtPhone(p: string): string {
-  return p ? `+91 ${p.replace(/(\d{5})(\d{5})/, '$1 $2')}` : 'No phone'
+  if (!p) return 'No phone'
+  // Stored values may already carry the +91 country code (or none). Normalise to
+  // the last 10 digits so we never double-prefix ("+91 +91987 6543210").
+  const digits = p.replace(/\D/g, '')
+  const ten = digits.length > 10 ? digits.slice(-10) : digits
+  return `+91 ${ten.replace(/(\d{5})(\d{5})/, '$1 $2')}`
 }
 
 export function GuestManagementClient({ initialData }: { initialData: GuestManagementInitialData }): React.ReactElement {

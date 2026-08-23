@@ -54,7 +54,7 @@ function friendlyEmailError(raw: string | undefined): string {
 
 /**
  * Shared ticket escalation form — used by the Help panel (A7) and /help contact band.
- * Submit stays enabled; failures keep field values and offer a mailto fallback on 2nd fail.
+ * Submit is gated until email + message meet local rules; failures keep field values and offer a mailto fallback on 2nd fail.
  */
 export function TicketForm({
   defaultEmail = '',
@@ -75,6 +75,11 @@ export function TicketForm({
 
   const trimmedMessage = message.trim()
   const messageLen = trimmedMessage.length
+  const canSubmit =
+    email.trim().length > 0 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) &&
+    messageLen >= MESSAGE_MIN &&
+    messageLen <= MESSAGE_MAX
 
   function validateLocal(): FieldErrors {
     const next: FieldErrors = {}
@@ -239,6 +244,8 @@ export function TicketForm({
         <button
           type="submit"
           className={`btn-pill btn-pill-primary${state === 'submitting' ? ' is-loading' : ''}`}
+          disabled={!canSubmit || state === 'submitting'}
+          aria-busy={state === 'submitting'}
         >
           {state === 'submitting' ? 'Sending…' : 'Send message'}
         </button>

@@ -44,7 +44,7 @@ export function SecuritySection({ methods }: Props): React.ReactElement {
 
           <div className="settings-security-divider">
             <h3 className="settings-2fa-title">Two-factor authentication</h3>
-            <p className="settings-2fa-desc">Coming soon — add an extra layer of security to your account by requiring a verification code in addition to your password.</p>
+            <p className="settings-2fa-desc">Coming soon — add an extra layer of security to your account by requiring a verification code in addition to your usual sign-in.</p>
             <div className="settings-2fa-toggle-row">
               <span className="settings-2fa-label">Enable 2FA</span>
               <button

@@ -144,7 +144,7 @@ export default function WeddingPartyEditor({ eventId, initialMembers }: { eventI
           </div>
           <div className="flex gap-2 justify-end">
             <button type="button" onClick={() => setShowForm(false)} className="btn-pill btn-pill-secondary btn-pill-sm">Cancel</button>
-            <button type="button" onClick={addMember} disabled={!form.name.trim() || pending === 'new'} className="btn-pill btn-pill-primary btn-pill-sm">
+            <button type="button" onClick={addMember} disabled={!form.name.trim() || pending === 'new'} aria-busy={pending === 'new'} className="btn-pill btn-pill-primary btn-pill-sm">
               {pending === 'new' ? 'Adding…' : 'Add'}
             </button>
           </div>

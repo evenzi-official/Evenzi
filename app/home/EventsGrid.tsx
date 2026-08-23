@@ -65,6 +65,15 @@ function isActive(event: EventListItem): boolean {
   return true
 }
 
+// Prefer the real invited-guest count; fall back to the planned capacity only
+// while no guests exist yet, then to a prompt. Keeps the card honest instead of
+// showing "10 expected" when 1 guest is actually invited.
+function guestLabel(event: EventListItem): string {
+  if (event.guestCount > 0) return `${event.guestCount} guest${event.guestCount !== 1 ? 's' : ''}`
+  if (event.guestCapacity != null) return `${event.guestCapacity} expected`
+  return 'Add guests'
+}
+
 function setupProgress(event: EventListItem): { pct: number; label: string } {
   const steps = [
     { done: !!event.primaryDate,          hint: 'Set your event date' },
@@ -96,6 +105,15 @@ function FeaturedCard({ event }: { event: EventListItem }) {
           <span className="fec-cover-tag">
             <span aria-hidden="true" className="material-symbols-outlined fec-cover-tag-icon">check_circle</span>
             Completed
+          </span>
+        )}
+        {/* The cover shown here is a stock placeholder until the host uploads
+            their own — label it so the "Upload a cover photo" setup hint doesn't
+            look wrong against what appears to be a real cover. */}
+        {!isPast && !event.coverImageUrl && (
+          <span className="fec-cover-tag">
+            <span aria-hidden="true" className="material-symbols-outlined fec-cover-tag-icon">add_photo_alternate</span>
+            Add cover photo
           </span>
         )}
       </div>
@@ -145,17 +163,15 @@ function FeaturedCard({ event }: { event: EventListItem }) {
               </span>
             </span>
           )}
-          {event.guestCapacity != null && (
-            <span className="hero-meta-chip">
-              <span className="hero-meta-icon">
-                <span className="material-symbols-outlined icon-fill dash-meta-icon">groups</span>
-              </span>
-              <span className="hero-meta-text">
-                <span className="hero-meta-label">Guests</span>
-                <span className="hero-meta-value">{event.guestCapacity} expected</span>
-              </span>
+          <span className="hero-meta-chip">
+            <span className="hero-meta-icon">
+              <span className="material-symbols-outlined icon-fill dash-meta-icon">groups</span>
             </span>
-          )}
+            <span className="hero-meta-text">
+              <span className="hero-meta-label">Guests</span>
+              <span className="hero-meta-value">{guestLabel(event)}</span>
+            </span>
+          </span>
         </div>
 
         <div className="fec-progress">

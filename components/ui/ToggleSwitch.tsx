@@ -14,6 +14,8 @@ interface ToggleSwitchProps {
   onChange?: (checked: boolean) => void
   disabled?: boolean
   className?: string
+  /** Accessible name when no visible `label` is rendered (e.g. a sibling caption). */
+  ariaLabel?: string
 }
 
 /**
@@ -31,6 +33,7 @@ export function ToggleSwitch({
   onChange,
   disabled = false,
   className = '',
+  ariaLabel,
 }: ToggleSwitchProps): ReactElement {
   const isControlled = checked !== undefined
   const [internalOn, setInternalOn] = useState(defaultChecked)
@@ -49,6 +52,7 @@ export function ToggleSwitch({
       role="switch"
       aria-checked={on}
       aria-labelledby={label ? `${id}-label` : undefined}
+      aria-label={!label ? ariaLabel : undefined}
       disabled={disabled}
       onClick={toggle}
       className={`toggle-switch ${className}`.trim()}

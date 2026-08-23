@@ -223,7 +223,7 @@ export default function TravelEditor({
               </div>
               <div className="flex gap-2 justify-end">
                 <button type="button" onClick={() => setShowForm(false)} className="btn-pill btn-pill-secondary btn-pill-sm">Cancel</button>
-                <button type="button" onClick={addPoint} disabled={!ptForm.name.trim() || pending === 'new'} className="btn-pill btn-pill-primary btn-pill-sm">
+                <button type="button" onClick={addPoint} disabled={!ptForm.name.trim() || pending === 'new'} aria-busy={pending === 'new'} className="btn-pill btn-pill-primary btn-pill-sm">
                   {pending === 'new' ? 'Adding…' : 'Add'}
                 </button>
               </div>
@@ -305,7 +305,7 @@ export default function TravelEditor({
               </div>
               <div className="flex gap-2 justify-end">
                 <button type="button" onClick={() => setShowForm(false)} className="btn-pill btn-pill-secondary btn-pill-sm">Cancel</button>
-                <button type="button" onClick={addStay} disabled={!stayForm.name.trim() || pending === 'new-stay'} className="btn-pill btn-pill-primary btn-pill-sm">
+                <button type="button" onClick={addStay} disabled={!stayForm.name.trim() || pending === 'new-stay'} aria-busy={pending === 'new-stay'} className="btn-pill btn-pill-primary btn-pill-sm">
                   {pending === 'new-stay' ? 'Adding…' : 'Add'}
                 </button>
               </div>

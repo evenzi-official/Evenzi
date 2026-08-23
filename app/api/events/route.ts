@@ -48,6 +48,7 @@ interface EventListRow {
   status: string
   created_at: string
   event_sub_events: { count: number }[]
+  event_guests: { count: number }[]
 }
 
 // config.event_types catalog row (resolved via direct config-schema query, NOT an embed)
@@ -232,7 +233,8 @@ export async function GET(): Promise<NextResponse> {
         cover_image_url,
         status,
         created_at,
-        event_sub_events ( count )
+        event_sub_events ( count ),
+        event_guests ( count )
       `)
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
@@ -280,6 +282,7 @@ export async function GET(): Promise<NextResponse> {
         primaryDate: row.primary_date,
         primaryVenue: row.primary_venue,
         guestCapacity: row.guest_capacity,
+        guestCount: row.event_guests[0]?.count ?? 0,
         coverImageUrl: row.cover_image_url,
         status: row.status,
         subEventCount: row.event_sub_events[0]?.count ?? 0,
