@@ -152,7 +152,7 @@ export default function StoryEditor({ eventId, initialBlocks }: { eventId: strin
               )}
               <div className="flex gap-2 justify-end">
                 <button type="button" onClick={() => setEditingId(null)} className="btn-pill btn-pill-secondary btn-pill-sm">Cancel</button>
-                <button type="button" onClick={() => saveBlock(block.id)} disabled={pending === block.id} className="btn-pill btn-pill-primary btn-pill-sm">
+                <button type="button" onClick={() => saveBlock(block.id)} disabled={pending === block.id} aria-busy={pending === block.id} className="btn-pill btn-pill-primary btn-pill-sm">
                   {pending === block.id ? 'Saving…' : 'Save'}
                 </button>
               </div>
@@ -170,7 +170,7 @@ export default function StoryEditor({ eventId, initialBlocks }: { eventId: strin
       {/* Add block buttons */}
       <div className="flex flex-wrap gap-2 pt-2">
         {BLOCK_TYPES.map((t) => (
-          <button key={t.type} type="button" onClick={() => addBlock(t.type)} disabled={adding}
+          <button key={t.type} type="button" onClick={() => addBlock(t.type)} disabled={adding} aria-busy={adding}
             className="btn-pill btn-pill-secondary btn-pill-sm">
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{t.icon}</span>
             Add {t.label}

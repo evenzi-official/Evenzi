@@ -43,6 +43,11 @@ export function GuestFormModal(props: Props): React.ReactElement {
     (t) => !tagIds.includes(t.id) && t.name.toLowerCase().includes(tagInput.trim().toLowerCase())
   )
   const exactMatch = tags.find((t) => t.name.toLowerCase() === tagInput.trim().toLowerCase())
+  const trimmedEmail = email.trim()
+  const canSubmit =
+    name.trim().length > 0 &&
+    phone.replace(/\D/g, '').length === 10 &&
+    (trimmedEmail.length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail))
 
   function toggleSubEvent(id: string): void {
     setSubEventIds((cur) => (cur.includes(id) ? cur.filter((v) => v !== id) : [...cur, id]))
@@ -282,7 +287,7 @@ export function GuestFormModal(props: Props): React.ReactElement {
               </button>
             )}
             <button type="button" className="btn-pill btn-pill-secondary" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn-pill btn-pill-primary" disabled={saving}>
+            <button type="submit" className="btn-pill btn-pill-primary" disabled={!canSubmit || saving} aria-busy={saving}>
               {saving ? 'Saving…' : editing ? 'Save changes' : 'Save guest'}
             </button>
           </div>

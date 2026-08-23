@@ -119,6 +119,9 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
   const [expForm, setExpForm] = useState({ amount: '', type: expenseTypes[0]?.id ?? '', vendor: '', subEvent: '', date: TODAY, notes: '' })
   const [expAmtErr, setExpAmtErr] = useState(false)
   const [expSaving, setExpSaving] = useState(false)
+  const canSubmitTask = taskForm.label.trim().length > 0
+  const canSubmitBudget = parseAmount(budgetForm) != null
+  const canSubmitExpense = parseAmount(expForm.amount) != null
 
   function subEventLabel(subEventId: string | null) {
     if (subEventId == null) return 'Whole event'
@@ -811,7 +814,7 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
             </div>
             <div className="modal-actions">
               <button type="button" className="btn-pill btn-pill-secondary" onClick={() => setBudgetModalOpen(false)}>Cancel</button>
-              <button type="submit" className="btn-pill btn-pill-primary" id="plan-budget-save">Save budget<span className="btn-pill-spinner" aria-hidden="true" /></button>
+              <button type="submit" className="btn-pill btn-pill-primary" id="plan-budget-save" disabled={!canSubmitBudget || budgetSaving} aria-busy={budgetSaving}>Save budget<span className="btn-pill-spinner" aria-hidden="true" /></button>
             </div>
           </form>
         </div>
@@ -860,7 +863,7 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
             </div>
             <div className="modal-actions">
               <button type="button" className="btn-pill btn-pill-secondary" onClick={() => setTaskModalOpen(false)}>Cancel</button>
-              <button type="submit" className="btn-pill btn-pill-primary" id="plan-task-save">{editingTaskId ? 'Save changes' : 'Save task'}</button>
+              <button type="submit" className="btn-pill btn-pill-primary" id="plan-task-save" disabled={!canSubmitTask || taskSaving} aria-busy={taskSaving}>{editingTaskId ? 'Save changes' : 'Save task'}</button>
             </div>
           </form>
         </div>
@@ -901,7 +904,7 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
                       <input id="plan-exp-type-input" type="text" className="form-input" placeholder="New expense type" autoComplete="off" value={addTypeName} onChange={e => setAddTypeName(e.target.value)} />
                       <div className="expense-type-add-actions">
                         <button type="button" className="btn-pill btn-pill-secondary" onClick={() => { setAddTypeOpen(false); setAddTypeName('') }}>Cancel</button>
-                        <button type="button" className="btn-pill btn-pill-primary" disabled={!addTypeName.trim() || addTypeSaving} onClick={confirmAddType}>Add</button>
+                        <button type="button" className="btn-pill btn-pill-primary" disabled={!addTypeName.trim() || addTypeSaving} aria-busy={addTypeSaving} onClick={confirmAddType}>Add</button>
                       </div>
                     </div>
                   )}
@@ -958,7 +961,7 @@ export function PlanningClient({ eventId, initialData }: { eventId: string; init
             </div>
             <div className="modal-actions plan-expense-footer">
               <button type="button" className="btn-pill btn-pill-secondary" onClick={() => setExpenseModalOpen(false)}>Cancel</button>
-              <button type="submit" className="btn-pill btn-pill-primary" id="plan-exp-save">Save expense<span className="btn-pill-spinner" aria-hidden="true" /></button>
+              <button type="submit" className="btn-pill btn-pill-primary" id="plan-exp-save" disabled={!canSubmitExpense || expSaving} aria-busy={expSaving}>Save expense<span className="btn-pill-spinner" aria-hidden="true" /></button>
             </div>
           </form>
         </div>

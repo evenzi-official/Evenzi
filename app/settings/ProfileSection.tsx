@@ -25,6 +25,7 @@ export function ProfileSection({ displayName, email, phone, avatarUrl }: Props):
   const [uploading, setUploading] = useState(false)
   const [avatarError, setAvatarError] = useState<string | null>(null)
   const [toast, setToast] = useState<ToastState | null>(null)
+  const canSubmit = name.trim().length > 0
 
   function flashToast(message: string, tone: ToastTone): void {
     setToast({ message, tone })
@@ -167,7 +168,7 @@ export function ProfileSection({ displayName, email, phone, avatarUrl }: Props):
         </div>
 
         <div className="mt-4">
-          <button type="button" className="btn-pill btn-pill-primary" onClick={() => { void handleSave() }} disabled={saving}>
+          <button type="button" className="btn-pill btn-pill-primary" onClick={() => { void handleSave() }} disabled={!canSubmit || saving} aria-busy={saving}>
             <span aria-hidden="true" className="material-symbols-outlined">save</span>
             {saving ? 'Saving…' : 'Save profile'}
           </button>

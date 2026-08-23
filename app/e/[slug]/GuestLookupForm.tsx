@@ -12,6 +12,7 @@ export default function GuestLookupForm({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const canSubmit = name.trim().length > 0 && phone.trim().length >= 5
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -82,7 +83,8 @@ export default function GuestLookupForm({ slug }: { slug: string }) {
       )}
       <button
         type="submit"
-        disabled={loading}
+        disabled={!canSubmit || loading}
+        aria-busy={loading}
         className="w-full py-3 bg-stone-800 text-white text-sm tracking-widest uppercase rounded-lg hover:bg-stone-700 transition-colors disabled:opacity-50"
       >
         {loading ? 'Checking…' : 'Find My Invitation'}

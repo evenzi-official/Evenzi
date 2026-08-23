@@ -94,7 +94,7 @@ export function ImportCsvModal({ eventId, existingPhones, onClose, onImported, f
   const errorCount = rows.filter((r) => r.status === 'error').length
   const duplicateCount = rows.filter((r) => r.status === 'duplicate').length
   const validCount = rows.filter((r) => r.status === 'valid').length
-  const canImport = rows.length > 0 && errorCount === 0 && consent && !importing
+  const canSubmit = rows.length > 0 && errorCount === 0 && consent
 
   async function handleFile(file: File): Promise<void> {
     setParseError(null)
@@ -221,7 +221,7 @@ export function ImportCsvModal({ eventId, existingPhones, onClose, onImported, f
 
         <div className="modal-actions">
           <button type="button" className="btn-pill btn-pill-secondary" onClick={onClose}>Cancel</button>
-          <button type="button" className="btn-pill btn-pill-primary" disabled={!canImport} onClick={() => { void handleImport() }}>
+          <button type="button" className="btn-pill btn-pill-primary" disabled={!canSubmit || importing} aria-busy={importing} onClick={() => { void handleImport() }}>
             {importing ? 'Importing…' : 'Import guests'}
           </button>
         </div>

@@ -21,6 +21,8 @@ export default function QAEditor({ eventId, initialItems }: { eventId: string; i
   const [editDraft, setEditDraft] = useState({ question: '', answer: '' })
   const [confirmDelete, setConfirmDelete] = useState<QAItem | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const canSubmitAdd = form.question.trim().length > 0 && form.answer.trim().length > 0
+  const canSubmitEdit = editDraft.question.trim().length > 0 && editDraft.answer.trim().length > 0
 
   async function addItem() {
     if (!form.question.trim() || !form.answer.trim()) return
@@ -115,7 +117,7 @@ export default function QAEditor({ eventId, initialItems }: { eventId: string; i
               </div>
               <div className="flex gap-2 justify-end">
                 <button type="button" onClick={() => setEditingId(null)} className="btn-pill btn-pill-secondary btn-pill-sm">Cancel</button>
-                <button type="button" onClick={() => saveEdit(item.id)} disabled={pending === item.id} className="btn-pill btn-pill-primary btn-pill-sm">
+                <button type="button" onClick={() => saveEdit(item.id)} disabled={!canSubmitEdit || pending === item.id} aria-busy={pending === item.id} className="btn-pill btn-pill-primary btn-pill-sm">
                   {pending === item.id ? 'Saving…' : 'Save'}
                 </button>
               </div>
@@ -154,7 +156,7 @@ export default function QAEditor({ eventId, initialItems }: { eventId: string; i
           </div>
           <div className="flex gap-2 justify-end">
             <button type="button" onClick={() => setShowForm(false)} className="btn-pill btn-pill-secondary btn-pill-sm">Cancel</button>
-            <button type="button" onClick={addItem} disabled={!form.question.trim() || !form.answer.trim() || pending === 'new'} className="btn-pill btn-pill-primary btn-pill-sm">
+            <button type="button" onClick={addItem} disabled={!canSubmitAdd || pending === 'new'} aria-busy={pending === 'new'} className="btn-pill btn-pill-primary btn-pill-sm">
               {pending === 'new' ? 'Adding…' : 'Add'}
             </button>
           </div>
