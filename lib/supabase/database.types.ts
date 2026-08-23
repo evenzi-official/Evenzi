@@ -665,6 +665,7 @@ export type Database = {
           slot_eyebrow: string | null
           slot_invite: string | null
           slot_message: string | null
+          slot_sizes: Json
           slot_time: string | null
           slot_venue: string | null
           sub_event_id: string | null
@@ -691,6 +692,7 @@ export type Database = {
           slot_eyebrow?: string | null
           slot_invite?: string | null
           slot_message?: string | null
+          slot_sizes?: Json
           slot_time?: string | null
           slot_venue?: string | null
           sub_event_id?: string | null
@@ -717,6 +719,7 @@ export type Database = {
           slot_eyebrow?: string | null
           slot_invite?: string | null
           slot_message?: string | null
+          slot_sizes?: Json
           slot_time?: string | null
           slot_venue?: string | null
           sub_event_id?: string | null
