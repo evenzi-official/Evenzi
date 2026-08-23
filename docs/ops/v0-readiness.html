@@ -326,7 +326,7 @@
     </div>
     <div class="masthead-meta">
       <div class="who">Dev-Vibe-Testing → evenzi.vercel.app (Dev/UAT)</div>
-      <div>audited 2026-08-03 · DP 08-05 · push 08-06 · collab invite 08-07 · platform truth Stage 1+2 + prod-risk PR-1 fix 2026-08-07 · frontend-QA + legal pages + favicon 08-22 · live sweep + busy-overlay rollout 08-23</div>
+      <div>audited 2026-08-03 · DP 08-05 · push 08-06 · collab invite 08-07 · platform truth Stage 1+2 + prod-risk PR-1 fix 2026-08-07 · frontend-QA + legal pages + favicon 08-22 · live sweep + busy-overlay rollout 08-23 · 6 sweep bugs + CTA gating + Our Journey 1:1 rebuild → prod <code>3019f38e</code> 08-23</div>
       <div style="margin-top:4px; color:var(--muted-soft)">Stage 2 code on <code>feature/platform-truth-audit</code> — commit + merge + deploy still pending · 08-22: legal pages live, favicon wired, Media dead controls fixed, Q5 Billing CTA confirmed done · 08-23: full authenticated click-through sweep + platform-wide screen-freeze &amp; destructive-confirm on <code>Dev-Vibe</code></div>
     </div>
   </div>
@@ -336,6 +336,59 @@
     <div class="launch-item"><span class="launch-lbl">App — Dev/UAT</span><a class="launch-val link" href="https://evenzi.vercel.app" target="_blank" rel="noopener">evenzi.vercel.app</a></div>
     <div class="launch-item"><span class="launch-lbl">Marketing</span><a class="launch-val link" href="https://www.evenzii.com" target="_blank" rel="noopener">www.evenzii.com</a></div>
     <div class="launch-item"><span class="launch-lbl">App production (later)</span><span class="launch-val">app.evenzii.com — not connected</span></div>
+  </div>
+
+  <!-- ── FIX LOG — 2026-08-23 SESSION ────────────────────── -->
+  <style>
+    .fixlog-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--card); box-shadow: var(--shadow-clay); }
+    table.fixlog { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 720px; }
+    table.fixlog th, table.fixlog td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+    table.fixlog thead th { font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: var(--brand-tint); position: sticky; top: 0; }
+    table.fixlog tbody tr:last-child td { border-bottom: none; }
+    table.fixlog td.num { font-family: var(--font-mono); color: var(--muted-soft); font-weight: 700; }
+    table.fixlog td.date { font-family: var(--font-mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+    table.fixlog .who { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; font-size: 12px; }
+    .who-abh { color: var(--brand); }
+    .who-claude { color: var(--info); }
+    .who-cursor { color: var(--warning-ink); }
+    .fx-status { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; border: 1px solid; white-space: nowrap; }
+    .fx-live { background: var(--success-tint); color: var(--success-ink); border-color: var(--success-rim); }
+    .fx-queued { background: var(--warning-tint); color: var(--warning-ink); border-color: var(--warning-rim); }
+    .fixlog-key { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 10px; }
+    .fixlog-key b { font-weight: 700; }
+  </style>
+  <div class="section">
+    <div class="section-head">
+      <h2>Fix log — 2026-08-23 session</h2>
+      <span class="hint">Founder-led live sweep → fixes shipped same day · Dev-Vibe → prod <code>3019f38e</code></span>
+    </div>
+    <div class="fixlog-wrap">
+      <table class="fixlog">
+        <thead>
+          <tr>
+            <th>#</th><th>Finding</th><th>Found by</th><th>Found</th><th>Fixed by</th><th>Fixed</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">1</td><td><b>Dashboard guest count</b> — card showed planned capacity ("10 expected") instead of the actual 1 invited guest</td><td><span class="who who-abh">Abhijith</span></td><td class="date">2026-08-23</td><td><span class="who who-claude">Claude</span></td><td class="date">2026-08-23</td><td><span class="fx-status fx-live">Live</span></td></tr>
+          <tr><td class="num">2</td><td><b>Guest phone double prefix</b> — rendered "+91 +91987 6543210"</td><td><span class="who who-abh">Abhijith</span></td><td class="date">2026-08-23</td><td><span class="who who-claude">Claude</span></td><td class="date">2026-08-23</td><td><span class="fx-status fx-live">Live</span></td></tr>
+          <tr><td class="num">3</td><td><b>Cover-photo hint vs placeholder</b> — "Upload a cover photo" showed while a stock placeholder cover was displayed; now tagged "Add cover photo"</td><td><span class="who who-abh">Abhijith</span></td><td class="date">2026-08-23</td><td><span class="who who-claude">Claude</span></td><td class="date">2026-08-23</td><td><span class="fx-status fx-live">Live</span></td></tr>
+          <tr><td class="num">4</td><td><b>2FA copy referenced a "password"</b> — app is phone-OTP / Google only; reworded to "your usual sign-in"</td><td><span class="who who-abh">Abhijith</span></td><td class="date">2026-08-23</td><td><span class="who who-claude">Claude</span></td><td class="date">2026-08-23</td><td><span class="fx-status fx-live">Live</span></td></tr>
+          <tr><td class="num">5</td><td><b>Help Centre empty</b> — 6 categories driven from DB but 0 articles; not a code bug. Seeded 18 sample articles (3 × 6 app categories)</td><td><span class="who who-abh">Abhijith</span></td><td class="date">2026-08-23</td><td><span class="who who-claude">Claude</span></td><td class="date">2026-08-23</td><td><span class="fx-status fx-live">Live</span></td></tr>
+          <tr><td class="num">6</td><td><b>"Up next" leaked cancelled tasks</b> — hub filter excluded only <code>completed</code>; now also <code>cancelled</code></td><td><span class="who who-abh">Abhijith</span></td><td class="date">2026-08-23</td><td><span class="who who-claude">Claude</span></td><td class="date">2026-08-23</td><td><span class="fx-status fx-live">Live</span></td></tr>
+          <tr><td class="num">7</td><td><b>Connect a 2nd sign-in method</b> — Security section pills are static; Google↔Phone linking needs OAuth identity-linking work</td><td><span class="who who-abh">Abhijith</span></td><td class="date">2026-08-23</td><td><span class="who who-claude">scoped</span></td><td class="date">—</td><td><span class="fx-status fx-queued">Own session</span></td></tr>
+          <tr><td class="num">8</td><td><b>Disable CTA until required fields filled</b> — platform-wide; normalised 17 forms to gate submit on validity + saving</td><td><span class="who who-abh">Abhijith</span></td><td class="date">2026-08-23</td><td><span class="who who-cursor">Cursor</span> · <span class="who who-claude">Claude review</span></td><td class="date">2026-08-23</td><td><span class="fx-status fx-live">Live</span></td></tr>
+          <tr><td class="num">9</td><td><b>"Creating your event…" overlay hung</b> — busy freeze never cleared after navigation; BusyProvider now resets on route change</td><td><span class="who who-abh">Abhijith</span></td><td class="date">2026-08-23</td><td><span class="who who-claude">Claude</span></td><td class="date">2026-08-23</td><td><span class="fx-status fx-live">Live</span></td></tr>
+          <tr><td class="num">10</td><td><b>Our Journey showed "No sub-events"</b> — cross-schema PostgREST embed errored silently; rewritten to a direct config query</td><td><span class="who who-abh">Abhijith</span></td><td class="date">2026-08-23</td><td><span class="who who-claude">Claude</span></td><td class="date">2026-08-23</td><td><span class="fx-status fx-live">Live</span></td></tr>
+          <tr><td class="num">11</td><td><b>Our Journey ≠ design</b> — read-only list rebuilt 1:1 into a full sub-event manager (add/edit/delete/website-toggle, status badges) + POST/PATCH/DELETE APIs; pixel-parity verified</td><td><span class="who who-abh">Abhijith</span></td><td class="date">2026-08-23</td><td><span class="who who-cursor">Cursor</span> · <span class="who who-claude">Claude review + parity</span></td><td class="date">2026-08-23</td><td><span class="fx-status fx-live">Live</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="fixlog-key">
+      <span><b class="who-abh" style="color:var(--brand)">Abhijith</b> — founder, found via live sweep + manual testing</span>
+      <span><b style="color:var(--info)">Claude</b> — diagnosis, surgical fixes, reviews, data seeding</span>
+      <span><b style="color:var(--warning-ink)">Cursor</b> — delegated bulk builds, gated by Claude review</span>
+    </div>
   </div>
 
   <!-- ── OVERVIEW ───────────────────────────────────────── -->
@@ -418,7 +471,7 @@
         <div class="audit-stats" style="margin-top:2px;">
           <span><b>2026-08-23 live click-through sweep + busy-overlay rollout</b> — inline, no subagents, on <code>Dev-Vibe</code></span>
           <span>Authenticated sweep of all 17 matrix features (test host): 14 work live, 2 nonexistent-by-design (Admin, Chatbot); Dheeraj's 08-22 push confirmed live (budget% stat, legal pages, Media dead-control fixes)</span>
-          <span><b>New bugs found (not yet fixed):</b> dashboard event card shows "10 expected" guests vs actual 1 (hub correct); guest phone renders double prefix "+91 +91987 6543210"; setup bar hint "Upload a cover photo" while a cover is shown; User-Settings 2FA copy references a "password" (app is OTP/Google only); <code>/help</code> shows 6 curated topics vs 10 enabled <code>config.faq_categories</code></span>
+          <span><b>New bugs found — all fixed 2026-08-23 (see Fix log above):</b> dashboard "10 expected" → actual count; guest double "+91" prefix; cover-photo hint vs placeholder; 2FA "password" copy; <code>/help</code> content seeded (categories were already DB-driven, 6 app / 4 public is correct — the gap was 0 articles, now 18). Plus busy-overlay hang, Our Journey empty-state bug + full 1:1 rebuild, and platform-wide CTA gating. Shipped to prod <code>3019f38e</code>.</span>
           <span><b>Screen-freeze + destructive-confirm shipped platform-wide:</b> new <code>BusyProvider</code>/<code>useBusy</code> (one global overlay in <code>app/layout.tsx</code>) + shared <code>ConfirmDialog</code>; wired into 21 mutation sites — create wizard, guests, planning, website design/edit, user settings, public lookup/password, dashboard invites; two old <code>window.confirm</code> calls (bulk-guest-delete, decline-invite) upgraded to themed dialogs</span>
           <span style="color:var(--muted-soft)">Rules: commits/creates/deletes freeze; optimistic toggles/reorders and long uploads stay inline; destructive actions gate behind a confirm popup then freeze. tsc + eslint clean; overlay verified mounting and toggling live</span>
         </div>
@@ -431,7 +484,7 @@
         <ul class="findings">
           <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q1</span><b>Website theme catalog — hybrid.</b> One live theme (<code>cinematic-scroll</code>); the other tiles stay an honest "coming soon" rather than fake selectable cards. The 5-vs-1 template mismatch is therefore <b>intentional</b>, not a launch blocker. This is only the Digital Presence → Design theme picker — <b>Media &amp; Memories is fully wired</b> and unrelated.</p></li>
           <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q2</span><b>Sapphire / midnight-elegant guest-site HTML = design references only</b>, workshop material until templated in React. Not product.</p></li>
-          <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q3</span><b>Journey = read-only timeline for V0.</b> Listing the real sub-events with CTAs into the hub is enough; in-place editing is out of scope.</p></li>
+          <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q3</span><b>Journey — now a full sub-event manager (updated 2026-08-23).</b> Superseded: rebuilt 1:1 to the design with add / edit / delete / website-toggle, status badges (Held · Next up · The big day) and POST/PATCH/DELETE APIs. Pixel-parity verified at desktop + 360px, light + dark.</p></li>
           <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q4</span><b>Invitations persistence = next build.</b> Planning in progress. Until then the UI is honest ("Draft only — not saved") rather than pretending to autosave. Tracked as upcoming work, not as a broken feature.</p></li>
           <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q5</span><b>Billing "Upgrade" CTA = hide</b> until a payment gateway is actually planned. Interim state on the audit branch is a disabled "Coming soon" button. No payments exist either way.</p></li>
         </ul>
