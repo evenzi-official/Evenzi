@@ -4,20 +4,30 @@
 
 ---
 
-## ▶ START HERE NEXT — After Help Centre merge (2026-08-08 evening)
+## ▶ START HERE NEXT — After busy-overlay rollout + live sweep (2026-08-23)
 
-**Help Centre V0** is on `Dev-Vibe` + `Dev-Vibe-Testing` (stages 1–9 + panel/admins polish). Still open for *launch*: content seed, `support@evenzii.com` env flip, ticket watching (Resend or admin list).
+**Shipped 2026-08-23** (commit `0c930c77` on `Dev-Vibe`, merged to `Dev-Vibe-Testing` = production, `002bc2e6`): platform-wide screen-freeze (`BusyProvider`/`useBusy` + one global overlay) and destructive-confirm (`ConfirmDialog`) across 21 mutation sites; two `window.confirm()` upgraded to themed dialogs. Also confirmed Dheeraj's 08-22 push live and did a full authenticated click-through sweep of all 17 V0 features. Full detail: session report + sweep-findings below.
 
-**Parked — pick up next:**
+**Fix next — bugs found in the 08-23 live sweep (all small, localized FE edits; none fixed yet):**
 
-1. **Repo cleanup A/B/C** — separate cleanup pass (as deferred earlier)  
-2. **Fixture cleanup** (with cleanup pass) — delete `e2e-truth-audit` (`f990d6d7-…`) + Account B `e2e.collab.b@evenzi.test` only when ready  
-3. **Help Centre launch gates** — content (≥3 articles/category or disable empty), mailbox, ticket ops  
+1. Dashboard event card shows "10 expected" guests vs actual 1 — `app/home` card (hub `events/[id]/page.tsx` is correct)
+2. Guest row double country prefix "+91 +91987 6543210" — guests list rendering
+3. Setup progress bar hint "Upload a cover photo" while a cover is shown — dashboard
+4. User-Settings 2FA copy references a "password" — app is OTP/Google only
+5. `/help` shows 6 curated topics vs 10 enabled `config.faq_categories` — curated-list vs data drift
+6. Up-next hub panel excludes only `completed`, not `cancelled` — `app/events/[id]/page.tsx:184` (Dheeraj push nit)
 
-**Also queued (not blocking cleanup):**
+**Launch gates still open:**
+
+1. **Help Centre content** — `config.faq_articles` = 0 rows; seed (≥3/category) or disable empty categories; then `support@evenzii.com` env flip + ticket watching
+2. **Un-merged Stage-2 audit branch** `feature/platform-truth-audit` — video playback + security batches + billing-hide are NOT on the deployed app yet; decide merge/deploy
+3. **Repo cleanup A/B/C** + **fixture cleanup** — delete `e2e-truth-audit` (`f990d6d7-…`) + Account B `e2e.collab.b@evenzi.test` when ready
+
+**Also queued (not blocking):**
 
 - **Q4** Digital Invitations **persist** — planning ongoing (separate feature build)  
-- **Q5** Hide Billing Upgrade CTA until payment gateway planned (honesty “Coming soon” may already be on branch — final = hide)  
+- **Q5** Hide Billing Upgrade CTA until payment gateway planned (interim disabled "Coming soon")  
+- Verify production Vercel deploy off `Dev-Vibe-Testing` (`002bc2e6`) reaches READY  
 - Optional: Website Photos ↔ Media bridge UX  
 - Optional: PR-3 logged-in R2 smoke on `evenzi.vercel.app`  
 
