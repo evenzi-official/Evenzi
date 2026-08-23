@@ -44,14 +44,19 @@ interface EditableSlotProps {
   cls: string
   ph: string
   initialText: string
+  initialSize: SlotSize
   onFocus: (key: SlotKey, el: HTMLElement) => void
   onInput: (key: SlotKey, value: string) => void
 }
-function EditableSlot({ slotKey, cls, ph, initialText, onFocus, onInput }: EditableSlotProps) {
+function EditableSlot({ slotKey, cls, ph, initialText, initialSize, onFocus, onInput }: EditableSlotProps) {
   const ref = useRef<HTMLParagraphElement>(null)
   // Set content once on mount — never update to avoid caret jumping
   useEffect(() => {
-    if (ref.current) ref.current.textContent = initialText
+    if (ref.current) {
+      ref.current.textContent = initialText
+      if (initialSize === 's') ref.current.classList.add('is-sz-s')
+      if (initialSize === 'l') ref.current.classList.add('is-sz-l')
+    }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <p
@@ -74,31 +79,40 @@ function EditableSlot({ slotKey, cls, ph, initialText, onFocus, onInput }: Edita
 interface CardSlotsProps {
   data: CardData
   editable: boolean
+  slotSizes?: Record<SlotKey, SlotSize>
   onSlotFocus?: (key: SlotKey, el: HTMLElement) => void
   onSlotInput?: (key: SlotKey, value: string) => void
 }
-function CardSlots({ data, editable, onSlotFocus, onSlotInput }: CardSlotsProps) {
+function CardSlots({ data, editable, slotSizes, onSlotFocus, onSlotInput }: CardSlotsProps) {
   return (
     <>
-      {SLOTS.map((slot) => (
-        <React.Fragment key={slot.key}>
-          {editable ? (
-            <EditableSlot
-              slotKey={slot.key}
-              cls={slot.cls}
-              ph={slot.ph}
-              initialText={data[slot.key]}
-              onFocus={onSlotFocus!}
-              onInput={onSlotInput!}
-            />
-          ) : (
-            <p className={`inv-slot ${slot.cls}`} data-slot={slot.key} data-ph={slot.ph}>
-              {data[slot.key] || undefined}
-            </p>
-          )}
-          {slot.key === 'time' && <span className="inv-rule" />}
-        </React.Fragment>
-      ))}
+      {SLOTS.map((slot) => {
+        const size = slotSizes?.[slot.key] ?? 'm'
+        return (
+          <React.Fragment key={slot.key}>
+            {editable ? (
+              <EditableSlot
+                slotKey={slot.key}
+                cls={slot.cls}
+                ph={slot.ph}
+                initialText={data[slot.key]}
+                initialSize={size}
+                onFocus={onSlotFocus!}
+                onInput={onSlotInput!}
+              />
+            ) : (
+              <p
+                className={`inv-slot ${slot.cls}${size === 's' ? ' is-sz-s' : size === 'l' ? ' is-sz-l' : ''}`}
+                data-slot={slot.key}
+                data-ph={slot.ph}
+              >
+                {data[slot.key] || undefined}
+              </p>
+            )}
+            {slot.key === 'time' && <span className="inv-rule" />}
+          </React.Fragment>
+        )
+      })}
     </>
   )
 }
@@ -108,12 +122,13 @@ interface InvCardProps {
   tpl: Template
   data: CardData
   editable?: boolean
+  slotSizes?: Record<SlotKey, SlotSize>
   photoSrc?: string | null
   onPhotoClick?: () => void
   onSlotFocus?: (key: SlotKey, el: HTMLElement) => void
   onSlotInput?: (key: SlotKey, value: string) => void
 }
-function InvCard({ tpl, data, editable = false, photoSrc, onPhotoClick, onSlotFocus, onSlotInput }: InvCardProps) {
+function InvCard({ tpl, data, editable = false, slotSizes, photoSrc, onPhotoClick, onSlotFocus, onSlotInput }: InvCardProps) {
   const photoSlotProps = editable ? {
     'data-photo-slot': '',
     role: 'button' as const,
@@ -140,11 +155,11 @@ function InvCard({ tpl, data, editable = false, photoSrc, onPhotoClick, onSlotFo
             )}
           </div>
           <div className="inv-card-body">
-            <CardSlots data={data} editable={editable} onSlotFocus={onSlotFocus} onSlotInput={onSlotInput} />
+            <CardSlots data={data} editable={editable} slotSizes={slotSizes} onSlotFocus={onSlotFocus} onSlotInput={onSlotInput} />
           </div>
         </>
       ) : (
-        <CardSlots data={data} editable={editable} onSlotFocus={onSlotFocus} onSlotInput={onSlotInput} />
+        <CardSlots data={data} editable={editable} slotSizes={slotSizes} onSlotFocus={onSlotFocus} onSlotInput={onSlotInput} />
       )}
     </article>
   )
@@ -176,20 +191,32 @@ interface InvitationsClientProps {
   templateSlugToId?: Record<string, string>
 }
 
-export function InvitationsClient({ eventName, defaultData, rsvpUrl }: InvitationsClientProps) {
-  const [view, setView] = useState<'gallery' | 'editor'>('gallery')
+export function InvitationsClient({ eventName, defaultData, rsvpUrl, savedCard, templateSlugToId }: InvitationsClientProps) {
+  const initialTpl = savedCard?.templateSlug
+    ? (TEMPLATES.find((t) => t.id === savedCard.templateSlug) ?? null)
+    : null
+
+  const [view, setView] = useState<'gallery' | 'editor'>(savedCard?.isCustom ? 'editor' : 'gallery')
   const [filter, setFilter] = useState('All')
-  const [tpl, setTpl] = useState<Template | null>(null)
-  const [cardData, setCardData] = useState<CardData>(defaultData)
-  const [mode, setMode] = useState<'template' | 'upload'>('template')
-  const [uploadSrc, setUploadSrc] = useState<string | null>(null)
-  const [photoSrc, setPhotoSrc] = useState<string | null>(null)
+  const [tpl, setTpl] = useState<Template | null>(initialTpl)
+  const [cardData, setCardData] = useState<CardData>(savedCard?.slots ?? defaultData)
+  const [mode, setMode] = useState<'template' | 'upload'>(savedCard?.cardUploadKey ? 'upload' : 'template')
+  const [uploadSrc, setUploadSrc] = useState<string | null>(
+    savedCard?.cardUploadKey ? `/api/media/${savedCard.cardUploadKey}` : null
+  )
+  const [photoSrc, setPhotoSrc] = useState<string | null>(
+    savedCard?.photoBgKey ? `/api/media/${savedCard.photoBgKey}` : null
+  )
   const [edited, setEdited] = useState(false)
   const [cardKey, setCardKey] = useState(0)
   const [autosave, setAutosave] = useState('Draft only — not saved')
+  const [slotSizes, setSlotSizes] = useState<Record<SlotKey, SlotSize>>(
+    (savedCard?.slotSizes as Record<SlotKey, SlotSize>) ?? ({} as Record<SlotKey, SlotSize>)
+  )
 
   // Toolbar
   const activeSlotRef = useRef<HTMLElement | null>(null)
+  const activeKeyRef = useRef<SlotKey | null>(null)
   const [showToolbar, setShowToolbar] = useState(false)
   const [toolbarSize, setToolbarSize] = useState<SlotSize>('m')
 
@@ -255,6 +282,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
 
   function handleSlotFocus(key: SlotKey, el: HTMLElement) {
     activeSlotRef.current = el
+    activeKeyRef.current = key
     const size: SlotSize = el.classList.contains('is-sz-s') ? 's' : el.classList.contains('is-sz-l') ? 'l' : 'm'
     setToolbarSize(size)
     setShowToolbar(true)
@@ -274,6 +302,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
       if (active?.closest('.inv-slot') || active?.closest('.inv-toolbar')) return
       setShowToolbar(false)
       activeSlotRef.current = null
+      activeKeyRef.current = null
     }, 80)
   }
 
@@ -286,6 +315,10 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
     if (next === 's') el.classList.add('is-sz-s')
     if (next === 'l') el.classList.add('is-sz-l')
     setToolbarSize(next)
+    if (activeKeyRef.current) {
+      const key = activeKeyRef.current
+      setSlotSizes((prev) => ({ ...prev, [key]: next }))
+    }
     el.focus()
     markEdited()
   }
@@ -418,6 +451,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
                 tpl={tpl}
                 data={cardData}
                 editable
+                slotSizes={slotSizes}
                 photoSrc={photoSrc}
                 onPhotoClick={() => photoInputRef.current?.click()}
                 onSlotFocus={handleSlotFocus}
@@ -533,7 +567,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
                   <img src={uploadSrc} alt="Your uploaded invitation card" />
                 </article>
               ) : tpl ? (
-                <InvCard tpl={tpl} data={cardData} photoSrc={photoSrc} />
+                <InvCard tpl={tpl} data={cardData} slotSizes={slotSizes} photoSrc={photoSrc} />
               ) : null}
             </div>
             <div className="modal-lightbox-bar">
@@ -574,7 +608,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
                     <img src={uploadSrc} alt="" />
                   </article>
                 ) : tpl ? (
-                  <InvCard tpl={tpl} data={cardData} photoSrc={photoSrc} />
+                  <InvCard tpl={tpl} data={cardData} slotSizes={slotSizes} photoSrc={photoSrc} />
                 ) : null}
               </div>
               <div className="inv-share-msg">
