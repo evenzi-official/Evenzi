@@ -293,7 +293,9 @@ export function InvitationsClient({ eventId, eventName, defaultData, rsvpUrl, sa
     setCardKey((k) => k + 1)
     setView('editor')
     window.scrollTo(0, 0)
-    save({ templateSlug: found.id, is_custom: true })
+    // Persist the full reset so a reload reopens the swapped template with
+    // default text and no size overrides (not the previous card's content).
+    save({ templateSlug: found.id, is_custom: true, slots: { ...defaultData }, slot_sizes: {} })
   }
 
   function openUpload(src: string) {

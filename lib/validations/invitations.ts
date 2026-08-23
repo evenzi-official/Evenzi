@@ -19,7 +19,7 @@ export const invitationPatchSchema = z.object({
   slots: z.object(Object.fromEntries(
     SLOT_KEYS.map((k) => [k, z.string().max(280)]),
   ) as Record<(typeof SLOT_KEYS)[number], z.ZodString>).partial().optional(),
-  slot_sizes: z.record(z.enum(SLOT_KEYS), slotSize).optional(),
+  slot_sizes: z.partialRecord(z.enum(SLOT_KEYS), slotSize).optional(),
   is_custom: z.boolean().optional(),
 }).strict().refine(
   (v) => !(v.template_id != null && v.card_upload_key != null),

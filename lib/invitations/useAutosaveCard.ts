@@ -109,12 +109,14 @@ export function createAutosaveController(
     if (templateSlug !== undefined) {
       resolved.template_id = templateSlugToId?.[templateSlug] ?? null
     }
-    pending = {
-      ...pending,
-      ...resolved,
-      slots: { ...pending.slots, ...resolved.slots },
-      slot_sizes: { ...pending.slot_sizes, ...resolved.slot_sizes },
-    }
+    // Merge only the fields actually provided. Injecting empty `slots`/
+    // `slot_sizes` on every call would ship them in unrelated saves — and
+    // because the server does a full-column replace, a text-only edit would
+    // wipe previously-saved sizes.
+    const next: CardPatch = { ...pending, ...resolved }
+    if (resolved.slots) next.slots = { ...pending.slots, ...resolved.slots }
+    if (resolved.slot_sizes) next.slot_sizes = { ...pending.slot_sizes, ...resolved.slot_sizes }
+    pending = next
     coalescedFlush()
   }
 
