@@ -8,6 +8,8 @@
 
 **Tech Stack:** Next.js 14 App Router, TypeScript strict, `@supabase/ssr`, Zod, Cloudflare R2 (via `lib/storage/r2`), Vitest (node env).
 
+**Review Status:** Approved — 2026-08-24. **Reviewed by:** Tech Lead, Data Modeller, Security Expert, Backend Engineer, Frontend Engineer (via `/plan-review`). One important finding (image read-path bucket mismatch) resolved with fix A: images go to the public bucket + existing `media/[...key]` proxy (see Global Constraints + Tasks 4/7/8).
+
 ## Global Constraints
 
 - Reuse before create — no forked components/primitives; zero changes to `designs/shell.css` or `designs/components.html` (behavior/persistence only). Copied verbatim from spec §6.
@@ -15,6 +17,7 @@
 - One card per event = the seeded default main-event card (`is_default = true AND sub_event_id IS NULL`). Sub-event cards out of scope.
 - Dual-mode invariant (DB check constraint): exactly one of `template_id` / `card_upload_key` is non-null at all times.
 - R2 keys are always generated server-side — never accept a client-supplied key (per `lib/storage/keys` contract).
+- **Image bucket = `R2_BUCKET_PUBLIC`** (plan-review fix A, 2026-08-24). Invitation BG photos and uploaded cards are inherently shareable (WhatsApp / guest view) and read back through the existing unauthenticated `app/api/media/[...key]` proxy, whose `events/` prefix allowlist already covers `events/{id}/invitations/…`. This matches the website cover/OG image pattern and needs no new read route or signing. (The DATA-MODEL labels `photo_bg_key`/`card_upload_key` "private R2 key" for a future server-render pipeline; for the v0 editor they live in the public bucket.)
 - Slot text cap: 280 chars. Size values: `'s' | 'm' | 'l'`. Slot keys: `eyebrow, couple, invite, date, time, venue, message`.
 - TypeScript strict — no `any`; explicit return types on exported functions.
 - Supabase is teaching-mode: present the migration SQL to the founder and explain it before applying (founder has SQL background, new to Supabase).
@@ -280,9 +283,15 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { requireEventWrite } from '@/lib/auth/eventAccess'
 import { invitationUploadUrlSchema, uuidSchema } from '@/lib/validations/invitations'
-import { getSignedUploadUrl, R2_BUCKET_PRIVATE } from '@/lib/storage/r2'
+import { getSignedUploadUrl, R2_BUCKET_PUBLIC } from '@/lib/storage/r2'
 import { invitationBgKey, invitationUploadKey } from '@/lib/storage/keys'
 import { randomUUID } from 'crypto'
+
+// NOTE (plan-review fix A): images go to the PUBLIC bucket so the existing
+// media/[...key] proxy can serve them with no new read route. Verify the exact
+// export name for the public bucket in lib/storage/r2 (R2_BUCKET_PUBLIC); if the
+// module only exports R2_BUCKET_PRIVATE, add an R2_BUCKET_PUBLIC export reading
+// process.env.R2_BUCKET_PUBLIC (default 'evenzi-public', matching the proxy).
 
 export async function POST(
   request: Request,
@@ -313,7 +322,7 @@ export async function POST(
     const uuid = randomUUID()
     const key = part === 'photo_bg' ? invitationBgKey(id, uuid, ext) : invitationUploadKey(id, uuid, ext)
 
-    const url = await getSignedUploadUrl({ bucket: R2_BUCKET_PRIVATE, key, contentType, expiresIn: 300 })
+    const url = await getSignedUploadUrl({ bucket: R2_BUCKET_PUBLIC, key, contentType, expiresIn: 300 })
     return NextResponse.json({ url, key }, { status: 200 })
   } catch (err) {
     console.error('POST /api/events/[id]/invitation-card/upload-url failed:', err)
@@ -574,7 +583,7 @@ git commit -m "feat(invitations): load saved card + template maps server-side"
   - initial `tpl` ← `savedCard?.templateSlug` resolved against `TEMPLATES`
   - initial `mode` ← `savedCard?.cardUploadKey ? 'upload' : 'template'`
   - initial `view` ← `savedCard?.isCustom ? 'editor' : 'gallery'`
-  - `photoSrc`/`uploadSrc` ← signed read URLs derived from `photoBgKey`/`cardUploadKey` (via `/api/media/<key>` proxy path — confirm the proxy accepts these keys; they live under `events/{id}/...` like media).
+  - `photoSrc`/`uploadSrc` ← `/api/media/<key>` proxy URLs derived from `photoBgKey`/`cardUploadKey`. Keys are `events/{id}/invitations/…`, already covered by the proxy's `events/` allowlist and served from the public bucket (plan-review fix A) — no signing needed.
 
 - [ ] **Step 2: Lift sizes into React state.** Replace the DOM-classList-only model:
   - `EditableSlot` gains an `initialSize: SlotSize` prop; on mount it applies `is-sz-s`/`is-sz-l` from that size (in addition to setting text).
@@ -640,7 +649,7 @@ describe('coalesce', () => {
   1. `POST /api/events/[id]/invitation-card/upload-url` `{ part, contentType }` → `{ url, key }`
   2. `fetch(url, { method:'PUT', body:file, headers:{'Content-Type':file.type} })`
   3. return `key`.
-  In `handlePhotoFile`: optimistic `URL.createObjectURL` preview → upload → on success `save({ photo_bg_key: key })` and swap `photoSrc` to the signed read URL. In `handleUploadFile`/`openUpload`: same with `card_upload_key`, and this sets upload mode (PATCH nulls `template_id` server-side; client sets `mode='upload'`, `tpl=null`). On upload failure → toast + revert.
+  In `handlePhotoFile`: optimistic `URL.createObjectURL` preview → upload → on success `save({ photo_bg_key: key })` and swap `photoSrc` to the `/api/media/<key>` proxy URL. In `handleUploadFile`/`openUpload`: same with `card_upload_key`, and this sets upload mode (PATCH nulls `template_id` server-side; client sets `mode='upload'`, `tpl=null`). On upload failure → toast + revert.
 
 - [ ] **Step 7: Verify** — `tsc --noEmit` + `npm run lint` clean; all Vitest green.
 
