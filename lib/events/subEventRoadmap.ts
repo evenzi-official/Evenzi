@@ -85,6 +85,7 @@ export interface RoadmapSortable {
   type_name: string | null
   event_date: string | null
   display_order: number | null
+  start_time?: string | null
 }
 
 function todayIsoLocal(): string {
@@ -103,6 +104,17 @@ export function sortByWeddingRoadmap<T extends RoadmapSortable>(rows: T[]): T[] 
       (WEDDING_ROADMAP_ORDER[nameOf(a)] ?? 99) - (WEDDING_ROADMAP_ORDER[nameOf(b)] ?? 99)
     if (byRoadmap !== 0) return byRoadmap
     return (a.display_order ?? 0) - (b.display_order ?? 0)
+  })
+}
+
+/** Management-list order: user display_order, then date/time. Not the canonical roadmap. */
+export function sortByDisplayOrder<T extends RoadmapSortable>(rows: T[]): T[] {
+  return [...rows].sort((a, b) => {
+    const byOrder = (a.display_order ?? 0) - (b.display_order ?? 0)
+    if (byOrder !== 0) return byOrder
+    const byDate = (a.event_date ?? '').localeCompare(b.event_date ?? '')
+    if (byDate !== 0) return byDate
+    return (a.start_time ?? '').localeCompare(b.start_time ?? '')
   })
 }
 
