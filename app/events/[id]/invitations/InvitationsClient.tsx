@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
+import { useAutosaveCard } from '@/lib/invitations/useAutosaveCard'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type Layout = 'classic' | 'photo'
@@ -184,6 +185,7 @@ export interface SavedCardProp {
 }
 
 interface InvitationsClientProps {
+  eventId: string
   eventName: string
   defaultData: CardData
   rsvpUrl: string
@@ -191,7 +193,14 @@ interface InvitationsClientProps {
   templateSlugToId?: Record<string, string>
 }
 
-export function InvitationsClient({ eventName, defaultData, rsvpUrl, savedCard, templateSlugToId }: InvitationsClientProps) {
+// Format a Date as 24h HH:MM for the "Saved · HH:MM" autosave indicator.
+function formatSavedAt(d: Date): string {
+  const hh = String(d.getHours()).padStart(2, '0')
+  const mm = String(d.getMinutes()).padStart(2, '0')
+  return `${hh}:${mm}`
+}
+
+export function InvitationsClient({ eventId, eventName, defaultData, rsvpUrl, savedCard, templateSlugToId }: InvitationsClientProps) {
   const initialTpl = savedCard?.templateSlug
     ? (TEMPLATES.find((t) => t.id === savedCard.templateSlug) ?? null)
     : null
@@ -209,10 +218,17 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl, savedCard, 
   )
   const [edited, setEdited] = useState(false)
   const [cardKey, setCardKey] = useState(0)
-  const [autosave, setAutosave] = useState('Draft only — not saved')
   const [slotSizes, setSlotSizes] = useState<Record<SlotKey, SlotSize>>(
     (savedCard?.slotSizes as Record<SlotKey, SlotSize>) ?? ({} as Record<SlotKey, SlotSize>)
   )
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
+  const { save, status: saveStatus, savedAt } = useAutosaveCard(eventId, templateSlugToId)
+  const autosave =
+    saveStatus === 'saving' ? 'Saving…'
+    : saveStatus === 'error' ? 'Not saved — retry'
+    : savedAt ? `Saved · ${formatSavedAt(savedAt)}`
+    : 'Draft only — not saved'
 
   // Toolbar
   const activeSlotRef = useRef<HTMLElement | null>(null)
@@ -233,7 +249,28 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl, savedCard, 
   // ── helpers ─────────────────────────────────────────────────────────────────
   function markEdited() {
     setEdited(true)
-    setAutosave('Draft only — not saved')
+  }
+
+  // POST upload-url → PUT the file to R2 → return the storage key.
+  async function uploadInvitationImage(
+    part: 'photo_bg' | 'card_upload',
+    file: File
+  ): Promise<string> {
+    const contentType = file.type as 'image/jpeg' | 'image/png'
+    const res = await fetch(`/api/events/${eventId}/invitation-card/upload-url`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ part, contentType }),
+    })
+    if (!res.ok) throw new Error('Failed to get upload URL')
+    const { url, key } = (await res.json()) as { url: string; key: string }
+    const putRes = await fetch(url, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': file.type },
+    })
+    if (!putRes.ok) throw new Error('Failed to upload image')
+    return key
   }
 
   function buildCaption(data: CardData): string {
@@ -252,10 +289,11 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl, savedCard, 
     setCardData({ ...defaultData })
     setPhotoSrc(null)
     setEdited(false)
-    setAutosave('Draft only — not saved')
+    setSlotSizes({} as Record<SlotKey, SlotSize>)
     setCardKey((k) => k + 1)
     setView('editor')
     window.scrollTo(0, 0)
+    save({ templateSlug: found.id, is_custom: true })
   }
 
   function openUpload(src: string) {
@@ -263,7 +301,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl, savedCard, 
     setMode('upload')
     setUploadSrc(src)
     setEdited(true)
-    setAutosave('Ready')
+    setSlotSizes({} as Record<SlotKey, SlotSize>)
     setCardKey((k) => k + 1)
     setView('editor')
     window.scrollTo(0, 0)
@@ -291,6 +329,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl, savedCard, 
   function handleSlotInput(key: SlotKey, value: string) {
     setCardData((prev) => ({ ...prev, [key]: value }))
     markEdited()
+    save({ slots: { [key]: value }, is_custom: true })
   }
 
   // Hide toolbar when focus leaves both slot and toolbar
@@ -317,7 +356,11 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl, savedCard, 
     setToolbarSize(next)
     if (activeKeyRef.current) {
       const key = activeKeyRef.current
-      setSlotSizes((prev) => ({ ...prev, [key]: next }))
+      setSlotSizes((prev) => {
+        const updated = { ...prev, [key]: next }
+        save({ slot_sizes: updated })
+        return updated
+      })
     }
     el.focus()
     markEdited()
@@ -327,16 +370,37 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl, savedCard, 
   function handleUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !['image/jpeg', 'image/png'].includes(file.type)) return
-    openUpload(URL.createObjectURL(file))
     e.target.value = ''
+    setUploadError(null)
+    const previewSrc = URL.createObjectURL(file)
+    openUpload(previewSrc)
+    uploadInvitationImage('card_upload', file)
+      .then((key) => {
+        save({ card_upload_key: key })
+      })
+      .catch(() => {
+        setUploadError('Upload failed — please try again.')
+      })
   }
 
   function handlePhotoFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !['image/jpeg', 'image/png'].includes(file.type)) return
-    setPhotoSrc(URL.createObjectURL(file))
-    markEdited()
     e.target.value = ''
+    setUploadError(null)
+    const previousPhotoSrc = photoSrc
+    const previewSrc = URL.createObjectURL(file)
+    setPhotoSrc(previewSrc)
+    markEdited()
+    uploadInvitationImage('photo_bg', file)
+      .then((key) => {
+        setPhotoSrc(`/api/media/${key}`)
+        save({ photo_bg_key: key })
+      })
+      .catch(() => {
+        setPhotoSrc(previousPhotoSrc)
+        setUploadError('Photo upload failed — please try again.')
+      })
   }
 
   // ── share ────────────────────────────────────────────────────────────────────
@@ -437,6 +501,12 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl, savedCard, 
 
         {mode === 'template' && (
           <p className="inv-edit-hint">Tap any text on the card to edit it.</p>
+        )}
+
+        {uploadError && (
+          <p className="inv-edit-hint" role="alert" style={{ color: 'var(--danger, #c0392b)' }}>
+            {uploadError}
+          </p>
         )}
 
         <div className="inv-editor-stage reveal">

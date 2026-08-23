@@ -82,6 +82,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ id
       />
       <main className="page-band pt-10 pb-24" id="inv-main">
         <InvitationsClient
+          eventId={id}
           eventName={eventName}
           defaultData={defaultData}
           rsvpUrl={rsvpUrl}
