@@ -10,6 +10,7 @@ export default function PasswordGate({ slug }: { slug: string }) {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const canSubmit = password.trim().length > 0
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -57,7 +58,8 @@ export default function PasswordGate({ slug }: { slug: string }) {
           )}
           <button
             type="submit"
-            disabled={loading}
+            disabled={!canSubmit || loading}
+            aria-busy={loading}
             className="w-full py-3 bg-stone-800 text-white text-sm tracking-widest uppercase rounded-lg hover:bg-stone-700 transition-colors disabled:opacity-50"
           >
             {loading ? 'Checking…' : 'Continue'}

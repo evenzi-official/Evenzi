@@ -31,6 +31,7 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
   const [removingId, setRemovingId] = useState<string | null>(null)
   const [pendingRemove, setPendingRemove] = useState<Collaborator | null>(null)
   const [toast, setToast]       = useState<string | null>(null)
+  const canSubmit = email.trim().length > 0
 
   function flashToast(msg: string) {
     setToast(msg)
@@ -238,7 +239,7 @@ export function AdminsContent({ eventId, ownerName, ownerEmail, ownerInitials, c
                 type="button"
                 className={`btn-pill btn-pill-primary${sending ? ' is-loading' : ''}`}
                 onClick={handleSendInvite}
-                disabled={sending || !email.trim()}
+                disabled={sending || !canSubmit}
                 aria-busy={sending}
               >
                 Send invite

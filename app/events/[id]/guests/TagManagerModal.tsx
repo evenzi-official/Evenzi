@@ -24,6 +24,7 @@ export function TagManagerModal({ eventId, tags, guests, onClose, onCreated, onD
   function tagCount(tagId: string): number {
     return guests.filter((g) => g.tagIds.includes(tagId)).length
   }
+  const canSubmit = input.trim().length > 0
 
   async function handleAdd(): Promise<void> {
     const trimmed = input.trim()
@@ -82,7 +83,7 @@ export function TagManagerModal({ eventId, tags, guests, onClose, onCreated, onD
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void handleAdd() } }}
             aria-label="New tag name"
           />
-          <button type="button" className="btn-pill btn-pill-secondary" disabled={adding} onClick={() => { void handleAdd() }}>Add</button>
+          <button type="button" className="btn-pill btn-pill-secondary" disabled={!canSubmit || adding} aria-busy={adding} onClick={() => { void handleAdd() }}>Add</button>
         </div>
 
         <ul className="gm-tagman-list" aria-label="Tags">

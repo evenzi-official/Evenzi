@@ -230,6 +230,7 @@ export function Step4ReviewConfirm(): React.JSX.Element {
           className={`btn-pill btn-pill-primary btn-pill-lg${submitting ? ' is-loading' : ''}`}
           disabled={submitting}
           aria-disabled={submitting}
+          aria-busy={submitting}
           onClick={() => { void handleSubmit() }}
         >
           <span>Confirm &amp; launch</span>

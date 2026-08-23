@@ -1467,7 +1467,7 @@ export function MediaClient({ eventName: _eventName, eventId, initialPhotos, ini
             </div>
             <div className="modal-actions">
               <button type="button" className="btn-pill btn-pill-secondary" onClick={() => setAlbumModalOpen(false)}>Cancel</button>
-              <button type="submit" className="btn-pill btn-pill-primary">
+              <button type="submit" className="btn-pill btn-pill-primary" disabled={!albumName.trim()}>
                 {albumModalMode === 'rename' ? 'Save name' : 'Create album'}
               </button>
             </div>

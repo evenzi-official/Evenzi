@@ -127,6 +127,7 @@ export default function CoverOgSection({
                 className="dp-cover-replace"
                 onClick={() => coverInput.current?.click()}
                 disabled={busy === 'cover'}
+                aria-busy={busy === 'cover'}
                 aria-label="Replace cover photo"
               >
                 <span className="material-symbols-outlined" aria-hidden="true">add_photo_alternate</span>
@@ -143,6 +144,7 @@ export default function CoverOgSection({
                 className="btn-pill btn-pill-primary btn-pill-sm"
                 onClick={() => coverInput.current?.click()}
                 disabled={busy === 'cover'}
+                aria-busy={busy === 'cover'}
               >
                 <span className="material-symbols-outlined" aria-hidden="true">upload</span>
                 {busy === 'cover' ? 'Uploading…' : 'Upload cover'}
@@ -208,6 +210,7 @@ export default function CoverOgSection({
                     className="btn-pill btn-pill-primary btn-pill-sm"
                     onClick={() => ogInput.current?.click()}
                     disabled={busy === 'og'}
+                    aria-busy={busy === 'og'}
                   >
                     <span className="material-symbols-outlined" aria-hidden="true">upload</span>
                     {busy === 'og' ? 'Uploading…' : 'Upload image'}
@@ -217,7 +220,7 @@ export default function CoverOgSection({
             </div>
             {ogUrl ? (
               <p className="dp-og-caption">
-                <button type="button" className="btn-pill btn-pill-secondary btn-pill-sm" onClick={() => ogInput.current?.click()} disabled={busy === 'og'}>
+                <button type="button" className="btn-pill btn-pill-secondary btn-pill-sm" onClick={() => ogInput.current?.click()} disabled={busy === 'og'} aria-busy={busy === 'og'}>
                   Replace
                 </button>
               </p>

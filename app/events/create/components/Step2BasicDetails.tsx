@@ -81,6 +81,18 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
   const dateMin = EVENT_DATE_MIN_ISO()
   const dateMax = eventDateMaxISO()
 
+  const guestCapacityTrim = guestCapacity.trim()
+  const guestCapacityOk =
+    guestCapacityTrim === '' ||
+    (() => {
+      const parsed = parseInt(guestCapacityTrim, 10)
+      return !isNaN(parsed) && parsed > 0 && Number.isInteger(parsed) && parsed <= GUEST_CAPACITY_MAX
+    })()
+  const dateTrim = primaryDate.trim()
+  const dateOk = dateTrim === '' || (dateTrim >= dateMin && dateTrim <= dateMax)
+  const canSubmit =
+    validateDynamicFields(metadata, formSchema).length === 0 && guestCapacityOk && dateOk
+
   // Nominatim location autocomplete — debounced, 350ms
   useEffect(() => {
     const q = primaryVenue.trim()
@@ -552,6 +564,8 @@ export default function Step2BasicDetails(): React.JSX.Element | null {
         <button
           type="button"
           className="btn-pill btn-pill-primary btn-pill-lg"
+          disabled={!canSubmit}
+          aria-disabled={!canSubmit}
           onClick={handleContinue}
         >
           <span>Continue</span>
