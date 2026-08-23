@@ -17,7 +17,7 @@
 
 **Fix next (open):**
 
-1. **#7 Connect a 2nd sign-in method** (Google↔Phone) — its own session; OAuth identity linking. Scope: `docs/superpowers/specs/2026-08-23-connect-signin-method-scope.md`.
+1. **#7 Connect a 2nd sign-in method** (Google↔Phone) — ✅ **BUILT + live** (2026-08-23c, `feature/connect-signin-method` → prod). Both link directions + disconnect with last-method guard; client-side, no new API routes; callback honors a guarded `next`. Design: `docs/superpowers/specs/2026-08-23-connect-signin-method-design.md`; report: `docs/session-reports/2026-08-23c-connect-signin-session-report.md`. **Two gates remain:** (a) founder toggles Supabase **Auth → Allow manual linking** ON (Google-link degrades to "temporarily unavailable" until then; phone-link works now); (b) live click-through QA of both link flows + disconnect on a real session (automated browser can't drive the OTP input / Google OAuth).
 2. **Help Centre launch gates** — articles now seeded ✅; remaining are `support@evenzii.com` mailbox live + ticket watching.
 3. **Un-merged Stage-2 audit branch** `feature/platform-truth-audit` — video playback + security batches + billing-hide are NOT on the deployed app yet; decide merge/deploy.
 4. **Repo cleanup A/B/C** + **fixture cleanup** — delete `e2e-truth-audit` (`f990d6d7-…`) + Account B `e2e.collab.b@evenzi.test` when ready.
