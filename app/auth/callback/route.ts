@@ -3,9 +3,22 @@ import { getUserProfile } from '@/lib/supabase/profile'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+/**
+ * Only allow same-origin internal paths for the post-auth redirect, so the
+ * `next` param can never be turned into an open-redirect. Must start with a
+ * single slash and not be protocol-relative (`//host`) or an absolute URL.
+ */
+function safeNext(raw: string | null): string | null {
+  if (!raw) return null
+  const decoded = decodeURIComponent(raw)
+  if (!decoded.startsWith('/') || decoded.startsWith('//') || decoded.includes('://')) return null
+  return decoded
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
+  const next = safeNext(searchParams.get('next'))
 
   if (!code) {
     return NextResponse.redirect(`${origin}/auth?error=auth_failed`)
@@ -40,8 +53,13 @@ export async function GET(request: NextRequest) {
   }
 
   if (data.user) {
-    const profile = await getUserProfile(supabase, data.user.id)
-    const redirectPath = profile?.role_slug ? '/home' : '/auth/role-selection'
+    // Identity-linking (Connect a sign-in method) passes ?next=/settings#security
+    // so the user returns to where they started, not the sign-in role gate.
+    let redirectPath = next
+    if (!redirectPath) {
+      const profile = await getUserProfile(supabase, data.user.id)
+      redirectPath = profile?.role_slug ? '/home' : '/auth/role-selection'
+    }
 
     // Update redirect location — cookies are already set on `response`
     response.headers.set('location', `${origin}${redirectPath}`)

@@ -1,4 +1,4 @@
-import { StatusBadge } from '@/components/ui/StatusBadge'
+import { ConnectMethods } from './ConnectMethods'
 
 export interface SignInMethod {
   provider: 'google' | 'phone'
@@ -10,9 +10,11 @@ export interface SignInMethod {
 
 interface Props {
   methods: SignInMethod[]
+  identityCount: number
+  userId: string
 }
 
-export function SecuritySection({ methods }: Props): React.ReactElement {
+export function SecuritySection({ methods, identityCount, userId }: Props): React.ReactElement {
   return (
     <section id="security" className="settings-section reveal">
       <header className="settings-section-head">
@@ -24,22 +26,7 @@ export function SecuritySection({ methods }: Props): React.ReactElement {
       <div className="clay-card settings-card-inner">
         <div className="settings-security">
           <div className="settings-security-fields">
-            <div className="space-y-4">
-              {methods.map((m) => (
-                <div key={m.provider} className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-line-soft">
-                  <div className="flex items-center gap-3">
-                    <span aria-hidden="true" className="material-symbols-outlined icon-fill text-brand">{m.icon}</span>
-                    <div>
-                      <p className="font-display font-semibold text-sm text-ink">{m.label}</p>
-                      <p className="text-xs text-muted">{m.connected ? m.detail : 'Not connected'}</p>
-                    </div>
-                  </div>
-                  <StatusBadge variant={m.connected ? 'success' : 'draft'}>
-                    {m.connected ? 'Connected' : 'Not connected'}
-                  </StatusBadge>
-                </div>
-              ))}
-            </div>
+            <ConnectMethods methods={methods} identityCount={identityCount} userId={userId} />
           </div>
 
           <div className="settings-security-divider">

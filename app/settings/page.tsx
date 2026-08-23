@@ -45,6 +45,7 @@ export default async function UserSettingsPage() {
       detail: formatPhone(profile?.phone ?? user.phone ?? null),
     },
   ]
+  const identityCount = identities.length
   const displayName = profile?.display_name ?? null
   const initial = avatarInitial(displayName ?? user.email ?? user.phone ?? 'User')
 
@@ -75,7 +76,7 @@ export default async function UserSettingsPage() {
           phone={profile?.phone ?? user.phone ?? null}
           avatarUrl={profile?.avatar_url ?? null}
         />
-        <SecuritySection methods={methods} />
+        <SecuritySection methods={methods} identityCount={identityCount} userId={user.id} />
         <NotificationsSection
           emailAlerts={preferences?.email_alerts ?? true}
           pushNotifications={preferences?.push_notifications ?? true}
