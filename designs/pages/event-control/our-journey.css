@@ -17,14 +17,14 @@
 }
 
 /* List */
-.oj-list{display:flex;flex-direction:column;gap:.85rem;list-style:none;margin:0;padding:0}
+.oj-list{display:flex;flex-direction:column;gap:1rem;list-style:none;margin:0;padding:0}
 
-.oj-row{
-  display:flex;align-items:center;gap:1rem;
-  padding:1rem 1.1rem;
+.oj-row,.oj-row{
+  display:flex;align-items:flex-start;gap:1.15rem;
+  padding:1.15rem 1.25rem;
   transition:transform .2s,box-shadow .2s,border-color .2s;
 }
-@media (min-width:768px){.oj-row{gap:1.25rem;padding:1.1rem 1.35rem}}
+@media (min-width:768px){.oj-row,.oj-row{align-items:center;gap:1.5rem;padding:1.35rem 1.5rem}}
 @media (hover:hover) and (pointer:fine){.oj-row:hover{transform:translateY(-2px);box-shadow:var(--shadow-clay-hover)}}
 /* Next-up + big-day accents */
 .oj-row.is-next{border-color:var(--brand-tint-2)}
@@ -47,10 +47,15 @@
   font-family:'Poppins',sans-serif;font-weight:700;font-size:1.05rem;
   color:var(--ink);letter-spacing:-.01em;line-height:1.2;
 }
-.oj-row-meta{
-  font-size:13px;color:var(--muted);font-weight:500;margin-top:.2rem;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+.oj-row-meta,.oj-row-meta{
+  font-size:13px;color:var(--muted);font-weight:500;margin-top:.4rem;
+  line-height:1.45;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
 }
+@media (min-width:768px){
+  .oj-row-meta,.oj-row-meta{white-space:nowrap;display:block;-webkit-line-clamp:unset;text-overflow:ellipsis}
+}
+.oj-row-meta.is-empty,.oj-row-meta.is-empty{opacity:.85}
 
 /* Status tags */
 .oj-tag{
@@ -100,3 +105,37 @@
 .oj-form-toggle-text{min-width:0}
 .oj-form-toggle-title{display:block;font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;color:var(--ink)}
 .oj-form-toggle-sub{display:block;font-size:12px;color:var(--muted);margin-top:.1rem}
+
+/* HTML class aliases — our-journey.html uses oj-row-* / oj-vis / oj-empty-* /
+   oj-foot-note / oj-form-toggle-* while the rules above historically used
+   oj-row-*. Keep both so the React port can match the HTML 1:1. */
+.oj-row-icon{flex:0 0 auto;width:48px;height:48px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;background:var(--brand-tint);color:var(--brand);border:1px solid var(--brand-tint-2)}
+.oj-row-icon .material-symbols-outlined{font-size:24px}
+.oj-row-icon-brand{background:var(--brand);color:#fff;border-color:var(--brand);box-shadow:var(--shadow-clay-pill)}
+.oj-row-main{min-width:0;flex:1 1 auto}
+.oj-row-head{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.oj-row-title{font-family:'Poppins',sans-serif;font-weight:700;font-size:1.05rem;color:var(--ink);letter-spacing:-.01em;line-height:1.2}
+.oj-row-meta{font-size:13px;color:var(--muted);font-weight:500;margin-top:.4rem;line-height:1.45;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+@media (min-width:768px){.oj-row-meta{white-space:nowrap;display:block;-webkit-line-clamp:unset;text-overflow:ellipsis}}
+.oj-row-meta.is-empty{opacity:.85}
+.oj-tag-next{background:var(--brand-tint);color:var(--brand);border-color:var(--brand-tint-2)}
+.oj-dot{width:6px;height:6px;border-radius:9999px;background:currentColor;animation:bc-pulse 2s ease-in-out infinite}
+.oj-tag-day{background:var(--brand);color:#fff}
+.oj-row-actions{display:flex;align-items:center;gap:.5rem;flex:0 0 auto}
+.oj-vis{display:none;align-items:center;gap:.5rem;cursor:pointer;margin-right:.25rem}
+@media (min-width:768px){.oj-vis{display:inline-flex}}
+.oj-vis-label{font-family:'Poppins',sans-serif;font-weight:700;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.oj-empty-icon{width:64px;height:64px;border-radius:9999px;background:var(--brand-tint);color:var(--brand);display:inline-flex;align-items:center;justify-content:center}
+.oj-empty-icon .material-symbols-outlined{font-size:32px}
+.oj-empty-title{font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;color:var(--ink)}
+.oj-empty-sub{font-size:13px;color:var(--muted);max-width:26rem}
+.oj-foot-note{margin-top:1.5rem;font-size:12.5px;color:var(--muted-soft)}
+.oj-foot-note strong{color:var(--muted);font-weight:700}
+.oj-form-toggle-text{min-width:0}
+.oj-form-toggle-title{display:block;font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;color:var(--ink)}
+.oj-form-toggle-sub{display:block;font-size:12px;color:var(--muted);margin-top:.1rem}
+
+@media (max-width:767px){
+  .oj-row,.oj-row{flex-wrap:wrap;align-items:flex-start}
+  .oj-row-actions,.oj-row-actions{width:100%;justify-content:flex-end;margin-top:.35rem}
+}
