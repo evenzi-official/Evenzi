@@ -1,6 +1,7 @@
 'use client'
 
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { BusyOverlay } from '@/components/ui/BusyOverlay'
 
 interface BusyContextValue {
@@ -23,6 +24,16 @@ export function BusyProvider({ children }: { children: React.ReactNode }): React
   const [label, setLabel] = useState(DEFAULT_LABEL)
   // Tracks manual setBusy(true) calls so setBusy(false) can't drive the count negative.
   const manualActive = useRef(false)
+
+  // A completed navigation is the end of any freeze. Some flows setBusy(true)
+  // then router.push without a matching setBusy(false) (e.g. create-event, which
+  // intentionally keeps the overlay up through the redirect) — without this the
+  // overlay would hang on the destination page. Clear on every path change.
+  const pathname = usePathname()
+  useEffect(() => {
+    manualActive.current = false
+    setCount(0)
+  }, [pathname])
 
   const runBusy = useCallback(async <T,>(fn: () => Promise<T>, lbl?: string): Promise<T> => {
     if (lbl) setLabel(lbl)

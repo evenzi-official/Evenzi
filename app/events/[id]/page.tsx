@@ -3,27 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { PageFooter } from '@/components/layout/PageFooter'
-
-const ICON_MAP: Record<string, string> = {
-  sparkles: 'auto_awesome', palette: 'palette', music: 'music_note',
-  heart: 'favorite', utensils: 'restaurant', wine: 'wine_bar',
-  coffee: 'local_cafe', spa: 'spa',
-}
-
-// Canonical chronological order for wedding sub-events so the roadmap strip
-// always renders in the correct timeline sequence regardless of how display_order
-// was seeded in config.event_sub_types. Unknown/custom names sort to the end.
-const WEDDING_ROADMAP_ORDER: Record<string, number> = {
-  'pre-wedding shoot': 1,
-  'engagement':        2,
-  'cocktail party':    3,
-  'sangeet':           4,
-  'mehendi':           5,
-  'haldi':             6,
-  'wedding ceremony':  7,
-  'reception':         8,
-  'post-wedding brunch': 9,
-}
+import { ICON_MAP, WEDDING_ROADMAP_ORDER } from '@/lib/events/subEventRoadmap'
 
 // Sub-event row joined in JS with its config.event_sub_types catalog entry.
 interface SubEventRow {
@@ -172,16 +152,18 @@ export default async function EventControlPage({
   })
 
   // 4) Up-next checklist tasks — 3 nearest-due incomplete tasks for the hub panel.
-  const [{ data: doneStatusRow }, { data: taskRows }] = await Promise.all([
-    supabase.schema('config').from('task_statuses').select('id').eq('slug', 'completed').maybeSingle(),
+  const [{ data: hiddenStatusRows }, { data: taskRows }] = await Promise.all([
+    // Exclude both terminal statuses — a cancelled task is no more "up next"
+    // than a completed one.
+    supabase.schema('config').from('task_statuses').select('id').in('slug', ['completed', 'cancelled']),
     supabase.from('event_tasks')
       .select('id, title, due_date, status_id')
       .eq('event_id', id)
       .order('due_date', { ascending: true, nullsFirst: false })
       .limit(10),
   ])
-  const doneStatusId = doneStatusRow?.id ?? null
-  const upNext: UpNextTask[] = (taskRows ?? []).filter(t => t.status_id !== doneStatusId).slice(0, 3)
+  const hiddenStatusIds = new Set((hiddenStatusRows ?? []).map(r => r.id))
+  const upNext: UpNextTask[] = (taskRows ?? []).filter(t => !hiddenStatusIds.has(t.status_id)).slice(0, 3)
 
   // Hero/overview fields — prefer the view; fall back to the events row.
   const event = {

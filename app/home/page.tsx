@@ -17,6 +17,7 @@ interface EventListRow {
   status: string;
   created_at: string;
   event_sub_events: { id: string }[] | null;
+  event_guests: { count: number }[] | null;
 }
 
 function mapEventRow(row: EventListRow): EventListItem {
@@ -27,6 +28,10 @@ function mapEventRow(row: EventListRow): EventListItem {
     primaryDate: row.primary_date,
     primaryVenue: row.primary_venue,
     guestCapacity: row.guest_capacity,
+    // Actual invited-guest count (PostgREST aggregate embed). "Expected"
+    // capacity is a separate planning number — the card prefers this real
+    // count and only falls back to capacity when no guests exist yet.
+    guestCount: row.event_guests?.[0]?.count ?? 0,
     coverImageUrl: row.cover_image_url,
     status: row.status,
     subEventCount: row.event_sub_events?.length ?? 0,
@@ -50,7 +55,8 @@ export default async function HomePage() {
     .select(`
       id, name, primary_date, primary_venue, guest_capacity,
       cover_image_url, status, created_at,
-      event_sub_events ( id )
+      event_sub_events ( id ),
+      event_guests ( count )
     `)
     .eq("user_id", user.id)
     .is("deleted_at", null)
@@ -69,7 +75,8 @@ export default async function HomePage() {
       events!inner(
         id, name, primary_date, primary_venue, guest_capacity,
         cover_image_url, status, created_at, deleted_at,
-        event_sub_events ( id )
+        event_sub_events ( id ),
+        event_guests ( count )
       )
     `)
     .eq("user_id", user.id)
