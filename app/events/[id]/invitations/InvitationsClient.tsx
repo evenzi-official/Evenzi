@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
+import { useAutosaveCard } from '@/lib/invitations/useAutosaveCard'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type Layout = 'classic' | 'photo'
@@ -44,14 +45,19 @@ interface EditableSlotProps {
   cls: string
   ph: string
   initialText: string
+  initialSize: SlotSize
   onFocus: (key: SlotKey, el: HTMLElement) => void
   onInput: (key: SlotKey, value: string) => void
 }
-function EditableSlot({ slotKey, cls, ph, initialText, onFocus, onInput }: EditableSlotProps) {
+function EditableSlot({ slotKey, cls, ph, initialText, initialSize, onFocus, onInput }: EditableSlotProps) {
   const ref = useRef<HTMLParagraphElement>(null)
   // Set content once on mount — never update to avoid caret jumping
   useEffect(() => {
-    if (ref.current) ref.current.textContent = initialText
+    if (ref.current) {
+      ref.current.textContent = initialText
+      if (initialSize === 's') ref.current.classList.add('is-sz-s')
+      if (initialSize === 'l') ref.current.classList.add('is-sz-l')
+    }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <p
@@ -74,31 +80,40 @@ function EditableSlot({ slotKey, cls, ph, initialText, onFocus, onInput }: Edita
 interface CardSlotsProps {
   data: CardData
   editable: boolean
+  slotSizes?: Record<SlotKey, SlotSize>
   onSlotFocus?: (key: SlotKey, el: HTMLElement) => void
   onSlotInput?: (key: SlotKey, value: string) => void
 }
-function CardSlots({ data, editable, onSlotFocus, onSlotInput }: CardSlotsProps) {
+function CardSlots({ data, editable, slotSizes, onSlotFocus, onSlotInput }: CardSlotsProps) {
   return (
     <>
-      {SLOTS.map((slot) => (
-        <React.Fragment key={slot.key}>
-          {editable ? (
-            <EditableSlot
-              slotKey={slot.key}
-              cls={slot.cls}
-              ph={slot.ph}
-              initialText={data[slot.key]}
-              onFocus={onSlotFocus!}
-              onInput={onSlotInput!}
-            />
-          ) : (
-            <p className={`inv-slot ${slot.cls}`} data-slot={slot.key} data-ph={slot.ph}>
-              {data[slot.key] || undefined}
-            </p>
-          )}
-          {slot.key === 'time' && <span className="inv-rule" />}
-        </React.Fragment>
-      ))}
+      {SLOTS.map((slot) => {
+        const size = slotSizes?.[slot.key] ?? 'm'
+        return (
+          <React.Fragment key={slot.key}>
+            {editable ? (
+              <EditableSlot
+                slotKey={slot.key}
+                cls={slot.cls}
+                ph={slot.ph}
+                initialText={data[slot.key]}
+                initialSize={size}
+                onFocus={onSlotFocus!}
+                onInput={onSlotInput!}
+              />
+            ) : (
+              <p
+                className={`inv-slot ${slot.cls}${size === 's' ? ' is-sz-s' : size === 'l' ? ' is-sz-l' : ''}`}
+                data-slot={slot.key}
+                data-ph={slot.ph}
+              >
+                {data[slot.key] || undefined}
+              </p>
+            )}
+            {slot.key === 'time' && <span className="inv-rule" />}
+          </React.Fragment>
+        )
+      })}
     </>
   )
 }
@@ -108,12 +123,13 @@ interface InvCardProps {
   tpl: Template
   data: CardData
   editable?: boolean
+  slotSizes?: Record<SlotKey, SlotSize>
   photoSrc?: string | null
   onPhotoClick?: () => void
   onSlotFocus?: (key: SlotKey, el: HTMLElement) => void
   onSlotInput?: (key: SlotKey, value: string) => void
 }
-function InvCard({ tpl, data, editable = false, photoSrc, onPhotoClick, onSlotFocus, onSlotInput }: InvCardProps) {
+function InvCard({ tpl, data, editable = false, slotSizes, photoSrc, onPhotoClick, onSlotFocus, onSlotInput }: InvCardProps) {
   const photoSlotProps = editable ? {
     'data-photo-slot': '',
     role: 'button' as const,
@@ -140,37 +156,83 @@ function InvCard({ tpl, data, editable = false, photoSrc, onPhotoClick, onSlotFo
             )}
           </div>
           <div className="inv-card-body">
-            <CardSlots data={data} editable={editable} onSlotFocus={onSlotFocus} onSlotInput={onSlotInput} />
+            <CardSlots data={data} editable={editable} slotSizes={slotSizes} onSlotFocus={onSlotFocus} onSlotInput={onSlotInput} />
           </div>
         </>
       ) : (
-        <CardSlots data={data} editable={editable} onSlotFocus={onSlotFocus} onSlotInput={onSlotInput} />
+        <CardSlots data={data} editable={editable} slotSizes={slotSizes} onSlotFocus={onSlotFocus} onSlotInput={onSlotInput} />
       )}
     </article>
   )
 }
 
 // ── InvitationsClient ─────────────────────────────────────────────────────────
+export interface SavedCardProp {
+  isCustom: boolean
+  templateSlug: string | null
+  cardUploadKey: string | null
+  photoBgKey: string | null
+  slots: {
+    eyebrow: string
+    couple: string
+    invite: string
+    date: string
+    time: string
+    venue: string
+    message: string
+  }
+  slotSizes: Record<string, SlotSize>
+}
+
 interface InvitationsClientProps {
+  eventId: string
   eventName: string
   defaultData: CardData
   rsvpUrl: string
+  savedCard?: SavedCardProp | null
+  templateSlugToId?: Record<string, string>
 }
 
-export function InvitationsClient({ eventName, defaultData, rsvpUrl }: InvitationsClientProps) {
-  const [view, setView] = useState<'gallery' | 'editor'>('gallery')
+// Format a Date as 24h HH:MM for the "Saved · HH:MM" autosave indicator.
+function formatSavedAt(d: Date): string {
+  const hh = String(d.getHours()).padStart(2, '0')
+  const mm = String(d.getMinutes()).padStart(2, '0')
+  return `${hh}:${mm}`
+}
+
+export function InvitationsClient({ eventId, eventName, defaultData, rsvpUrl, savedCard, templateSlugToId }: InvitationsClientProps) {
+  const initialTpl = savedCard?.templateSlug
+    ? (TEMPLATES.find((t) => t.id === savedCard.templateSlug) ?? null)
+    : null
+
+  const [view, setView] = useState<'gallery' | 'editor'>(savedCard?.isCustom ? 'editor' : 'gallery')
   const [filter, setFilter] = useState('All')
-  const [tpl, setTpl] = useState<Template | null>(null)
-  const [cardData, setCardData] = useState<CardData>(defaultData)
-  const [mode, setMode] = useState<'template' | 'upload'>('template')
-  const [uploadSrc, setUploadSrc] = useState<string | null>(null)
-  const [photoSrc, setPhotoSrc] = useState<string | null>(null)
+  const [tpl, setTpl] = useState<Template | null>(initialTpl)
+  const [cardData, setCardData] = useState<CardData>(savedCard?.slots ?? defaultData)
+  const [mode, setMode] = useState<'template' | 'upload'>(savedCard?.cardUploadKey ? 'upload' : 'template')
+  const [uploadSrc, setUploadSrc] = useState<string | null>(
+    savedCard?.cardUploadKey ? `/api/media/${savedCard.cardUploadKey}` : null
+  )
+  const [photoSrc, setPhotoSrc] = useState<string | null>(
+    savedCard?.photoBgKey ? `/api/media/${savedCard.photoBgKey}` : null
+  )
   const [edited, setEdited] = useState(false)
   const [cardKey, setCardKey] = useState(0)
-  const [autosave, setAutosave] = useState('Draft only — not saved')
+  const [slotSizes, setSlotSizes] = useState<Record<SlotKey, SlotSize>>(
+    (savedCard?.slotSizes as Record<SlotKey, SlotSize>) ?? ({} as Record<SlotKey, SlotSize>)
+  )
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
+  const { save, status: saveStatus, savedAt } = useAutosaveCard(eventId, templateSlugToId)
+  const autosave =
+    saveStatus === 'saving' ? 'Saving…'
+    : saveStatus === 'error' ? 'Not saved — retry'
+    : savedAt ? `Saved · ${formatSavedAt(savedAt)}`
+    : 'Draft only — not saved'
 
   // Toolbar
   const activeSlotRef = useRef<HTMLElement | null>(null)
+  const activeKeyRef = useRef<SlotKey | null>(null)
   const [showToolbar, setShowToolbar] = useState(false)
   const [toolbarSize, setToolbarSize] = useState<SlotSize>('m')
 
@@ -187,7 +249,28 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
   // ── helpers ─────────────────────────────────────────────────────────────────
   function markEdited() {
     setEdited(true)
-    setAutosave('Draft only — not saved')
+  }
+
+  // POST upload-url → PUT the file to R2 → return the storage key.
+  async function uploadInvitationImage(
+    part: 'photo_bg' | 'card_upload',
+    file: File
+  ): Promise<string> {
+    const contentType = file.type as 'image/jpeg' | 'image/png'
+    const res = await fetch(`/api/events/${eventId}/invitation-card/upload-url`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ part, contentType }),
+    })
+    if (!res.ok) throw new Error('Failed to get upload URL')
+    const { url, key } = (await res.json()) as { url: string; key: string }
+    const putRes = await fetch(url, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': file.type },
+    })
+    if (!putRes.ok) throw new Error('Failed to upload image')
+    return key
   }
 
   function buildCaption(data: CardData): string {
@@ -206,10 +289,13 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
     setCardData({ ...defaultData })
     setPhotoSrc(null)
     setEdited(false)
-    setAutosave('Draft only — not saved')
+    setSlotSizes({} as Record<SlotKey, SlotSize>)
     setCardKey((k) => k + 1)
     setView('editor')
     window.scrollTo(0, 0)
+    // Persist the full reset so a reload reopens the swapped template with
+    // default text and no size overrides (not the previous card's content).
+    save({ templateSlug: found.id, is_custom: true, slots: { ...defaultData }, slot_sizes: {} })
   }
 
   function openUpload(src: string) {
@@ -217,7 +303,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
     setMode('upload')
     setUploadSrc(src)
     setEdited(true)
-    setAutosave('Ready')
+    setSlotSizes({} as Record<SlotKey, SlotSize>)
     setCardKey((k) => k + 1)
     setView('editor')
     window.scrollTo(0, 0)
@@ -236,6 +322,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
 
   function handleSlotFocus(key: SlotKey, el: HTMLElement) {
     activeSlotRef.current = el
+    activeKeyRef.current = key
     const size: SlotSize = el.classList.contains('is-sz-s') ? 's' : el.classList.contains('is-sz-l') ? 'l' : 'm'
     setToolbarSize(size)
     setShowToolbar(true)
@@ -244,6 +331,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
   function handleSlotInput(key: SlotKey, value: string) {
     setCardData((prev) => ({ ...prev, [key]: value }))
     markEdited()
+    save({ slots: { [key]: value }, is_custom: true })
   }
 
   // Hide toolbar when focus leaves both slot and toolbar
@@ -255,6 +343,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
       if (active?.closest('.inv-slot') || active?.closest('.inv-toolbar')) return
       setShowToolbar(false)
       activeSlotRef.current = null
+      activeKeyRef.current = null
     }, 80)
   }
 
@@ -267,6 +356,14 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
     if (next === 's') el.classList.add('is-sz-s')
     if (next === 'l') el.classList.add('is-sz-l')
     setToolbarSize(next)
+    if (activeKeyRef.current) {
+      const key = activeKeyRef.current
+      setSlotSizes((prev) => {
+        const updated = { ...prev, [key]: next }
+        save({ slot_sizes: updated })
+        return updated
+      })
+    }
     el.focus()
     markEdited()
   }
@@ -275,16 +372,37 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
   function handleUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !['image/jpeg', 'image/png'].includes(file.type)) return
-    openUpload(URL.createObjectURL(file))
     e.target.value = ''
+    setUploadError(null)
+    const previewSrc = URL.createObjectURL(file)
+    openUpload(previewSrc)
+    uploadInvitationImage('card_upload', file)
+      .then((key) => {
+        save({ card_upload_key: key })
+      })
+      .catch(() => {
+        setUploadError('Upload failed — please try again.')
+      })
   }
 
   function handlePhotoFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !['image/jpeg', 'image/png'].includes(file.type)) return
-    setPhotoSrc(URL.createObjectURL(file))
-    markEdited()
     e.target.value = ''
+    setUploadError(null)
+    const previousPhotoSrc = photoSrc
+    const previewSrc = URL.createObjectURL(file)
+    setPhotoSrc(previewSrc)
+    markEdited()
+    uploadInvitationImage('photo_bg', file)
+      .then((key) => {
+        setPhotoSrc(`/api/media/${key}`)
+        save({ photo_bg_key: key })
+      })
+      .catch(() => {
+        setPhotoSrc(previousPhotoSrc)
+        setUploadError('Photo upload failed — please try again.')
+      })
   }
 
   // ── share ────────────────────────────────────────────────────────────────────
@@ -387,6 +505,12 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
           <p className="inv-edit-hint">Tap any text on the card to edit it.</p>
         )}
 
+        {uploadError && (
+          <p className="inv-edit-hint" role="alert" style={{ color: 'var(--danger, #c0392b)' }}>
+            {uploadError}
+          </p>
+        )}
+
         <div className="inv-editor-stage reveal">
           <div className="inv-card-frame">
             {mode === 'upload' && uploadSrc ? (
@@ -399,6 +523,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
                 tpl={tpl}
                 data={cardData}
                 editable
+                slotSizes={slotSizes}
                 photoSrc={photoSrc}
                 onPhotoClick={() => photoInputRef.current?.click()}
                 onSlotFocus={handleSlotFocus}
@@ -514,7 +639,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
                   <img src={uploadSrc} alt="Your uploaded invitation card" />
                 </article>
               ) : tpl ? (
-                <InvCard tpl={tpl} data={cardData} photoSrc={photoSrc} />
+                <InvCard tpl={tpl} data={cardData} slotSizes={slotSizes} photoSrc={photoSrc} />
               ) : null}
             </div>
             <div className="modal-lightbox-bar">
@@ -555,7 +680,7 @@ export function InvitationsClient({ eventName, defaultData, rsvpUrl }: Invitatio
                     <img src={uploadSrc} alt="" />
                   </article>
                 ) : tpl ? (
-                  <InvCard tpl={tpl} data={cardData} photoSrc={photoSrc} />
+                  <InvCard tpl={tpl} data={cardData} slotSizes={slotSizes} photoSrc={photoSrc} />
                 ) : null}
               </div>
               <div className="inv-share-msg">
