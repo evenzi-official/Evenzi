@@ -485,7 +485,7 @@
           <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q1</span><b>Website theme catalog — hybrid.</b> One live theme (<code>cinematic-scroll</code>); the other tiles stay an honest "coming soon" rather than fake selectable cards. The 5-vs-1 template mismatch is therefore <b>intentional</b>, not a launch blocker. This is only the Digital Presence → Design theme picker — <b>Media &amp; Memories is fully wired</b> and unrelated.</p></li>
           <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q2</span><b>Sapphire / midnight-elegant guest-site HTML = design references only</b>, workshop material until templated in React. Not product.</p></li>
           <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q3</span><b>Journey — now a full sub-event manager (updated 2026-08-23).</b> Superseded: rebuilt 1:1 to the design with add / edit / delete / website-toggle, status badges (Held · Next up · The big day) and POST/PATCH/DELETE APIs. Pixel-parity verified at desktop + 360px, light + dark.</p></li>
-          <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q4</span><b>Invitations persistence = next build.</b> Planning in progress. Until then the UI is honest ("Draft only — not saved") rather than pretending to autosave. Tracked as upcoming work, not as a broken feature.</p></li>
+          <li class="finding f-done"><div class="fstripe"></div><p><span class="ftag">Q4</span><b>Invitations persistence — SHIPPED 2026-08-24.</b> Full-fidelity card persistence (template, text, per-line sizes, R2 images) via <code>inv_07</code> + 3 API routes + real autosave. Live on prod. Only image persistence remains manual-verify.</p></li>
           <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q5</span><b>Billing "Upgrade" CTA = hide</b> until a payment gateway is actually planned. Interim state on the audit branch is a disabled "Coming soon" button. No payments exist either way.</p></li>
         </ul>
       </div>
@@ -929,21 +929,22 @@
       </details>
 
       <!-- 15. Digital Invitations -->
-      <details class="acc-item" id="acc-invitations" data-data="done" data-backend="none" data-frontend="partial">
+      <details class="acc-item" id="acc-invitations" data-data="done" data-backend="done" data-frontend="done">
         <summary>
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Digital Invitations (WhatsApp)</span>
-          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill none" title="Backend">–</span><span class="pill partial" title="Frontend">~</span></span>
-          <span class="acc-minibar"><span class="seg-partial" style="width:100%"></span></span>
-          <span class="acc-count">4 findings — honesty pass 08-07</span>
-          <span class="acc-takeaway">Still draft-only, but no longer pretending otherwise: the fake "Saved" indicator is gone and Download is honestly disabled. Persistence is the next build (Q4).</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:100%"></span></span>
+          <span class="acc-count">persists — shipped 08-24</span>
+          <span class="acc-takeaway">The card designer now persists with full fidelity — template, text, per-line sizes, and images all survive reload. Autosave is real. Live on prod (Dev-Vibe-Testing).</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
-            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Nothing persists — there are still zero <code>fetch</code>/<code>localStorage</code> calls anywhere in the 576-line client. The difference as of 2026-08-07 is that the UI now says so: the cosmetic "Saved" autosave indicator was replaced with an honest <b>"Draft only — not saved"</b>. Persistence is the next build per the locked Q4 decision, tracked as upcoming scope rather than a broken feature.</p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>"Upload your card" — file picker works and the image renders in the editor, but it's a blob URL (<code>URL.createObjectURL</code>) — never uploaded/persisted, lost on refresh.</p></li>
-            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>"Download" button — previously a dead control with no <code>onClick</code>. Now explicitly <code>disabled</code> and labelled as coming soon, so it no longer silently does nothing. <em>Updated 2026-08-07</em> (P1-2).</p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>"Share on WhatsApp" — the <code>wa.me</code> link is genuine and does open WhatsApp with a pre-filled message, and the shared RSVP URL is now built correctly from <code>getAppBaseUrl()</code> plus the event slug rather than a hardcoded host (P1-8). Still partial: only text is shared, never the card image, because no download or export logic exists yet.</p></li>
+            <li class="finding f-done"><div class="fstripe"></div><p><span class="ftag">Done</span><b>Persistence shipped 2026-08-24</b> (Q4). New <code>slot_sizes</code> column (<code>inv_07</code>) + 3 owner-only API routes (GET/PATCH card + upload-url) + debounced autosave in <code>InvitationsClient.tsx</code>. The editor now hydrates from the saved card and <b>resumes into the editor</b> when the card is personalized. The autosave indicator is real (<code>Saving… → Saved · HH:MM</code>).</p></li>
+            <li class="finding f-done"><div class="fstripe"></div><p><span class="ftag">Done</span>Template, all 7 text slots, and per-line text sizes persist. <b>Live-verified</b> via click-through: edit + resize → reload → identical card; template swap persists; pristine event → gallery.</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Images (photo-layout background + "Upload your card") now upload to R2 (public bucket) and render via the <code>media/[...key]</code> proxy — <b>code complete but not yet manually click-tested</b> (the automated browser can't drive the OS file-picker; same limitation class as OTP).</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>"Download" stays honestly <code>disabled</code> ("Download soon") — server-rendered PNG/PDF is a deferred future slice. "Share on WhatsApp" unchanged (text + RSVP link; image attach waits on the render pipeline). Sub-event cards still deferred.</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>The live click-through caught a P0 the type-check and unit tests missed: <code>slot_sizes</code> used <code>z.record(z.enum,…)</code>, which is <b>exhaustive in Zod v4</b> and rejected every save (400). Fixed with <code>z.partialRecord</code> + a corrected autosave merge; regression-tested.</p></li>
           </ul>
         </div>
       </details>
@@ -984,7 +985,7 @@
         <h3>App — next up</h3>
         <ul>
           <li>Commit + merge <code>feature/platform-truth-audit</code> → <code>Dev-Vibe</code> → Testing deploy <span class="tag">blocking</span> — video playback, the Batch A route changes and the honesty UI are all still branch-only</li>
-          <li>Digital Invitations persistence (Q4)</li>
+          <li class="done"><span class="strike">Digital Invitations persistence (Q4)</span> — shipped + live 2026-08-24 (template/text/sizes/images persist; real autosave)</li>
           <li class="done"><span class="strike">Hide the Billing Upgrade CTA (Q5)</span> — confirmed done (pre-08-22, verified 08-22); plan cards for non-current plans use <code>disabled</code> "Coming soon"</li>
           <li class="done"><span class="strike">Favicon + Apple/Android home-screen icons</span> — <code>/icon.svg</code> created, <code>app/manifest.ts</code> SVG entry added, <code>app/icon.svg</code> file convention active after dev restart. 2026-08-22</li>
           <li>Optional: Website → Photos ↔ Media bridge (which photos appear on the guest site)</li>
@@ -1132,7 +1133,7 @@
 
   // ── Per-feature bar chart data (health-sorted, worst first) ──
   var features = [
-    { id: "acc-invitations",       name: "Digital Invitations",   wired: 0,  partial: 2, stub: 0 },
+    { id: "acc-invitations",       name: "Digital Invitations",   wired: 2,  partial: 0, stub: 0 },
     { id: "acc-event-settings",    name: "Event Settings",        wired: 5,  partial: 0, stub: 5 },
     { id: "acc-landing",           name: "Landing Section",       wired: 3,  partial: 0, stub: 1 },
     { id: "acc-crud",              name: "Event CRUD",            wired: 5,  partial: 3, stub: 2 },
