@@ -4,7 +4,21 @@
 
 ---
 
-## ▶ START HERE NEXT — After the 08-23 fix sweep + two rebuilds (2026-08-23 b)
+## ▶ START HERE NEXT — Digital Invitations persistence merged (2026-08-24)
+
+**Shipped to `Dev-Vibe`** (merge `f4f27b09`, **not yet pushed / not yet on prod**): the invitation card designer now persists — template, 7 text slots, per-line sizes (`inv_07` `slot_sizes` column), + R2 images (public bucket). 3 owner-only API routes + debounced autosave + resume-editor-if-personalized. Live-verified scenarios 1/2/5 (text+size+template-swap persist across reload). A P0 the click-through caught (Zod v4 exhaustive `z.record` broke ALL saves) is fixed. Report: `docs/session-reports/2026-08-24-invitations-persistence-session-report.md`.
+
+**Open on this feature:**
+1. **Push `Dev-Vibe` to origin** (preview) — not yet done.
+2. **Deploy decision:** merge onward to `Dev-Vibe-Testing` for prod — not yet done (needs founder ok).
+3. **Manual click-through of photo-BG + upload-own-card image persistence** (scenarios 3/4) — automated browser can't drive the OS file-picker; code path reviewed sound.
+4. v0-readiness artifact row still says the old "nothing persists" state — update it.
+
+Then resume the broader "partial/not-started screen-by-screen" sweep (next: Digital Presence template gallery gap; Admin Module deferred out of V0).
+
+---
+
+## After the 08-23 fix sweep + two rebuilds (2026-08-23 b)
 
 **Shipped 2026-08-23 (b)** — all 11 findings from the founder's live sweep actioned and **live in prod** (`Dev-Vibe-Testing` `3019f38e`, Vercel READY). Commits `050af62b` (7 V0 fixes) → `5848c842` (CTA gating) → `dfb99d60` (Our Journey rebuild), merged `Dev-Vibe` `9d0dd0a0` → prod `3019f38e`; back-merge `955b3abf` recovered the prod-only bee-mascot commit so Dev-Vibe is the superset. Full detail: `docs/session-reports/2026-08-23b-fix-sweep-and-rebuilds-session-report.md`.
 
