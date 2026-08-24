@@ -16,6 +16,14 @@ export function invitationKey(eventId: string, uuid: string): string {
   return `events/${eventId}/invitations/${uuid}.png`
 }
 
+export function invitationBgKey(eventId: string, uuid: string, ext: string): string {
+  return `events/${eventId}/invitations/bg-${uuid}.${ext}`
+}
+
+export function invitationUploadKey(eventId: string, uuid: string, ext: string): string {
+  return `events/${eventId}/invitations/card-${uuid}.${ext}`
+}
+
 export function websitePublicKey(eventId: string, purpose: string, uuid: string, ext = 'webp'): string {
   return `website/${eventId}/${purpose}-${uuid}.${ext}`
 }

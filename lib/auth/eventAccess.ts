@@ -12,6 +12,7 @@ export type EventCapability =
   | 'planning'
   | 'media'
   | 'general'
+  | 'invitations'
 
 // ⚠️ This matrix MUST stay in sync with the SQL predicates public.can_read_event() /
 // public.can_write_event() (Task 13 Step 1). They are two hand-maintained copies of the
@@ -20,7 +21,7 @@ export type EventCapability =
 // fails loudly; there is no automated check on the SQL side, so treat any change here as
 // a paired change to the migration.
 const CAPABILITY_MATRIX: Record<EventRole, ReadonlySet<EventCapability>> = {
-  owner:        new Set(['billing', 'delete', 'admins', 'website', 'guests', 'planning', 'media', 'general']),
+  owner:        new Set(['billing', 'delete', 'admins', 'website', 'guests', 'planning', 'media', 'general', 'invitations']),
   'co-host':    new Set(['admins', 'website', 'guests', 'planning', 'media', 'general']),
   planner:      new Set(['guests', 'planning']),
   photographer: new Set(['media']),
