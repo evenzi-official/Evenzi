@@ -42,3 +42,11 @@ For each file, output:
 ## Learnings
 
 <!-- agent-evolve appends approved learnings below. Hard cap: 8 entries. See .claude/skills/agent-evolve/SKILL.md for criteria. -->
+
+### Partial-update schemas must accept partial payloads
+
+- **Insight:** For any PATCH / partial-update route, verify the input validator accepts a *partial* payload, not just the full object — keyed maps especially. In Zod v4, `z.record(z.enum([...]), value)` is exhaustive (it demands every enum key), so a partial or empty map is rejected; use `z.partialRecord(...)` (or `z.record(z.string(), value)`) for maps that update a subset of keys.
+- **Why it matters:** A `.strict()` schema can pass `tsc` and happy-path unit tests yet return 400 on every real partial request — the defect lives only at the runtime API boundary, so it escapes type-checks and static review and surfaces only in live use.
+- **Source:** 2026-08-24 session — P0 where a keyed-map validator rejected all partial updates (commit `568cbad4`); caught only in live click-through.
+- **Confidence:** high
+- **Added:** 2026-08-24

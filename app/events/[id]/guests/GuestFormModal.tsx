@@ -124,7 +124,11 @@ export function GuestFormModal(props: Props): React.ReactElement {
           body: JSON.stringify({ name: trimmedName, phone: digitsPhone, email: email.trim() || null, subEventIds, tagIds }),
         })
         const data: { guest?: GuestRow; error?: string } = await res.json()
-        if (!res.ok || !data.guest) { flashToast("Couldn't add guest."); return }
+        if (!res.ok || !data.guest) {
+          // 409 carries a specific "duplicate phone" message worth showing verbatim.
+          flashToast(res.status === 409 && data.error ? data.error : "Couldn't add guest.")
+          return
+        }
         onSaved(data.guest)
         flashToast('Guest added')
       }

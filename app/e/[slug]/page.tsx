@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
 import GuestLookupForm from './GuestLookupForm'
@@ -172,10 +172,43 @@ function DefaultTemplate({
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params
   const { displayName } = parseSlug(slug)
-  return {
-    title: `${displayName} — Wedding Website`,
-    description: `You're invited to ${displayName}. View details, RSVP, and more.`,
+
+  const title = clamp(`${displayName} — Wedding Website`, 70)
+  const description = clamp(`You're invited to ${displayName}. View details, RSVP, and more.`, 200)
+
+  // Cover/OG image for the WhatsApp / social link preview. Sourced from the same
+  // anon-safe SECURITY DEFINER RPC the page uses (a direct events read is
+  // RLS-blocked for anonymous crawlers), and served through the PUBLIC, no-auth
+  // media proxy so WhatsApp can actually fetch it. The prefix guard matches the
+  // proxy's allowlist — never emit a key it would 404 (council 2026-08-26).
+  // Returning via Next's Metadata object keeps the host-authored name auto-escaped.
+  let imageKey: string | null = null
+  try {
+    const supabase = await createClient()
+    const { data } = await supabase.rpc('get_public_website_payload', { p_slug: slug })
+    const design = (data as { design?: { og_image_key?: string | null; cover_image_key?: string | null } } | null)?.design
+    imageKey = design?.og_image_key || design?.cover_image_key || null
+  } catch { /* silent — no site/design or blocked; text-only preview */ }
+
+  const openGraph: Metadata['openGraph'] = { title, description, type: 'website' }
+  if (imageKey && /^(website|events|event-covers)\//.test(imageKey)) {
+    openGraph.images = [{ url: `/api/media/${imageKey}` }]
   }
+
+  // metadataBase makes the relative proxy path resolve to an absolute URL that a
+  // crawler can fetch.
+  const h = await headers()
+  const host = h.get('x-forwarded-host') ?? h.get('host')
+  const proto = h.get('x-forwarded-proto') ?? 'https'
+  const metadataBase = host ? new URL(`${proto}://${host}`) : undefined
+
+  return { metadataBase, title, description, openGraph }
+}
+
+// Meta title/description length guard so a long event name doesn't blow out the
+// link preview.
+function clamp(s: string, max: number): string {
+  return s.length > max ? `${s.slice(0, max - 1).trimEnd()}…` : s
 }
 
 export default async function GuestWebsitePage({ params }: Params) {

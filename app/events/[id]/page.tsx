@@ -29,6 +29,8 @@ interface HubSummaryRow {
   budget_percent: number | null
   sub_event_count: number | null
   default_card_share_token: string | null
+  guest_responded: number | null
+  rsvp_percent: number | null
 }
 
 function formatDate(d: string | null): string {
@@ -78,7 +80,8 @@ export default async function EventControlPage({
     .select(
       'event_id, event_name, primary_date, primary_venue, guest_total, ' +
         'task_percent, task_done, task_total, budget_total, budget_spent, ' +
-        'budget_percent, sub_event_count, default_card_share_token',
+        'budget_percent, sub_event_count, default_card_share_token, ' +
+        'guest_responded, rsvp_percent',
     )
     .eq('event_id', id)
     .maybeSingle()
@@ -320,8 +323,15 @@ export default async function EventControlPage({
                 <span aria-hidden="true" className="stat-icon"><span className="material-symbols-outlined icon-fill">how_to_reg</span></span>
                 <div className="min-w-0 w-full">
                   <p className="text-[10px] font-display font-bold tracking-[0.25em] text-muted uppercase">RSVP rate</p>
-                  <p className="font-display font-bold text-2xl text-ink leading-none mt-0.5">—</p>
-                  <div className="ec-progress-track"><div className="ec-progress-fill pf-bar" /></div>
+                  <p className="font-display font-bold text-2xl text-ink leading-none mt-0.5">
+                    {summary?.rsvp_percent != null ? `${Math.round(summary.rsvp_percent)}%` : '—'}
+                  </p>
+                  <div className="ec-progress-track">
+                    <div
+                      className="ec-progress-fill pf-bar"
+                      style={summary?.rsvp_percent != null ? { width: `${Math.min(100, Math.round(summary.rsvp_percent))}%` } : undefined}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="stats-strip-card tool-card flex items-center gap-4">

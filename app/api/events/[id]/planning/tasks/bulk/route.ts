@@ -32,6 +32,7 @@ export async function POST(
 
     if (parsed.data.action === 'complete') {
       const { error } = await supabase.rpc('bulk_set_task_status', {
+        p_event_id: id,
         p_task_ids: parsed.data.taskIds,
         p_status_slug: 'completed',
       })

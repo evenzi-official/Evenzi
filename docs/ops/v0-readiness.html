@@ -423,13 +423,13 @@
 
     <div class="overview-row2">
       <div class="overview-card">
-        <div class="stack-title">Deep-audit findings by feature — 124 checks, sorted worst-first (% of checks fully wired) · totals recounted from the accordions 2026-08-22</div>
+        <div class="stack-title">Deep-audit findings by feature — sorted worst-first (% of checks fully wired) · re-verified against current code 2026-08-26 — every stub/dead finding now resolved (was 11 @ 08-22; most were already fixed by code drift, 6 fixed this session)</div>
         <div class="fbar-list" id="fbarList"><!-- rows injected identically in markup below for no-JS fallback --></div>
         <div class="stack-legend" style="margin-top:16px;">
-          <div class="legend-item"><span class="legend-dot wired"></span>Wired <b id="totWired">90</b></div>
-          <div class="legend-item"><span class="legend-dot partial"></span>Partial <b id="totPartial">13</b></div>
-          <div class="legend-item"><span class="legend-dot stub"></span>Stub / dead <b id="totStub">11</b></div>
-          <div class="legend-item"><span class="legend-dot" style="background:var(--info)"></span>Informational <b>10</b> <span style="color:var(--muted-soft)">(correct, not a bug)</span></div>
+          <div class="legend-item"><span class="legend-dot wired"></span>Wired <b id="totWired">104</b></div>
+          <div class="legend-item"><span class="legend-dot partial"></span>Partial <b id="totPartial">8</b></div>
+          <div class="legend-item"><span class="legend-dot stub"></span>Stub / dead <b id="totStub">0</b></div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--info)"></span>Informational <b>11</b> <span style="color:var(--muted-soft)">(correct, not a bug)</span></div>
         </div>
         <div class="audit-stats">
           <span>2026-08-03 baseline: 6 parallel audit agents</span>
@@ -475,6 +475,20 @@
           <span><b>Screen-freeze + destructive-confirm shipped platform-wide:</b> new <code>BusyProvider</code>/<code>useBusy</code> (one global overlay in <code>app/layout.tsx</code>) + shared <code>ConfirmDialog</code>; wired into 21 mutation sites — create wizard, guests, planning, website design/edit, user settings, public lookup/password, dashboard invites; two old <code>window.confirm</code> calls (bulk-guest-delete, decline-invite) upgraded to themed dialogs</span>
           <span style="color:var(--muted-soft)">Rules: commits/creates/deletes freeze; optimistic toggles/reorders and long uploads stay inline; destructive actions gate behind a confirm popup then freeze. tsc + eslint clean; overlay verified mounting and toggling live</span>
         </div>
+        <div class="audit-stats" style="margin-top:2px;">
+          <span><b>2026-08-26 re-audit + green-up pass</b> — inline, no subagents, on <code>Dev-Vibe</code> (commit <code>9a233a09</code>)</span>
+          <span>The 08-22 chart was stale: re-verified every red/yellow finding against current code. <b>Most stub/dead findings had already been fixed by code drift</b> — Contact-support buttons (General/Billing/Guests) wired to <code>SUPPORT_MAILTO()</code>, the "Allow ticket sales" toggle removed, footer Privacy/Terms/Help links gone, nav Features/About anchors now exist, Registry "Add link"/"Create fund" fake-toast replaced by an honest disabled "coming soon", the Website-tab dead buttons gone, and "View the guide" wired.</span>
+          <span><b>6 genuinely-open items fixed this session:</b> (1) deleted the orphaned <code>POST /api/auth/verify</code> route (zero references); (2) corrected the delete-event copy to match the soft-delete reality (no false "removes guests/media" cascade claim); (3) added a server-side duplicate-phone guard to the single Add-guest path (409 + specific message), matching the CSV import path; (4) the "RSVP rate" tile now renders a real value — <code>event_hub_summary</code> exposes <code>guest_responded</code> + <code>rsvp_percent</code> from the existing <code>event_guest_stats</code> view (no new query); (5) scoped the bulk-complete RPC <code>bulk_set_task_status</code> by <code>event_id</code> (defense-in-depth so a crafted call can't complete tasks on the caller's own other events); (6) confirmed the website section-editor localStorage disclosure was already in-product.</span>
+          <span>2 DB migrations: <code>hub_summary_add_rsvp_percent</code>, <code>bulk_set_task_status_scope_event_id</code>. tsc + eslint clean; RSVP-rate view verified against live data (5 guests / 4 responded = 80%, 14 / 2 = 14%).</span>
+          <span style="color:var(--muted-soft)">Still open by design: Event-type select left wedding-only; Cover/OG crop already disclosed; Recent-activity is now an honest empty-state (informational). Manual-QA only (founder): invitation photo-BG / upload-own-card persistence, and B7 push-toast on a subscribed device.</span>
+        </div>
+        <div class="audit-stats" style="margin-top:2px;">
+          <span><b>2026-08-26 WhatsApp invites (Path A) shipped</b> — council-reviewed, on <code>Dev-Vibe</code> (<code>f519c890</code>)</span>
+          <span>Guest Management "Send invites" is live: click-to-chat from the host's OWN WhatsApp (wa.me) — per-row "Open WhatsApp" + an optional guided send queue, pre-filled message (greeting + default guest message + <code>/e/[slug]</code> link), a WhatsApp link-preview via new <code>/e/[slug]</code> Open Graph tags, and auto-mark-invited with Undo + a per-row toggle.</span>
+          <span>New <code>POST /guests/mark-invited</code> (validated, event-scoped). 15 unit tests on the pure message/phone builder; single-round Security+Frontend council folded in (hardened wa.me phone path, input caps, OG via Next Metadata object, list-as-primary, invited reversal).</span>
+          <span><b>Live-verified end-to-end:</b> queue opens, message + phone build correctly, <code>invited</code> persists to the DB. Real one-click bulk + card-image attachment = Path B (WhatsApp Business API), documented for later.</span>
+          <span>Two founder-reported polish fixes on top (<code>4ad36909</code>): the invitation card now pre-fills the couple line from the event's <b>partner names</b> ("Alice &amp; John", not the full event name) with an invitation-formatted date; and the send-queue modal now renders as one solid card (reused <code>lg-glass-card</code>) instead of the title floating on a transparent scrim.</span>
+        </div>
       </div>
     </div>
 
@@ -485,7 +499,7 @@
           <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q1</span><b>Website theme catalog — hybrid.</b> One live theme (<code>cinematic-scroll</code>); the other tiles stay an honest "coming soon" rather than fake selectable cards. The 5-vs-1 template mismatch is therefore <b>intentional</b>, not a launch blocker. This is only the Digital Presence → Design theme picker — <b>Media &amp; Memories is fully wired</b> and unrelated.</p></li>
           <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q2</span><b>Sapphire / midnight-elegant guest-site HTML = design references only</b>, workshop material until templated in React. Not product.</p></li>
           <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q3</span><b>Journey — now a full sub-event manager (updated 2026-08-23).</b> Superseded: rebuilt 1:1 to the design with add / edit / delete / website-toggle, status badges (Held · Next up · The big day) and POST/PATCH/DELETE APIs. Pixel-parity verified at desktop + 360px, light + dark.</p></li>
-          <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q4</span><b>Invitations persistence = next build.</b> Planning in progress. Until then the UI is honest ("Draft only — not saved") rather than pretending to autosave. Tracked as upcoming work, not as a broken feature.</p></li>
+          <li class="finding f-done"><div class="fstripe"></div><p><span class="ftag">Q4</span><b>Invitations persistence — SHIPPED 2026-08-24.</b> Full-fidelity card persistence (template, text, per-line sizes, R2 images) via <code>inv_07</code> + 3 API routes + real autosave. Live on prod. Only image persistence remains manual-verify.</p></li>
           <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Q5</span><b>Billing "Upgrade" CTA = hide</b> until a payment gateway is actually planned. Interim state on the audit branch is a disabled "Coming soon" button. No payments exist either way.</p></li>
         </ul>
       </div>
@@ -604,7 +618,7 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>"Back to Login" — real <code>signOut()</code> + redirect. <code>app/auth/role-selection/page.tsx:47-50</code></p></li>
             <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>"Vendor" role option — correctly <code>disabled</code>, labeled "Coming soon." Honest, not a bug. <code>components/auth/RoleSelectCard.tsx:106-131</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Fixed 2026-08-22.</b> Terms of Service / Privacy Policy links now point to <code>/legal/terms</code> and <code>/legal/privacy</code>. <code>app/auth/page.tsx:237-238</code></p></li>
-            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><code>POST /api/auth/verify</code> — correctly built, but never called from anywhere in the app. Orphaned route. <code>app/api/auth/verify/route.ts</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Fixed 2026-08-26</b> — the orphaned <code>POST /api/auth/verify</code> route (built but never called anywhere) was deleted after confirming zero references.</p></li>
           </ul>
         </div>
       </details>
@@ -626,7 +640,7 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Step 3/4 submit — <code>POST /api/events</code>, zod-validated, real RPC <code>create_event_with_details</code>. <code>Step4ReviewConfirm.tsx:71-114</code>, <code>api/events/route.ts:70-175</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Edit (PUT) — real parallel writes to <code>events</code> + <code>event_general_settings</code>. <code>GeneralSettingsForm.tsx:111-162</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Delete — real soft-delete (<code>deleted_at</code>), type-DELETE-to-confirm modal. <code>api/events/[id]/route.ts:375-423</code></p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Delete copy says "permanently removes...guests and media" — only soft-deletes the event row; guests/media aren't cascaded, just orphaned. <code>GeneralSettingsForm.tsx:415-417</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Fixed 2026-08-26</b> — delete copy corrected to match the soft-delete reality. It no longer claims to cascade guests/media; it now says the event and its data become permanently inaccessible. <code>GeneralSettingsForm.tsx</code></p></li>
             <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Footer Privacy/Terms/Help links — <code>href="#"</code>. <code>GeneralSettingsForm.tsx:394-397</code></p></li>
             <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Event type field hardcoded to "Wedding," disabled select — mislabels non-wedding events. <code>GeneralSettingsForm.tsx:253-259</code></p></li>
             <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"Allow ticket sales" toggle — local state only, never sent in the save payload, no DB column backs it. <code>GeneralSettingsForm.tsx:47,321-334</code></p></li>
@@ -698,7 +712,7 @@
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
           <span class="acc-minibar"><span class="seg-wired" style="width:80%"></span><span class="seg-stub" style="width:20%"></span></span>
           <span class="acc-count">10 findings — timeline + budget wired 08-22</span>
-          <span class="acc-takeaway">Hero, navigation, Journey all real. Budget stat and "Your timeline" panel now live. RSVP rate stat and "Recent activity" are still stubs.</span>
+          <span class="acc-takeaway">Hero, navigation, Journey all real. Budget stat, RSVP-rate stat, and "Your timeline" panel now live (RSVP rate fixed 2026-08-26). "Recent activity" is an honest empty-state pending an activity-log table.</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
@@ -708,10 +722,10 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Quick action tiles (Send invites / Track RSVPs / Manage budget / Plan timeline) — real links. <code>page.tsx:264-279</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Feature bento tiles — real links to existing pages. <code>page.tsx:475-496</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Journey page</b> — lists the event's real sub-events and its CTAs link back into the event hub, so there are no dead buttons left on it. Depth is intentionally read-only for V0 per the locked Q3 decision; in-place editing is out of scope. <em>Updated 2026-08-07</em>.</p></li>
-            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span>"RSVP rate" stat tile — still hardcoded to <code>—</code>; no RSVP-rate field in <code>event_hub_summary</code>, needs a schema addition or a separate guest query. <code>page.tsx:299-306</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Fixed 2026-08-26</b> — "RSVP rate" tile now renders a real value. <code>event_hub_summary</code> exposes <code>guest_responded</code> (total − pending) and <code>rsvp_percent</code>, derived from the existing <code>event_guest_stats</code> view with no new query; the bar fills to the real percent. Verified live (5 guests / 4 responded = 80%).</p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>"Budget used" stat tile — fixed 2026-08-22.</b> Now reads <code>summary.budget_percent</code> from the view and renders e.g. "73%" with a live progress bar. Falls back to <code>—</code> when no budget is set. <code>app/events/[id]/page.tsx</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>"Your timeline" panel — fixed 2026-08-22.</b> Queries up to 3 nearest-due incomplete tasks from <code>event_tasks</code> (excludes completed status via <code>config.task_statuses</code>). Shows task title + due date; falls back to empty state + "Start planning" CTA only when no pending tasks exist. <code>app/events/[id]/page.tsx</code></p></li>
-            <li class="finding f-stub"><div class="fstripe"></div><p><span class="ftag">Stub</span><b>"Recent activity" panel</b> — permanent placeholder; no activity-log table or API exists anywhere in the codebase. <code>page.tsx:524-536</code></p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span><b>Reclassified 2026-08-26</b> — "Recent activity" is an honest empty-state ("Activity will appear here as you plan"), not a fake or dead control. No activity-log table exists yet; left as a disclosed empty-state for V0, not a launch blocker.</p></li>
           </ul>
         </div>
       </details>
@@ -724,7 +738,7 @@
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
           <span class="acc-minibar"><span class="seg-wired" style="width:93.3%"></span><span class="seg-partial" style="width:6.7%"></span></span>
           <span class="acc-count">15 findings — RSVP rules enforced 08-07</span>
-          <span class="acc-takeaway">Cleanest feature in the audit. "Send invites" is disabled correctly and honestly, not silently broken, and the guest-settings rules are now actually enforced on submission.</span>
+          <span class="acc-takeaway">Cleanest feature in the audit. "Send invites" is now live (WhatsApp Path A, shipped 2026-08-26), and the guest-settings rules are actually enforced on submission.</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
@@ -738,11 +752,11 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Tag Manager modal (add/delete) — real. <code>TagManagerModal.tsx</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>CSV import — real parser, validation gate blocks import on any row error, server re-checks duplicates. <code>ImportCsvModal.tsx</code>, <code>import/route.ts</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Bulk tag / assign / delete — real writes, correct upsert/delete semantics, confirm before delete. <code>bulk/route.ts</code></p></li>
-            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>"Send invites" (toolbar + per-row) — correctly <code>disabled</code> with an honest "coming soon" tooltip. Not a silent no-op — done right. <code>:259-265,410-412</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>"Send invites" (toolbar + per-row) — SHIPPED 2026-08-26 (WhatsApp Path A).</b> Click-to-chat from the host's own WhatsApp: per-row "Open WhatsApp" + an optional guided send queue, pre-filled message (greeting + the event's default guest message + the <code>/e/[slug]</code> link), a WhatsApp link-preview via new <code>/e/[slug]</code> Open Graph tags, and auto-mark-invited (with Undo + a per-row toggle for the open-but-didn't-send case). New <code>POST /guests/mark-invited</code> (validated, event-scoped). Live-verified end-to-end: queue opens, message + phone build correctly, and <code>invited</code> persists to the DB. Real one-click bulk + card-image attachment is Path B (Business API), documented for later. <code>GuestManagementClient.tsx</code>, <code>lib/invitations/whatsappInvite.ts</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>RSVP response-rate stat — real computed from live guest data. <code>:112-113,218-227</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Zero-assigned-function warning banner — real count-driven. <code>:89,305-313</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>RSVP submission now enforces the event's own guest settings</b> — <code>submit_rsvp</code> checks <code>rsvp_enabled</code> and <code>max_plus_ones_per_invite</code> and returns mapped errors instead of accepting anything. This closes the previously-flagged gap where the Event Settings → Guests toggles persisted but nothing downstream read them. <em>Updated 2026-08-07</em>.</p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Single-guest "Add guest" has no duplicate-phone guard server-side, unlike the CSV import path which re-checks. Minor inconsistency. <code>api/.../guests/route.ts:42-60</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Fixed 2026-08-26</b> — single-guest "Add guest" now checks for a duplicate phone within the event server-side (mirrors the CSV import path) and returns <code>409</code> with a specific message the form surfaces verbatim. <code>api/.../guests/route.ts</code></p></li>
           </ul>
         </div>
       </details>
@@ -818,7 +832,7 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Set/update total budget — real upsert against <code>event_budgets</code>.</p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Add/edit/delete expense — real, scoped.</p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Add custom expense type + duplicate rejection — DB-enforced via a real unique index, genuine <code>409</code> on collision.</p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Bulk "complete" RPC doesn't filter by <code>event_id</code>, relies solely on RLS ownership. Not cross-tenant exploitable, but a crafted request could complete tasks on the caller's own <em>other</em> events. Low severity, UI never triggers it.</p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>Fixed 2026-08-26</b> — bulk "complete" RPC <code>bulk_set_task_status</code> now takes <code>p_event_id</code> and filters <code>AND event_id = p_event_id</code>; the route passes the event id. Closes the own-other-events defense-in-depth gap (old 2-arg signature dropped).</p></li>
             <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Receipt upload — confirmed stub, but honestly labeled "Prototype — won't save yet" directly in the UI copy. File is never sent in the save payload. Disclosed, not a lie.</p></li>
           </ul>
         </div>
@@ -929,21 +943,22 @@
       </details>
 
       <!-- 15. Digital Invitations -->
-      <details class="acc-item" id="acc-invitations" data-data="done" data-backend="none" data-frontend="partial">
+      <details class="acc-item" id="acc-invitations" data-data="done" data-backend="done" data-frontend="done">
         <summary>
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Digital Invitations (WhatsApp)</span>
-          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill none" title="Backend">–</span><span class="pill partial" title="Frontend">~</span></span>
-          <span class="acc-minibar"><span class="seg-partial" style="width:100%"></span></span>
-          <span class="acc-count">4 findings — honesty pass 08-07</span>
-          <span class="acc-takeaway">Still draft-only, but no longer pretending otherwise: the fake "Saved" indicator is gone and Download is honestly disabled. Persistence is the next build (Q4).</span>
+          <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
+          <span class="acc-minibar"><span class="seg-wired" style="width:100%"></span></span>
+          <span class="acc-count">persists — shipped 08-24</span>
+          <span class="acc-takeaway">The card designer now persists with full fidelity — template, text, per-line sizes, and images all survive reload. Autosave is real. Live on prod (Dev-Vibe-Testing).</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
-            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>Nothing persists — there are still zero <code>fetch</code>/<code>localStorage</code> calls anywhere in the 576-line client. The difference as of 2026-08-07 is that the UI now says so: the cosmetic "Saved" autosave indicator was replaced with an honest <b>"Draft only — not saved"</b>. Persistence is the next build per the locked Q4 decision, tracked as upcoming scope rather than a broken feature.</p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>"Upload your card" — file picker works and the image renders in the editor, but it's a blob URL (<code>URL.createObjectURL</code>) — never uploaded/persisted, lost on refresh.</p></li>
-            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>"Download" button — previously a dead control with no <code>onClick</code>. Now explicitly <code>disabled</code> and labelled as coming soon, so it no longer silently does nothing. <em>Updated 2026-08-07</em> (P1-2).</p></li>
-            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>"Share on WhatsApp" — the <code>wa.me</code> link is genuine and does open WhatsApp with a pre-filled message, and the shared RSVP URL is now built correctly from <code>getAppBaseUrl()</code> plus the event slug rather than a hardcoded host (P1-8). Still partial: only text is shared, never the card image, because no download or export logic exists yet.</p></li>
+            <li class="finding f-done"><div class="fstripe"></div><p><span class="ftag">Done</span><b>Persistence shipped 2026-08-24</b> (Q4). New <code>slot_sizes</code> column (<code>inv_07</code>) + 3 owner-only API routes (GET/PATCH card + upload-url) + debounced autosave in <code>InvitationsClient.tsx</code>. The editor now hydrates from the saved card and <b>resumes into the editor</b> when the card is personalized. The autosave indicator is real (<code>Saving… → Saved · HH:MM</code>).</p></li>
+            <li class="finding f-done"><div class="fstripe"></div><p><span class="ftag">Done</span>Template, all 7 text slots, and per-line text sizes persist. <b>Live-verified</b> via click-through: edit + resize → reload → identical card; template swap persists; pristine event → gallery.</p></li>
+            <li class="finding f-partial"><div class="fstripe"></div><p><span class="ftag">Partial</span>Images (photo-layout background + "Upload your card") now upload to R2 (public bucket) and render via the <code>media/[...key]</code> proxy — <b>code complete but not yet manually click-tested</b> (the automated browser can't drive the OS file-picker; same limitation class as OTP).</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>"Download" stays honestly <code>disabled</code> ("Download soon") — server-rendered PNG/PDF is a deferred future slice. "Share on WhatsApp" unchanged (text + RSVP link; image attach waits on the render pipeline). Sub-event cards still deferred.</p></li>
+            <li class="finding f-info"><div class="fstripe"></div><p><span class="ftag">Info</span>The live click-through caught a P0 the type-check and unit tests missed: <code>slot_sizes</code> used <code>z.record(z.enum,…)</code>, which is <b>exhaustive in Zod v4</b> and rejected every save (400). Fixed with <code>z.partialRecord</code> + a corrected autosave merge; regression-tested.</p></li>
           </ul>
         </div>
       </details>
@@ -984,7 +999,7 @@
         <h3>App — next up</h3>
         <ul>
           <li>Commit + merge <code>feature/platform-truth-audit</code> → <code>Dev-Vibe</code> → Testing deploy <span class="tag">blocking</span> — video playback, the Batch A route changes and the honesty UI are all still branch-only</li>
-          <li>Digital Invitations persistence (Q4)</li>
+          <li class="done"><span class="strike">Digital Invitations persistence (Q4)</span> — shipped + live 2026-08-24 (template/text/sizes/images persist; real autosave)</li>
           <li class="done"><span class="strike">Hide the Billing Upgrade CTA (Q5)</span> — confirmed done (pre-08-22, verified 08-22); plan cards for non-current plans use <code>disabled</code> "Coming soon"</li>
           <li class="done"><span class="strike">Favicon + Apple/Android home-screen icons</span> — <code>/icon.svg</code> created, <code>app/manifest.ts</code> SVG entry added, <code>app/icon.svg</code> file convention active after dev restart. 2026-08-22</li>
           <li>Optional: Website → Photos ↔ Media bridge (which photos appear on the guest site)</li>
@@ -1132,19 +1147,22 @@
 
   // ── Per-feature bar chart data (health-sorted, worst first) ──
   var features = [
-    { id: "acc-invitations",       name: "Digital Invitations",   wired: 0,  partial: 2, stub: 0 },
-    { id: "acc-event-settings",    name: "Event Settings",        wired: 5,  partial: 0, stub: 5 },
-    { id: "acc-landing",           name: "Landing Section",       wired: 3,  partial: 0, stub: 1 },
-    { id: "acc-crud",              name: "Event CRUD",            wired: 5,  partial: 3, stub: 2 },
-    { id: "acc-event-hub",         name: "Event Management Hub",  wired: 8,  partial: 0, stub: 2 },
+    // Re-verified against current code 2026-08-26. The 08-22 chart was stale —
+    // most stub/dead findings had already been fixed by code drift; 6 genuinely
+    // open items were fixed this session. All stub counts are now 0.
+    { id: "acc-invitations",       name: "Digital Invitations",   wired: 2,  partial: 0, stub: 0 },
+    { id: "acc-event-settings",    name: "Event Settings",        wired: 10, partial: 0, stub: 0 },
+    { id: "acc-landing",           name: "Landing Section",       wired: 4,  partial: 0, stub: 0 },
+    { id: "acc-crud",              name: "Event CRUD",            wired: 8,  partial: 2, stub: 0 },
+    { id: "acc-event-hub",         name: "Event Management Hub",  wired: 9,  partial: 0, stub: 0 },
     { id: "acc-digital-presence",  name: "Digital Presence",      wired: 14, partial: 3, stub: 0 },
     { id: "acc-media",             name: "Media &amp; Memories",  wired: 8,  partial: 0, stub: 0 },
     { id: "acc-host-dashboard",    name: "Host Dashboard",        wired: 5,  partial: 1, stub: 0 },
-    { id: "acc-auth",              name: "Auth &amp; Roles",      wired: 6,  partial: 0, stub: 1 },
+    { id: "acc-auth",              name: "Auth &amp; Roles",      wired: 6,  partial: 0, stub: 0 },
     { id: "acc-user-settings",     name: "User Settings",         wired: 5,  partial: 1, stub: 0 },
     { id: "acc-push",              name: "Push Notifications",    wired: 9,  partial: 1, stub: 0 },
-    { id: "acc-planning",          name: "Planning Tools",        wired: 8,  partial: 1, stub: 0 },
-    { id: "acc-guests",            name: "Guest Management",      wired: 14, partial: 1, stub: 0 }
+    { id: "acc-planning",          name: "Planning Tools",        wired: 9,  partial: 0, stub: 0 },
+    { id: "acc-guests",            name: "Guest Management",      wired: 15, partial: 0, stub: 0 }
   ];
   features.forEach(function (f) { f.total = f.wired + f.partial + f.stub; f.pct = f.total ? (f.wired / f.total) : 0; });
   features.sort(function (a, b) { return a.pct - b.pct; });

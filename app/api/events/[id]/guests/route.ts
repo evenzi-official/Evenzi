@@ -31,6 +31,23 @@ export async function POST(
     }
     const { name, phone, email, subEventIds, tagIds } = parsed.data
 
+    // Reject a duplicate phone within this event — mirrors the CSV import path's
+    // server-side dedupe (import/route.ts) so both entry points behave the same.
+    const { data: dupe, error: dupeError } = await supabase
+      .from('event_guests')
+      .select('id')
+      .eq('event_id', id)
+      .eq('phone', phone)
+      .maybeSingle()
+
+    if (dupeError) {
+      console.error('POST /api/events/[id]/guests: duplicate check failed:', dupeError)
+      return NextResponse.json({ error: 'Failed to create guest' }, { status: 500 })
+    }
+    if (dupe) {
+      return NextResponse.json({ error: 'A guest with this phone number already exists for this event.' }, { status: 409 })
+    }
+
     const { data: pendingStatus, error: statusError } = await supabase
       .schema('config')
       .from('rsvp_statuses')

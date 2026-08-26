@@ -3967,6 +3967,11 @@ body.no-scroll{overflow:hidden}
 .guest-invite-none{   /* neutral — "not invited" is the normal initial state; amber is reserved for the 0-functions warning */
   color:var(--muted);background:var(--line-soft);border:1px solid var(--line);
 }
+/* "Invited" — a button (tap to mark not invited); green so sent state reads at a glance */
+.guest-invite-done{
+  color:var(--success-ink);background:var(--success-tint);border:1px solid var(--success-rim);
+  cursor:pointer;
+}
 .guest-assign-chip{color:var(--muted);background:var(--line-soft);font-weight:700;font-variant-numeric:tabular-nums}
 .guest-assign-chip.is-none{color:var(--warning-ink);background:var(--warning-tint);border:1px solid var(--warning-rim)}
 /* rsvp badge = a button (opens the status setter) */

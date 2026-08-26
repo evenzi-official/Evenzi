@@ -309,7 +309,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
           <div className="es-toggle-row is-danger">
             <div className="es-toggle-body">
               <span className="es-toggle-title">Delete this event</span>
-              <span className="es-toggle-desc">This action is permanent and cannot be undone. All RSVPs, photos, and registry data go with it.</span>
+              <span className="es-toggle-desc">This action can&apos;t be undone. The event and everything in it — RSVPs, photos, and registry — become permanently inaccessible.</span>
             </div>
             <button
               ref={deleteTriggerRef}
@@ -340,7 +340,7 @@ export function GeneralSettingsForm({ event }: { event: GeneralSettingsEvent }):
             </div>
             <h3 className="modal-confirm-title" id="es-delete-title">Delete this event?</h3>
             <p className="modal-confirm-text">
-              This permanently removes the event and all its data, guests, and media. This cannot be undone.
+              This removes the event and everything in it — guests, RSVPs, photos, and registry become permanently inaccessible. This cannot be undone.
             </p>
             <div className="form-group">
               <label className="form-label" htmlFor="es-delete-confirm-text">
