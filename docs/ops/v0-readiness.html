@@ -487,6 +487,7 @@
           <span>Guest Management "Send invites" is live: click-to-chat from the host's OWN WhatsApp (wa.me) — per-row "Open WhatsApp" + an optional guided send queue, pre-filled message (greeting + default guest message + <code>/e/[slug]</code> link), a WhatsApp link-preview via new <code>/e/[slug]</code> Open Graph tags, and auto-mark-invited with Undo + a per-row toggle.</span>
           <span>New <code>POST /guests/mark-invited</code> (validated, event-scoped). 15 unit tests on the pure message/phone builder; single-round Security+Frontend council folded in (hardened wa.me phone path, input caps, OG via Next Metadata object, list-as-primary, invited reversal).</span>
           <span><b>Live-verified end-to-end:</b> queue opens, message + phone build correctly, <code>invited</code> persists to the DB. Real one-click bulk + card-image attachment = Path B (WhatsApp Business API), documented for later.</span>
+          <span>Two founder-reported polish fixes on top (<code>4ad36909</code>): the invitation card now pre-fills the couple line from the event's <b>partner names</b> ("Alice &amp; John", not the full event name) with an invitation-formatted date; and the send-queue modal now renders as one solid card (reused <code>lg-glass-card</code>) instead of the title floating on a transparent scrim.</span>
         </div>
       </div>
     </div>
