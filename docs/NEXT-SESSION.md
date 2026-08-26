@@ -4,7 +4,26 @@
 
 ---
 
-## ▶ START HERE NEXT — Digital Invitations persistence merged (2026-08-24)
+## ▶ START HERE NEXT — V0 green-up + WhatsApp invites shipped (2026-08-26)
+
+**Shipped to prod** (`Dev-Vibe` `307a9b72` → `Dev-Vibe-Testing` `0fedcab7`, Vercel deploy triggered). 7 commits. Full detail: [`docs/session-reports/2026-08-26-session-report.md`](session-reports/2026-08-26-session-report.md).
+
+**Done this session (nothing to re-do):**
+1. **V0 Batch A+B** — the 2026-08-22 audit chart was stale; most reds were already fixed by drift. Six genuinely-open items fixed: deleted orphaned `/api/auth/verify`, delete-copy honesty, single-add duplicate-phone guard, **RSVP-rate hub tile now real** (via `event_hub_summary` new `guest_responded`/`rsvp_percent` cols), bulk-complete RPC scoped by `event_id`. 2 DB migrations applied.
+2. **V0 readiness artifact** re-audited → all stub/dead = 0, republished in place (`8fbeab2b-…`).
+3. **WhatsApp invites (Path A)** — Guest Management "Send invites" is live: click-to-chat from the host's OWN WhatsApp, per-row Open WhatsApp + guided queue, `/e/[slug]` OG link-preview, `mark-invited` API, undo + reversal. Council-reviewed. **Live-verified end-to-end** (invited persists to DB). Spec: [`docs/superpowers/specs/2026-08-26-whatsapp-invites-path-a-design.md`](superpowers/specs/2026-08-26-whatsapp-invites-path-a-design.md).
+4. **Invitation pre-fill** (couple = partner names + formatted date) + send-queue modal surface fix (`lg-glass-card`).
+
+**Open / next:**
+1. **Confirm prod deploy READY** on `evenzi.vercel.app`.
+2. **Manual QA (founder):** invitation photo-BG / upload-own-card persistence; B7 push-toast on a subscribed device; eyeball invite pre-fill + WhatsApp queue on own events.
+3. **Pre-existing failing test** `__tests__/api/events/route.test.ts` ("returns mapped events list") — fails on clean HEAD, unrelated; spawned task to fix (suite is 296/297).
+4. **WhatsApp Path B** (Business API — real bulk + card-image attachment) — future, needs budget + Meta verification.
+5. **Pending founder decision:** "conversation transcript, hard rule on all sessions" — raw transcript auto-save vs the existing session report — not yet wired.
+
+---
+
+## Digital Invitations persistence merged (2026-08-24)
 
 **Shipped to `Dev-Vibe`** (merge `f4f27b09`, **not yet pushed / not yet on prod**): the invitation card designer now persists — template, 7 text slots, per-line sizes (`inv_07` `slot_sizes` column), + R2 images (public bucket). 3 owner-only API routes + debounced autosave + resume-editor-if-personalized. Live-verified scenarios 1/2/5 (text+size+template-swap persist across reload). A P0 the click-through caught (Zod v4 exhaustive `z.record` broke ALL saves) is fixed. Report: `docs/session-reports/2026-08-24-invitations-persistence-session-report.md`.
 
