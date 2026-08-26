@@ -7,13 +7,23 @@ import { getAppBaseUrl } from '@/lib/url'
 import { fetchDefaultCard } from '@/lib/invitations/card'
 import { buildTemplateMaps, slugForTemplateId } from '@/lib/invitations/templates'
 
+// Format a stored ISO date (YYYY-MM-DD) into an invitation-style date, e.g.
+// "September 17, 2026". Returns null for a missing/unparseable value so the
+// caller can fall back to the "Add a date" placeholder.
+function formatInviteDate(iso: string | null): string | null {
+  if (!iso) return null
+  const d = new Date(`${iso}T00:00:00`)
+  if (Number.isNaN(d.getTime())) return null
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
 export default async function InvitationsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
 
   const { data: event } = await supabase
     .from('events')
-    .select('id, name, slug, primary_date, primary_venue')
+    .select('id, name, slug, primary_date, primary_venue, event_details')
     .eq('id', id)
     .single()
 
@@ -21,13 +31,25 @@ export default async function InvitationsPage({ params }: { params: Promise<{ id
 
   const eventName = event.name ?? 'Your Event'
 
+  // Pre-fill the card from event data the host has already entered. The couple
+  // line prefers the two partner names ("Alice & John") over the raw event name
+  // ("Alice & John Wedding"); date is formatted for an invitation; venue falls
+  // back to the city. Any of these stays editable and is only a seed — a saved
+  // slot value always wins downstream.
+  const details = (event.event_details ?? {}) as Record<string, string | null>
+  const partnerOne = details.partner_1_name?.trim()
+  const partnerTwo = details.partner_2_name?.trim()
+  const couple = partnerOne && partnerTwo
+    ? `${partnerOne} & ${partnerTwo}`
+    : (partnerOne || partnerTwo || eventName)
+
   const defaultData = {
     eyebrow: 'Together with their families',
-    couple: eventName,
+    couple,
     invite: 'request the pleasure of your company at the celebration of their wedding',
-    date: event.primary_date ?? 'Add a date',
+    date: formatInviteDate(event.primary_date) ?? 'Add a date',
     time: 'Add a time',
-    venue: event.primary_venue ?? 'Add a venue',
+    venue: event.primary_venue?.trim() || details.city?.trim() || 'Add a venue',
     message: 'Reception to follow',
   }
 

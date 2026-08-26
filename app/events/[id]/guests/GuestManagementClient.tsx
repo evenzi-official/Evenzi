@@ -697,7 +697,7 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
             role="dialog" aria-modal="true" aria-labelledby="send-queue-title"
             onClick={(e) => { if (e.target === e.currentTarget) setSendQueueOpen(false) }}
           >
-            <div className="modal-card" style={{ maxWidth: '30rem' }}>
+            <div className="modal-card lg-glass-card" style={{ maxWidth: '30rem' }}>
               <header className="es-content-head" style={{ marginBottom: '12px' }}>
                 <div>
                   <h2 id="send-queue-title" className="es-section-title">
