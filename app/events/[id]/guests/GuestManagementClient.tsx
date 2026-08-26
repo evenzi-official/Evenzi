@@ -8,6 +8,8 @@ import { ImportCsvModal } from './ImportCsvModal'
 import { TagManagerModal } from './TagManagerModal'
 import { useBusy } from '@/components/ui/BusyProvider'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { Portal } from '@/components/ui/Portal'
+import { buildGuestInviteUrl, buildInviteText } from '@/lib/invitations/whatsappInvite'
 
 type StatusFilter = 'all' | 'confirmed' | 'declined' | 'pending' | 'maybe'
 type SortKey = 'name' | 'recent' | 'status'
@@ -47,7 +49,8 @@ function fmtPhone(p: string): string {
 }
 
 export function GuestManagementClient({ initialData }: { initialData: GuestManagementInitialData }): React.ReactElement {
-  const { eventId, guests: initialGuests, rsvpStatuses, subEvents, tags: initialTags } = initialData
+  const { eventId, guests: initialGuests, rsvpStatuses, subEvents, tags: initialTags,
+    eventSlug, defaultGuestMessage, siteOffline } = initialData
 
   const [guests, setGuests] = useState<GuestRow[]>(initialGuests)
   const [tags, setTags] = useState<GuestTagOption[]>(initialTags)
@@ -63,7 +66,8 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
   const [tagManagerOpen, setTagManagerOpen] = useState(false)
   const [selecting, setSelecting] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [toast, setToast] = useState<string | null>(null)
+  type ToastState = { message: string; action?: { label: string; onClick: () => void } }
+  const [toast, setToast] = useState<ToastState | null>(null)
   const { runBusy } = useBusy()
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
   const [bulkDeleting, setBulkDeleting] = useState(false)
@@ -72,14 +76,17 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
   const statusById = useMemo(() => new Map(rsvpStatuses.map((s) => [s.id, s])), [rsvpStatuses])
   const tagById = useMemo(() => new Map(tags.map((t) => [t.id, t])), [tags])
 
-  function flashToast(message: string): void {
+  function showToast(message: string, action?: ToastState['action']): void {
     if (toastTimeoutRef.current !== null) window.clearTimeout(toastTimeoutRef.current)
-    setToast(message)
+    setToast({ message, action })
+    // Give an actionable toast (e.g. Undo) longer to be caught.
     toastTimeoutRef.current = window.setTimeout(() => {
       setToast(null)
       toastTimeoutRef.current = null
-    }, 2500)
+    }, action ? 6000 : 2500)
   }
+  // Message-only convenience — the signature child modals depend on.
+  function flashToast(message: string): void { showToast(message) }
 
   useEffect(() => {
     return () => {
@@ -145,6 +152,75 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
       flashToast("Couldn't update — try again")
     }
   }
+
+  // ── WhatsApp invites (Path A) ─────────────────────────────────────────────
+  const [sendQueueOpen, setSendQueueOpen] = useState(false)
+  // Session-local "skip" set so a guest with no phone (or one the host passes on)
+  // drops out of the queue without being marked invited. Queue position is
+  // otherwise derived entirely from persisted `invited` state — no cursor — so it
+  // survives the mobile app-switch into WhatsApp and back.
+  const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set())
+
+  const notInvitedCount = useMemo(() => guests.filter((g) => !g.invited).length, [guests])
+  const sendQueue = useMemo(
+    () => guests.filter((g) => !g.invited && !skippedIds.has(g.id)),
+    [guests, skippedIds],
+  )
+  const currentInvitee = sendQueue[0] ?? null
+
+  // Build the ready-to-open wa.me URL for a guest, or null if it can't be sent
+  // (no event site yet, or no usable phone). origin is read at click time.
+  function inviteUrlFor(g: GuestRow): string | null {
+    if (!eventSlug) return null
+    return buildGuestInviteUrl({
+      guestName: g.name,
+      phone: g.phone,
+      defaultMessage: defaultGuestMessage,
+      siteUrl: `${window.location.origin}/e/${eventSlug}`,
+    })
+  }
+
+  async function markInvited(ids: string[], invited: boolean): Promise<boolean> {
+    if (ids.length === 0) return true
+    const prev = new Map(guests.filter((g) => ids.includes(g.id)).map((g) => [g.id, g.invited]))
+    setGuests((gs) => gs.map((g) => (ids.includes(g.id) ? { ...g, invited } : g)))
+    try {
+      const res = await fetch(`/api/events/${eventId}/guests/mark-invited`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guestIds: ids, invited }),
+      })
+      if (!res.ok) throw new Error('failed')
+      return true
+    } catch {
+      // Roll back the optimistic change so UI and DB don't diverge.
+      setGuests((gs) => gs.map((g) => (prev.has(g.id) ? { ...g, invited: prev.get(g.id) as boolean } : g)))
+      flashToast("Couldn't update — try again")
+      return false
+    }
+  }
+
+  // Opening WhatsApp is the host's real action and the only signal we have, so we
+  // mark invited on open — paired with an Undo toast and a per-row toggle for the
+  // false-positive case where the host opens but doesn't actually send.
+  function openWhatsApp(g: GuestRow): void {
+    if (!eventSlug) { flashToast('Add your event website first to share an invite link'); return }
+    const url = inviteUrlFor(g)
+    if (!url) { flashToast(`${g.name} has no valid phone number`); return }
+    window.open(url, '_blank', 'noopener,noreferrer')
+    const wasInvited = g.invited
+    void markInvited([g.id], true).then((ok) => {
+      if (ok && !wasInvited) {
+        showToast(`Marked ${g.name} as invited`, { label: 'Undo', onClick: () => { void markInvited([g.id], false) } })
+      }
+    })
+  }
+
+  function toggleInvited(g: GuestRow): void {
+    void markInvited([g.id], !g.invited)
+  }
+
+  const canSendInvites = !!eventSlug
 
   function upsertGuest(guest: GuestRow): void {
     setGuests((gs) => (gs.some((g) => g.id === guest.id) ? gs.map((g) => (g.id === guest.id ? guest : g)) : [...gs, guest]))
@@ -277,8 +353,11 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
           </div>
           <div className="gm-toolbar-actions">
             <button
-              type="button" className="btn-pill btn-pill-secondary gm-icon-btn gm-send-btn" disabled
-              title="WhatsApp sending — coming soon" aria-label="Send WhatsApp invitations (coming soon)"
+              type="button" className="btn-pill btn-pill-secondary gm-icon-btn gm-send-btn"
+              disabled={!canSendInvites}
+              onClick={() => { setSkippedIds(new Set()); setSendQueueOpen(true) }}
+              title={canSendInvites ? 'Send WhatsApp invitations' : 'Add your event website first to share an invite link'}
+              aria-label="Send WhatsApp invitations"
             >
               <span aria-hidden="true" className="material-symbols-outlined">send</span>
               <span className="gm-btn-label">Send invites</span>
@@ -384,10 +463,21 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
                       <span className="guest-row-contact">{fmtPhone(g.phone)} · {g.email || 'No email'}</span>
                     </button>
                     <div className="guest-row-meta">
-                      {!g.invited && (
-                        <span className="guest-invite-chip guest-invite-none">
-                          <span aria-hidden="true" className="material-symbols-outlined">schedule_send</span> Not invited
-                        </span>
+                      {!selecting && (
+                        g.invited ? (
+                          <button
+                            type="button" className="guest-invite-chip guest-invite-done"
+                            onClick={() => toggleInvited(g)}
+                            title="Invited — tap to mark not invited"
+                            aria-label={`${g.name} is invited. Tap to mark not invited.`}
+                          >
+                            <span aria-hidden="true" className="material-symbols-outlined">task_alt</span> Invited
+                          </button>
+                        ) : (
+                          <span className="guest-invite-chip guest-invite-none">
+                            <span aria-hidden="true" className="material-symbols-outlined">schedule_send</span> Not invited
+                          </span>
+                        )
                       )}
                       {assignedCount !== subEvents.length && (
                         <span
@@ -427,7 +517,12 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
                       >
                         <span aria-hidden="true" className="material-symbols-outlined">event</span><span>Assign</span>
                       </button>
-                      <button type="button" className="gr-swipe gr-swipe-send" tabIndex={-1} disabled title="WhatsApp sending — coming soon">
+                      <button
+                        type="button" className="gr-swipe gr-swipe-send" tabIndex={-1}
+                        disabled={!canSendInvites}
+                        onClick={() => openWhatsApp(g)}
+                        title={canSendInvites ? 'Send WhatsApp invite' : 'Add your event website first'}
+                      >
                         <span aria-hidden="true" className="material-symbols-outlined">send</span><span>Send</span>
                       </button>
                     </div>
@@ -583,8 +678,105 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
 
       <div className={`bc-toast${toast ? ' is-show' : ''}`} role="status" aria-live="polite">
         <span className="bc-live" aria-hidden="true" />
-        <span>{toast ?? ''}</span>
+        <span>{toast?.message ?? ''}</span>
+        {toast?.action && (
+          <button
+            type="button"
+            className="ml-3 font-semibold underline underline-offset-2"
+            onClick={() => { toast.action?.onClick(); setToast(null) }}
+          >
+            {toast.action.label}
+          </button>
+        )}
       </div>
+
+      {sendQueueOpen && (
+        <Portal>
+          <div
+            className="modal-scrim is-open"
+            role="dialog" aria-modal="true" aria-labelledby="send-queue-title"
+            onClick={(e) => { if (e.target === e.currentTarget) setSendQueueOpen(false) }}
+          >
+            <div className="modal-card" style={{ maxWidth: '30rem' }}>
+              <header className="es-content-head" style={{ marginBottom: '12px' }}>
+                <div>
+                  <h2 id="send-queue-title" className="es-section-title">
+                    <span aria-hidden="true" className="material-symbols-outlined icon-fill">send</span>
+                    Send WhatsApp invites
+                  </h2>
+                  <p className="es-section-sub" aria-live="polite">
+                    {guests.length - notInvitedCount} of {guests.length} invited · {notInvitedCount} to go
+                  </p>
+                </div>
+              </header>
+
+              <p className="es-section-sub" style={{ marginBottom: '10px' }}>
+                Sends from <strong>your own WhatsApp</strong>, one guest at a time — tap Open, send in WhatsApp, then Next.
+              </p>
+              {siteOffline && (
+                <p className="form-error" role="status" style={{ marginBottom: '10px' }}>
+                  <span aria-hidden="true" className="material-symbols-outlined">warning</span>
+                  Your event site is offline — guests who tap the link won&apos;t see it until you publish.
+                </p>
+              )}
+
+              {currentInvitee ? (
+                <div className="es-section" style={{ marginBottom: '12px' }}>
+                  <div className="guest-row-name" style={{ fontWeight: 700 }}>{currentInvitee.name}</div>
+                  <div className="guest-row-contact" style={{ marginBottom: '10px' }}>{fmtPhone(currentInvitee.phone)}</div>
+                  <label className="form-label" htmlFor="send-queue-preview">Message preview</label>
+                  <textarea
+                    id="send-queue-preview" className="form-textarea" readOnly rows={5}
+                    value={buildInviteText({
+                      guestName: currentInvitee.name,
+                      defaultMessage: defaultGuestMessage,
+                      siteUrl: eventSlug && typeof window !== 'undefined' ? `${window.location.origin}/e/${eventSlug}` : '',
+                    })}
+                  />
+                  {!inviteUrlFor(currentInvitee) && (
+                    <p className="form-error" role="alert" style={{ marginTop: '6px' }}>
+                      <span aria-hidden="true" className="material-symbols-outlined">error</span>
+                      No valid phone number — skip this guest or fix their number.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="es-section" style={{ textAlign: 'center', padding: '24px 0' }}>
+                  <span aria-hidden="true" className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--success, #16a34a)' }}>celebration</span>
+                  <p className="es-section-sub" style={{ marginTop: '8px' }}>
+                    {notInvitedCount === 0 ? 'Everyone has been invited.' : 'No one left in the queue.'}
+                  </p>
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button type="button" className="btn-pill btn-pill-secondary" onClick={() => setSendQueueOpen(false)}>
+                  {currentInvitee ? 'Close' : 'Done'}
+                </button>
+                {currentInvitee && (
+                  <>
+                    <button
+                      type="button" className="btn-pill btn-pill-ghost"
+                      onClick={() => setSkippedIds((s) => new Set(s).add(currentInvitee.id))}
+                    >
+                      Skip
+                    </button>
+                    <button
+                      type="button" className="btn-pill btn-pill-primary"
+                      disabled={!inviteUrlFor(currentInvitee)}
+                      autoFocus
+                      onClick={() => openWhatsApp(currentInvitee)}
+                    >
+                      <span aria-hidden="true" className="material-symbols-outlined">open_in_new</span>
+                      Open WhatsApp
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
 
       <ConfirmDialog
         open={confirmBulkDelete}

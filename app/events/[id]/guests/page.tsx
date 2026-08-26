@@ -21,7 +21,7 @@ export default async function GuestsPage({ params }: { params: Promise<{ id: str
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth')
 
-  const { data: event } = await supabase.from('events').select('id, name').eq('id', id).single()
+  const { data: event } = await supabase.from('events').select('id, name, slug').eq('id', id).single()
   if (!event) redirect('/home')
 
   const eventName = event.name ?? 'Your Event'
@@ -33,6 +33,8 @@ export default async function GuestsPage({ params }: { params: Promise<{ id: str
     { data: subEventRows },
     { data: tagRows },
     { data: statusRows },
+    { data: guestSettingsRow },
+    { data: websiteSettingsRow },
   ] = await Promise.all([
     supabase.from('event_guests')
       .select('id, name, phone, email, rsvp_status_id, invited, party_size, notes, created_at')
@@ -43,6 +45,8 @@ export default async function GuestsPage({ params }: { params: Promise<{ id: str
     supabase.from('event_sub_events').select('id, custom_name, event_sub_type_id').eq('event_id', id).order('display_order', { ascending: true }),
     supabase.from('event_guest_tags').select('id, name, is_custom').eq('event_id', id).order('display_order', { ascending: true }),
     supabase.schema('config').from('rsvp_statuses').select('id, slug, name, icon_name, category').order('display_order', { ascending: true }),
+    supabase.from('event_guest_settings').select('default_guest_message').eq('event_id', id).maybeSingle(),
+    supabase.from('event_website_settings').select('site_offline').eq('event_id', id).maybeSingle(),
   ])
 
   // Resolve sub-event display names off the config catalog — same two-step
@@ -93,7 +97,17 @@ export default async function GuestsPage({ params }: { params: Promise<{ id: str
 
   const tags: GuestTagOption[] = (tagRows ?? []).map((t) => ({ id: t.id, name: t.name, isCustom: t.is_custom }))
 
-  const initialData: GuestManagementInitialData = { eventId: id, eventName, guests, rsvpStatuses, subEvents, tags }
+  const initialData: GuestManagementInitialData = {
+    eventId: id,
+    eventName,
+    guests,
+    rsvpStatuses,
+    subEvents,
+    tags,
+    eventSlug: event.slug ?? null,
+    defaultGuestMessage: guestSettingsRow?.default_guest_message ?? null,
+    siteOffline: websiteSettingsRow?.site_offline ?? false,
+  }
 
   return (
     <div data-page="guests">

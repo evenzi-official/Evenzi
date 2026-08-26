@@ -38,4 +38,10 @@ export interface GuestManagementInitialData {
   rsvpStatuses: RsvpStatusOption[]
   subEvents: SubEventOption[]
   tags: GuestTagOption[]
+  /** Public event-site slug — used to build the WhatsApp invite link (/e/[slug]). Null until the site exists. */
+  eventSlug: string | null
+  /** The host's saved default invitation message, pre-filled into each WhatsApp invite. */
+  defaultGuestMessage: string | null
+  /** Whether the public event site is currently offline — surfaces a non-blocking warning in the send flow. */
+  siteOffline: boolean
 }
