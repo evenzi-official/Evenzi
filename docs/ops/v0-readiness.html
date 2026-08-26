@@ -482,6 +482,12 @@
           <span>2 DB migrations: <code>hub_summary_add_rsvp_percent</code>, <code>bulk_set_task_status_scope_event_id</code>. tsc + eslint clean; RSVP-rate view verified against live data (5 guests / 4 responded = 80%, 14 / 2 = 14%).</span>
           <span style="color:var(--muted-soft)">Still open by design: Event-type select left wedding-only; Cover/OG crop already disclosed; Recent-activity is now an honest empty-state (informational). Manual-QA only (founder): invitation photo-BG / upload-own-card persistence, and B7 push-toast on a subscribed device.</span>
         </div>
+        <div class="audit-stats" style="margin-top:2px;">
+          <span><b>2026-08-26 WhatsApp invites (Path A) shipped</b> — council-reviewed, on <code>Dev-Vibe</code> (<code>f519c890</code>)</span>
+          <span>Guest Management "Send invites" is live: click-to-chat from the host's OWN WhatsApp (wa.me) — per-row "Open WhatsApp" + an optional guided send queue, pre-filled message (greeting + default guest message + <code>/e/[slug]</code> link), a WhatsApp link-preview via new <code>/e/[slug]</code> Open Graph tags, and auto-mark-invited with Undo + a per-row toggle.</span>
+          <span>New <code>POST /guests/mark-invited</code> (validated, event-scoped). 15 unit tests on the pure message/phone builder; single-round Security+Frontend council folded in (hardened wa.me phone path, input caps, OG via Next Metadata object, list-as-primary, invited reversal).</span>
+          <span><b>Live-verified end-to-end:</b> queue opens, message + phone build correctly, <code>invited</code> persists to the DB. Real one-click bulk + card-image attachment = Path B (WhatsApp Business API), documented for later.</span>
+        </div>
       </div>
     </div>
 
@@ -731,7 +737,7 @@
           <span class="acc-pills"><span class="pill done" title="Data">✓</span><span class="pill done" title="Backend">✓</span><span class="pill done" title="Frontend">✓</span></span>
           <span class="acc-minibar"><span class="seg-wired" style="width:93.3%"></span><span class="seg-partial" style="width:6.7%"></span></span>
           <span class="acc-count">15 findings — RSVP rules enforced 08-07</span>
-          <span class="acc-takeaway">Cleanest feature in the audit. "Send invites" is disabled correctly and honestly, not silently broken, and the guest-settings rules are now actually enforced on submission.</span>
+          <span class="acc-takeaway">Cleanest feature in the audit. "Send invites" is now live (WhatsApp Path A, shipped 2026-08-26), and the guest-settings rules are actually enforced on submission.</span>
         </summary>
         <div class="acc-body">
           <ul class="findings">
@@ -745,7 +751,7 @@
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Tag Manager modal (add/delete) — real. <code>TagManagerModal.tsx</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>CSV import — real parser, validation gate blocks import on any row error, server re-checks duplicates. <code>ImportCsvModal.tsx</code>, <code>import/route.ts</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Bulk tag / assign / delete — real writes, correct upsert/delete semantics, confirm before delete. <code>bulk/route.ts</code></p></li>
-            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>"Send invites" (toolbar + per-row) — correctly <code>disabled</code> with an honest "coming soon" tooltip. Not a silent no-op — done right. <code>:259-265,410-412</code></p></li>
+            <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>"Send invites" (toolbar + per-row) — SHIPPED 2026-08-26 (WhatsApp Path A).</b> Click-to-chat from the host's own WhatsApp: per-row "Open WhatsApp" + an optional guided send queue, pre-filled message (greeting + the event's default guest message + the <code>/e/[slug]</code> link), a WhatsApp link-preview via new <code>/e/[slug]</code> Open Graph tags, and auto-mark-invited (with Undo + a per-row toggle for the open-but-didn't-send case). New <code>POST /guests/mark-invited</code> (validated, event-scoped). Live-verified end-to-end: queue opens, message + phone build correctly, and <code>invited</code> persists to the DB. Real one-click bulk + card-image attachment is Path B (Business API), documented for later. <code>GuestManagementClient.tsx</code>, <code>lib/invitations/whatsappInvite.ts</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>RSVP response-rate stat — real computed from live guest data. <code>:112-113,218-227</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span>Zero-assigned-function warning banner — real count-driven. <code>:89,305-313</code></p></li>
             <li class="finding f-wired"><div class="fstripe"></div><p><span class="ftag">Wired</span><b>RSVP submission now enforces the event's own guest settings</b> — <code>submit_rsvp</code> checks <code>rsvp_enabled</code> and <code>max_plus_ones_per_invite</code> and returns mapped errors instead of accepting anything. This closes the previously-flagged gap where the Event Settings → Guests toggles persisted but nothing downstream read them. <em>Updated 2026-08-07</em>.</p></li>
