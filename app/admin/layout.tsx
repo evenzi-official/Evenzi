@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import { getAdminBaseUrl } from "@/lib/url";
+import { ServiceWorkerCleanup } from "@/components/ServiceWorkerCleanup";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getAdminBaseUrl()),
+  manifest: null,
   robots: {
     index: false,
     follow: false,
@@ -12,5 +16,10 @@ export default function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return (
+    <>
+      <ServiceWorkerCleanup />
+      {children}
+    </>
+  );
 }

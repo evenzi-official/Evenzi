@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { getAppBaseUrl } from "@/lib/url";
+import { getMarketingBaseUrl } from "@/lib/url";
+import { ServiceWorkerCleanup } from "@/components/ServiceWorkerCleanup";
 
 export const metadata: Metadata = {
-  // TODO(subdomain-split): use getMarketingBaseUrl() in Pass 2.
-  metadataBase: new URL(getAppBaseUrl()),
+  metadataBase: new URL(getMarketingBaseUrl()),
+  manifest: null,
   title: {
     default: "Evenzi — Plan, Manage & Celebrate Your Events",
     template: "%s · Evenzi",
@@ -17,5 +18,10 @@ export default function MarketingLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return (
+    <>
+      <ServiceWorkerCleanup />
+      {children}
+    </>
+  );
 }

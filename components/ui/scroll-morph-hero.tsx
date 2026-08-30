@@ -2,6 +2,9 @@
 
 import React, { useRef, useState } from "react";
 import { motion, useScroll, useTransform, useSpring, useMotionValueEvent, MotionValue } from "framer-motion";
+import { getAppBaseUrl } from "@/lib/url";
+
+const APP_AUTH_URL = `${getAppBaseUrl()}/auth`;
 
 const IMG_WIDTH = 64;
 const IMG_HEIGHT = 90;
@@ -214,7 +217,7 @@ export default function IntroAnimation() {
               Start planning<br />your celebration.
             </h2>
             <a
-              href="/auth"
+              href={APP_AUTH_URL}
               className="pointer-events-auto inline-flex items-center px-8 py-3.5 rounded-full bg-[#080808] text-[#f0ebe0] text-[13px] font-sans tracking-[0.12em] uppercase hover:bg-[#c8a96e] transition-colors duration-300 mb-4"
             >
               Get Early Access

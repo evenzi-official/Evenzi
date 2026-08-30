@@ -1,5 +1,8 @@
 import Link from 'next/link'
 import { SUPPORT_MAILTO } from '@/lib/constants/support'
+import { getMarketingBaseUrl } from '@/lib/url'
+
+const MARKETING_BASE_URL = getMarketingBaseUrl()
 
 export function PageFooter() {
   return (
@@ -15,8 +18,8 @@ export function PageFooter() {
           <p className="text-sm text-gray-500 font-semibold">© 2026 Evenzi · Capture · Share · Cherish</p>
         </div>
         <div className="flex items-center gap-6 text-xs font-bold tracking-widest text-gray-400 uppercase">
-          <Link href="/legal/privacy" className="hover:text-[#BB0020] transition-colors">Privacy</Link>
-          <Link href="/legal/terms" className="hover:text-[#BB0020] transition-colors">Terms</Link>
+          <Link href={`${MARKETING_BASE_URL}/legal/privacy`} className="hover:text-[#BB0020] transition-colors">Privacy</Link>
+          <Link href={`${MARKETING_BASE_URL}/legal/terms`} className="hover:text-[#BB0020] transition-colors">Terms</Link>
           <a href={SUPPORT_MAILTO()} className="hover:text-[#BB0020] transition-colors">Help</a>
         </div>
       </div>

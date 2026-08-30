@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
-import { cookies, headers } from 'next/headers'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { getAppBaseUrl } from '@/lib/url'
 import type { Metadata } from 'next'
 import GuestLookupForm from './GuestLookupForm'
 import PasswordGate from './PasswordGate'
@@ -195,14 +196,16 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     openGraph.images = [{ url: `/api/media/${imageKey}` }]
   }
 
-  // metadataBase makes the relative proxy path resolve to an absolute URL that a
-  // crawler can fetch.
-  const h = await headers()
-  const host = h.get('x-forwarded-host') ?? h.get('host')
-  const proto = h.get('x-forwarded-proto') ?? 'https'
-  const metadataBase = host ? new URL(`${proto}://${host}`) : undefined
-
-  return { metadataBase, title, description, openGraph }
+  // Pin guest websites to the app host; middleware handles request-time host
+  // routing, while this canonical base remains stable for statically generated metadata.
+  const canonicalUrl = new URL(`/e/${slug}`, getAppBaseUrl()).toString()
+  return {
+    metadataBase: new URL(getAppBaseUrl()),
+    alternates: { canonical: canonicalUrl },
+    title,
+    description,
+    openGraph: { ...openGraph, url: canonicalUrl },
+  }
 }
 
 // Meta title/description length guard so a long event name doesn't blow out the

@@ -1,5 +1,31 @@
 /* Evenzi service worker — browser push (Phase B) */
 
+const APP_HOSTS = new Set([
+  'app.evenzii.com',
+  'app.localhost',
+])
+
+const MARKETING_AND_ADMIN_HOSTS = new Set([
+  'evenzii.com',
+  'www.evenzii.com',
+  'localhost',
+  'marketing.localhost',
+  'admin.evenzii.com',
+  'admin.localhost',
+])
+
+const requestedSurface = new URL(self.location.href).searchParams.get('surface')
+const isKnownNonAppHost = MARKETING_AND_ADMIN_HOSTS.has(self.location.hostname)
+const isAppSurface =
+  APP_HOSTS.has(self.location.hostname) ||
+  (!isKnownNonAppHost && requestedSurface === 'app')
+
+if (!isAppSurface) {
+  // Marketing/admin surfaces must not retain the app push worker.
+  void self.registration.unregister()
+  void caches.keys().then((cacheNames) => Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName))))
+} else {
+
 const EVENT_LINK_RE = /^\/events\/[0-9a-f-]{36}(\/[a-zA-Z0-9/_-]*)?$/
 
 self.addEventListener('push', (event) => {
@@ -58,3 +84,4 @@ self.addEventListener('notificationclick', (event) => {
     })()
   )
 })
+}

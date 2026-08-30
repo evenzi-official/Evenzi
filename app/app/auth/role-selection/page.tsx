@@ -3,10 +3,13 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { RoleSelectCard } from '@/components/auth/RoleSelectCard'
 import { useBusy } from '@/components/ui/BusyProvider'
+import { getAppBaseUrl, getMarketingBaseUrl } from '@/lib/url'
+
+const APP_HELP_URL = `${getAppBaseUrl()}/help`
+const MARKETING_BASE_URL = getMarketingBaseUrl()
 
 export default function RoleSelectionPage() {
   const [loading, setLoading] = useState(false)
@@ -60,10 +63,10 @@ export default function RoleSelectionPage() {
   return (
     <div className="page-bg page-shell">
       <header className="page-shell-header">
-        <Link href="/" className="page-logo" aria-label="Evenzi home">Evenzi</Link>
+      <a href={MARKETING_BASE_URL} className="page-logo" aria-label="Evenzi home">Evenzi</a>
         <div className="page-shell-actions">
           <ThemeToggle className="page-theme-toggle" />
-          <Link href="/help" className="page-help">Need help?</Link>
+      <a href={APP_HELP_URL} className="page-help">Need help?</a>
         </div>
       </header>
 
