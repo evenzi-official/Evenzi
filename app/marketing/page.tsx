@@ -12,7 +12,7 @@ import AboutUs from "@/components/landing/AboutUs";
 import FinalCTA from "@/components/landing/FinalCTA";
 
 const FlyCanvas = dynamic(
-  () => import("@/app/website-theme-framer/components/FlyCanvas"),
+  () => import("@/components/ui/FlyCanvas"),
   { ssr: false }
 );
 import { TextScrollAnimation } from "@/components/ui/text-scroll-animation";

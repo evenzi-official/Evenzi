@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
 import GuestLookupForm from './GuestLookupForm'
 import PasswordGate from './PasswordGate'
-import WeddingTemplate1Client from '@/app/wedding-invitation-temp-1/WeddingTemplate1Client'
+import WeddingTemplate1Client from '@/components/templates/WeddingTemplate1Client'
 import { PW_COOKIE_NAME } from '@/app/api/e/[slug]/_lib'
 
 interface Params { params: Promise<{ slug: string }> }

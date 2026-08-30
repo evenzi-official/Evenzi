@@ -115,13 +115,13 @@ evenzi/
 
 **Stay at routing root (shared):** `api/`, `e/`, `layout.tsx` (slimmed), `globals.css`, `manifest.ts`, `not-found.tsx`, all icon/favicon assets.
 
-**Delete as part of the in-tree cleanup coupled to this move** (standalone design-test / dev-only pages, confirmed unused by product surfaces):
+**In-tree cleanup coupled to this move (CORRECTED 2026-08-30 — the original "all four are dead" list was wrong; verified live tendrils):**
 
-- `app/website-theme-framer/` — standalone theme test page.
-- `app/wedding-invitation-temp-1/` — standalone invitation test page.
-- `app/dev/r2-test/` and `app/api/dev/` — dev-only R2 test route and its API. (If the founder wants to keep an R2 smoke test, it moves behind the admin gate instead of being deleted; default is delete.)
+- **Extract, keep, delete only the remainder:** `app/website-theme-framer/` — only `components/FlyCanvas.tsx` is live (imported by the landing). Extract `FlyCanvas` → `components/ui/FlyCanvas.tsx`, then delete the rest of the dir (its `page.tsx` + 6 sibling components are used only within it).
+- **KEEP `app/wedding-invitation-temp-1/`** — not dead. Its route is linked live from `app/events/[id]/website/design/page.tsx:149` (the "Cinematic Scroll" template preview), and its `WeddingTemplate1Client` is imported by the public guest site `app/e/[slug]/page.tsx`. Extract `WeddingTemplate1Client` → `components/templates/`, move the route into `app/app/wedding-invitation-temp-1/`.
+- **KEEP `app/dev/` + `app/api/dev/`** — a dev-only playground gated in `lib/supabase/middleware.ts:47-49` (`/dev` allowed only when `NODE_ENV !== 'production'`). Not dead; leave both and the middleware block.
 
-> Any folder whose keep/delete status is uncertain at build time is **kept and moved into `app/app/`**, never silently deleted. Deletions above are the only ones authorised by this spec.
+> Any folder whose keep/delete status is uncertain at build time is **kept and moved into `app/app/`**, never silently deleted. Only the `website-theme-framer` remainder (after extracting FlyCanvas) is authorised for deletion by this spec.
 
 ---
 
