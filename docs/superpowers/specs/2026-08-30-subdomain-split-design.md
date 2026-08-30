@@ -323,3 +323,90 @@ Claude/Cursor cannot perform DNS or Vercel domain changes. The build-doc include
 - TL2 and DO1 are the same underlying issue (preview host→surface undefined) — merged into C4, not double-counted.
 - DevOps clarified TL7 (2-pass split): it reduces review load but does **not** change the cutover story — the apex swap is one verification-gated step regardless of pass count. Adopted on the review-load merit.
 - DO6's tombstone-SW is half app-concern (a real `public/sw.js` asset + route), not pure ops — owned by the marketing surface build, executed at deploy.
+
+---
+
+## 15. Vercel + Supabase changes (added 2026-08-30)
+
+The original runbook (§10, §14.2) covered Vercel domains + env but **omitted a Supabase Auth change that is required for sign-in to work on the new host.** This section is the complete external-config change set, with the current live state (verified via the Vercel MCP on 2026-08-30) so each item is a checkable delta.
+
+### 15.1 Vercel — current state vs target
+
+**Project `evenzi` (`prj_dXWmfgGtBOJDsBO18BOmcNxfwwoX`) domains today:** `evenzi.vercel.app`, `evenzi-evenzi.vercel.app`, `evenzi-git-dev-vibe-testing-evenzi.vercel.app`. **None of the `evenzii.com` hosts are attached yet.**
+
+| Change | Status | Action |
+| --- | --- | --- |
+| Add `www.evenzii.com` to `evenzi` | ❌ missing | Add first (no conflict — coming-soon holds only the apex). Let SSL issue. |
+| Add `admin.evenzii.com` to `evenzi` | ❌ missing | Add (new DNS record). SSL issue. |
+| Add `app.evenzii.com` to `evenzi` | ❌ missing | Add (new DNS record). SSL issue. This becomes the primary app host. |
+| Move apex `evenzii.com` from `evenzi-coming-soon` → `evenzi` | ❌ (on coming-soon) | **Last** step (§14.2 D1): remove from coming-soon, add to `evenzi`. Apex = A record `76.76.21.21`; `www` = CNAME. Pick a canonical (apex↔www) and 308 the other. |
+| Env `NEXT_PUBLIC_APP_URL=https://app.evenzii.com` | ❌ new | Set in **Production + Preview**. Referenced in code (`lib/url.ts`, middleware). |
+| Env `NEXT_PUBLIC_MARKETING_URL=https://evenzii.com` | ❌ new | Production + Preview. |
+| Env `NEXT_PUBLIC_ADMIN_URL=https://admin.evenzii.com` | ❌ new | Production + Preview. |
+| Env `ADMIN_USER_IDS=<uuid>,<uuid>` | ❌ new | **Server-only — never `NEXT_PUBLIC_`.** Production + Preview. Abhijith + Dheeraj Supabase `auth.users` UUIDs. |
+
+### 15.2 Supabase Auth — the required addition (was missing)
+
+Sign-in redirects are built from `window.location.origin`, so on the new app host they resolve to `https://app.evenzii.com/auth/callback`:
+
+- `app/app/auth/page.tsx:92` — Google OAuth `redirectTo: ${origin}/auth/callback`.
+- `app/app/settings/ConnectMethods.tsx:56` — link-Google `redirectTo: ${origin}/auth/callback?next=…`.
+
+Supabase rejects any redirect target not on its allowlist, so **without this change Google OAuth and phone-OTP callback fail on `app.evenzii.com`.** In the Supabase dashboard → **Authentication → URL Configuration**:
+
+| Setting | Change |
+| --- | --- |
+| **Site URL** | Set to `https://app.evenzii.com` (the surface where auth runs). Keep `evenzi.vercel.app` working during transition. |
+| **Redirect URLs (allowlist)** | Add `https://app.evenzii.com/auth/callback` and `https://app.evenzii.com/**`. Keep the existing `evenzi.vercel.app` and `http://localhost:3000/**` entries; add `http://app.localhost:3000/**` for local dev. |
+| **Google provider** | If the Google Cloud OAuth client has its own "Authorized redirect URIs", they point at the Supabase callback (`<project>.supabase.co/auth/v1/callback`), which is unchanged — no Google console edit needed. Only Supabase's own allowlist changes. |
+
+Also pending (pre-existing, not split-specific but same screen): **Auth → Allow manual linking = ON** (needed for the connect-Google link flow from the 2026-08-23c session).
+
+No schema change. No RLS change.
+
+### 15.3 Push webhook (after cutover)
+
+The Postgres trigger `notifications-dispatch-push` posts to `https://evenzi.vercel.app/api/notifications/dispatch-push`. After the app host is verified live, repoint it to `https://app.evenzii.com/api/notifications/dispatch-push` (per `CLAUDE.md` ops note). Verify first with `curl -X POST https://app.evenzii.com/api/notifications/dispatch-push` (expect the route's signature-reject = alive). Keep the `evenzi.vercel.app` URL valid 24h as fallback.
+
+### 15.4 What can be prepared now vs at cutover
+
+- **Now (safe, no user impact):** set the 4 env vars in Vercel Production + Preview; add the Supabase redirect-URL allowlist entries for `app.evenzii.com` (additive — doesn't break the current host); flip Allow-manual-linking ON. None of these affect the live site until the domains are attached.
+- **At cutover (gated on a green build + preview verify):** attach the 4 domains, retire the coming-soon apex, repoint the webhook.
+
+---
+
+## 16. End-of-split click-through QA (full manual + automated pass)
+
+Before the split is called done, a **full click-through** of every surface runs — automated where possible (Antigravity, per the delegation gate) and a founder manual pass on a real session for anything automation can't drive (Google OAuth, OTP input, the OS file-picker). This runs on the **preview deploy** (using the `?surface=` / `x-evenzi-surface` override for the app/admin surfaces) **before** the DNS cutover, and again as a smoke pass on the real hosts after cutover.
+
+### 16.1 Marketing surface (`evenzii.com` / preview `?surface=marketing`)
+- Landing renders fully; no app chrome (no Help FAB, no app service worker registered — check DevTools → Application → Service Workers).
+- "Get started" / "Sign in" → `app.evenzii.com/auth` (correct cross-host link, not the preview origin).
+- `/legal/privacy` and `/legal/terms` load. No `/home`, `/events`, `/api`-driven app content leaks.
+- Direct `evenzii.com/admin`, `/app`, `/e/<slug>` → 404.
+
+### 16.2 App surface (`app.evenzii.com` / preview `?surface=app`) — the deep pass
+- **Auth:** Google OAuth round-trip completes (returns to `/auth/callback` → `/home`). Phone OTP: request + verify + role-selection for a fresh user. Sign-out.
+- **Connect a 2nd method** (Settings): link Google and link phone both complete; disconnect respects the last-method guard.
+- **Event lifecycle:** create (4-step wizard) → edit → delete. Dashboard tiles/counts correct.
+- **Every event hub tab:** guests (add/import/RSVP/WhatsApp send queue), planning (checklist + budget add/edit/delete/toggle), media (upload), website/design (edit, live preview, share), invitations card designer (persist across reload incl. photo-BG + upload-own-card), settings (all sub-tabs incl. usage/billing/registry).
+- **Root `/`:** signed-in → `/home`; signed-out → `/auth`.
+- **Guest site `/e/<slug>`:** loads on the app host, public (no auth redirect), RSVP works. Confirmed 404 on marketing/admin hosts.
+- **App-only assets:** `/manifest.webmanifest`, `/icon.png` serve on app host; PWA installable only here.
+- Push: in-app bell + a browser push on a subscribed device (needs VAPID env + webhook).
+
+### 16.3 Admin surface (`admin.evenzii.com` / preview `?surface=admin`)
+- Unauthenticated → 403 (fail-closed). Authenticated but **not** in `ADMIN_USER_IDS` → 403. Allow-listed user → the "Admin — coming soon" placeholder.
+- Response carries strict CSP (`frame-ancestors 'none'`) + `X-Frame-Options: DENY` + `noindex` (check headers).
+- Admin login: `admin.evenzii.com/auth` reaches the sign-in screen (rewritten to app auth), and after login an allow-listed user lands on the placeholder.
+
+### 16.4 Cross-cutting
+- **Preview override** works only on non-production (`?surface=admin` reaches admin on preview; ignored on prod).
+- **Sessions are host-independent:** an app session does not grant admin (cookie host-scoping).
+- No horizontal scroll / broken layout at 360 / 390 / 768 / 1440 on each surface's key pages (Antigravity responsive pass).
+- Console clean (no CSP violations, no failed asset/manifest fetches) on each surface.
+
+### 16.5 Ownership
+- **Antigravity:** automated regression/responsive/a11y across the three surfaces on the preview URL (via `?surface=`), plus the app feature click-throughs it can drive.
+- **Founder (manual):** the auth flows (Google OAuth, OTP), the OS file-picker uploads (invitation photo-BG, media), and the real-device push toast.
+- **Claude:** reviews the Antigravity `_findings` against this matrix, patches spec/tests on any gap, and signs off before cutover.
