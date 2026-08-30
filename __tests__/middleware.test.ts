@@ -106,6 +106,21 @@ describe('surface middleware', () => {
     expect(response.headers.get('x-middleware-rewrite')).toContain('/app/auth')
   })
 
+  it.each(['/', '/home'])(
+    'does not rewrite a terminal admin 403 (no target-route render under 403): %s',
+    async (path) => {
+      // The admin gate in updateSession returns a terminal 403 for a denied user.
+      updateSessionMock.mockImplementation(() => new NextResponse('Forbidden', { status: 403 }))
+
+      const response = await middleware(request(path, 'admin.evenzii.com'))
+
+      expect(response.status).toBe(403)
+      // Must NOT carry a rewrite — otherwise Next renders /admin (content leak) or
+      // /admin/home (404), clobbering the gate's 403.
+      expect(response.headers.get('x-middleware-rewrite')).toBeNull()
+    },
+  )
+
   it.each(['/api/events', '/_next/static/chunk.js', '/dev/r2-test'])(
     'passes shared path through without a surface rewrite: %s',
     async (path) => {

@@ -130,7 +130,12 @@ export async function middleware(request: NextRequest) {
     : await updateSession(request, surface, pathname)
   applySurfaceHeaders(response, surface, pathname)
 
-  if (response.status >= 300 && response.status < 400) return response
+  // updateSession returns a terminal response for any non-2xx outcome (auth
+  // redirects AND the admin 403 gate). Never rewrite those — a rewrite on a 403
+  // would make Next render the target route's body under the 403 status (admin
+  // content leak) or turn it into a 404. Only pass-through (2xx) responses get
+  // the surface rewrite.
+  if (response.status >= 300) return response
 
   const rewriteUrl = request.nextUrl.clone()
   rewriteUrl.pathname = internalPathFor(surface, pathname)
