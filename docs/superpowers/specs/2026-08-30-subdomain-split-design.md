@@ -26,6 +26,7 @@ This is a **permanent two-plus-one site structure**, not a temporary cutover: ro
 - No database/schema changes at all.
 - No cross-subdomain single-sign-on (shared cookie domain). App and admin sessions stay independent per host (this is the more secure default; SSO can be added later if ever needed).
 - No monorepo / multi-project split (evaluated and rejected — see §3).
+- **`designs/` is not a deployed surface.** The `designs/` folder (static HTML/CSS/JS prototypes) stays the standalone internal workshop served by `npm run design` (live-server :4000). It is never a host-routed surface, never a route in the Next app, and is untouched by the folder moves. (Founder decision, 2026-08-30.)
 
 ---
 
