@@ -16,7 +16,7 @@ export function ServiceWorkerRegister(): null {
         if (existing && scriptUrl && !scriptUrl.endsWith('/sw.js')) {
           await existing.unregister()
         }
-        await navigator.serviceWorker.register('/sw.js')
+        await navigator.serviceWorker.register('/sw.js?surface=app')
       } catch (err: unknown) {
         console.error('Service worker registration failed:', err)
       }

@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import WeddingTemplate1Client from './WeddingTemplate1Client'
+import WeddingTemplate1Client from '@/components/templates/WeddingTemplate1Client'
 
 interface PageProps {
   searchParams: Promise<{ eventId?: string }>

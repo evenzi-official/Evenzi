@@ -2,6 +2,9 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { getMarketingBaseUrl } from '@/lib/url'
+
+const MARKETING_BASE_URL = getMarketingBaseUrl()
 
 interface Props {
   searchParams: Promise<{ token?: string }>
@@ -185,7 +188,7 @@ function InviteError({ message }: { message: string }) {
           {message}
         </p>
         <Link
-          href="/"
+          href={MARKETING_BASE_URL}
           style={{
             display: 'inline-block', color: 'var(--brand)',
             fontWeight: 700, fontSize: 13, textDecoration: 'none',

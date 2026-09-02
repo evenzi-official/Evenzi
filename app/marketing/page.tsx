@@ -10,20 +10,23 @@ import WhatsAppSpotlight from "@/components/landing/WhatsAppSpotlight";
 import SocialProofStrip from "@/components/landing/SocialProofStrip";
 import AboutUs from "@/components/landing/AboutUs";
 import FinalCTA from "@/components/landing/FinalCTA";
+import { getAppBaseUrl } from "@/lib/url";
 
 const FlyCanvas = dynamic(
-  () => import("@/app/website-theme-framer/components/FlyCanvas"),
+  () => import("@/components/ui/FlyCanvas"),
   { ssr: false }
 );
 import { TextScrollAnimation } from "@/components/ui/text-scroll-animation";
 import IntroAnimation from "@/components/ui/scroll-morph-hero";
 import LandingFooter from "@/components/landing/LandingFooter";
 
+const APP_AUTH_URL = `${getAppBaseUrl()}/auth`;
+
 function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleSignup = () => {
-    window.location.href = "/auth";
+    window.location.href = APP_AUTH_URL;
   };
 
   return (
@@ -290,7 +293,7 @@ export default function Home() {
           className="flex flex-col items-center gap-4"
         >
           <button
-            onClick={() => (window.location.href = "/auth")}
+            onClick={() => (window.location.href = APP_AUTH_URL)}
             className="inline-flex items-center px-8 py-4 rounded-full bg-[#080808] text-[#f0ebe0] text-[14px] font-semibold tracking-[0.06em] shadow-[0_4px_24px_rgba(8,8,8,0.18)] hover:bg-[#BB0020] transition-all duration-250"
           >
             Start Planning Free

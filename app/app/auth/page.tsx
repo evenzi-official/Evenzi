@@ -3,8 +3,11 @@
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import { getAppBaseUrl, getMarketingBaseUrl } from '@/lib/url'
+
+const APP_HELP_URL = `${getAppBaseUrl()}/help`
+const MARKETING_BASE_URL = getMarketingBaseUrl()
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<'signup' | 'login'>('login')
@@ -138,10 +141,10 @@ export default function AuthPage() {
   return (
     <div data-page="auth" className="page-bg page-shell">
       <header className="page-shell-header">
-        <Link href="/" className="page-logo" aria-label="Evenzi home">Evenzi</Link>
+          <a href={MARKETING_BASE_URL} className="page-logo" aria-label="Evenzi home">Evenzi</a>
         <div className="page-shell-actions">
           <ThemeToggle className="page-theme-toggle" />
-          <Link href="/help" className="page-help">Need help?</Link>
+          <a href={APP_HELP_URL} className="page-help">Need help?</a>
         </div>
       </header>
 
@@ -236,7 +239,7 @@ export default function AuthPage() {
 
               <p className="auth-policy">
                 By continuing, you agree to our{' '}
-                <a href="/legal/terms">Terms of Service</a> and <a href="/legal/privacy">Privacy Policy</a>
+                <a href={`${MARKETING_BASE_URL}/legal/terms`}>Terms of Service</a> and <a href={`${MARKETING_BASE_URL}/legal/privacy`}>Privacy Policy</a>
               </p>
             </>
           ) : (

@@ -14,7 +14,7 @@ vi.mock('@/lib/supabase/profile', () => ({
   getUserProfile: getUserProfileMock,
 }))
 
-import { GET } from '@/app/auth/callback/route'
+import { GET } from '@/app/app/auth/callback/route'
 
 describe('auth callback route', () => {
   beforeEach(() => {

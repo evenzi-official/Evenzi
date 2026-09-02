@@ -5,6 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AnimatedList } from "@/components/ui/animated-list";
+import { getAppBaseUrl } from "@/lib/url";
+
+const APP_AUTH_URL = `${getAppBaseUrl()}/auth`;
 
 interface WaItem {
   guest: string;
@@ -114,7 +117,7 @@ export default function WhatsAppSpotlight() {
             their RSVP link included — no copy-paste, no manual work.
           </p>
           <Link
-            href="/auth"
+            href={APP_AUTH_URL}
             className="mt-8 inline-flex items-center gap-1.5 text-[#BB0020] font-semibold hover:underline transition-all"
             style={{ fontSize: "13px" }}
           >

@@ -1,12 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Manrope, Cormorant_Garamond, Poppins, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { RevealObserver } from "@/components/layout/RevealObserver";
-import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
-import { Preloader } from "@/components/ui/Preloader";
-import { HelpFabMount } from "@/components/layout/HelpFabMount";
-import { BusyProvider } from "@/components/ui/BusyProvider";
-import { getAppBaseUrl } from "@/lib/url";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -41,73 +35,17 @@ const playfairDisplay = Playfair_Display({
   display: "swap",
 });
 
-const APP_DESCRIPTION =
-  "Create events, manage guest lists, send invitations, and build beautiful event websites. All in one place.";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(getAppBaseUrl()),
   applicationName: "Evenzi",
   title: {
-    default: "Evenzi — Plan, Manage & Celebrate Your Events",
+    default: "Evenzi",
     template: "%s · Evenzi",
   },
-  description: APP_DESCRIPTION,
-  keywords: [
-    "event planning",
-    "wedding",
-    "RSVP",
-    "guest list",
-    "invitations",
-    "Evenzi",
-  ],
-  authors: [{ name: "Evenzi" }],
-  creator: "Evenzi",
-  publisher: "Evenzi",
+  description: "A place to plan and celebrate life's moments.",
   formatDetection: {
     telephone: false,
     email: false,
     address: false,
-  },
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "48x48" },
-      { url: "/icon.png", type: "image/png", sizes: "32x32" },
-      { url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" },
-      { url: "/icons/icon-512.png", type: "image/png", sizes: "512x512" },
-    ],
-    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
-    shortcut: ["/favicon.ico"],
-  },
-  manifest: "/manifest.webmanifest",
-  appleWebApp: {
-    capable: true,
-    title: "Evenzi",
-    statusBarStyle: "default",
-  },
-  openGraph: {
-    type: "website",
-    locale: "en_IN",
-    siteName: "Evenzi",
-    title: "Evenzi — Plan, Manage & Celebrate Your Events",
-    description: APP_DESCRIPTION,
-    images: [
-      {
-        url: "/icons/icon-512.png",
-        width: 512,
-        height: 512,
-        alt: "Evenzi",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary",
-    title: "Evenzi — Plan, Manage & Celebrate Your Events",
-    description: APP_DESCRIPTION,
-    images: ["/icons/icon-512.png"],
-  },
-  robots: {
-    index: true,
-    follow: true,
   },
 };
 
@@ -138,13 +76,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} ${manrope.variable} ${cormorantGaramond.variable} ${poppins.variable} ${playfairDisplay.variable} antialiased`}>
-        <Preloader />
-        <RevealObserver />
-        <ServiceWorkerRegister />
-        <BusyProvider>
-          {children}
-        </BusyProvider>
-        <HelpFabMount />
+        {children}
       </body>
     </html>
   );

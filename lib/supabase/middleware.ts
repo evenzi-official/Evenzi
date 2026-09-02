@@ -2,15 +2,49 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getUserProfile } from '@/lib/supabase/profile'
 import { isEnvMissingPublicPath, isPublicPath } from '@/lib/supabase/is-public-path'
+import type { Surface } from '@/lib/surface'
 
-export async function updateSession(request: NextRequest) {
+export function parseAdminUserIds(value = process.env.ADMIN_USER_IDS): Set<string> {
+  return new Set(
+    (value ?? '')
+      .split(',')
+      .map((id) => id.trim().toLowerCase())
+      .filter(Boolean),
+  )
+}
+
+function withSessionCookies(source: NextResponse, target: NextResponse): NextResponse {
+  source.cookies.getAll().forEach((cookie) => target.cookies.set(cookie))
+  return target
+}
+
+function redirectWithSessionCookies(source: NextResponse, url: URL): NextResponse {
+  return withSessionCookies(source, NextResponse.redirect(url))
+}
+
+export async function updateSession(
+  request: NextRequest,
+  surface: Surface = 'app',
+  canonicalPathname = request.nextUrl.pathname,
+) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
 
+  if (surface === 'marketing') {
+    return NextResponse.next({ request })
+  }
+
   // If env vars are missing, allow access to public routes only
   if (!supabaseUrl || !supabaseKey) {
-    const pathname = request.nextUrl.pathname
-    if (isEnvMissingPublicPath(pathname)) {
+    if (surface === 'admin') {
+      return new NextResponse('Forbidden', { status: 403 })
+    }
+    if (surface === 'app' && canonicalPathname === '/') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/auth'
+      return NextResponse.redirect(url)
+    }
+    if (isEnvMissingPublicPath(canonicalPathname)) {
       return NextResponse.next()
     }
     const url = request.nextUrl.clone()
@@ -42,7 +76,28 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const pathname = request.nextUrl.pathname
+  const pathname = canonicalPathname
+  const isAdminAuthPath = pathname === '/auth' || pathname.startsWith('/auth/')
+
+  if (surface === 'admin' && !isAdminAuthPath) {
+    // TODO(admin-rbac): replace env allowlist with role_slug='admin' + RLS (next session)
+    const adminUserIds = parseAdminUserIds()
+    if (!user || !adminUserIds.has(user.id.toLowerCase())) {
+      return withSessionCookies(supabaseResponse, new NextResponse('Forbidden', { status: 403 }))
+    }
+  }
+
+  if (surface === 'app' && pathname === '/') {
+    const url = request.nextUrl.clone()
+    url.pathname = user ? '/home' : '/auth'
+    return redirectWithSessionCookies(supabaseResponse, url)
+  }
+
+  if (surface === 'admin' && pathname === '/home') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return redirectWithSessionCookies(supabaseResponse, url)
+  }
 
   // Dev-only playground (e.g. /dev/r2-test) — accessible without auth in development only.
   const isDevPlayground =
@@ -55,7 +110,7 @@ export async function updateSession(request: NextRequest) {
   if (!user && !pathIsPublic) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth'
-    return NextResponse.redirect(url)
+    return redirectWithSessionCookies(supabaseResponse, url)
   }
 
   // User exists — check role for routing decisions
@@ -67,28 +122,28 @@ export async function updateSession(request: NextRequest) {
     if (!hasRole && pathname !== '/auth/role-selection' && !pathIsPublic) {
       const url = request.nextUrl.clone()
       url.pathname = '/auth/role-selection'
-      return NextResponse.redirect(url)
+      return redirectWithSessionCookies(supabaseResponse, url)
     }
 
     // User with role on role-selection page → redirect to dashboard
     if (hasRole && pathname === '/auth/role-selection') {
       const url = request.nextUrl.clone()
       url.pathname = '/home'
-      return NextResponse.redirect(url)
+      return redirectWithSessionCookies(supabaseResponse, url)
     }
 
     // User with role on auth page → redirect to dashboard
     if (hasRole && pathname === '/auth') {
       const url = request.nextUrl.clone()
       url.pathname = '/home'
-      return NextResponse.redirect(url)
+      return redirectWithSessionCookies(supabaseResponse, url)
     }
 
     // Host-only routes — vendors cannot access event creation/management
     if (hasRole && profile?.role_slug !== 'host' && pathname.startsWith('/events')) {
       const url = request.nextUrl.clone()
       url.pathname = '/home'
-      return NextResponse.redirect(url)
+      return redirectWithSessionCookies(supabaseResponse, url)
     }
   }
 

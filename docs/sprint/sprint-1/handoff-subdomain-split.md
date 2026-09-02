@@ -38,7 +38,7 @@ Goal: get the folders and layouts into their new shape while the app still behav
   - `app/admin/layout.tsx` — minimal; `robots: { index: false, follow: false }`.
 
 ### 2.2 Moves (`git mv`)
-- Into `app/app/`: `home/`, `events/`, `settings/`, `auth/`, `help/`.
+- Into `app/app/`: `home/`, `events/`, `settings/`, `auth/`, `help/`, and `wedding-invitation-temp-1/` (live route — see §2.4). Keep `dev/` where it is (or under `app/app/`), it's a dev-gated route.
 - Into `app/marketing/`: current `app/page.tsx` → `app/marketing/page.tsx`; `legal/` → `app/marketing/legal/`.
 - Create `app/app/page.tsx` = thin server redirect to `/home` (fallback; the real signed-in/out decision lands in middleware in Pass 2).
 - Add `app/app/not-found.tsx`, `app/marketing/not-found.tsx`, `app/admin/not-found.tsx` (surface-appropriate chrome). Keep the root `app/not-found.tsx` too.
@@ -47,8 +47,21 @@ Goal: get the folders and layouts into their new shape while the app still behav
 ### 2.3 Stay put (do NOT move)
 `app/api/`, `app/e/`, `app/layout.tsx`, `app/globals.css`, `app/manifest.ts`, `app/not-found.tsx`, all icon/favicon assets.
 
-### 2.4 Delete (in-tree cleanup, §4.1)
-`git rm -r` these confirmed-unused test/dev pages: `app/website-theme-framer/`, `app/wedding-invitation-temp-1/`, `app/dev/`, `app/api/dev/`. (If `tsc` reveals any real import of these from a product route — it won't — STOP and report instead of deleting.)
+### 2.4 Extract live components, then delete only the truly-dead (CORRECTED 2026-08-30)
+
+> The original list was wrong — 3 of 4 dirs have live tendrils (verified). Do exactly this:
+
+**Extract these live components to shared locations, update their importers:**
+- `app/website-theme-framer/components/FlyCanvas.tsx` → `components/ui/FlyCanvas.tsx`. Update the dynamic import in the landing (`app/page.tsx` → now `app/marketing/page.tsx`, line ~15).
+- `app/wedding-invitation-temp-1/WeddingTemplate1Client.tsx` → `components/templates/WeddingTemplate1Client.tsx`. Update both importers: `app/e/[slug]/page.tsx` (line 7) and the temp route's own `page.tsx`.
+
+**Delete (now truly dead after the extraction):** `app/website-theme-framer/` entirely — its `page.tsx` and the other 6 components (`CTASection`, `FeaturesSection`, `HeroSection`, `HowItWorks`, `NavBar`, `StickyEnvelope`) are used only within that dir (verified no external imports).
+
+**KEEP — do NOT delete (these are live):**
+- `app/wedding-invitation-temp-1/page.tsx` — a **live route**: linked from `app/events/[id]/website/design/page.tsx:149` as the "Cinematic Scroll" template preview (`href="/wedding-invitation-temp-1?eventId=…"`, opens in new tab). Move it into `app/app/wedding-invitation-temp-1/page.tsx` like the other app routes; it now imports `WeddingTemplate1Client` from `@/components/templates/…`. The relative link keeps working (same app host).
+- `app/dev/` + `app/api/dev/` — gated dev-only playground (`lib/supabase/middleware.ts:47-49` allows `/dev` when `NODE_ENV !== 'production'`). Harmless, dev-gated. Leave both, and leave the middleware block.
+
+If `tsc` reveals any *further* unexpected import from a dir you're about to delete, STOP and report — do not delete.
 
 ### 2.5 Fix moved-import specifiers
 - Run: `grep -rn "@/app/\(home\|events\|settings\|auth\|help\|legal\|page\)" app lib components` and fix each hit to its new `@/app/app/...` / `@/app/marketing/...` path. (`@/` imports of `lib`, `components`, etc. do NOT change — only specifiers that pointed *into* the moved folders.)

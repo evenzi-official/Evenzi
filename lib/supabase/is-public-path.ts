@@ -13,9 +13,11 @@ export function isPublicPath(pathname: string): boolean {
     pathname.startsWith('/api') ||
     pathname === '/sw.js' ||
     pathname === '/manifest.webmanifest' ||
-    pathname.startsWith('/invite') ||
+    pathname === '/invite' ||
+    pathname.startsWith('/invite/') ||
     pathname.startsWith('/e/') ||
-    pathname.startsWith('/wedding-invitation-temp-') ||
+    pathname === '/wedding-invitation-temp-1' ||
+    pathname.startsWith('/wedding-invitation-temp-1/') ||
     pathname === '/help' ||
     pathname.startsWith('/help/') ||
     pathname.startsWith('/legal/')
@@ -31,8 +33,11 @@ export function isEnvMissingPublicPath(pathname: string): boolean {
     pathname.startsWith('/api') ||
     pathname === '/sw.js' ||
     pathname === '/manifest.webmanifest' ||
+    pathname === '/invite' ||
+    pathname.startsWith('/invite/') ||
     pathname.startsWith('/e/') ||
-    pathname.startsWith('/wedding-invitation-temp-') ||
+    pathname === '/wedding-invitation-temp-1' ||
+    pathname.startsWith('/wedding-invitation-temp-1/') ||
     pathname === '/help' ||
     pathname.startsWith('/help/') ||
     pathname.startsWith('/legal/')

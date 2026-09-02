@@ -1,8 +1,8 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { DatePicker } from '@/app/events/create/components/DatePicker'
-import { TimePicker } from '@/app/events/create/components/TimePicker'
+import { DatePicker } from '@/app/app/events/create/components/DatePicker'
+import { TimePicker } from '@/app/app/events/create/components/TimePicker'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch'
 import { Portal } from '@/components/ui/Portal'
