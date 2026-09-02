@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import { PageFooter } from '@/components/layout/PageFooter';
+import { getMarketingBaseUrl } from '@/lib/url';
+
+const MARKETING_BASE_URL = getMarketingBaseUrl();
 
 export default function NotFound() {
   return (
@@ -12,7 +15,7 @@ export default function NotFound() {
             The page you&apos;re looking for doesn&apos;t exist or has been moved.
           </p>
           <Link
-            href="/"
+            href={MARKETING_BASE_URL}
             className="inline-block px-6 py-3 bg-gray-900 text-white font-semibold rounded-full hover:bg-gray-800 transition-colors"
           >
             Return Home

@@ -51,6 +51,26 @@ export async function runSystemCheck(): Promise<StepResult> {
     required: true,
   })
 
+  const isNonLocalEnvironment =
+    process.env.NODE_ENV === 'production' ||
+    process.env.VERCEL_ENV === 'preview' ||
+    process.env.VERCEL_ENV === 'production'
+  if (isNonLocalEnvironment) {
+    const surfaceEnv: Record<string, string | undefined> = {
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+      NEXT_PUBLIC_MARKETING_URL: process.env.NEXT_PUBLIC_MARKETING_URL,
+      NEXT_PUBLIC_ADMIN_URL: process.env.NEXT_PUBLIC_ADMIN_URL,
+      ADMIN_USER_IDS: process.env.ADMIN_USER_IDS,
+    }
+    for (const [name, value] of Object.entries(surfaceEnv)) {
+      checks.push({
+        label: `${name} configured`,
+        passed: !!value,
+        required: true,
+      })
+    }
+  }
+
   if (supabaseUrl) {
     const ping = await checkSupabaseReachable(supabaseUrl)
     checks.push({

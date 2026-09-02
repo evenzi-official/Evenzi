@@ -2,6 +2,9 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { getAppBaseUrl } from "@/lib/url";
+
+const APP_AUTH_URL = `${getAppBaseUrl()}/auth`;
 
 export default function FinalCTA() {
   return (
@@ -37,7 +40,7 @@ export default function FinalCTA() {
           className="mt-10 flex flex-col items-center gap-4"
         >
           <Link
-            href="/auth"
+            href={APP_AUTH_URL}
             className="inline-flex items-center px-8 py-4 rounded-full bg-[#080808] text-[#f0ebe0] font-semibold tracking-[0.06em] shadow-[0_8px_32px_rgba(8,8,8,0.15)] hover:bg-[#BB0020] transition-all duration-300"
             style={{ fontSize: "14px" }}
           >

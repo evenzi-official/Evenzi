@@ -75,3 +75,6 @@ designs/pages/website/guest-site/sapphire-mivon/assets/imgs/works/w4.mp4
 
 # Local git worktrees (do not commit checkouts)
 .worktrees/
+
+# nested Next.js build output (any sub-app)
+**/.next/

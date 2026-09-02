@@ -4,7 +4,42 @@
 
 ---
 
-## ▶ START HERE NEXT — Digital Invitations persistence merged (2026-08-24)
+## ▶ START HERE NEXT — Subdomain split built, NOT yet merged (2026-08-30)
+
+**On `feature/subdomain-split` (off `Dev-Vibe` `13f44807`, pushed, 4 commits — `881d8a94` → `8167ec45`). NOT merged to `Dev-Vibe`; held for founder QA + merge decision.** Full detail: [`docs/session-reports/2026-08-30-subdomain-split-session-report.md`](session-reports/2026-08-30-subdomain-split-session-report.md). Spec: [`docs/superpowers/specs/2026-08-30-subdomain-split-design.md`](superpowers/specs/2026-08-30-subdomain-split-design.md). Build-doc + cutover runbook: [`docs/sprint/sprint-1/handoff-subdomain-split.md`](sprint/sprint-1/handoff-subdomain-split.md).
+
+**Done (nothing to re-do):** three host-routed surfaces in one Next app — marketing `evenzii.com` / app `app.evenzii.com` / admin `admin.evenzii.com` via `middleware.ts` host rewrites. Pass 1 (structural move into `app/{app,marketing,admin}/`, live-component extraction) + Pass 2 (exact-host allowlist, fail-closed admin gate, preview `?surface` override, per-surface CSP, cookie-safe rewrites) + 3 council-code hardenings. Live-QA found + fixed an admin-403-rewrite content-leak bug (`8167ec45`). Gates green: tsc 0, tests 352/353 (1 known), build ok, middleware 20/20. Repo cleanup also done on `Dev-Vibe` (6 branches deleted, `landing-page/` removed, docs rescued).
+
+**Fix next (open):**
+1. **Founder decision — merge `feature/subdomain-split` → `Dev-Vibe`** (triggers a Vercel preview). Held this session.
+2. **Founder manual QA legs** (browser automation couldn't finish these): OTP verify → `/home`; admin allowlisted-success (put a real Supabase UUID in `.env.local` `ADMIN_USER_IDS`); confirm the auth-form OTP-code step renders (pre-existing logic, not split-touched — the send leg works).
+3. **Cutover (founder, gated on green preview):** attach `www.`/`admin.`/`app.evenzii.com` then move apex off `evenzi-coming-soon`; set the 4 env vars (Prod + Preview); **add Supabase Auth redirect allowlist `https://app.evenzii.com/auth/callback`** (required or OAuth/OTP break); flip Allow-manual-linking ON; repoint the push webhook. Runbook: spec §15 + the Cutover & QA artifact.
+4. Parked cleanup: `qa/` 19 MB history purge; DB fixtures (`e2e-truth-audit` + Account B).
+
+**Note:** `designs/` deliberately stays a standalone `npm run design` workshop — not a deployed surface (founder decision, in spec non-goals).
+
+---
+
+## Subdomain split — earlier context: V0 green-up + WhatsApp invites shipped (2026-08-26)
+
+**Shipped to prod** (`Dev-Vibe` `307a9b72` → `Dev-Vibe-Testing` `0fedcab7`, Vercel deploy triggered). 7 commits. Full detail: [`docs/session-reports/2026-08-26-session-report.md`](session-reports/2026-08-26-session-report.md).
+
+**Done this session (nothing to re-do):**
+1. **V0 Batch A+B** — the 2026-08-22 audit chart was stale; most reds were already fixed by drift. Six genuinely-open items fixed: deleted orphaned `/api/auth/verify`, delete-copy honesty, single-add duplicate-phone guard, **RSVP-rate hub tile now real** (via `event_hub_summary` new `guest_responded`/`rsvp_percent` cols), bulk-complete RPC scoped by `event_id`. 2 DB migrations applied.
+2. **V0 readiness artifact** re-audited → all stub/dead = 0, republished in place (`8fbeab2b-…`).
+3. **WhatsApp invites (Path A)** — Guest Management "Send invites" is live: click-to-chat from the host's OWN WhatsApp, per-row Open WhatsApp + guided queue, `/e/[slug]` OG link-preview, `mark-invited` API, undo + reversal. Council-reviewed. **Live-verified end-to-end** (invited persists to DB). Spec: [`docs/superpowers/specs/2026-08-26-whatsapp-invites-path-a-design.md`](superpowers/specs/2026-08-26-whatsapp-invites-path-a-design.md).
+4. **Invitation pre-fill** (couple = partner names + formatted date) + send-queue modal surface fix (`lg-glass-card`).
+
+**Open / next:**
+1. **Confirm prod deploy READY** on `evenzi.vercel.app`.
+2. **Manual QA (founder):** invitation photo-BG / upload-own-card persistence; B7 push-toast on a subscribed device; eyeball invite pre-fill + WhatsApp queue on own events.
+3. **Pre-existing failing test** `__tests__/api/events/route.test.ts` ("returns mapped events list") — fails on clean HEAD, unrelated; spawned task to fix (suite is 296/297).
+4. **WhatsApp Path B** (Business API — real bulk + card-image attachment) — future, needs budget + Meta verification.
+5. **Pending founder decision:** "conversation transcript, hard rule on all sessions" — raw transcript auto-save vs the existing session report — not yet wired.
+
+---
+
+## Digital Invitations persistence merged (2026-08-24)
 
 **Shipped to `Dev-Vibe`** (merge `f4f27b09`, **not yet pushed / not yet on prod**): the invitation card designer now persists — template, 7 text slots, per-line sizes (`inv_07` `slot_sizes` column), + R2 images (public bucket). 3 owner-only API routes + debounced autosave + resume-editor-if-personalized. Live-verified scenarios 1/2/5 (text+size+template-swap persist across reload). A P0 the click-through caught (Zod v4 exhaustive `z.record` broke ALL saves) is fixed. Report: `docs/session-reports/2026-08-24-invitations-persistence-session-report.md`.
 

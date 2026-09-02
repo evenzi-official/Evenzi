@@ -1,19 +1,22 @@
 import Link from "next/link";
 import { SUPPORT_MAILTO } from "@/lib/constants/support";
+import { getAppBaseUrl } from "@/lib/url";
 
 type FooterLink = { label: string; href: string };
 
+const APP_BASE_URL = getAppBaseUrl();
+
 const PRODUCT_LINKS: FooterLink[] = [
-  { label: "Guest Management", href: "/auth" },
-  { label: "Digital Invitations", href: "/auth" },
-  { label: "Event Website", href: "/auth" },
-  { label: "Budget Tracker", href: "/auth" },
-  { label: "Photo Gallery", href: "/auth" },
-  { label: "Planning Tools", href: "/auth" },
+  { label: "Guest Management", href: `${APP_BASE_URL}/auth` },
+  { label: "Digital Invitations", href: `${APP_BASE_URL}/auth` },
+  { label: "Event Website", href: `${APP_BASE_URL}/auth` },
+  { label: "Budget Tracker", href: `${APP_BASE_URL}/auth` },
+  { label: "Photo Gallery", href: `${APP_BASE_URL}/auth` },
+  { label: "Planning Tools", href: `${APP_BASE_URL}/auth` },
 ];
 
 const SUPPORT_LINKS: FooterLink[] = [
-  { label: "Help & Support", href: "/help" },
+  { label: "Help & Support", href: `${APP_BASE_URL}/help` },
   { label: "Privacy Policy", href: "/legal/privacy" },
   { label: "Terms of Service", href: "/legal/terms" },
   { label: "Contact Us", href: SUPPORT_MAILTO() },
