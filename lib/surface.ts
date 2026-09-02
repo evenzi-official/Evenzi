@@ -58,6 +58,15 @@ export function resolveSurface({
   switch (hostname) {
     case 'app.evenzii.com':
     case 'app.localhost':
+    // Staging alias defaults to 'app' (not the unrecognized-host default of
+    // 'marketing'): most in-app navigation (redirects, router.push) does not
+    // carry the ?surface= override forward, so without an explicit case here
+    // any client-side navigation on this host — e.g. straight after OTP
+    // verify — would silently fall through to marketing and 404. ?surface=
+    // still overrides this for testing the other two surfaces (see
+    // SURFACE_OVERRIDE_ALLOWED_PROD_HOSTS above). Real unrecognized hosts are
+    // unaffected and still default to 'marketing'.
+    case 'evenzi.vercel.app':
       return 'app'
     case 'admin.evenzii.com':
     case 'admin.localhost':
