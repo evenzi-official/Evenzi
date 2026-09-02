@@ -2,6 +2,11 @@ export type Surface = 'marketing' | 'app' | 'admin'
 
 const SURFACE_PREFIXES = ['/app', '/marketing', '/admin'] as const
 const VALID_SURFACES = new Set<Surface>(['marketing', 'app', 'admin'])
+// Vercel-assigned staging alias (not a real evenzii.com host) — lets the
+// preview override work here even on the production-target deploy, so the
+// split is testable before app.evenzii.com/admin.evenzii.com are attached.
+// Does NOT bypass the admin auth gate (ADMIN_USER_IDS), which runs downstream.
+const SURFACE_OVERRIDE_ALLOWED_PROD_HOSTS = new Set(['evenzi.vercel.app'])
 
 function hostnameFromHeader(host: string | null): string {
   if (!host) return ''
@@ -32,12 +37,25 @@ export function resolveSurface({
   forwardedHost?: string | null
   vercelEnv?: string
 }): Surface {
-  if (vercelEnv !== 'production' && process.env.NODE_ENV !== 'production') {
+  const hostname = hostnameFromHeader(host)
+
+  // Trust VERCEL_ENV when Vercel sets it (accurate for every real deployment,
+  // preview or production). Only fall back to NODE_ENV when VERCEL_ENV is
+  // absent — e.g. a self-hosted `next build && next start` with no Vercel
+  // context. NODE_ENV alone is NOT a valid signal on Vercel: `next build`
+  // always bakes in NODE_ENV=production, for preview deploys too, so using
+  // it as a second required condition (the old `&&`) silently disabled the
+  // override on every real deployment, not just production.
+  const isProductionRuntime = vercelEnv
+    ? vercelEnv === 'production'
+    : process.env.NODE_ENV === 'production'
+
+  if (!isProductionRuntime || SURFACE_OVERRIDE_ALLOWED_PROD_HOSTS.has(hostname)) {
     const previewOverride = overrideSurface(surfaceParam) ?? overrideSurface(surfaceHeader)
     if (previewOverride) return previewOverride
   }
 
-  switch (hostnameFromHeader(host)) {
+  switch (hostname) {
     case 'app.evenzii.com':
     case 'app.localhost':
       return 'app'

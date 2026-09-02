@@ -67,6 +67,45 @@ describe('surface resolution', () => {
       else process.env.VERCEL_ENV = originalVercelEnv
     }
   })
+
+  it('honors overrides on a real Vercel preview deploy (NODE_ENV=production is always true post-build)', () => {
+    // Regression: `next build` always bakes NODE_ENV=production, on preview
+    // deploys too. VERCEL_ENV is the only signal that actually distinguishes
+    // preview from production on Vercel, so it must be trusted on its own
+    // whenever Vercel sets it — requiring NODE_ENV!=='production' too made
+    // the override dead code on every real deployment.
+    vi.stubEnv('NODE_ENV', 'production')
+    try {
+      expect(resolveSurface({
+        host: 'preview-123.vercel.app',
+        surfaceParam: 'admin',
+        vercelEnv: 'preview',
+      })).toBe('admin')
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
+
+  it('honors overrides on the evenzi.vercel.app staging alias even under VERCEL_ENV=production', () => {
+    expect(resolveSurface({
+      host: 'evenzi.vercel.app',
+      surfaceParam: 'admin',
+      vercelEnv: 'production',
+    })).toBe('admin')
+    expect(resolveSurface({
+      host: 'evenzi.vercel.app',
+      surfaceParam: 'app',
+      vercelEnv: 'production',
+    })).toBe('app')
+  })
+
+  it('still ignores overrides on the real production host, not just the staging alias', () => {
+    expect(resolveSurface({
+      host: 'evenzii.com',
+      surfaceParam: 'admin',
+      vercelEnv: 'production',
+    })).toBe('marketing')
+  })
 })
 
 describe('pathname normalization', () => {
