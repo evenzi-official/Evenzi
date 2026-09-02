@@ -19,8 +19,22 @@ describe('surface resolution', () => {
     ['marketing.localhost:3000', 'marketing'],
     ['app.evenzii.com.attacker.com', 'marketing'],
     ['app.evil.com', 'marketing'],
+    ['evenzi.vercel.app', 'app'],
+    ['evenzi.vercel.app.attacker.com', 'marketing'],
   ])('maps %s to %s', (host, expected) => {
     expect(resolveSurface({ host })).toBe(expected as Surface)
+  })
+
+  it('defaults evenzi.vercel.app to app even with no override present, so client-side redirects that drop ?surface= still land correctly', () => {
+    // Regression: post-OTP-verify does an in-app redirect (e.g. to
+    // /auth/role-selection) without carrying ?surface=app forward. Without
+    // an explicit host case, that request would fall through to the
+    // unrecognized-host default ('marketing') and 404, breaking login for
+    // anyone clicking through on the staging alias.
+    expect(resolveSurface({
+      host: 'evenzi.vercel.app',
+      vercelEnv: 'production',
+    })).toBe('app')
   })
 
   it('ignores x-forwarded-host when resolving the surface', () => {
