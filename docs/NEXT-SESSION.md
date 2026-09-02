@@ -4,17 +4,28 @@
 
 ---
 
-## ▶ START HERE NEXT — Subdomain split built, NOT yet merged (2026-08-30)
+## ▶ START HERE NEXT — Subdomain split MERGED + LIVE on evenzi.vercel.app (2026-09-02)
 
-**On `feature/subdomain-split` (off `Dev-Vibe` `13f44807`, pushed, 4 commits — `881d8a94` → `8167ec45`). NOT merged to `Dev-Vibe`; held for founder QA + merge decision.** Full detail: [`docs/session-reports/2026-08-30-subdomain-split-session-report.md`](session-reports/2026-08-30-subdomain-split-session-report.md). Spec: [`docs/superpowers/specs/2026-08-30-subdomain-split-design.md`](superpowers/specs/2026-08-30-subdomain-split-design.md). Build-doc + cutover runbook: [`docs/sprint/sprint-1/handoff-subdomain-split.md`](sprint/sprint-1/handoff-subdomain-split.md).
+**Merged `feature/subdomain-split` → `Dev-Vibe` → `Dev-Vibe-Testing` (production). Live on `evenzi.vercel.app` right now — real `evenzii.com`/`app.evenzii.com`/`admin.evenzii.com` domains deliberately NOT attached yet (founder: "forget evenzii.com domain for now").** Full detail: [`docs/session-reports/2026-09-02-subdomain-split-live-qa-session-report.md`](session-reports/2026-09-02-subdomain-split-live-qa-session-report.md). Prior build session: [`docs/session-reports/2026-08-30-subdomain-split-session-report.md`](session-reports/2026-08-30-subdomain-split-session-report.md). Spec: [`docs/superpowers/specs/2026-08-30-subdomain-split-design.md`](superpowers/specs/2026-08-30-subdomain-split-design.md).
 
-**Done (nothing to re-do):** three host-routed surfaces in one Next app — marketing `evenzii.com` / app `app.evenzii.com` / admin `admin.evenzii.com` via `middleware.ts` host rewrites. Pass 1 (structural move into `app/{app,marketing,admin}/`, live-component extraction) + Pass 2 (exact-host allowlist, fail-closed admin gate, preview `?surface` override, per-surface CSP, cookie-safe rewrites) + 3 council-code hardenings. Live-QA found + fixed an admin-403-rewrite content-leak bug (`8167ec45`). Gates green: tsc 0, tests 352/353 (1 known), build ok, middleware 20/20. Repo cleanup also done on `Dev-Vibe` (6 branches deleted, `landing-page/` removed, docs rescued).
+**Done (nothing to re-do):** three host-routed surfaces in one Next app. All 3 manual-QA legs from the prior session now pass (OTP verify → `/home`, admin allowlisted-success, OTP-code render). **Two live-deploy bugs found + fixed this session** (neither existed in local `npm run dev` — both only surfaced against a real `next build`):
+1. `?surface=` preview override was dead on every real Vercel deployment, preview or production (`lib/surface.ts` gated it on `NODE_ENV!=='production'`, but Next.js always bakes `NODE_ENV=production` into any build) — fixed (`fdddb639`).
+2. `evenzi.vercel.app` defaulted to the `marketing` surface instead of `app`, so the post-OTP client-side redirect (which doesn't carry `?surface=` forward) 404'd — broke login for anyone clicking through by hand, not just automated testing. Fixed with an explicit host case, same pattern as `app.localhost` (`ce93819a`).
+
+Both fixes verified live: full OTP login → `/home`, admin allowlisted → placeholder, admin signed-out → 403, marketing → landing, all on `evenzi.vercel.app`. 4 env vars added to Vercel (Production + Preview): `NEXT_PUBLIC_APP_URL`/`MARKETING_URL`/`ADMIN_URL` = `https://evenzi.vercel.app` (all three point at the same host until domains attach), `ADMIN_USER_IDS` = the standing test user's UUID (`475f9ebb-6169-471f-a52f-c0e20e35792f`, phone `9999999999`).
+
+**Live test URLs (no domain needed):**
+- App: `https://evenzi.vercel.app/`
+- Marketing: `https://evenzi.vercel.app/?surface=marketing`
+- Admin: `https://evenzi.vercel.app/?surface=admin`
 
 **Fix next (open):**
-1. **Founder decision — merge `feature/subdomain-split` → `Dev-Vibe`** (triggers a Vercel preview). Held this session.
-2. **Founder manual QA legs** (browser automation couldn't finish these): OTP verify → `/home`; admin allowlisted-success (put a real Supabase UUID in `.env.local` `ADMIN_USER_IDS`); confirm the auth-form OTP-code step renders (pre-existing logic, not split-touched — the send leg works).
-3. **Cutover (founder, gated on green preview):** attach `www.`/`admin.`/`app.evenzii.com` then move apex off `evenzi-coming-soon`; set the 4 env vars (Prod + Preview); **add Supabase Auth redirect allowlist `https://app.evenzii.com/auth/callback`** (required or OAuth/OTP break); flip Allow-manual-linking ON; repoint the push webhook. Runbook: spec §15 + the Cutover & QA artifact.
-4. Parked cleanup: `qa/` 19 MB history purge; DB fixtures (`e2e-truth-audit` + Account B).
+1. **Founder decision — when to attach real domains** (`evenzii.com`/`app.evenzii.com`/`admin.evenzii.com`). Deliberately deferred this session.
+2. **Before that cutover — check what `evenzii.com` apex is currently pointed at.** Not visible in either Vercel project's domain list (`evenzi` or `evenzi-coming-soon`) — `www.evenzii.com` is confirmed on `evenzi-coming-soon`, but the bare apex's DNS/registrar state is unverified. The original runbook assumed the apex was the only conflict; live checking found the opposite (`www` is the one that needs to move).
+3. **Cutover itself (founder, once domains are ready):** attach `app.evenzii.com` + `admin.evenzii.com` first (zero conflict, unclaimed), verify, then resolve `www.evenzii.com`/apex last; set the 4 env vars to the real domains; **add Supabase Auth redirect allowlist `https://app.evenzii.com/auth/callback`** (required or OAuth/OTP break); flip Allow-manual-linking ON; repoint the push webhook. Runbook: spec §15 + `docs/sprint/sprint-1/handoff-subdomain-split.md` §4 (note: §4's "add www.evenzii.com first" ordering is now known-wrong per point 2 above — verify apex/www state before following it).
+4. **Not fixed, flagged only:** production build 404s the static `/marketing` page on ANY query string present (repros with `?foo=bar`, doesn't happen in `npm run dev`) — will break real UTM/ad-campaign links once the apex goes live. Root cause not yet investigated.
+5. **Housekeeping:** `feature/subdomain-split` is fully merged into both `Dev-Vibe` and `Dev-Vibe-Testing` — safe to delete once founder confirms no further QA needed on it.
+6. Parked cleanup: `qa/` 19 MB history purge; DB fixtures (`e2e-truth-audit` + Account B).
 
 **Note:** `designs/` deliberately stays a standalone `npm run design` workshop — not a deployed surface (founder decision, in spec non-goals).
 
