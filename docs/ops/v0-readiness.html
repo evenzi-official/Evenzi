@@ -325,17 +325,64 @@
       <p class="masthead-sub">V0 Readiness — MVP feature matrix, full wiring audit (every button/CTA traced end to end), and the launch-readiness backlog.</p>
     </div>
     <div class="masthead-meta">
-      <div class="who">Dev-Vibe-Testing → evenzi.vercel.app (Dev/UAT)</div>
-      <div>audited 2026-08-03 · DP 08-05 · push 08-06 · collab invite 08-07 · platform truth Stage 1+2 + prod-risk PR-1 fix 2026-08-07 · frontend-QA + legal pages + favicon 08-22 · live sweep + busy-overlay rollout 08-23 · 6 sweep bugs + CTA gating + Our Journey 1:1 rebuild → prod <code>3019f38e</code> 08-23</div>
-      <div style="margin-top:4px; color:var(--muted-soft)">Stage 2 code on <code>feature/platform-truth-audit</code> — commit + merge + deploy still pending · 08-22: legal pages live, favicon wired, Media dead controls fixed, Q5 Billing CTA confirmed done · 08-23: full authenticated click-through sweep + platform-wide screen-freeze &amp; destructive-confirm on <code>Dev-Vibe</code></div>
+      <div class="who">Dev-Vibe-Testing → evenzi.vercel.app (3 host-routed surfaces: app · marketing · admin)</div>
+      <div>audited 2026-08-03 · DP 08-05 · push 08-06 · collab invite 08-07 · platform truth 08-07 · frontend-QA + legal + favicon 08-22 · live sweep + busy-overlay 08-23 · WhatsApp invites + green-up 08-26 · <b>subdomain split merged + live 09-02</b> · <b>launch-QA: 2 guest-facing P0s fixed 09-05</b></div>
+      <div style="margin-top:4px; color:var(--muted-soft)">Latest 2026-09-05: full live click-through on <code>evenzi.vercel.app</code> caught two subdomain-split regressions that white-screened public surfaces — the guest site <code>/e/[slug]</code> (every WhatsApp invite link) and <code>/help</code>. Both fixed + verified live, plus the guest-list RSVP pill placement and an unassigned-guest copy fix. Fixture events purged from the test account. Real <code>evenzii.com</code> domains still deferred (founder).</div>
     </div>
   </div>
 
   <div class="launch-strip">
-    <div class="launch-item"><span class="launch-lbl">Launch date</span><span class="launch-val">Aug 31, 2026</span></div>
-    <div class="launch-item"><span class="launch-lbl">App — Dev/UAT</span><a class="launch-val link" href="https://evenzi.vercel.app" target="_blank" rel="noopener">evenzi.vercel.app</a></div>
-    <div class="launch-item"><span class="launch-lbl">Marketing</span><a class="launch-val link" href="https://www.evenzii.com" target="_blank" rel="noopener">www.evenzii.com</a></div>
-    <div class="launch-item"><span class="launch-lbl">App production (later)</span><span class="launch-val">app.evenzii.com — not connected</span></div>
+    <div class="launch-item"><span class="launch-lbl">App</span><a class="launch-val link" href="https://evenzi.vercel.app" target="_blank" rel="noopener">evenzi.vercel.app</a></div>
+    <div class="launch-item"><span class="launch-lbl">Marketing</span><a class="launch-val link" href="https://evenzi.vercel.app/?surface=marketing" target="_blank" rel="noopener">?surface=marketing</a></div>
+    <div class="launch-item"><span class="launch-lbl">Admin</span><a class="launch-val link" href="https://evenzi.vercel.app/?surface=admin" target="_blank" rel="noopener">?surface=admin</a></div>
+    <div class="launch-item"><span class="launch-lbl">Real domains</span><span class="launch-val">evenzii.com / app.evenzii.com / admin.evenzii.com — deferred</span></div>
+  </div>
+
+  <!-- ── SUBDOMAIN SPLIT + LATEST SESSION 2026-09-05 ─────── -->
+  <style>
+    .split-note { background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-clay); padding: 16px 18px; margin-bottom: 14px; }
+    .split-note h4 { margin: 0 0 6px; font-size: 13.5px; font-weight: 800; color: var(--ink); }
+    .split-note p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+    .split-note code { font-family: var(--font-mono); font-size: 11.5px; background: var(--line-soft); border-radius: 4px; padding: 1px 5px; }
+    .surface-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .surface-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 3px 11px; border: 1px solid; }
+    .surface-chip.live { background: var(--success-tint); color: var(--success-ink); border-color: var(--success-rim); }
+    .surface-chip.pending { background: var(--warning-tint); color: var(--warning-ink); border-color: var(--warning-rim); }
+  </style>
+  <div class="section">
+    <div class="section-head">
+      <h2>Latest — 2026-09-05 launch-QA + subdomain split</h2>
+      <span class="hint">Full live click-through on <code>evenzi.vercel.app</code> · fixes shipped same day to prod <code>2c27bdf8</code></span>
+    </div>
+
+    <div class="split-note">
+      <h4>Subdomain split — merged + live (2026-09-02)</h4>
+      <p>One Next.js app now serves three host-routed surfaces via middleware host-resolution + internal rewrite. Live on <code>evenzi.vercel.app</code> today; the real <code>evenzii.com</code> / <code>app.evenzii.com</code> / <code>admin.evenzii.com</code> domains are deliberately not attached yet (founder). Two live-deploy-only bugs were found and fixed at cutover (the <code>?surface=</code> override was dead on real builds; <code>evenzi.vercel.app</code> defaulted to marketing not app).</p>
+      <div class="surface-row">
+        <span class="surface-chip live">● App surface — live</span>
+        <span class="surface-chip live">● Marketing surface — live (landing)</span>
+        <span class="surface-chip pending">● Admin surface — allowlisted placeholder; Admin Module not built</span>
+      </div>
+    </div>
+
+    <div class="fixlog-wrap">
+      <table class="fixlog">
+        <thead>
+          <tr><th>#</th><th>Finding</th><th>Severity</th><th>Root cause</th><th>Fixed</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">1</td><td><b>Public guest site <code>/e/[slug]</code> white-screened</b> — every WhatsApp invite link hit "Application error" for every guest</td><td><span class="who who-abh">P0</span></td><td>Subdomain split (<code>881d8a94</code>) moved <code>BusyProvider</code> into <code>app/app/layout.tsx</code>; the guest site lives at <code>app/e/</code> outside it, so <code>useBusy()</code> threw</td><td class="date">2026-09-05</td><td><span class="fx-status fx-live">Live · verified</span></td></tr>
+          <tr><td class="num">2</td><td><b>Help Centre <code>/help</code> rendered blank</b> — public "Need help?" link dead</td><td><span class="who who-abh">P0</span></td><td>A strict <code>default-src 'self'</code> CSP (no <code>script-src</code>) blocked Next.js inline hydration scripts → React #423. Loosened to allow Next + Google Fonts; <code>/help</code> markdown is already server-sanitised</td><td class="date">2026-09-05</td><td><span class="fx-status fx-live">Live · verified</span></td></tr>
+          <tr><td class="num">3</td><td><b>Guest-list RSVP pill placement</b> — status pill dropped bottom-left instead of right-aligned in the RSVP column</td><td><span class="who who-cursor">Layout</span></td><td>Pill rendered as a sibling of <code>.guest-row-surface</code>, so its <code>grid-area: rsvp</code> had no grid to resolve against; moved inside the surface</td><td class="date">2026-09-05</td><td><span class="fx-status fx-live">Live</span></td></tr>
+          <tr><td class="num">4</td><td><b>Unassigned-guest warning copy</b> — "1 guest aren't invited…" (verb didn't agree)</td><td><span class="who who-cursor">Copy</span></td><td>Banner pluralised the noun but not the verb; now "isn't"/"aren't" by count</td><td class="date">2026-09-05</td><td><span class="fx-status fx-live">Live</span></td></tr>
+          <tr><td class="num">5</td><td><b>Fixture cleanup</b> — 5 stale test-account events hard-deleted (cascade), keeping the primary QA event</td><td><span class="who who-claude">Data</span></td><td>Done via SQL (the app's Delete button is soft-delete only, no cascade — logged as a platform soft-delete-policy backlog item)</td><td class="date">2026-09-05</td><td><span class="fx-status fx-live">Done</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="fixlog-key">
+      <span><b class="who-abh" style="color:var(--brand)">Founder</b> flagged the guest pill live · <b style="color:var(--info)">Claude</b> ran the click-through, diagnosed the P0 regressions, fixed + verified live on prod.</span>
+      <span style="color:var(--muted-soft)">Verified on a fresh browser tab on <code>evenzi.vercel.app</code>: guest site + <code>/help</code> render clean, zero console errors.</span>
+    </div>
   </div>
 
   <!-- ── FIX LOG — 2026-08-23 SESSION ────────────────────── -->
@@ -934,11 +981,11 @@
         <summary>
           <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           <span class="acc-name">Admin Module (Developer Panel)</span>
-          <span class="acc-pills"><span class="pill none" title="Data">–</span><span class="pill none" title="Backend">–</span><span class="pill none" title="Frontend">–</span></span>
-          <span class="acc-count">confirmed nonexistent</span>
+          <span class="acc-pills"><span class="pill none" title="Data">–</span><span class="pill partial" title="Backend">~</span><span class="pill none" title="Frontend">–</span></span>
+          <span class="acc-count">surface live · module pending</span>
         </summary>
         <div class="acc-body">
-          <p class="acc-note">No platform-level admin panel exists anywhere. The per-event "admins" UI is the collaborator/co-host feature, already covered under Event Settings. <code>app/dev/</code> and <code>app/api/dev/</code> are a dev-only Cloudflare R2 upload test spike — both API routes explicitly <code>return 404 in NODE_ENV === 'production'</code>. Not started, confirmed by code, not just by absence.</p>
+          <p class="acc-note"><b>Updated 2026-09-05:</b> the subdomain split added a real <b>admin surface</b> — host-routed (<code>app/admin/</code>), gated fail-closed by an <code>ADMIN_USER_IDS</code> allowlist (non-allowlisted users get a clean 403; the terminal 403 is not rewritten, so no content leak). But it currently renders only a <b>placeholder</b> — the actual Admin Module / developer panel (user &amp; event management, moderation, ops dashboards) is <b>still not built</b>. RBAC is a temporary env allowlist, to be replaced with a <code>role_slug='admin'</code> + RLS model. The per-event "admins" UI is the separate collaborator/co-host feature under Event Settings. Net: <b>surface live, module pending</b>.</p>
         </div>
       </details>
 
@@ -1004,7 +1051,8 @@
           <li class="done"><span class="strike">Favicon + Apple/Android home-screen icons</span> — <code>/icon.svg</code> created, <code>app/manifest.ts</code> SVG entry added, <code>app/icon.svg</code> file convention active after dev restart. 2026-08-22</li>
           <li>Optional: Website → Photos ↔ Media bridge (which photos appear on the guest site)</li>
           <li>Optional: one logged-in R2 upload smoke test on <code>evenzi.vercel.app</code> (PR-3)</li>
-          <li>Fixture cleanup — the <code>e2e-truth-audit</code> event is deliberately kept until the founder says otherwise</li>
+          <li class="done"><span class="strike">Fixture cleanup</span> — 5 stale test-account events (incl. <code>e2e-truth-audit</code>, the A&amp;B 6-function demo) hard-deleted with cascade 2026-09-05; primary QA event kept. R2 blobs left orphaned (test data)</li>
+          <li>Platform soft-delete / data-lifecycle policy <span class="tag">backlog</span> — the app's Delete button is soft-delete only and does <b>not</b> cascade; children are retained/orphaned. Needs a retention window + purge job (incl. R2) + admin hard-delete. Logged in NEXT-SESSION</li>
         </ul>
       </div>
       <div class="domain-card">
@@ -1090,8 +1138,8 @@
       <div class="issue info">
         <div class="stripe"></div>
         <div class="body">
-          <b>Which host is what — locked 2026-08-07, do not mislabel</b>
-          <span><code>evenzi.vercel.app</code> is the <b>app Dev/UAT</b> host (Vercel project <code>evenzi</code>, production alias tracking <code>Dev-Vibe-Testing</code>). <code>evenzii.com</code> and <code>www.evenzii.com</code> are the <b>marketing</b> site on a separate <code>evenzi-coming-soon</code> project. <code>app.evenzii.com</code> is the <b>future app production</b> URL and is not connected yet. Two consequences: a missing <code>/sw.js</code> on the marketing host is expected rather than an app bug, and GitHub <code>main</code> lagging <code>Dev-Vibe</code> by 343 commits is git hygiene, not "production is running old code."</span>
+          <b>Which host is what — updated 2026-09-02 (subdomain split live)</b>
+          <span>As of the split, <b>one Next.js app</b> serves all three surfaces from <code>evenzi.vercel.app</code> via middleware host-resolution + internal rewrite: the default is the <b>app</b> surface, <code>?surface=marketing</code> renders the landing site, and <code>?surface=admin</code> renders the allowlisted admin placeholder. The real <code>evenzii.com</code> / <code>app.evenzii.com</code> / <code>admin.evenzii.com</code> domains are <b>deliberately not attached yet</b> (founder). The old separate <code>evenzi-coming-soon</code> marketing project still holds <code>www.evenzii.com</code> until cutover. Cutover checklist (spec §15): attach app+admin first, set the real-domain env vars, add the Supabase Auth redirect allowlist for <code>app.evenzii.com/auth/callback</code>, flip Allow-manual-linking ON, repoint the push webhook.</span>
         </div>
         <div class="kind">Locked 08-07</div>
       </div>
@@ -1131,7 +1179,7 @@
   </div>
 
   <footer>
-    <span>Derived from repo state, Supabase, and Vercel — not ClickUp. 08-03 baseline · 08-05 DP · 08-06 push · 08-07 collab invite · 08-07 platform truth Stage 1+2 + prod-risk · 08-22 frontend-QA (legal pages, favicon, dead controls). Canonical: <code>docs/ops/v0-readiness.html</code> · Claude.ai <code>9e517318…</code>.</span>
+    <span>Derived from repo state, Supabase, and Vercel — not ClickUp. 08-03 baseline · 08-05 DP · 08-06 push · 08-07 collab invite + platform truth · 08-22 frontend-QA · 08-23 live sweep · 08-24 invitations persistence · 08-26 WhatsApp invites + green-up · 09-02 subdomain split live · <b>09-05 launch-QA (2 guest-facing P0s fixed live)</b>. Canonical: <code>docs/ops/v0-readiness.html</code> (repo mirror pending commit — this republish is the live source).</span>
     <span>Evenzi · Dev-Vibe-Testing</span>
   </footer>
 

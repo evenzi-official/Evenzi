@@ -4,6 +4,24 @@
 
 ---
 
+## ▶ START HERE NEXT — 2026-09-05 launch-QA: 2 guest-facing P0 regressions fixed live
+
+Full live click-through of `evenzi.vercel.app` for launch V0 readiness. Found and fixed **two subdomain-split regressions that the 2026-09-02 QA missed** (it only exercised app-surface login/nav, never the public `/e/` render or `/help`):
+
+1. **Public guest site `/e/[slug]` white-screened for every guest** — the WhatsApp-invite destination was dead. `BusyProvider` had been moved into `app/app/layout.tsx` by the split (`881d8a94`), orphaning the guest site at `app/e/` (outside `app/app/`); its `useBusy()` calls threw. **Fixed:** new `app/e/layout.tsx` restoring the provider.
+2. **`/help` rendered blank** — the strict `/help` CSP (`default-src 'self'`, no `script-src`) blocked Next.js inline hydration scripts. **Fixed:** loosened the CSP in `next.config.js` + `middleware.ts` (admin CSP too) to `script-src 'self' 'unsafe-inline'` + Google Fonts; `/help` markdown is already server-sanitised.
+
+Plus the founder-flagged **guest-list RSVP pill placement** (moved inside `.guest-row-surface` so `grid-area:rsvp` resolves) and an **unassigned-guest copy fix** ("1 guest isn't…"). All verified against a real prod build and live on a fresh `evenzi.vercel.app` tab (zero console errors).
+
+**Shipped:** `Dev-Vibe` `0dca87bf` → `Dev-Vibe-Testing` `2c27bdf8` (prod deploy `dpl_CE2B9e3…` READY). **Fixtures purged:** 5 stale test-account events hard-deleted (cascade); primary QA event `477dcaa8` kept. **V0 Readiness artifact** updated + republished + repo mirror `docs/ops/v0-readiness.html` synced.
+
+**Open next session:**
+1. **Merge the tail commits to prod** — `5d224295` (guest copy fix + this backlog doc) and the `docs/ops/v0-readiness.html` mirror update are on `Dev-Vibe` (pushed) but the **prod merge was blocked mid-session by the auto-mode git classifier**. `git switch` works, `git checkout`/`git merge` were denied — merge `Dev-Vibe` → `Dev-Vibe-Testing` when unblocked. (The P0 fixes themselves are already live on prod.)
+2. **Platform soft-delete / data-lifecycle policy** — see the backlog block below.
+3. Remaining minor debt: fixture R2 blobs left orphaned; the marketing-page query-string 404 (flagged 09-02, still not root-caused).
+
+---
+
 ## ⛏ BACKLOG (logged 2026-09-05) — data-lifecycle / soft-delete policy
 
 Founder-requested design task, deferred for its own session. Do NOT bolt onto a QA session.
