@@ -47,9 +47,14 @@ function applySurfaceHeaders(
   if (surface === 'admin') {
     const isAdminAuthPath = pathname === '/auth' || pathname?.startsWith('/auth/')
     if (!isAdminAuthPath) {
+      // Must stay in sync with the /help CSP in next.config.js. 'unsafe-inline'
+      // scripts are required so Next.js App Router's inline hydration bootstrap
+      // (and the root layout's theme-guard <script>) can run — a strict
+      // default-src 'self' blocks them and white-screens the surface. Google
+      // Fonts is allowed for the Material Symbols icon font used by the layout.
       response.headers.set(
         'Content-Security-Policy',
-        "default-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
       )
     }
     response.headers.set('X-Frame-Options', 'DENY')
