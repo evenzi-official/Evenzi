@@ -4,6 +4,25 @@
 
 ---
 
+## ⛏ BACKLOG (logged 2026-09-05) — data-lifecycle / soft-delete policy
+
+Founder-requested design task, deferred for its own session. Do NOT bolt onto a QA session.
+
+**Current state (verified 2026-09-05):**
+- The app's **Delete event** button is a **soft-delete only** — `app/api/events/[id]/route.ts:411` does `UPDATE events SET deleted_at = now()`. It does **not** cascade. The event is hidden from reads (`deleted_at is null` filter), but every child row (guests, media, website pages/design, invitations, budget, tasks, etc.) is **retained and orphaned** in the DB.
+- The DB itself has all 32 `events`-referencing FKs set to `ON DELETE CASCADE`, so a **hard** `DELETE FROM events` purges everything — but there is no app UI/endpoint that hard-deletes. (Admin Module, which would own a hard purge, is not built.)
+- R2 media blobs are never touched by either path — even a hard cascade only removes `event_media` rows, leaving the Cloudflare objects orphaned.
+
+**Decisions to make in the spec:**
+1. Platform-wide soft-delete convention — which entities get `deleted_at`, and read paths consistently filtering it (RLS vs app-level).
+2. Retention window + a purge job (cron) that hard-deletes soft-deleted rows after N days, including R2 object cleanup.
+3. Whether the user-facing Delete should stay soft (recoverable "Trash") and hard-purge move to an admin action + the retention job.
+4. Founder intent (2026-09-05): "delete event should cascade on everything" — reconcile with keeping a recovery window.
+
+**Fixture cleanup already done this session:** 5 test-account fixture events hard-deleted via SQL (`db6a6dc2`, `d63f20d0`, `462dadb4`, `f990d6d7`=e2e-truth-audit, `7353ca9d`=A&B 6-fn demo). Kept the primary QA event `477dcaa8`. R2 blobs for those left orphaned (acceptable — test data).
+
+---
+
 ## ▶ START HERE NEXT — Subdomain split MERGED + LIVE on evenzi.vercel.app (2026-09-02)
 
 **Merged `feature/subdomain-split` → `Dev-Vibe` → `Dev-Vibe-Testing` (production). Live on `evenzi.vercel.app` right now — real `evenzii.com`/`app.evenzii.com`/`admin.evenzii.com` domains deliberately NOT attached yet (founder: "forget evenzii.com domain for now").** Full detail: [`docs/session-reports/2026-09-02-subdomain-split-live-qa-session-report.md`](session-reports/2026-09-02-subdomain-split-live-qa-session-report.md). Prior build session: [`docs/session-reports/2026-08-30-subdomain-split-session-report.md`](session-reports/2026-08-30-subdomain-split-session-report.md). Spec: [`docs/superpowers/specs/2026-08-30-subdomain-split-design.md`](superpowers/specs/2026-08-30-subdomain-split-design.md).

@@ -404,7 +404,7 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
         {zeroAssignedCount > 0 && (
           <div className="gm-warn-banner" role="status">
             <span aria-hidden="true" className="material-symbols-outlined">warning</span>
-            <span><strong>{zeroAssignedCount}</strong> guest{zeroAssignedCount === 1 ? '' : 's'} aren&apos;t invited to any function — they&apos;ll see nothing.</span>
+            <span><strong>{zeroAssignedCount}</strong> guest{zeroAssignedCount === 1 ? " isn't" : "s aren't"} invited to any function — they&apos;ll see nothing.</span>
             <button type="button" className="gm-warn-review" onClick={() => setOnlyUnassigned((v) => !v)}>
               {onlyUnassigned ? 'Show all' : 'Review'}
             </button>
