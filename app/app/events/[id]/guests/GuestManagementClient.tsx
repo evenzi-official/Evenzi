@@ -494,15 +494,21 @@ export function GuestManagementClient({ initialData }: { initialData: GuestManag
                       })}
                       {g.tagIds.length > 2 && <span className="tag-chip tag-chip-more">+{g.tagIds.length - 2}</span>}
                     </div>
+                    {/* RSVP pill must live INSIDE .guest-row-surface so its
+                        `grid-area: rsvp` resolves against the surface grid
+                        ("avatar id rsvp" / "avatar meta meta") and it sits
+                        right-aligned in the row. Rendered as a sibling of the
+                        surface, grid-area had no grid to resolve against and the
+                        pill dropped to block flow (bottom-left). */}
+                    <button
+                      type="button" className={`guest-row-rsvp status-badge status-${status?.slug ?? 'pending'}`}
+                      aria-haspopup="true" aria-label={`RSVP for ${g.name}: ${status?.name ?? 'Pending'}. Tap to change.`}
+                      onClick={(e) => setPicker({ kind: 'rsvp', guestId: g.id, anchorRect: e.currentTarget.getBoundingClientRect() })}
+                    >
+                      <span className="status-dot" aria-hidden="true" /> {status?.name ?? 'Pending'}
+                      <span aria-hidden="true" className="material-symbols-outlined">expand_more</span>
+                    </button>
                   </div>
-                  <button
-                    type="button" className={`guest-row-rsvp status-badge status-${status?.slug ?? 'pending'}`}
-                    aria-haspopup="true" aria-label={`RSVP for ${g.name}: ${status?.name ?? 'Pending'}. Tap to change.`}
-                    onClick={(e) => setPicker({ kind: 'rsvp', guestId: g.id, anchorRect: e.currentTarget.getBoundingClientRect() })}
-                  >
-                    <span className="status-dot" aria-hidden="true" /> {status?.name ?? 'Pending'}
-                    <span aria-hidden="true" className="material-symbols-outlined">expand_more</span>
-                  </button>
                   {!selecting && (
                     <div className="guest-row-rail" aria-hidden="true">
                       <button
